@@ -1,0 +1,38 @@
+OUTCOME:
+Produce a curated reference frame set of Talanta Stadium from the downloaded YouTube videos, for 3D modeling in Blender and three.js. Output: sharp, non-duplicate frames that show distinct views of the stadium, plus an index that says what each frame shows.
+
+OWNS:
+- research/frames/ (create one subfolder per video, named by the video ID)
+- research/video_index/ (one CSV per video plus one master file)
+- engineering/frame_extract.sh (the script you write and run)
+Do not edit or delete anything in archive/. Do not touch any other folder.
+
+SOURCES AND CONSTRAINTS:
+- Working directory: /home/munene/CEO/14_talanta_twin
+- Videos: archive/video/main/ (one 31-minute video, ID JWNowpO44rw) and archive/video/shorts/ (22 clips). Each video has a .info.json file next to it with the title and URL.
+- Tools: ffmpeg and ffprobe are installed. Python 3 is installed. You have no network access. Do not install packages.
+- Method:
+  1. For each video, extract candidate frames with scene-change detection, for example ffmpeg select='gt(scene,0.25)', plus one frame every 4 seconds as a fallback for slow drone shots.
+  2. Remove blurred frames. Use a Laplacian-variance or similar sharpness score with ffmpeg or plain Python.
+  3. Remove near-duplicates. Use a perceptual hash or a downscaled-difference check.
+  4. Look at the remaining frames (build contact sheets with ffmpeg tile to review them). Keep the frames that show the stadium or its site. Drop talking heads, title cards, text-only frames, and unrelated places.
+  5. Target: 150 to 300 frames from the main video, 5 to 25 frames for each short.
+- File names: <videoID>_<HHMMSS.ms>.jpg, JPEG quality 2, full source resolution.
+- Index columns for each frame: file, video_id, timestamp_s, source_url_with_t, view_class, subject, notes.
+  view_class is one of: aerial_overview, exterior_facade, roof_canopy, bowl_seating, pitch, floodlights, gates_entrances, concourse_interior, landscaping_fountain, roads_parking, night_lighting, construction, other.
+  subject is a few words, for example "south stand seat color pattern".
+- Master file research/video_index/MASTER_INDEX.csv joins all per-video CSVs.
+- Also write research/video_index/COVERAGE.txt: the frame count for each view_class, and a list of views that no frame covers well (for example "no clear frame of the west gates").
+- Use plain text. No asterisks for emphasis in .txt files.
+
+ACCEPTANCE:
+- engineering/frame_extract.sh runs again from the start without errors and gives the same result.
+- Every JPEG in research/frames/ has exactly one row in MASTER_INDEX.csv, and every row points to a file that exists. Write a short Python check for this and report its output.
+- No two kept frames from the same video are near-duplicates by your hash threshold. Report the threshold.
+- COVERAGE.txt exists and lists the gaps.
+- Report: frames kept for each video, total size of research/frames/, and the time the run took.
+
+ESCALATE IF:
+- A video file does not decode, or a video does not show Talanta Stadium at all.
+- The kept set is above 600 frames or below 100 frames.
+- The work needs network access or a new package.
