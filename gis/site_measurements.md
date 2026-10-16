@@ -2,7 +2,7 @@
 
 Date of form: 2026-10-16
 Who measures: Munene or a team member, at a desktop with Google Earth Pro.
-Status: form ready, no measurements yet.
+Status: first entry made (site boundary, 2026-10-16). Pitch, roof and scale checks still open.
 Classification: internal. Gate, parking and access measurements must not appear in a public demo (AGENTS.md rule 8).
 
 ## Rules
@@ -13,6 +13,11 @@ Classification: internal. Gate, parking and access measurements must not appear 
 4. Measure each item 3 times, starting fresh each time. Do it on 2 different image dates where both show the finished state.
 5. Use the Ruler tool. Line for straight distances, Path for curved edges. Set units to metres.
 6. Record coordinates in decimal degrees (Tools > Options > Show Lat/Long > Decimal Degrees). We convert them to EPSG:32737.
+
+## Imagery available (checked 2026-10-16)
+
+- Newest Google Earth Pro image: **26 Dec 2025, Airbus**. The steel roof ring is up but the cladding is not finished (Sentinel-2 shows the ring complete from Feb 2026). Measure the outer edge of the roof structure on it and mark the rows "Dec 2025 frame". Repeat when a newer image appears.
+- Zoom in to an eye altitude of 500 m or less before you measure. The screenshot of the boundary was at 4.27 km.
 
 ## Scale check first
 
@@ -65,7 +70,7 @@ Height = shadow length x tan(sun elevation). The lead computes the sun elevation
 | Training pitch 1 and 2: length, width | Line | | | | |
 | Mini-stadium: outline | Path | | | | |
 | Access road widths, 5 samples | Line kerb to kerb, with location | | | | |
-| Site boundary fence | Path | | | | |
+| Site boundary fence | Path | 8-point polygon: 33.87 ha, perimeter 2,349 m. Vertices in `measurements/site_boundary_w1b_2026-10-16.csv` | | | 2025-12-26 (Airbus) |
 
 ## Near-ring spot checks
 

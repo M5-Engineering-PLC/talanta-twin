@@ -27,6 +27,10 @@ CRS: EPSG:32737 (WGS 84 / UTM 37S) for every output.
    The values for Feb 2024 (5%) come from cloud or bare soil, not the roof. Google Earth images dated before February 2026 show an unfinished roof. Do not measure the roof on them.
 5. **Open Buildings 2.5D Temporal ends at 30 June 2023.** It shows the site before the stadium. It is good for the near ring, not for the bowl.
 
+## First W1b measurement (2026-10-16)
+
+Munene drew the site boundary in Google Earth Pro on the 26 Dec 2025 Airbus image: 8 vertices, **33.87 ha**, perimeter 2,349 m. It follows Ngong Road on the north, the line west of Jamhuri Road on the east, and the Ngong Road Forest Sanctuary edge on the south. It holds the bowl, the training pitches and the warm-up track, and its centroid is 26 m from the bowl centre. The press figure of "more than 45 ha" for Talanta Sports City may include land outside this line. Ask Sports Kenya, or use the Gazette notice, to settle it.
+
 ## Data downloaded (git-ignored, in `gis/raw/`)
 
 Run the scripts in `gis/scripts/` to get the same files on another machine. Order: `fetch_sentinel2.py`, `fetch_open_buildings_temporal.py`, `fetch_dem.py`, `fetch_overture.py`, then `measure_bowl_s2.py` and `derive_near_ring.py`. Use `~/.venvs/gis/bin/python` (geopandas, rasterio, pyproj, pyarrow, scipy, matplotlib).
