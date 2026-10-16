@@ -1,0 +1,29 @@
+Frame count by view class
+aerial_overview: 17
+exterior_facade: 41
+roof_canopy: 18
+bowl_seating: 31
+pitch: 20
+floodlights: 0
+gates_entrances: 0
+concourse_interior: 8
+landscaping_fountain: 7
+roads_parking: 0
+night_lighting: 36
+construction: 24
+other: 16
+
+Coverage gaps by view class
+aerial_overview: No clear high-altitude view shows the full site boundary.
+exterior_facade: No view shows the full facade without vehicles or trees.
+roof_canopy: No close view shows every roof connection detail.
+bowl_seating: No view confirms exact seat dimensions or row counts.
+pitch: No frame provides measured pitch dimensions.
+floodlights: no kept frame. No clear frame isolates the floodlight assemblies.
+gates_entrances: no kept frame. No clear frame shows the west gates or their full layout.
+concourse_interior: No frame shows the complete concourse circulation paths.
+landscaping_fountain: No daylight view shows the full fountain and planting plan.
+roads_parking: no kept frame. No view shows a complete parking layout.
+night_lighting: No frame records calibrated light colors or brightness.
+construction: No frame verifies dimensions of unfinished construction areas.
+other: Reference views do not establish Talanta geometry.

@@ -37,6 +37,14 @@ Build a detailed three.js digital twin of Talanta Stadium (Raila Odinga Talanta 
 - Do not put security-sensitive detail (exits, camera positions, control rooms) into a public demo.
 - Munene buys any domain himself.
 
+## Reference frame set (2026-10-16)
+
+- 218 frames from 22 videos in research/frames/, indexed in research/video_index/MASTER_INDEX.csv. Built by Luna with engineering/frame_extract.sh. The output repeats exactly on a rerun.
+- Coverage and gaps: research/video_index/COVERAGE.txt. No frames show floodlights, gates and entrances, or roads and parking.
+- Video oL3wsPsx4Jw is a third-party 3D render, not real footage. Its seats and roof do not match the real stadium. Do not use it for geometry. It shows that someone else already made a Talanta 3D model.
+- Video PWj9s_v3G6U and the "Nyayo" frames show another venue. Use them only as drone and light show references.
+- Real seat pattern: red seats with black seats in some rows, on grey steel rails (frame JWNowpO44rw_002750.967).
+
 ## Sources of the status facts (retrieved 2026-10-15)
 
 - Citizen Digital, CS Mvurya: Talanta Stadium scheduled to open in November. https://citizen.digital/article/cs-mvurya-talanta-stadium-scheduled-to-open-in-november-n388620
