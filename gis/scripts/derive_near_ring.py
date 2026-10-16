@@ -32,6 +32,8 @@ def buildings():
     b["name"] = b.names.apply(lambda s: first(s, "primary"))
     h = np.full(len(b), np.nan)
     obt = RAW / "open_buildings_temporal" / "2023.tif"
+    if not obt.exists() and "--allow-defaults" not in sys.argv:
+        sys.exit(f"missing {obt}: run fetch_open_buildings_temporal.py 2023, or pass --allow-defaults")
     if obt.exists():
         with rasterio.open(obt) as s:
             hgt = s.read(2); pres = s.read(3)

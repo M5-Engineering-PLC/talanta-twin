@@ -50,7 +50,7 @@ def run(year):
             c0, r0 = int(round((ix0 - x0) / res)), int(round((y1 - iy1) / res))
             out[:, r0:r0 + a.shape[1], c0:c0 + a.shape[2]] = a[:, :H - r0, :W - c0]
     if not found:
-        print(year, "no tiles"); return
+        sys.exit(f"{year}: no Open Buildings tiles found for the AOI")
     OUT.mkdir(parents=True, exist_ok=True)
     with rasterio.open(OUT / f"{year}.tif", "w", driver="GTiff", width=W, height=H, count=3, dtype="float32",
                        crs="EPSG:32737", transform=dst_tr, nodata=-99.0, compress="deflate", predictor=3, tiled=True) as o:
