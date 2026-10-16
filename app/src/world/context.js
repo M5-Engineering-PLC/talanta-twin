@@ -31,29 +31,40 @@ export function makeRoads(pos, w, idx) {
   return m;
 }
 
-// Rounded tree crowns as one instanced mesh (painted-relief look). Data: x, y, z, scale.
-export function makeTrees(data, maxCount) {
-  const n = Math.min(data.length / 4, maxCount);
-  const geo = new THREE.IcosahedronGeometry(1, 1);
-  geo.scale(3.2, 3.6, 3.2); geo.translate(0, 4.2, 0);
+// Trees from Sentinel-2 NDVI (x, y, z, scale). The nearest `detailCount` get a trunk, a raised
+// main crown and a second, smaller crown; the rest stay single crowns (far, painted-relief look).
+export function makeTrees(data, maxCount, detailCount = 2500) {
+  const total = data.length / 4, n = Math.min(total, maxCount);
+  const step = total / n;
+  const picks = [];
+  for (let i = 0; i < n; i++) { const j = Math.floor(i * step) * 4; picks.push({ j, i, d: Math.hypot(data[j], data[j + 2]) }); }
+  picks.sort((a, b) => a.d - b.d);
+  const near = picks.slice(0, Math.min(detailCount, n)), far = picks.slice(near.length);
+
   const mat = new THREE.MeshStandardMaterial({ color: 0x4f6b3a, roughness: 1, flatShading: true });
-  const mesh = new THREE.InstancedMesh(geo, mat, n);
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a4632, roughness: 1 });
+  const blob = new THREE.IcosahedronGeometry(1, 1); blob.scale(3.2, 3.6, 3.2); blob.translate(0, 4.2, 0);
+  const crownA = new THREE.IcosahedronGeometry(1, 1); crownA.scale(3.0, 2.6, 3.0); crownA.translate(0, 6.2, 0);
+  const crownB = new THREE.IcosahedronGeometry(1, 1); crownB.scale(1.9, 1.7, 1.9); crownB.translate(1.7, 4.9, 0.9);
+  const trunk = new THREE.CylinderGeometry(0.22, 0.34, 4.6, 6); trunk.translate(0, 2.3, 0);
+
+  const group = new THREE.Group(); group.name = 'trees';
+  const meshes = [[blob, mat, far], [crownA, mat, near], [crownB, mat, near], [trunk, trunkMat, near]]
+    .filter(([, , list]) => list.length).map(([g, m, list]) => { const im = new THREE.InstancedMesh(g, m, list.length); im.userData.list = list; return im; });
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3(), yAx = new THREE.Vector3(0, 1, 0);
   const col = new THREE.Color();
-  const step = (data.length / 4) / n;
-  for (let i = 0; i < n; i++) {
-    const j = Math.floor(i * step) * 4;
-    const sc = data[j + 3];
-    p.set(data[j], data[j + 1] - 0.5, data[j + 2]);
-    s.set(sc, sc * (0.85 + ((i * 7919) % 30) / 100), sc);
-    q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (i * 2.39996) % 6.283);
-    m.compose(p, q, s);
-    mesh.setMatrixAt(i, m);
-    const t = ((i * 104729) % 100) / 100;
-    col.setRGB(0.27 + 0.1 * t, 0.38 + 0.08 * t, 0.2 + 0.05 * t);
-    mesh.setColorAt(i, col);
+  for (const im of meshes) {
+    const isTrunk = im.material === trunkMat;
+    im.userData.list.forEach(({ j, i }, k) => {
+      const sc = data[j + 3];
+      p.set(data[j], data[j + 1] - 0.5, data[j + 2]);
+      s.set(sc, sc * (0.85 + ((i * 7919) % 30) / 100), sc);
+      q.setFromAxisAngle(yAx, (i * 2.39996) % 6.283);
+      m4.compose(p, q, s); im.setMatrixAt(k, m4);
+      if (!isTrunk) { const t = ((i * 104729) % 100) / 100; col.setRGB(0.27 + 0.1 * t, 0.38 + 0.08 * t, 0.2 + 0.05 * t); if (im.geometry === crownB) col.multiplyScalar(1.12); im.setColorAt(k, col); }
+    });
+    im.castShadow = true; group.add(im);
   }
-  mesh.castShadow = true;
-  mesh.userData.kind = 'trees';
-  return mesh;
+  group.userData.kind = 'trees'; group.userData.mats = [mat, trunkMat]; group.userData.detail = near.length;
+  return group;
 }

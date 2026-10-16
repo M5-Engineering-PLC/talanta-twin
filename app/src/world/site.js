@@ -55,16 +55,18 @@ export function buildSite(features, bowl, groundAt, pad) {
   }
   const basin = new THREE.Mesh(new THREE.PlaneGeometry(poolL, poolW), new THREE.MeshStandardMaterial({ color: '#2f5560', roughness: 0.9 }));
   basin.rotation.x = -Math.PI / 2; basin.position.y = 0.03; fountain.add(basin);
-  const water = new THREE.Mesh(new THREE.PlaneGeometry(poolL, poolW), new THREE.MeshStandardMaterial({ color: '#5f7f8c', roughness: 0.05, metalness: 0.6, emissive: '#3a2a6a', emissiveIntensity: 0 }));
+  // Water: light teal with drifting ripples, a faint emissive floor so it reads by day, pool lights at night.
+  const ripples = rippleTexture(); ripples.repeat.set(poolL / 6, poolW / 6);
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(poolL, poolW), new THREE.MeshStandardMaterial({ color: '#63b3c8', map: ripples, roughness: 0.12, metalness: 0, emissive: '#2a8aa3', emissiveIntensity: 0.12 }));
   water.rotation.x = -Math.PI / 2; water.position.y = waterY; water.name = 'fountain-water'; fountain.add(water);
   // jets: two straight rows and a centre arc (dry-deck nozzles)
   const jets = [];
   for (const row of [-3.5, 3.5]) for (let i = 0; i < 30; i++) jets.push({ x: -poolL / 2 + 3 + (i * (poolL - 6)) / 29, z: row, h: 4, ph: i * 0.37 + (row > 0 ? 1.7 : 0) });
   for (let i = 0; i < 13; i++) { const a = -Math.PI / 2 + (i / 12) * Math.PI; jets.push({ x: Math.sin(a) * 10, z: -Math.cos(a) * 3, h: 8, ph: i * 0.5 }); }
-  const jetGeo = new THREE.CylinderGeometry(0.06, 0.22, 1, 8, 1, true); jetGeo.translate(0, 0.5, 0);
-  const jetMat = new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 0.15, transparent: true, opacity: 0.55, depthWrite: false });
+  const jetGeo = new THREE.CylinderGeometry(0.05, 0.14, 1, 8, 1, true); jetGeo.translate(0, 0.5, 0);
+  const jetMat = new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 0.15, transparent: true, opacity: 0.6, depthWrite: false });
   const jetMesh = new THREE.InstancedMesh(jetGeo, jetMat, jets.length);
-  const capGeo = new THREE.SphereGeometry(0.55, 10, 8);
+  const capGeo = new THREE.SphereGeometry(0.3, 10, 8); capGeo.scale(1, 0.6, 1);
   const capMesh = new THREE.InstancedMesh(capGeo, jetMat, jets.length);
   fountain.add(jetMesh, capMesh);
   g.add(fountain);
@@ -123,8 +125,11 @@ export function buildSite(features, bowl, groundAt, pad) {
     const hue = (time * 0.05) % 1;
     jetMat.emissive.setHSL(night > 0.3 ? 0.75 + 0.2 * Math.sin(time * 0.4) : 0, night > 0.3 ? 0.8 : 0, night > 0.3 ? 0.6 : 1);
     jetMat.emissiveIntensity = 0.15 + night * 2.2;
-    water.material.emissive.setHSL(0.78 + 0.08 * Math.sin(hue * 6.28), 0.7, 0.35);
-    water.material.emissiveIntensity = night * 0.8;
+    ripples.offset.set(time * 0.03, time * 0.017);
+    // Night: pool lights drift between teal and violet; kept soft so the ripples still read.
+    if (night > 0.3) water.material.emissive.setHSL(0.5 + 0.13 * (0.5 + 0.5 * Math.sin(hue * 6.28)), 0.55, 0.42);
+    else water.material.emissive.set('#2a8aa3');
+    water.material.emissiveIntensity = 0.12 + night * 0.55;
     lampMat.emissiveIntensity = night * 6;
     for (let i = 0; i < people.length; i += 7) { const p = people[i]; p.x += Math.cos(p.a) * 0.02 * p.s; p.z += Math.sin(p.a) * 0.02 * p.s; m.makeTranslation(p.x, pad + 0.15, p.z); crowd.setMatrixAt(i, m); }
     crowd.instanceMatrix.needsUpdate = true;
@@ -147,6 +152,20 @@ function plazaTexture() {
     x.fillStyle = 'rgba(120,60,40,0.25)'; x.beginPath(); x.ellipse(w / 2, h / 2, 120, 60, 0, 0, Math.PI * 2); x.fill();
     for (let i = 0; i < 4000; i++) { x.fillStyle = `rgba(0,0,0,${Math.random() * 0.04})`; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
   });
+}
+function rippleTexture() {
+  const t = tex(256, 256, (x, w, h) => {
+    x.fillStyle = '#e6f3f6'; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 260; i++) {
+      const cx = Math.random() * w, cy = Math.random() * h, r = 6 + Math.random() * 26;
+      x.strokeStyle = `rgba(255,255,255,${0.25 + Math.random() * 0.4})`; x.lineWidth = 1 + Math.random() * 2;
+      x.beginPath(); x.ellipse(cx, cy, r, r * 0.35, 0, 0, Math.PI * 2); x.stroke();
+      x.strokeStyle = `rgba(40,90,110,${0.08 + Math.random() * 0.12})`;
+      x.beginPath(); x.ellipse(cx, cy + 2, r, r * 0.35, 0, 0.2, Math.PI - 0.2); x.stroke();
+    }
+  });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
 }
 function flowerTexture() {
   return tex(256, 256, (x, w, h) => {

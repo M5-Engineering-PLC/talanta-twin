@@ -94,7 +94,7 @@ export function buildBowl(features, opts = {}) {
   facade.castShadow = facade.receiveShadow = true; facade.name = 'facade';
   group.add(facade);
   const roofG = shell(louvreEnd, prof.length - 1, 9.5, 40);
-  const roof = new THREE.Mesh(roofG, new THREE.MeshStandardMaterial({ map: membraneTexture(), roughness: 0.6, side: THREE.DoubleSide, transparent: true, opacity: 0.97 }));
+  const roof = new THREE.Mesh(roofG, new THREE.MeshStandardMaterial({ map: membraneTexture(), roughness: 0.6, side: THREE.DoubleSide }));
   roof.castShadow = roof.receiveShadow = true; roof.name = 'roof';
   roof.userData.indexCount = roofG.index.count;
   group.add(roof);
@@ -138,7 +138,8 @@ export function buildBowl(features, opts = {}) {
   // ---------- shields with crossed spears ----------
   const shields = new THREE.Group(); shields.name = 'shields';
   const shieldTex = shieldTexture();
-  const shieldMat = new THREE.MeshStandardMaterial({ map: shieldTex, alphaTest: 0.5, roughness: 0.45, side: THREE.DoubleSide, emissive: '#ffffff', emissiveMap: shieldTex, emissiveIntensity: 0 });
+  // A low emissive floor (0.22) keeps red, black and white readable under the shoulder overhang by day.
+  const shieldMat = new THREE.MeshStandardMaterial({ map: shieldTex, alphaTest: 0.5, roughness: 0.6, side: THREE.DoubleSide, emissive: '#ffffff', emissiveMap: shieldTex, emissiveIntensity: 0.22 });
   const spearMat = new THREE.MeshStandardMaterial({ color: '#f6f5f1', roughness: 0.35, metalness: 0.2 });
   const axisA = ((-bearing) * Math.PI) / 180; // rotate placements with the long axis
   for (let s = 0; s < E.shields; s++) {
@@ -151,7 +152,7 @@ export function buildBowl(features, opts = {}) {
       const th = theta - halfAng + (2 * halfAng * a) / nu;
       const y = E.shieldY0 + ((E.shieldY1 - E.shieldY0) * b) / nv;
       const j = profileIndexAtY(prof, y);
-      const p = surf(th, j, 1.6);
+      const p = surf(th, j, 2.6);
       pos.push(p.x, y, p.z); uv.push(a / nu, b / nv);
     }
     for (let a = 0; a < nu; a++) for (let b = 0; b < nv; b++) { const k0 = a * (nv + 1) + b, k1 = k0 + nv + 1; idx.push(k0, k0 + 1, k1, k0 + 1, k1 + 1, k1); }
@@ -162,8 +163,9 @@ export function buildBowl(features, opts = {}) {
       const a0 = theta + sgn * halfAng * 1.25, a1 = theta - sgn * halfAng * 1.25;
       const y0 = E.shieldY0 + 2, y1 = E.shieldY1 + 4;
       const pts = [];
-      for (let q = 0; q <= 16; q++) { const f = q / 16, th = a0 + (a1 - a0) * f, y = y0 + (y1 - y0) * f; pts.push(surf(th, profileIndexAtY(prof, y), 1.1).setY(y)); }
-      shields.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.6, 8, false), spearMat));
+      for (let q = 0; q <= 16; q++) { const f = q / 16, th = a0 + (a1 - a0) * f, y = y0 + (y1 - y0) * f; pts.push(surf(th, profileIndexAtY(prof, y), 1.5).setY(y)); }
+      // Spears sit behind the shield: tube front face at 1.5 + 0.5 m, shield at 2.6 m off the facade.
+      shields.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.5, 8, false), spearMat));
       const dirT = pts.at(-1).clone().sub(pts.at(-3)).normalize();
       const tip = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 10), spearMat);
       tip.scale.set(1.6, 4.8, 0.7);
@@ -354,7 +356,7 @@ function shieldTexture() {
     const lens = (cx, cy, rw, rh) => { x.beginPath(); x.moveTo(cx, cy - rh); x.bezierCurveTo(cx + rw * 1.35, cy - rh * 0.55, cx + rw * 1.35, cy + rh * 0.55, cx, cy + rh); x.bezierCurveTo(cx - rw * 1.35, cy + rh * 0.55, cx - rw * 1.35, cy - rh * 0.55, cx, cy - rh); x.closePath(); };
     lens(w / 2, h / 2, w * 0.37, h * 0.495); x.fillStyle = '#141414'; x.fill();
     x.save(); lens(w / 2, h / 2, w * 0.37, h * 0.495); x.clip();
-    x.fillStyle = '#c4161f'; x.beginPath(); x.ellipse(w / 2, h / 2, w * 0.33, h * 0.56, 0, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#d0202a'; x.beginPath(); x.ellipse(w / 2, h / 2, w * 0.33, h * 0.56, 0, 0, Math.PI * 2); x.fill();
     x.restore();
     x.fillStyle = '#ffffff';
     x.fillRect(w / 2 - 9, h * 0.05, 18, h * 0.9);

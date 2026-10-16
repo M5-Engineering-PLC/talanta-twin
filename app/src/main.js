@@ -77,7 +77,7 @@ const terrains = [terrainSite, terrainFar, terrainHz];
 const buildings = makeBuildings(D.bPos, D.bCol, D.bIdx, D.bSrc);
 const BH = M.buildings.height_src, bEst = BH.default_by_area + BH.osm_floors;
 const roads = makeRoads(D.rPos, D.rW, D.rIdx);
-const trees = makeTrees(D.trees, LITE ? 4000 : innerWidth < 900 ? 18000 : 60000);
+const trees = makeTrees(D.trees, LITE ? 4000 : innerWidth < 900 ? 18000 : 60000, LITE ? 800 : innerWidth < 900 ? 1200 : 2500);
 scene.add(buildings, roads, trees);
 
 // ---------------------------------------------------------------- stadium
@@ -126,6 +126,9 @@ const state = {
   speed: 4,
 };
 $('#date').value = state.day;
+// Opening shot: morning golden hour. The sun is low in the east-south-east, so it lights the
+// north-east facade that faces the camera, with Ngong Hills behind the bowl.
+{ const se = sunEvents(state.day, LAT, LON); if (se.goldenEnd != null) state.minutes = se.goldenEnd + 4; }
 
 // ---------------------------------------------------------------- time of day
 const zDay = new THREE.Color('#9dbad6'), zDusk = new THREE.Color('#4b5878'), zNight = new THREE.Color('#0c1222');
@@ -148,7 +151,7 @@ function applyTime() {
   night = 1 - smooth(-2, 5, el);
   bowl.lightsMat.emissiveIntensity = night * 4;
   bowl.ledMat.emissiveIntensity = night * 3.5;
-  bowl.shieldMat.emissiveIntensity = night * 0.45;
+  bowl.shieldMat.emissiveIntensity = 0.22 + night * 0.25;
   if (bloomPass) bloomPass.strength.value = 0.06 + night * 0.55;
   for (const s of flood) s.intensity = night * 9000;
   renderer.toneMappingExposure = 1.0 + night * 0.25;
@@ -223,9 +226,9 @@ const lamwia = M.labels.find((l) => l.text.startsWith('Ngong Hills ·'));
 const roofRingAt = (r, y) => ({ pts: bowl.dirs.map(([ux, uz], i) => [ux * r[i], uz * r[i]]), y });
 const P0 = PAD + 0.35;
 const FOCUS = [
-  { id: 'overview', name: 'Overview', k: 'Bowl with Ngong Hills behind', pose: { pos: new THREE.Vector3(250, PAD + 95, -330), target: new THREE.Vector3(-40, PAD + 22, 40) }, label: null, rings: [] },
+  { id: 'overview', name: 'Overview', k: 'Bowl with Ngong Hills behind', pose: poseFrom({ target: [-6, PAD + 16, 14], az: 40, el: 13, d: 285 }), label: null, rings: [] },
   { id: 'entrance', name: 'Main forecourt', k: 'Shield facade, plaza · positions estimated', pose: { pos: new THREE.Vector3(site.plaza.x + 60, PAD + 22, site.plaza.z - 70), target: new THREE.Vector3(0, PAD + 24, -40) }, label: null, rings: [] },
-  { id: 'fountain', name: 'Fountain', k: 'Dry-deck jets · position estimated', pose: { pos: new THREE.Vector3(site.pool.x + 34, PAD + 9, site.pool.z - 30), target: new THREE.Vector3(site.pool.x, PAD + 3, site.pool.z) }, label: [site.pool.x, PAD + 10, site.pool.z], rings: [] },
+  { id: 'fountain', name: 'Fountain', k: 'Dry-deck jets · position estimated', pose: { pos: new THREE.Vector3(site.pool.x + 30, PAD + 17, site.pool.z - 44), target: new THREE.Vector3(site.pool.x, PAD + 2, site.pool.z + 6) }, label: [site.pool.x, PAD + 10, site.pool.z], rings: [] },
   { id: 'shield', name: 'Shield facade', k: 'Maasai shield, crossed spears, louvres', pose: { pos: new THREE.Vector3(18, PAD + 28, site.pool.z - 8), target: new THREE.Vector3(0, PAD + 26, -110) }, label: null, rings: [] },
   { id: 'ngong', name: 'Ngong Hills', k: `Lamwia ${lamwia?.elev ?? ''} m · 17 km SW · GLO-30`, pose: { pos: new THREE.Vector3(330, PAD + 120, -330), target: new THREE.Vector3(lamwia.x * 0.3, PAD + 120, lamwia.z * 0.3) }, label: null, rings: [] },
   { id: 'bowl', name: 'Stadium bowl', k: 'Outline: OSM · tiers estimated', pose: poseFrom({ target: [0, PAD + 18, 0], az: 125, el: 30, d: 430 }), label: [0, PAD + 60, 0], rings: [{ pts: F.bowl_outer, y: PAD + 0.6, w: 1.8 }] },
@@ -251,7 +254,8 @@ function focus(id, ms) {
   flyTo(f.pose, ms);
   document.querySelectorAll('[data-focus]').forEach((b) => b.classList.toggle('on', b.dataset.focus === id));
 }
-const chips = ['overview', 'entrance', 'fountain', 'shield', 'ngong', 'bowl', 'pitch', 'centre', 'penN', 'roof', 'seating', 'train0', 'track', 'site'];
+// Six chips on the stage; every target is in the Focus tab.
+const chips = ['overview', 'entrance', 'fountain', 'shield', 'pitch', 'ngong'];
 $('#focusbar').innerHTML = chips.filter((c) => FOCUS.some((f) => f.id === c)).map((c) => `<button data-focus="${c}">${FOCUS.find((f) => f.id === c).name}</button>`).join('');
 $('#focuslist').innerHTML = FOCUS.map((f) => `<div class="focus-item" data-focus="${f.id}"><div>${f.name}<div class="k">${f.k}</div></div><span class="muted">›</span></div>`).join('');
 document.addEventListener('click', (e) => { const b = e.target.closest('[data-focus]'); if (b) { stopTour(); focus(b.dataset.focus); } });
@@ -309,7 +313,7 @@ const LAYERS = [
   { id: 'sport', name: 'Training pitches and track', claim: 'OpenStreetMap', sw: 'linear-gradient(135deg,#5b8f45 60%,#b65d43 60%)', objs: [sport.group], mats: sport.materials },
   { id: 'buildings', name: 'Buildings', claim: `Footprints Overture · heights: ${BH.open_buildings_2023.toLocaleString()} Open Buildings 2023, ${bEst.toLocaleString()} estimated`, sw: 'linear-gradient(135deg,#d5cdbf,#a59a88)', objs: [buildings], mats: [buildings.material] },
   { id: 'roads', name: 'Roads', claim: 'OpenStreetMap via Overture', sw: 'linear-gradient(135deg,#ddd5c7 40%,#b79e80 40% 55%,#ddd5c7 55%)', objs: [roads], mats: [roads.material] },
-  { id: 'trees', name: 'Trees', claim: 'Estimated · Sentinel-2 NDVI', sw: 'radial-gradient(circle,#5c7a45 40%,#3f5a30 70%)', objs: [trees], mats: [trees.material] },
+  { id: 'trees', name: 'Trees', claim: 'Estimated · Sentinel-2 NDVI', sw: 'radial-gradient(circle,#5c7a45 40%,#3f5a30 70%)', objs: [trees], mats: trees.userData.mats },
   { id: 'site', name: 'Site boundary', claim: 'Measured · W1b, Dec 2025', sw: 'repeating-linear-gradient(90deg,#fff 0 5px,#9a9285 5px 9px)', objs: [siteLine], mats: [siteLine.material] },
   { id: 'labels', name: 'Labels', claim: 'OSM names · GLO-30 heights', sw: 'linear-gradient(135deg,#efe9de,#cfc6b6)', slider: false },
   { id: 'people', name: 'People for scale', claim: 'Visualization · not a crowd model', sw: 'radial-gradient(circle,#a3282a 30%,#2e7442 31% 60%,#e4dccb 61%)', objs: [site.crowd], slider: false },
@@ -336,7 +340,7 @@ for (const row of document.querySelectorAll('.layer')) {
   const r = row.querySelector('input[type=range]');
   if (r) r.oninput = (e) => {
     const val = e.target.value / 100; row.querySelector('.pct').textContent = `${e.target.value}%`;
-    for (const m of L.mats ?? []) { m.transparent = val < 1 || m === bowl.roof.material; m.opacity = val * (m === bowl.roof.material ? 0.96 : 1); m.depthWrite = val > 0.98; m.needsUpdate = true; }
+    for (const m of L.mats ?? []) { m.transparent = val < 1; m.opacity = val; m.depthWrite = val > 0.98; m.needsUpdate = true; }
   };
 }
 for (const t of terrains) t.material.userData.map = t.material.map;
