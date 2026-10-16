@@ -255,6 +255,8 @@ Work split:
 | Frame lookup and long reading | Haiku worker |
 | Cross-review of each change | Sol, read-only |
 
+The current execution plan, with the Codex-first split and the phase 0 work orders, is in engineering/execution_plan_2026-10-16.md.
+
 ## 10. Risks
 
 | Risk | Control |
