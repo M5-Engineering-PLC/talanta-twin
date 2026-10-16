@@ -23,3 +23,10 @@ The checks below do not depend on the lead's or Munene's judgement. Each one com
 - Hold back the V6 frames now: pick 20 frames from `labels_manual.csv` with keep=yes across the exterior, aerial and bowl classes, and list them in a new file `gis/heldout_frames.csv`. W6 must not use them.
 - A failed check stays in the report. The item keeps the label "estimated" until it passes.
 - V10 is the only check that needs a person outside M5. Ask early, because it takes the longest.
+
+## Results
+
+| # | Date | Result | Notes |
+|---|---|---|---|
+| V4 | 2026-10-17 | FAILED | Model v0.2 has 56,972 seats: 5.05% short of 60,000 (limit 2%). Tier depths, row counts and the aisle pattern are estimates. Re-run after W1b/W3 resolve the bowl dimensions and row structure. Do not change the seat spacing to force a match. |
+| V6 | 2026-10-17 | Held-out set changed | JWNowpO44rw 07:14 was used for the forecourt layout in site.js (v0.2). It is replaced by OB0OE-PAAVg 00:16. See heldout_frames.csv. |
