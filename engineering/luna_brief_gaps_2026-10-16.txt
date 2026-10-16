@@ -1,0 +1,32 @@
+OUTCOME:
+The reference frame set covers the three gaps in research/video_index/COVERAGE.txt: floodlights, gates_entrances and roads_parking. New frames come from 11 new videos in archive/video/gaps/. Every new frame has its own label. The 218 existing frames and their labels stay the same.
+
+OWNS:
+- engineering/frame_extract.sh (extend it, do not rewrite the method)
+- research/frames/ (add one subfolder for each new video)
+- research/video_index/ (labels_manual.csv, the per-video CSVs, MASTER_INDEX.csv, COVERAGE.txt)
+Do not edit or delete anything in archive/. Do not touch any other file. Do not commit.
+
+SOURCES AND CONSTRAINTS:
+- Working directory: /home/munene/CEO/14_talanta_twin. It is a git repo. research/frames/ and archive/video/ are git-ignored.
+- New videos: archive/video/gaps/ (11 videos, each with a .info.json). The existing videos stay in archive/video/main/ and archive/video/shorts/.
+- The current script extracts frames, removes blurred frames and pHash near-duplicates (Hamming distance 5 or less), and writes the indexes from labels_manual.csv. Keep this method and the threshold.
+- Make the script also read archive/video/gaps/. If a frames folder for a video already exists and is complete, skip its extraction, so that a rerun is fast. The final output must still be the same on a clean rerun.
+- Label every new frame yourself. Build contact sheets of at most 12 frames, with the file name under each tile, and look at each sheet. Use the same view_class list and a specific subject of 3 to 8 words.
+- These videos are long walk-and-talk vlogs. Keep only frames that show the Talanta site. Reject talking heads, close-ups of people, text overlays and title cards, as before.
+- Priority: keep every clear frame of floodlights (masts, roof-mounted lights, lights on and off), gates and entrances (main gate, ticketing gate, turnstiles, shield motif on gates), and roads and parking (parking lots, car shades, access roads, street lights, drop-off areas). For other view classes, keep at most 5 frames for each video.
+- Target 8 to 30 kept frames for each new video.
+- Do not change any existing row in labels_manual.csv. Only add rows.
+- Use plain text. No asterisks for emphasis in .txt files.
+
+ACCEPTANCE:
+- bash engineering/frame_extract.sh exits 0. Run it twice. The second run gives the same output manifest (report both SHA-256 values).
+- The index check passes: every JPEG has exactly one row in MASTER_INDEX.csv, and every row points to a file that exists.
+- The 218 original frames and their labels are unchanged. Show a check: compare the old rows of labels_manual.csv with git (git diff of research/video_index/labels_manual.csv must show only added lines).
+- COVERAGE.txt is rewritten from the real labels. floodlights, gates_entrances and roads_parking each have at least 5 frames, or COVERAGE.txt says why not.
+- Report: kept and rejected counts for each new video, new class counts, and 10 sample rows from the new frames.
+
+ESCALATE IF:
+- A video does not decode, or does not show the Talanta site.
+- A gap class still has fewer than 5 frames after all 11 videos.
+- The work needs network access or a new package.
