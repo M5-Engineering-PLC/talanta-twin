@@ -35,15 +35,21 @@ Build a detailed three.js digital twin of Talanta Stadium (Raila Odinga Talanta 
 - Every frame keeps its source video ID and timestamp.
 - Crowd and evacuation visuals are visualizations, not validated safety simulations.
 - Do not put security-sensitive detail (exits, camera positions, control rooms) into a public demo.
-- Munene buys any domain himself.
+- Munene buys any domain. Agents do not.
+
+## Plan
+
+The full plan is in PLAN.md: architecture, data sources, the simulation catalog (55 modules), phases, budgets and risks.
 
 ## Reference frame set (2026-10-16)
 
-- 218 frames from 22 videos in research/frames/, indexed in research/video_index/MASTER_INDEX.csv. Built by Luna with engineering/frame_extract.sh. The output repeats exactly on a rerun.
-- Coverage and gaps: research/video_index/COVERAGE.txt. No frames show floodlights, gates and entrances, or roads and parking.
+- 356 frames from 33 videos in research/frames/, indexed in research/video_index/MASTER_INDEX.csv. Built by Luna with engineering/frame_extract.sh. The output repeats exactly on a rerun.
+- Coverage and gaps: research/video_index/COVERAGE.txt. Floodlights 30, gates and entrances 11, roads and parking 42.
+- The set shows the look of the stadium well. It gives no dimensions and no site plan. See PLAN.md section 4.2.
 - Video oL3wsPsx4Jw is a third-party 3D render, not real footage. Its seats and roof do not match the real stadium. Do not use it for geometry. It shows that someone else already made a Talanta 3D model.
 - Video PWj9s_v3G6U and the "Nyayo" frames show another venue. Use them only as drone and light show references.
-- Real seat pattern: red seats with black seats in some rows, on grey steel rails (frame JWNowpO44rw_002750.967).
+- Seat pattern: green lower tier, red upper tiers, black seats in some rows, on grey steel rails.
+- Facade: a white diagonal lattice with horizontal louvres and large red, black and white shield panels (frame 9I1korKNjig_000638.000). Main gate and ticket buildings: frame KEOmkVfjhu8_000206.000.
 
 ## Sources of the status facts (retrieved 2026-10-15)
 

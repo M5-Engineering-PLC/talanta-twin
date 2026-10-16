@@ -209,53 +209,66 @@ with tempfile.TemporaryDirectory(prefix="talanta_frames_") as temp_name:
                 if crop_width < source_width * 0.95 or crop_height < source_height * 0.95:
                     crop_filter = f"crop={crop_width}:{crop_height}:{crop_x}:{crop_y},"
         filter_expr = f"{crop_filter}scale=320:-1,select='gt(scene,0.30)+not(mod(n,{frame_step}))',showinfo"
-        command = [
-            "ffmpeg", "-hide_banner", "-loglevel", "info", "-i", str(source),
-            "-vf", filter_expr, "-fps_mode", "vfr", "-q:v", "2",
-            str(temp_dir / "candidate_%05d.jpg")
-        ]
-        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
-        pts = [float(value) for value in re.findall(r"pts_time:([0-9.]+)", result.stderr)]
-        candidates = sorted(temp_dir.glob("candidate_*.jpg"))
-        if result.returncode or len(candidates) != len(pts):
-            raise RuntimeError(f"Decode or timestamp error for {vid}: ffmpeg={result.returncode}, images={len(candidates)}, times={len(pts)}")
+        if is_gap and not preview_only:
+            selected = []
+            prefix = f"research/frames/{vid}/"
+            for label in manual_rows:
+                if label["file"].startswith(prefix) and label["keep"] == "yes":
+                    match = re.search(r"_(\d{2})(\d{2})(\d{2})\.(\d{3})\.jpg$", label["file"])
+                    if not match:
+                        raise RuntimeError(f"Cannot read timestamp from kept label: {label['file']}")
+                    hh, mm, ss, ms = map(int, match.groups())
+                    seconds = hh * 3600 + mm * 60 + ss + ms / 1000
+                    selected.append((None, seconds, 0.0, 0))
+            selected.sort(key=lambda row: row[1])
+        else:
+            command = [
+                "ffmpeg", "-hide_banner", "-loglevel", "info", "-i", str(source),
+                "-vf", filter_expr, "-fps_mode", "vfr", "-q:v", "2",
+                str(temp_dir / "candidate_%05d.jpg")
+            ]
+            result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+            pts = [float(value) for value in re.findall(r"pts_time:([0-9.]+)", result.stderr)]
+            candidates = sorted(temp_dir.glob("candidate_*.jpg"))
+            if result.returncode or len(candidates) != len(pts):
+                raise RuntimeError(f"Decode or timestamp error for {vid}: ffmpeg={result.returncode}, images={len(candidates)}, times={len(pts)}")
 
-        measured = []
-        for image_path, seconds in zip(candidates, pts):
-            image = Image.open(image_path).convert("L").resize((128, 72))
-            pixels = np.asarray(image, dtype=np.int16)
-            laplacian = (4 * pixels[1:-1, 1:-1] - pixels[1:-1, :-2] - pixels[1:-1, 2:]
-                         - pixels[:-2, 1:-1] - pixels[2:, 1:-1])
-            sharpness = float(laplacian.var())
-            if sharpness < 45:
-                continue
-            phash = perceptual_hash(image)
-            measured.append((image_path, seconds, sharpness, phash))
+            measured = []
+            for image_path, seconds in zip(candidates, pts):
+                image = Image.open(image_path).convert("L").resize((128, 72))
+                pixels = np.asarray(image, dtype=np.int16)
+                laplacian = (4 * pixels[1:-1, 1:-1] - pixels[1:-1, :-2] - pixels[1:-1, 2:]
+                             - pixels[:-2, 1:-1] - pixels[2:, 1:-1])
+                sharpness = float(laplacian.var())
+                if sharpness < 45:
+                    continue
+                phash = perceptual_hash(image)
+                measured.append((image_path, seconds, sharpness, phash))
 
-        target = 160 if is_main else (24 if is_gap else min(12, max(5, int(math.ceil(duration / 6)))))
-        selected = []
-        selected_hashes = []
-        # Pick the sharpest candidate from each equal time bin, then fill gaps.
-        bins = [[] for _ in range(target)]
-        for item in measured:
-            slot = min(target - 1, int(item[1] / max(duration, 0.001) * target))
-            bins[slot].append(item)
-        for group in bins:
-            for item in sorted(group, key=lambda row: (-row[2], row[1])):
-                if all((item[3] ^ value).bit_count() > threshold for value in selected_hashes):
-                    selected.append(item)
-                    selected_hashes.append(item[3])
-                    break
-        if len(selected) < target:
-            for item in sorted(measured, key=lambda row: (-row[2], row[1])):
-                if all((item[3] ^ value).bit_count() > threshold for value in selected_hashes):
-                    selected.append(item)
-                    selected_hashes.append(item[3])
-                if len(selected) == target:
-                    break
-        if len(selected) < (150 if is_main else 5):
-            raise RuntimeError(f"Only {len(selected)} distinct sharp frames for {vid}")
-        selected.sort(key=lambda row: row[1])
+            target = 160 if is_main else min(12, max(5, int(math.ceil(duration / 6))))
+            selected = []
+            selected_hashes = []
+            # Pick the sharpest candidate from each equal time bin, then fill gaps.
+            bins = [[] for _ in range(target)]
+            for item in measured:
+                slot = min(target - 1, int(item[1] / max(duration, 0.001) * target))
+                bins[slot].append(item)
+            for group in bins:
+                for item in sorted(group, key=lambda row: (-row[2], row[1])):
+                    if all((item[3] ^ value).bit_count() > threshold for value in selected_hashes):
+                        selected.append(item)
+                        selected_hashes.append(item[3])
+                        break
+            if len(selected) < target:
+                for item in sorted(measured, key=lambda row: (-row[2], row[1])):
+                    if all((item[3] ^ value).bit_count() > threshold for value in selected_hashes):
+                        selected.append(item)
+                        selected_hashes.append(item[3])
+                    if len(selected) == target:
+                        break
+            if len(selected) < (150 if is_main else 5):
+                raise RuntimeError(f"Only {len(selected)} distinct sharp frames for {vid}")
+            selected.sort(key=lambda row: row[1])
 
         if preview_only:
             review_dir = Path("/tmp/talanta_gap_review_selected") / vid
@@ -279,10 +292,10 @@ with tempfile.TemporaryDirectory(prefix="talanta_frames_") as temp_name:
             old.unlink()
         rows = []
         for image_path, seconds, sharpness, phash in selected:
-            hh = int(seconds // 3600)
-            mm = int(seconds // 60) % 60
-            ss = int(seconds) % 60
-            ms = int((seconds - int(seconds)) * 1000)
+            total_ms = round(seconds * 1000) if is_gap else int(seconds * 1000)
+            hh, remainder_ms = divmod(total_ms, 3_600_000)
+            mm, remainder_ms = divmod(remainder_ms, 60_000)
+            ss, ms = divmod(remainder_ms, 1000)
             filename = f"{vid}_{hh:02d}{mm:02d}{ss:02d}.{ms:03d}.jpg"
             output = output_dir / filename
             relative_file = f"research/frames/{vid}/{filename}"
@@ -359,11 +372,11 @@ with tempfile.TemporaryDirectory(prefix="talanta_frames_") as temp_name:
         "roof_canopy": "No close view shows every roof connection detail.",
         "bowl_seating": "No view confirms exact seat dimensions or row counts.",
         "pitch": "No frame provides measured pitch dimensions.",
-        "floodlights": "No clear frame isolates the floodlight assemblies.",
-        "gates_entrances": "No clear frame shows the west gates or their full layout.",
+        "floodlights": "Frames show roof-mounted light arrays with lights on and off, but they do not measure illuminance.",
+        "gates_entrances": "Frames show entrance paths and railings, but they do not confirm the full gate layout.",
         "concourse_interior": "No frame shows the complete concourse circulation paths.",
         "landscaping_fountain": "No daylight view shows the full fountain and planting plan.",
-        "roads_parking": "No view shows a complete parking layout.",
+        "roads_parking": "Frames show access roads and parking areas, but they do not establish measured parking capacity.",
         "night_lighting": "No frame records calibrated light colors or brightness.",
         "construction": "No frame verifies dimensions of unfinished construction areas.",
         "other": "Reference views do not establish Talanta geometry.",

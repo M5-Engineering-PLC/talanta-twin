@@ -1,6 +1,6 @@
 # Agent rules for talanta-twin
 
-This repository holds the reference data and build work for a three.js digital twin of Talanta Stadium (Raila Odinga Talanta Stadium, Ngong Road, Nairobi). Read README.md first.
+This repository holds the reference data and build work for a three.js digital twin of Talanta Stadium (Raila Odinga Talanta Stadium, Ngong Road, Nairobi). Read README.md first, then PLAN.md. Module IDs such as ENV-03 come from PLAN.md section 5. Use them in branch names and commit messages.
 
 ## Repository layout
 
