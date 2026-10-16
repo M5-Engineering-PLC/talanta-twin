@@ -1,0 +1,14 @@
+{
+ "crs": "EPSG:32737",
+ "bounds": [
+  248091.1351507002,
+  9854032.065351307,
+  251091.1351507002,
+  9857032.065351307
+ ],
+ "min_m": 1767.14,
+ "max_m": 1841.58,
+ "pixel_m": 10.0,
+ "source": "Copernicus GLO-30 DSM (2011-2015), bilinear",
+ "note": "DSM: includes trees and buildings; predates the stadium"
+}
