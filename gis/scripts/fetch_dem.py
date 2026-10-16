@@ -29,3 +29,4 @@ def clip(half, res, name):
 if __name__ == "__main__":
     clip(1500, 10, "glo30_site_3km_10m.tif")
     clip(6000, 30, "glo30_far_12km_30m.tif")
+    clip(20000, 100, "glo30_horizon_40km_100m.tif")  # Ngong Hills, CBD ridge
