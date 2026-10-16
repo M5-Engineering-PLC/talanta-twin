@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-python3 - "$ROOT" <<'PY'
+python3 - "$ROOT" "$@" <<'PY'
 import csv
 import hashlib
 import json
@@ -20,7 +20,12 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 root = Path(sys.argv[1])
-video_roots = [root / "archive/video/main", root / "archive/video/shorts"]
+preview_only = len(sys.argv) > 2 and sys.argv[2] == "--preview-gaps"
+if len(sys.argv) > 2 and not preview_only:
+    raise RuntimeError(f"Unknown argument: {sys.argv[2]}")
+video_roots = [root / "archive/video/gaps"] if preview_only else [
+    root / "archive/video/main", root / "archive/video/shorts", root / "archive/video/gaps"
+]
 frames_root = root / "research/frames"
 index_root = root / "research/video_index"
 frames_root.mkdir(parents=True, exist_ok=True)
@@ -119,6 +124,7 @@ def classify(title, seconds, main):
     return "exterior_facade", "stadium exterior and nearby site"
 
 videos = []
+preview_frames = {}
 for folder in video_roots:
     for path in sorted(folder.iterdir()):
         if path.suffix.lower() not in (".mp4", ".webm"):
@@ -148,7 +154,7 @@ for excluded in excluded_ids:
         shutil.rmtree(excluded_dir)
     (index_root / f"{excluded}.csv").unlink(missing_ok=True)
 
-expected_local_videos = 23
+expected_local_videos = 11 if preview_only else 34
 if len(videos) != expected_local_videos:
     raise RuntimeError(f"Expected {expected_local_videos} local videos, found {len(videos)}")
 
@@ -159,11 +165,50 @@ with tempfile.TemporaryDirectory(prefix="talanta_frames_") as temp_name:
     for number, (vid, source, title, base_url, duration, is_main, frame_rate) in enumerate(videos, 1):
         if vid in excluded_ids:
             continue
+        output_dir = frames_root / vid
+        expected_keep = {
+            label["file"].split("/")[-1]
+            for label in manual_rows
+            if label["file"].split("/")[2] == vid and label["keep"] == "yes"
+        }
+        actual_keep = {path.name for path in output_dir.glob("*.jpg")} if output_dir.is_dir() else set()
+        if not preview_only and actual_keep == expected_keep:
+            csv_path = index_root / f"{vid}.csv"
+            if csv_path.is_file():
+                with csv_path.open(encoding="utf-8", newline="") as handle:
+                    rows = list(csv.DictReader(handle))
+                if {row["file"].split("/")[-1] for row in rows} == expected_keep:
+                    by_video[vid] = rows
+                    all_rows.extend(rows)
+                    print(f"SKIPPED_COMPLETE: {vid} frames={len(rows)}", flush=True)
+                    continue
         temp_dir = temp_root / vid
         temp_dir.mkdir()
-        interval = 4 if is_main else 1
+        is_gap = source.parent.name == "gaps"
+        interval = 4 if is_main else (2 if is_gap else 1)
         frame_step = max(1, round(frame_rate * interval))
-        filter_expr = f"select='gt(scene,0.30)+not(mod(n,{frame_step}))',showinfo"
+        crop_filter = ""
+        if is_gap:
+            dimension_text = subprocess.check_output([
+                "ffprobe", "-v", "error", "-select_streams", "v:0",
+                "-show_entries", "stream=width,height", "-of", "csv=p=0", str(source),
+            ], text=True).strip().splitlines()[0]
+            source_width, source_height = map(int, dimension_text.split(","))
+            detected = []
+            for sample_time in (duration * 0.25, duration * 0.65):
+                crop_result = subprocess.run([
+                    "ffmpeg", "-hide_banner", "-ss", f"{sample_time:.3f}", "-i", str(source),
+                    "-vf", "cropdetect=24:16:0", "-frames:v", "60", "-f", "null", "-",
+                ], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+                if crop_result.returncode:
+                    raise RuntimeError(f"Crop detection failed for {vid}: ffmpeg={crop_result.returncode}")
+                detected.extend(re.findall(r"crop=(\d+:\d+:\d+:\d+)", crop_result.stderr))
+            if detected:
+                crop = Counter(detected).most_common(1)[0][0]
+                crop_width, crop_height, crop_x, crop_y = map(int, crop.split(":"))
+                if crop_width < source_width * 0.95 or crop_height < source_height * 0.95:
+                    crop_filter = f"crop={crop_width}:{crop_height}:{crop_x}:{crop_y},"
+        filter_expr = f"{crop_filter}scale=320:-1,select='gt(scene,0.30)+not(mod(n,{frame_step}))',showinfo"
         command = [
             "ffmpeg", "-hide_banner", "-loglevel", "info", "-i", str(source),
             "-vf", filter_expr, "-fps_mode", "vfr", "-q:v", "2",
@@ -187,7 +232,7 @@ with tempfile.TemporaryDirectory(prefix="talanta_frames_") as temp_name:
             phash = perceptual_hash(image)
             measured.append((image_path, seconds, sharpness, phash))
 
-        target = 160 if is_main else min(12, max(5, int(math.ceil(duration / 6))))
+        target = 160 if is_main else (24 if is_gap else min(12, max(5, int(math.ceil(duration / 6)))))
         selected = []
         selected_hashes = []
         # Pick the sharpest candidate from each equal time bin, then fill gaps.
@@ -212,6 +257,22 @@ with tempfile.TemporaryDirectory(prefix="talanta_frames_") as temp_name:
             raise RuntimeError(f"Only {len(selected)} distinct sharp frames for {vid}")
         selected.sort(key=lambda row: row[1])
 
+        if preview_only:
+            review_dir = Path("/tmp/talanta_gap_review_selected") / vid
+            review_dir.mkdir(parents=True, exist_ok=True)
+            preview_frames[vid] = []
+            for image_path, seconds, sharpness, phash in selected:
+                hh = int(seconds // 3600)
+                mm = int(seconds // 60) % 60
+                ss = int(seconds) % 60
+                ms = int((seconds - int(seconds)) * 1000)
+                filename = f"{vid}_{hh:02d}{mm:02d}{ss:02d}.{ms:03d}.jpg"
+                preview_path = review_dir / filename
+                shutil.copyfile(image_path, preview_path)
+                preview_frames[vid].append((filename, preview_path))
+            print(f"PREVIEW: {vid} candidates={len(selected)} crop={crop_filter or 'none'}", flush=True)
+            continue
+
         output_dir = frames_root / vid
         output_dir.mkdir(parents=True, exist_ok=True)
         for old in output_dir.glob("*.jpg"):
@@ -230,8 +291,18 @@ with tempfile.TemporaryDirectory(prefix="talanta_frames_") as temp_name:
                 raise RuntimeError(f"No manual label exists for extracted frame: {relative_file}")
             if label["keep"] != "yes":
                 continue
-            shutil.copyfile(image_path, output)
-            note = f"Frame from the source video at {seconds:.3f} seconds."
+            if is_gap:
+                highres_filter = crop_filter[:-1] if crop_filter else "null"
+                highres = subprocess.run([
+                    "ffmpeg", "-hide_banner", "-loglevel", "error", "-ss", f"{seconds:.3f}",
+                    "-i", str(source), "-frames:v", "1", "-vf", highres_filter,
+                    "-q:v", "2", str(output),
+                ], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+                if highres.returncode or not output.is_file():
+                    raise RuntimeError(f"Full-resolution seek failed for {vid} at {seconds:.3f}s: ffmpeg={highres.returncode}, {highres.stderr}")
+            else:
+                shutil.copyfile(image_path, output)
+            note = "site unconfirmed" if label.get("reason", "").strip().lower() == "site unconfirmed" else f"Frame from the source video at {seconds:.3f} seconds."
             if vid == "PWj9s_v3G6U":
                 note = "Nyayo Stadium drone and light-show reference; not Talanta geometry."
             elif vid == "VHZ0-of7cLM":
@@ -251,7 +322,23 @@ with tempfile.TemporaryDirectory(prefix="talanta_frames_") as temp_name:
             })
         by_video[vid] = rows
         all_rows.extend(rows)
-        print(f"{number}/23 {vid}: {len(rows)} frames", flush=True)
+        print(f"{number}/{len(videos)} {vid}: {len(rows)} frames", flush=True)
+
+    if preview_only:
+        for vid, items in preview_frames.items():
+            for batch_number in range((len(items) + 11) // 12):
+                batch = items[batch_number * 12:(batch_number + 1) * 12]
+                sheet = Image.new("RGB", (2000, 930), "#dddddd")
+                for index, (filename, image_path) in enumerate(batch):
+                    image = Image.open(image_path).convert("RGB")
+                    image.thumbnail((480, 270))
+                    tile = Image.new("RGB", (500, 310), "white")
+                    tile.paste(image, ((500 - image.width) // 2, 0))
+                    ImageDraw.Draw(tile).text((8, 275), filename, fill="black")
+                    sheet.paste(tile, ((index % 4) * 500, (index // 4) * 310))
+                sheet.save(f"/tmp/talanta_gap_review_selected/{vid}_sheet_{batch_number + 1}.jpg", quality=90)
+        print(f"PREVIEW_COMPLETE: videos={len(preview_frames)} sheets={sum((len(items) + 11) // 12 for items in preview_frames.values())}")
+        sys.exit(0)
 
     columns = ["file", "video_id", "timestamp_s", "source_url_with_t", "view_class", "subject", "notes"]
     for vid, rows in by_video.items():

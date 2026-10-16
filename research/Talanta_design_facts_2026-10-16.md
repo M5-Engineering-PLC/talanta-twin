@@ -19,7 +19,7 @@ Use: reference for the 3D model. Press reports can be wrong, so check each fact 
 
 ## Notes against the frame set
 
-- The frames show red seats with black seats in some rows. Green seats are not yet confirmed in a kept frame.
+- The frames show red seats with black seats in some rows. Video mJJ4Qkl858k (28 Aug 2026) confirms green seats in the lower tier, under red tiers, so the green, red and black gradient is real. The same video shows an LED ribbon board that reads TALANTA STADIUM, and floodlights mounted under the roof.
 - No official 3D model or virtual tour was found. The one 3D video in the frame set (oL3wsPsx4Jw) is a third-party render and does not match the real stadium.
 - The 2023 design video VoDsWtlMQZ0 shows the old shield concept. Do not use it for geometry.
 
