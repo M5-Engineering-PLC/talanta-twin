@@ -8,6 +8,10 @@ import { buildPitch, pitchFeatures, buildSport } from './world/pitch.js';
 import { ribbon, centroid, circlePts } from './world/geom.js';
 import { sunPosition, eatDate, sunEvents } from './sun.js';
 import { lineChart } from './ui/charts.js';
+import { buildSite } from './world/site.js';
+import { pass, mrt, output, normalView, vec4 } from 'three/tsl';
+import { ao } from 'three/addons/tsl/display/GTAONode.js';
+import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 
 const $ = (s) => document.querySelector(s);
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -85,6 +89,9 @@ scene.add(pitch.group);
 const sport = buildSport(F.sport, PAD);
 scene.add(sport.group);
 const PF = pitchFeatures(F.pitch_bearing_deg);
+const site = buildSite(F, bowl, groundAt, PAD);
+scene.add(site.group);
+console.info('seats modelled:', bowl.seatCount, '· people:', site.peopleCount);
 
 const siteLine = new THREE.Mesh(ribbon(F.site, 2.2, (x, z) => groundAt(x, z) + 0.9, true, true), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
 siteLine.name = 'site-boundary';
@@ -111,7 +118,7 @@ for (let k = 0; k < 4; k++) {
 const today = new Date();
 const state = {
   day: new Date(today.getTime() + 3 * 3600000).toISOString().slice(0, 10),
-  minutes: 9 * 60 + 30,
+  minutes: 8 * 60 + 20,
   mode: 'venue',
   build: Date.UTC(2026, 9, 1),
   playing: false,
@@ -139,6 +146,9 @@ function applyTime() {
   scene.fog.color.copy(h);
   night = 1 - smooth(-2, 5, el);
   bowl.lightsMat.emissiveIntensity = night * 4;
+  bowl.ledMat.emissiveIntensity = night * 3.5;
+  bowl.shieldMat.emissiveIntensity = night * 0.45;
+  if (bloomPass) bloomPass.strength.value = 0.06 + night * 0.55;
   for (const s of flood) s.intensity = night * 9000;
   renderer.toneMappingExposure = 1.0 + night * 0.25;
   return sp;
@@ -158,7 +168,11 @@ function applyBuild() {
   const roof = state.mode === 'construction' ? roofAt(t) : 1;
   bowl.group.visible = t >= Date.UTC(2024, 2, 1);
   bowl.seating.scale.y = Math.max(0.02, struct);
-  bowl.facade.scale.y = Math.max(0.001, smooth(Date.UTC(2025, 5, 1), Date.UTC(2026, 2, 1), t));
+  const fs = Math.max(0.001, smooth(Date.UTC(2025, 5, 1), Date.UTC(2026, 2, 1), t));
+  bowl.facade.scale.y = fs; bowl.lattice.scale.y = fs;
+  bowl.shields.visible = t > Date.UTC(2026, 0, 15) && layerOn('bowl');
+  bowl.seats.visible = t > Date.UTC(2026, 2, 1) && layerOn('bowl');
+  site.group.visible = t > Date.UTC(2026, 3, 1) && layerOn('furniture');
   bowl.roof.geometry.setDrawRange(0, Math.floor((bowl.roof.userData.indexCount * roof) / 6) * 6);
   bowl.truss.count = Math.floor(bowl.truss.userData.count * Math.min(1, roof * 1.4 + (struct > 0.95 ? 0.15 : 0)));
   const g = smooth(Date.UTC(2026, 4, 15), Date.UTC(2026, 6, 1), t);
@@ -207,7 +221,10 @@ const lamwia = M.labels.find((l) => l.text.startsWith('Ngong Hills ·'));
 const roofRingAt = (r, y) => ({ pts: bowl.dirs.map(([ux, uz], i) => [ux * r[i], uz * r[i]]), y });
 const P0 = PAD + 0.35;
 const FOCUS = [
-  { id: 'overview', name: 'Overview', k: 'Bowl with Ngong Hills behind', pose: { pos: new THREE.Vector3(560, PAD + 150, -560), target: new THREE.Vector3(-260, PAD + 40, 270) }, label: [0, PAD + 62, 0], rings: [] },
+  { id: 'overview', name: 'Overview', k: 'Bowl with Ngong Hills behind', pose: { pos: new THREE.Vector3(250, PAD + 95, -330), target: new THREE.Vector3(-40, PAD + 22, 40) }, label: null, rings: [] },
+  { id: 'entrance', name: 'Main forecourt', k: 'Shield facade, plaza · positions estimated', pose: { pos: new THREE.Vector3(site.plaza.x + 60, PAD + 22, site.plaza.z - 70), target: new THREE.Vector3(0, PAD + 24, -40) }, label: null, rings: [] },
+  { id: 'fountain', name: 'Fountain', k: 'Dry-deck jets · position estimated', pose: { pos: new THREE.Vector3(site.pool.x + 34, PAD + 9, site.pool.z - 30), target: new THREE.Vector3(site.pool.x, PAD + 3, site.pool.z) }, label: [site.pool.x, PAD + 10, site.pool.z], rings: [] },
+  { id: 'shield', name: 'Shield facade', k: 'Maasai shield, crossed spears, louvres', pose: { pos: new THREE.Vector3(18, PAD + 28, site.pool.z - 8), target: new THREE.Vector3(0, PAD + 26, -110) }, label: null, rings: [] },
   { id: 'ngong', name: 'Ngong Hills', k: `Lamwia ${lamwia?.elev ?? ''} m · 17 km SW · GLO-30`, pose: { pos: new THREE.Vector3(330, PAD + 120, -330), target: new THREE.Vector3(lamwia.x * 0.3, PAD + 120, lamwia.z * 0.3) }, label: null, rings: [] },
   { id: 'bowl', name: 'Stadium bowl', k: 'Outline: OSM · tiers estimated', pose: poseFrom({ target: [0, PAD + 18, 0], az: 125, el: 30, d: 430 }), label: [0, PAD + 60, 0], rings: [{ pts: F.bowl_outer, y: PAD + 0.6, w: 1.8 }] },
   { id: 'pitch', name: 'Pitch', k: '105 × 68 m in a 115 × 74 m zone (W1b)', pose: poseFrom({ target: [0, PAD, 0], az: 90 + F.pitch_bearing_deg, el: 48, d: 175 }), label: [0, PAD + 6, 0], rings: [{ pts: PF.pitch, y: P0, w: 0.9 }] },
@@ -215,7 +232,7 @@ const FOCUS = [
   { id: 'penN', name: 'Penalty area · north', k: '40.32 × 16.5 m', pose: poseFrom({ target: [PF.penNc[0], PAD, PF.penNc[1]], az: 180 + F.pitch_bearing_deg, el: 38, d: 70 }), label: [PF.penNc[0], PAD + 3, PF.penNc[1]], rings: [{ pts: PF.penN, y: P0, w: 0.5 }] },
   { id: 'penS', name: 'Penalty area · south', k: '40.32 × 16.5 m', pose: poseFrom({ target: [PF.penSc[0], PAD, PF.penSc[1]], az: F.pitch_bearing_deg, el: 38, d: 70 }), label: [PF.penSc[0], PAD + 3, PF.penSc[1]], rings: [{ pts: PF.penS, y: P0, w: 0.5 }] },
   { id: 'seating', name: 'Seating tiers', k: 'Green · red · black (design facts)', pose: { pos: new THREE.Vector3(bowl.dirs[west][0] * bowl.at(west, 0.82), PAD + 42, bowl.dirs[west][1] * bowl.at(west, 0.82)), target: new THREE.Vector3(30, PAD + 6, 0) }, label: null, rings: [{ pts: bowl.dirs.map(([ux, uz], i) => [ux * bowl.rIn[i], uz * bowl.rIn[i]]), y: PAD + 1.4, w: 0.6 }] },
-  { id: 'roof', name: 'Roof canopy', k: 'Fixed canopy, open centre · height estimated', pose: poseFrom({ target: [0, PAD + 40, 0], az: 210, el: 58, d: 380 }), label: [0, PAD + 58, 0], rings: [roofRingAt(bowl.rHole, PAD + 45.2), roofRingAt(bowl.rOut.map((r) => r + 2.5), PAD + 50.8)] },
+  { id: 'roof', name: 'Roof canopy', k: 'Fixed canopy, open centre · height estimated', pose: poseFrom({ target: [0, PAD + 40, 0], az: 210, el: 58, d: 380 }), label: [0, PAD + 58, 0], rings: [roofRingAt(bowl.rHole, PAD + 46.6), roofRingAt(bowl.rOut.map((r) => r - 15), PAD + bowl.topY + 0.5)] },
   ...pitchesOnly.map((s, i) => {
     const [cx, cz] = centroid(s.ring);
     return { id: `train${i}`, name: `Training pitch ${'AB'[i] ?? i + 1}`, k: `${s.area.toLocaleString()} m² · OSM`, pose: poseFrom({ target: [cx, PAD, cz], az: 35, el: 42, d: 190 }), label: [cx, PAD + 5, cz], rings: [{ pts: s.ring, y: PAD + 0.5, w: 1 }] };
@@ -232,7 +249,7 @@ function focus(id, ms) {
   flyTo(f.pose, ms);
   document.querySelectorAll('[data-focus]').forEach((b) => b.classList.toggle('on', b.dataset.focus === id));
 }
-const chips = ['overview', 'ngong', 'bowl', 'pitch', 'centre', 'penN', 'roof', 'seating', 'train0', 'track', 'site'];
+const chips = ['overview', 'entrance', 'fountain', 'shield', 'ngong', 'bowl', 'pitch', 'centre', 'penN', 'roof', 'seating', 'train0', 'track', 'site'];
 $('#focusbar').innerHTML = chips.filter((c) => FOCUS.some((f) => f.id === c)).map((c) => `<button data-focus="${c}">${FOCUS.find((f) => f.id === c).name}</button>`).join('');
 $('#focuslist').innerHTML = FOCUS.map((f) => `<div class="focus-item" data-focus="${f.id}"><div>${f.name}<div class="k">${f.k}</div></div><span class="muted">›</span></div>`).join('');
 document.addEventListener('click', (e) => { const b = e.target.closest('[data-focus]'); if (b) { stopTour(); focus(b.dataset.focus); } });
@@ -283,7 +300,8 @@ function updateLabels() {
 const LAYERS = [
   { id: 'terrain', name: 'Terrain (3D)', claim: 'Measured · Copernicus GLO-30', sw: 'linear-gradient(135deg,#a89b7c,#6f7d55)', objs: terrains, slider: false },
   { id: 'satellite', name: 'Satellite colour', claim: 'Measured · Sentinel-2, Sep–Oct 2026', sw: 'linear-gradient(135deg,#9c8a68,#5d6e45,#b9ab90)', slider: false },
-  { id: 'bowl', name: 'Stadium bowl', claim: 'Measured outline · tiers estimated', sw: 'linear-gradient(135deg,#2e7442 30%,#a3282a 30% 70%,#1f1d1b 70%)', objs: [bowl.seating, bowl.facade], mats: [bowl.seating.material, bowl.facade.material] },
+  { id: 'bowl', name: 'Stadium bowl', claim: 'Measured outline · tiers estimated', sw: 'linear-gradient(135deg,#2e7442 30%,#a3282a 30% 70%,#1f1d1b 70%)', objs: [bowl.seating, bowl.seats, bowl.facade, bowl.lattice, bowl.shields], mats: [bowl.facade.material, bowl.lattice.material] },
+  { id: 'furniture', name: 'Plaza, fountain, masts', claim: 'Estimated positions · reference frames', sw: 'linear-gradient(135deg,#dcd6cb 50%,#5f7f8c 50%)', objs: [site.group] },
   { id: 'roof', name: 'Roof canopy', claim: 'Estimated height 44–50 m', sw: 'linear-gradient(135deg,#f3f1ec,#d9d5cc)', objs: [bowl.roof, bowl.truss], mats: [bowl.roof.material] },
   { id: 'pitch', name: 'Pitch and markings', claim: 'Laws of the Game · zone W1b', sw: 'repeating-linear-gradient(0deg,#5a9644 0 4px,#4c8539 4px 8px)', objs: [pitch.group] },
   { id: 'sport', name: 'Training pitches and track', claim: 'OpenStreetMap', sw: 'linear-gradient(135deg,#5b8f45 60%,#b65d43 60%)', objs: [sport.group], mats: sport.materials },
@@ -292,7 +310,8 @@ const LAYERS = [
   { id: 'trees', name: 'Trees', claim: 'Estimated · Sentinel-2 NDVI', sw: 'radial-gradient(circle,#5c7a45 40%,#3f5a30 70%)', objs: [trees], mats: [trees.material] },
   { id: 'site', name: 'Site boundary', claim: 'Measured · W1b, Dec 2025', sw: 'repeating-linear-gradient(90deg,#fff 0 5px,#9a9285 5px 9px)', objs: [siteLine], mats: [siteLine.material] },
   { id: 'labels', name: 'Labels', claim: 'OSM names · GLO-30 heights', sw: 'linear-gradient(135deg,#efe9de,#cfc6b6)', slider: false },
-  { id: 'crowd', name: 'Crowd', claim: 'Visualization · phase 1', sw: 'radial-gradient(circle,#a3282a 30%,#2e7442 31% 60%,#e4dccb 61%)', disabled: true, slider: false },
+  { id: 'people', name: 'People for scale', claim: 'Visualization · not a crowd model', sw: 'radial-gradient(circle,#a3282a 30%,#2e7442 31% 60%,#e4dccb 61%)', objs: [site.crowd], slider: false },
+  { id: 'crowd', name: 'Match-day crowd', claim: 'Visualization · phase 1', sw: 'radial-gradient(circle,#a3282a 30%,#2e7442 31% 60%,#e4dccb 61%)', disabled: true, slider: false },
 ];
 const layerState = Object.fromEntries(LAYERS.map((l) => [l.id, !l.disabled]));
 function layerOn(id) { return layerState[id]; }
@@ -474,7 +493,7 @@ $('#fs').onclick = () => (document.fullscreenElement ? document.exitFullscreen()
 
 // ---------------------------------------------------------------- hover tooltip
 const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();
-const site = F.site;
+const siteRing = F.site;
 const inPoly = (x, z, P) => { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, zi] = P[i], [xj, zj] = P[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; };
 const dms = (d, pos, neg) => { const a = Math.abs(d), deg = Math.floor(a), mi = Math.floor((a - deg) * 60), s = ((a - deg) * 60 - mi) * 60; return `${deg}°${String(mi).padStart(2, '0')}′${s.toFixed(1)}″${d < 0 ? neg : pos}`; };
 let lastHover = 0;
@@ -498,7 +517,7 @@ renderer.domElement.addEventListener('pointermove', (e) => {
   else if (o.name === 'pitch-surface') what = 'Pitch <span class="dim">· hybrid grass</span>';
   else if (n) { const slope = (Math.acos(Math.min(1, n.y)) * 180) / Math.PI, asp = (Math.atan2(n.x, -n.z) * 180) / Math.PI; extra = ` · ${slope.toFixed(0)}° slope${slope > 1.5 ? ` · ${compassPt((asp + 360) % 360)}-facing` : ''}`; }
   const lat = LAT - p.z / 110574, lon = LON + p.x / (111320 * Math.cos((LAT * Math.PI) / 180));
-  const inside = inPoly(p.x, p.z, site);
+  const inside = inPoly(p.x, p.z, siteRing);
   tip.innerHTML = `<b>${(p.y + M.ground_elev_m).toFixed(0)} m</b>${extra}<br>${what}<br><span class="dim">● ${inside ? 'Inside the Talanta site' : 'Outside the site'} · ${Math.hypot(p.x, p.z).toFixed(0)} m to centre spot</span><br><span class="dim">${dms(lat, 'N', 'S')} ${dms(lon, 'E', 'W')}</span>`;
   tip.hidden = false;
   tip.style.left = `${Math.min(e.clientX - stage.getBoundingClientRect().left + 14, stage.clientWidth - 230)}px`;
@@ -521,6 +540,23 @@ function updateHud() {
   $('#sb-mid').textContent = f(nice / 2); $('#sb-end').textContent = f(nice);
 }
 
+// ---------------------------------------------------------------- post: ambient occlusion + bloom
+let pipeline = null, bloomPass = null;
+if (!LITE && !new URLSearchParams(location.search).has('nopost')) {
+  try {
+    pipeline = new THREE.RenderPipeline(renderer);
+    const scenePass = pass(scene, camera);
+    scenePass.setMRT(mrt({ output, normal: normalView }));
+    const color = scenePass.getTextureNode('output');
+    const aoPass = ao(scenePass.getTextureNode('depth'), scenePass.getTextureNode('normal'), camera);
+    aoPass.resolutionScale = 0.5;
+    aoPass.radius.value = 1.2;
+    const shaded = vec4(color.rgb.mul(aoPass.getTextureNode().r.mul(0.85).add(0.15)), color.a);
+    bloomPass = bloom(shaded, 0.08, 0.35, 0.82);
+    pipeline.outputNode = shaded.add(bloomPass);
+  } catch (e) { console.warn('post-processing off:', e); pipeline = null; bloomPass = null; }
+}
+
 // ---------------------------------------------------------------- loop
 buildTimeline();
 applyBuild();
@@ -533,6 +569,7 @@ renderer.setAnimationLoop((now) => {
     else { state.minutes += state.speed * dt * 15; if (state.minutes > 1440) state.minutes = 0; }
   }
   stepFly(now);
+  site.update(now / 1000, night);
   controls.update();
   const sp = applyTime();
   const b = applyBuild();
@@ -546,7 +583,8 @@ renderer.setAnimationLoop((now) => {
   hlMat.opacity = 0.65 + 0.3 * Math.sin(now / 300);
   updateLabels();
   if (++hud % 6 === 0) { updateHud(); updateWeather(sp); }
-  renderer.render(scene, camera);
+  if (pipeline) pipeline.render(); else renderer.render(scene, camera);
 });
 setTimeout(() => $('#splash').classList.add('done'), 250);
+$('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 seats · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.) · ${bowl.seatCount.toLocaleString()} seats modelled`;
 window.__twin = { scene, camera, controls, focus, state, FOCUS };
