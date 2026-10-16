@@ -89,7 +89,7 @@ Known weakness: the subjects for the 138 gap frames are generic (10 different su
 | OpenStreetMap | Roads, footpaths, rail, names | ODbL, free, credit required |
 | Copernicus GLO-30 | Terrain for the far ring | Free |
 | Sentinel-2 | Ground color for the far ring | Free |
-| Google Earth Pro historical imagery | Plan view reference for the site, viewed only | Do not export or trace into the product |
+| Google Earth Pro historical imagery | Plan view reference and ruler measurements of the site (work order W1b). Measurements are facts we record | Do not export or trace the imagery into the product |
 | Paid very-high-resolution satellite scene (Maxar or Airbus) | As-built site plan: gates, parking, landscaping | Paid. Buy only if free sources fail |
 | Structure from motion on the drone clips (COLMAP) | A rough 3D point cloud of the bowl and roof, scaled with the pitch size | Free. Needs the raw drone videos |
 | Football and rugby pitch standards | Scale reference: a FIFA pitch is usually 105 m by 68 m | Public. Confirm the real pitch size |

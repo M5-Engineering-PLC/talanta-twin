@@ -45,9 +45,10 @@ Luna (GPT-6 Luna, Codex) does most of the execution. Sol (GPT-6.1 Sol, Codex) ta
 | Order | Worker | Work | Done when |
 |---|---|---|---|
 | W1 | Lead | Download Open Buildings 2.5D, OSM and GLO-30 for a 3 km box around the stadium | Files exist in `gis/raw/` (git-ignored) |
+| W1b | Munene or a team member | Measure the site in Google Earth Pro with the ruler tool: stadium outline and axes, pitch size, the eight gates, parking areas, access roads, and the dates of the historical images. Record numbers only. Do not export or trace imagery | `gis/site_measurements.md` holds each measurement with its method and the image date |
 | W2 | Luna | Clip and convert the GIS data to GeoJSON footprints with heights, a road network and a 16-bit heightmap | `gis/` holds the outputs and a coverage report |
 | W3 | Luna | Structure-from-motion test: extract frames at 2 fps from the drone shorts and run COLMAP | A report states how many images register and whether the bowl and roof form a point cloud |
-| W4 | Luna | Scale the site: fit the pitch to 105 m by 68 m in the point cloud or on the plan view, and record the stadium outline in meters | `gis/site_scale.md` with the method and the error |
+| W4 | Luna | Scale the site: fit the pitch to 105 m by 68 m in the point cloud or on the plan view, check it against the W1b measurements, and record the stadium outline in meters | `gis/site_scale.md` with the method and the error |
 | W5 | Luna | App scaffold: Vite, three.js with WebGPU and a WebGL fallback, module registry, performance overlay, one test scene | `npm run build` passes and the test scene opens |
 | W6 | Luna | Blender blockout of the bowl, roof and facade from the scale and the frames, with a render-and-compare loop against reference frames | Renders from 6 fixed views match the reference frames in shape |
 
