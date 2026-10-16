@@ -105,7 +105,8 @@ def tri_poly(p):
 def buildings():
     b = gpd.read_file(DER / "near_ring_buildings.gpkg")
     b = b[~b.intersects(SITE)]
-    pos, col, idx = [], [], []; n = 0
+    pos, col, idx, srcv = [], [], [], []; n = 0
+    SRC = {"open_buildings_2023": 0, "osm_floors": 1, "default_by_area": 2}
     rng = np.random.default_rng(7)
     base_h = site_h(b.geometry.centroid.x, b.geometry.centroid.y)
     for (g, h, src), y0 in zip(zip(b.geometry, b.height_m, b.height_src), base_h):
@@ -119,19 +120,22 @@ def buildings():
             for c in tri_poly(p):
                 lx, lz = loc(c[:, 0], c[:, 1])
                 for i in (0, 2, 1):  # winding for +y normal with z = south
-                    pos.append((lx[i], top, lz[i])); col.append(roof)
+                    pos.append((lx[i], top, lz[i])); col.append(roof); srcv.append(SRC[src])
                 idx += [n, n + 1, n + 2]; n += 3
             for rg in [p.exterior] + list(p.interiors):
                 c = np.array(rg.coords); lx, lz = loc(c[:, 0], c[:, 1])
                 for i in range(len(c) - 1):
                     q = [(lx[i], y0 - 1, lz[i]), (lx[i + 1], y0 - 1, lz[i + 1]), (lx[i + 1], top, lz[i + 1]), (lx[i], top, lz[i])]
-                    pos += q; col += [wall * 0.8, wall * 0.8, wall, wall]
+                    pos += q; col += [wall * 0.8, wall * 0.8, wall, wall]; srcv += [SRC[src]] * 4
                     idx += [n, n + 2, n + 1, n, n + 3, n + 2]; n += 4
     np.array(pos, np.float32).tofile(OUT / "buildings_pos.bin")
     (np.array(col) * 255).astype(np.uint8).tofile(OUT / "buildings_col.bin")
     np.array(idx, np.uint32).tofile(OUT / "buildings_idx.bin")
-    print("buildings", len(b), "verts", n)
-    return dict(pos="buildings_pos.bin", col="buildings_col.bin", idx="buildings_idx.bin", count=len(b))
+    np.array(srcv, np.uint8).tofile(OUT / "buildings_src.bin")  # 0 Open Buildings, 1 OSM floors x 3.2 m, 2 area default
+    counts = {k: int((b.height_src == k).sum()) for k in SRC}
+    print("buildings", len(b), "verts", n, counts)
+    return dict(pos="buildings_pos.bin", col="buildings_col.bin", idx="buildings_idx.bin", src="buildings_src.bin",
+                src_codes=list(SRC), height_src=counts, count=len(b))
 
 WIDTH = dict(trunk=16, primary=14, secondary=12, tertiary=9, residential=6, unclassified=6, service=4,
              living_street=5, pedestrian=4, footway=2, path=1.5, cycleway=2, track=3, steps=2, unknown=4)
@@ -190,7 +194,8 @@ def features():
     bowl = bowl.assign(a=bowl.area).sort_values("a").iloc[-1].geometry
     lu = gpd.read_file(RAW / "overture" / "base_land_use.gpkg")
     sport = lu[lu["class"].isin(["pitch", "track"]) & lu.intersects(SITE) & ~lu.intersects(PITCH.centroid)]
-    pitches = [dict(kind=r["class"], ring=ring(g.exterior), area=round(g.area))
+    # Keep the holes: the OSM track is a ring round a training pitch (exterior 13,658 m2, area 3,638 m2).
+    pitches = [dict(kind=r["class"], ring=ring(g.exterior), holes=[ring(h) for h in g.interiors], area=round(g.area))
                for _, r in sport.iterrows() for g in getattr(r.geometry, "geoms", [r.geometry])]
     xs, ys = np.array(PITCH.exterior.coords).T
     ang = np.degrees(np.arctan2(*(np.array([xs[1] - xs[0], ys[1] - ys[0]])))) % 180
@@ -217,6 +222,11 @@ def place_labels():
 if __name__ == "__main__" and sys.argv[1:] == ["ground"]:
     m = json.loads((OUT / "manifest.json").read_text())
     m["ground"] = [ground_colour(1500, 5, "site", LATE), ground_colour(6000, 20, "far", LATE[:3]), ground_colour(20000, 80, "horizon", LATE[:3])]
+    (OUT / "manifest.json").write_text(json.dumps(m)); sys.exit()
+
+if __name__ == "__main__" and sys.argv[1:] == ["mesh"]:  # buildings and features only, no network
+    m = json.loads((OUT / "manifest.json").read_text())
+    m["buildings"] = buildings(); m["features"] = features()
     (OUT / "manifest.json").write_text(json.dumps(m)); sys.exit()
 
 if __name__ == "__main__" and sys.argv[1:] == ["labels"]:

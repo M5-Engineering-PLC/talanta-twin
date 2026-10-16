@@ -2,7 +2,8 @@ import * as THREE from 'three/webgpu';
 import { rotate, rayRadius } from './geom.js';
 
 // Site furniture for the fully built state. Positions are ESTIMATES from reference frames
-// (JWNowpO44rw 07:14, 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8) until W1b measures them:
+// (JWNowpO44rw 07:14, 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8) until W1b measures them.
+// 07:14 was a V6 held-out frame; it is now recorded as used and replaced (gis/heldout_frames.csv).
 // main forecourt on the north side (towards Ngong Road), an eye-shaped plaza with radial
 // paving and a central planter, a long fountain pool with dry-deck jets and steps.
 export function buildSite(features, bowl, groundAt, pad) {
@@ -42,9 +43,20 @@ export function buildSite(features, bowl, groundAt, pad) {
   const [fx2, fz2] = local(poolC, 0);
   fountain.position.set(fx2, pad, fz2); fountain.rotation.y = yaw;
   const stone = new THREE.MeshStandardMaterial({ color: '#ddd7cc', roughness: 0.75 });
-  for (let s = 0; s < 3; s++) { const st = new THREE.Mesh(new THREE.BoxGeometry(poolL + 12 - s * 4, 0.18, poolW + 12 - s * 4), stone); st.position.y = 0.18 - s * 0.18; st.receiveShadow = true; fountain.add(st); }
+  // Three stone steps as frames round an open pool; the water sits above the paving, below the coping.
+  const STEP = 0.18, rimY = 3 * STEP, waterY = rimY - 0.12;
+  const rectPath = (P, w, d) => { P.moveTo(-w / 2, -d / 2); P.lineTo(w / 2, -d / 2); P.lineTo(w / 2, d / 2); P.lineTo(-w / 2, d / 2); P.closePath(); return P; };
+  for (let s = 0; s < 3; s++) {
+    const sh = rectPath(new THREE.Shape(), poolL + 12 - s * 4, poolW + 12 - s * 4);
+    sh.holes.push(rectPath(new THREE.Path(), poolL, poolW));
+    const sg = new THREE.ExtrudeGeometry(sh, { depth: STEP * (s + 1), bevelEnabled: false });
+    sg.rotateX(-Math.PI / 2);
+    const st = new THREE.Mesh(sg, stone); st.castShadow = st.receiveShadow = true; fountain.add(st);
+  }
+  const basin = new THREE.Mesh(new THREE.PlaneGeometry(poolL, poolW), new THREE.MeshStandardMaterial({ color: '#2f5560', roughness: 0.9 }));
+  basin.rotation.x = -Math.PI / 2; basin.position.y = 0.03; fountain.add(basin);
   const water = new THREE.Mesh(new THREE.PlaneGeometry(poolL, poolW), new THREE.MeshStandardMaterial({ color: '#5f7f8c', roughness: 0.05, metalness: 0.6, emissive: '#3a2a6a', emissiveIntensity: 0 }));
-  water.rotation.x = -Math.PI / 2; water.position.y = -0.2; fountain.add(water);
+  water.rotation.x = -Math.PI / 2; water.position.y = waterY; water.name = 'fountain-water'; fountain.add(water);
   // jets: two straight rows and a centre arc (dry-deck nozzles)
   const jets = [];
   for (const row of [-3.5, 3.5]) for (let i = 0; i < 30; i++) jets.push({ x: -poolL / 2 + 3 + (i * (poolL - 6)) / 29, z: row, h: 4, ph: i * 0.37 + (row > 0 ? 1.7 : 0) });
@@ -104,8 +116,8 @@ export function buildSite(features, bowl, groundAt, pad) {
   function update(time, night) {
     jets.forEach((j, i) => {
       const h = j.h * (0.55 + 0.45 * Math.sin(time * 1.3 + j.ph) ** 2);
-      dummy.position.set(j.x, -0.2, j.z); dummy.scale.set(1, h, 1); dummy.updateMatrix(); jetMesh.setMatrixAt(i, dummy.matrix);
-      dummy.position.set(j.x, h - 0.2, j.z); dummy.scale.setScalar(0.6 + 0.6 * (h / j.h)); dummy.updateMatrix(); capMesh.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(j.x, waterY, j.z); dummy.scale.set(1, h, 1); dummy.updateMatrix(); jetMesh.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(j.x, waterY + h, j.z); dummy.scale.setScalar(0.6 + 0.6 * (h / j.h)); dummy.updateMatrix(); capMesh.setMatrixAt(i, dummy.matrix);
     });
     jetMesh.instanceMatrix.needsUpdate = capMesh.instanceMatrix.needsUpdate = true;
     const hue = (time * 0.05) % 1;

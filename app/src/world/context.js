@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu';
 
-export function makeBuildings(pos, col, idx) {
+// src: height source per vertex (0 Open Buildings 2023, 1 OSM floors, 2 area default); see manifest.
+export function makeBuildings(pos, col, idx, src) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   g.setAttribute('color', new THREE.BufferAttribute(col, 3, true));
@@ -8,7 +9,7 @@ export function makeBuildings(pos, col, idx) {
   g.computeVertexNormals();
   const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9 }));
   m.castShadow = false; m.receiveShadow = true;
-  m.userData.kind = 'buildings';
+  m.userData.kind = 'buildings'; m.userData.src = src;
   return m;
 }
 

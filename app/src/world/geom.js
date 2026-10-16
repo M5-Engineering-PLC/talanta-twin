@@ -65,8 +65,9 @@ export function circlePts(cx, cz, r, n = 64) {
   return pts;
 }
 
-export function shapeMesh(ring, y, material) {
+export function shapeMesh(ring, y, material, holes = []) {
   const s = new THREE.Shape(ring.map(([x, z]) => new THREE.Vector2(x, -z)));
+  for (const h of holes) s.holes.push(new THREE.Path(h.map(([x, z]) => new THREE.Vector2(x, -z))));
   const g = new THREE.ShapeGeometry(s);
   g.rotateX(-Math.PI / 2);
   g.translate(0, y, 0);

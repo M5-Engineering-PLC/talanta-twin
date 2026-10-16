@@ -75,7 +75,7 @@ export function buildSport(sport, y) {
   const track = new THREE.MeshStandardMaterial({ color: '#b65d43', roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 });
   const meshes = [];
   for (const s of sport) {
-    const m = shapeMesh(s.ring, y + 0.12, s.kind === 'track' ? track : grass);
+    const m = shapeMesh(s.ring, y + 0.12, s.kind === 'track' ? track : grass, s.holes ?? []);
     m.receiveShadow = true; m.userData = { kind: s.kind, area: s.area };
     g.add(m); meshes.push(m);
   }

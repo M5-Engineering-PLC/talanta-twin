@@ -74,7 +74,8 @@ const groundAt = heightSampler(tSite, D.terrain[0]);
 const terrains = [terrainSite, terrainFar, terrainHz];
 
 // ---------------------------------------------------------------- context
-const buildings = makeBuildings(D.bPos, D.bCol, D.bIdx);
+const buildings = makeBuildings(D.bPos, D.bCol, D.bIdx, D.bSrc);
+const BH = M.buildings.height_src, bEst = BH.default_by_area + BH.osm_floors;
 const roads = makeRoads(D.rPos, D.rW, D.rIdx);
 const trees = makeTrees(D.trees, LITE ? 4000 : innerWidth < 900 ? 18000 : 60000);
 scene.add(buildings, roads, trees);
@@ -205,6 +206,7 @@ const hl = new THREE.Group(); hl.name = 'highlight'; scene.add(hl);
 const hlMat = new THREE.MeshBasicMaterial({ color: 0xf2b33d, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false });
 const hlMat2 = new THREE.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
 function setHighlight(rings = []) {
+  for (const c of hl.children) c.geometry.dispose();
   hl.clear();
   for (const r of rings) {
     hl.add(new THREE.Mesh(ribbon(r.pts, r.w ?? 1.2, r.y, r.closed ?? true), hlMat));
@@ -300,12 +302,12 @@ function updateLabels() {
 const LAYERS = [
   { id: 'terrain', name: 'Terrain (3D)', claim: 'Measured · Copernicus GLO-30', sw: 'linear-gradient(135deg,#a89b7c,#6f7d55)', objs: terrains, slider: false },
   { id: 'satellite', name: 'Satellite colour', claim: 'Measured · Sentinel-2, Sep–Oct 2026', sw: 'linear-gradient(135deg,#9c8a68,#5d6e45,#b9ab90)', slider: false },
-  { id: 'bowl', name: 'Stadium bowl', claim: 'Measured outline · tiers estimated', sw: 'linear-gradient(135deg,#2e7442 30%,#a3282a 30% 70%,#1f1d1b 70%)', objs: [bowl.seating, bowl.seats, bowl.facade, bowl.lattice, bowl.shields], mats: [bowl.facade.material, bowl.lattice.material] },
+  { id: 'bowl', name: 'Stadium bowl', claim: 'Measured outline · tiers estimated', sw: 'linear-gradient(135deg,#2e7442 30%,#a3282a 30% 70%,#1f1d1b 70%)', objs: [bowl.seating, bowl.seats, bowl.facade, bowl.lattice, bowl.shields, ...bowl.base], mats: [bowl.facade.material, bowl.lattice.material] },
   { id: 'furniture', name: 'Plaza, fountain, masts', claim: 'Estimated positions · reference frames', sw: 'linear-gradient(135deg,#dcd6cb 50%,#5f7f8c 50%)', objs: [site.group] },
   { id: 'roof', name: 'Roof canopy', claim: 'Estimated height 44–50 m', sw: 'linear-gradient(135deg,#f3f1ec,#d9d5cc)', objs: [bowl.roof, bowl.truss], mats: [bowl.roof.material] },
   { id: 'pitch', name: 'Pitch and markings', claim: 'Laws of the Game · zone W1b', sw: 'repeating-linear-gradient(0deg,#5a9644 0 4px,#4c8539 4px 8px)', objs: [pitch.group] },
   { id: 'sport', name: 'Training pitches and track', claim: 'OpenStreetMap', sw: 'linear-gradient(135deg,#5b8f45 60%,#b65d43 60%)', objs: [sport.group], mats: sport.materials },
-  { id: 'buildings', name: 'Buildings', claim: 'Footprints measured · heights Open Buildings 2023', sw: 'linear-gradient(135deg,#d5cdbf,#a59a88)', objs: [buildings], mats: [buildings.material] },
+  { id: 'buildings', name: 'Buildings', claim: `Footprints Overture · heights: ${BH.open_buildings_2023.toLocaleString()} Open Buildings 2023, ${bEst.toLocaleString()} estimated`, sw: 'linear-gradient(135deg,#d5cdbf,#a59a88)', objs: [buildings], mats: [buildings.material] },
   { id: 'roads', name: 'Roads', claim: 'OpenStreetMap via Overture', sw: 'linear-gradient(135deg,#ddd5c7 40%,#b79e80 40% 55%,#ddd5c7 55%)', objs: [roads], mats: [roads.material] },
   { id: 'trees', name: 'Trees', claim: 'Estimated · Sentinel-2 NDVI', sw: 'radial-gradient(circle,#5c7a45 40%,#3f5a30 70%)', objs: [trees], mats: [trees.material] },
   { id: 'site', name: 'Site boundary', claim: 'Measured · W1b, Dec 2025', sw: 'repeating-linear-gradient(90deg,#fff 0 5px,#9a9285 5px 9px)', objs: [siteLine], mats: [siteLine.material] },
@@ -497,7 +499,8 @@ const siteRing = F.site;
 const inPoly = (x, z, P) => { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, zi] = P[i], [xj, zj] = P[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; };
 const dms = (d, pos, neg) => { const a = Math.abs(d), deg = Math.floor(a), mi = Math.floor((a - deg) * 60), s = ((a - deg) * 60 - mi) * 60; return `${deg}°${String(mi).padStart(2, '0')}′${s.toFixed(1)}″${d < 0 ? neg : pos}`; };
 let lastHover = 0;
-const pickables = [terrainSite, bowl.seating, bowl.roof, bowl.facade, ...sport.meshes, pitch.group];
+const pickables = [terrainSite, bowl.seating, bowl.roof, bowl.facade, ...sport.meshes, pitch.group, buildings];
+const HSRC = ['height: Open Buildings 2023', 'height estimated: OSM floors × 3.2 m', 'height estimated: default by footprint area'];
 renderer.domElement.addEventListener('pointermove', (e) => {
   const now = performance.now(); if (now - lastHover < 70) return; lastHover = now;
   const r = renderer.domElement.getBoundingClientRect();
@@ -515,6 +518,7 @@ renderer.domElement.addEventListener('pointermove', (e) => {
   else if (o.userData.kind === 'pitch') what = `Training pitch <span class="dim">· ${o.userData.area.toLocaleString()} m²</span>`;
   else if (o.userData.kind === 'track') what = 'Warm-up track';
   else if (o.name === 'pitch-surface') what = 'Pitch <span class="dim">· hybrid grass</span>';
+  else if (o === buildings) what = `Building <span class="dim">· ${HSRC[o.userData.src[hit.face.a]] ?? 'height source unknown'}</span>`;
   else if (n) { const slope = (Math.acos(Math.min(1, n.y)) * 180) / Math.PI, asp = (Math.atan2(n.x, -n.z) * 180) / Math.PI; extra = ` · ${slope.toFixed(0)}° slope${slope > 1.5 ? ` · ${compassPt((asp + 360) % 360)}-facing` : ''}`; }
   const lat = LAT - p.z / 110574, lon = LON + p.x / (111320 * Math.cos((LAT * Math.PI) / 180));
   const inside = inPoly(p.x, p.z, siteRing);
@@ -583,7 +587,9 @@ renderer.setAnimationLoop((now) => {
   hlMat.opacity = 0.65 + 0.3 * Math.sin(now / 300);
   updateLabels();
   if (++hud % 6 === 0) { updateHud(); updateWeather(sp); }
-  if (pipeline) pipeline.render(); else renderer.render(scene, camera);
+  if (pipeline) {
+    try { pipeline.render(); } catch (e) { console.warn('post-processing failed, plain render from now on:', e); pipeline = null; bloomPass = null; renderer.render(scene, camera); }
+  } else renderer.render(scene, camera);
 });
 setTimeout(() => $('#splash').classList.add('done'), 250);
 $('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 seats · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.) · ${bowl.seatCount.toLocaleString()} seats modelled`;

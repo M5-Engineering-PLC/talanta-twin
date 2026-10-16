@@ -17,6 +17,7 @@ export async function loadData(onProgress) {
     bPos: bin(m.buildings.pos, Float32Array, tick),
     bCol: bin(m.buildings.col, Uint8Array, tick),
     bIdx: bin(m.buildings.idx, Uint32Array, tick),
+    bSrc: bin(m.buildings.src, Uint8Array, tick),
     rPos: bin(m.roads.pos, Float32Array, tick),
     rW: bin(m.roads.w, Float32Array, tick),
     rIdx: bin(m.roads.idx, Uint32Array, tick),
@@ -27,4 +28,4 @@ export async function loadData(onProgress) {
   return out;
 }
 
-export const TOTAL_FILES = 10;
+export const TOTAL_FILES = 11;

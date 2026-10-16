@@ -102,7 +102,8 @@ export function buildBowl(features, opts = {}) {
   // Plinth: dark glazing with white columns, and a white soffit under the facade.
   const plinth = new THREE.Mesh(ring(dirs, rOut.map((r) => r - E.plinthInset), 0, E.plinthH, N, 6), new THREE.MeshStandardMaterial({ map: plinthTexture(), roughness: 0.25, metalness: 0.4 }));
   plinth.receiveShadow = true; group.add(plinth);
-  group.add(new THREE.Mesh(flatRing(dirs, rOut.map((r) => r - E.plinthInset), rOut.map((r) => r - E.facadeInset), E.plinthH, N), new THREE.MeshStandardMaterial({ color: '#efede8', roughness: 0.6, side: THREE.DoubleSide })));
+  const soffit = new THREE.Mesh(flatRing(dirs, rOut.map((r) => r - E.plinthInset), rOut.map((r) => r - E.facadeInset), E.plinthH, N), new THREE.MeshStandardMaterial({ color: '#efede8', roughness: 0.6, side: THREE.DoubleSide }));
+  group.add(soffit);
 
   // ---------- diamond lattice: white members spiralling over the facade ----------
   const tubes = [];
@@ -251,17 +252,21 @@ export function buildBowl(features, opts = {}) {
   }
   truss.castShadow = true; truss.name = 'trusses'; truss.userData.count = nT;
   group.add(truss);
+  let lights, led, concourse;
   const lightsMat = new THREE.MeshStandardMaterial({ color: '#fffbe8', emissive: '#fff4cf', emissiveIntensity: 0 });
-  { const pts = []; for (let i = 0; i <= N; i += 2) { const [r, y] = P(i, prof.length - 1); pts.push(new THREE.Vector3(dirs[i][0] * (r + 2), y - 2.6, dirs[i][1] * (r + 2))); } const lights = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), N, 0.55, 6, true), lightsMat); lights.name = 'floodlights'; group.add(lights); }
+  { const pts = []; for (let i = 0; i <= N; i += 2) { const [r, y] = P(i, prof.length - 1); pts.push(new THREE.Vector3(dirs[i][0] * (r + 2), y - 2.6, dirs[i][1] * (r + 2))); } lights = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), N, 0.55, 6, true), lightsMat); lights.name = 'floodlights'; group.add(lights); }
   // LED crest ring (night colour)
   const ledMat = new THREE.MeshStandardMaterial({ color: '#d9d6f0', emissive: '#9b5cff', emissiveIntensity: 0 });
-  { const pts = []; for (let i = 0; i <= N; i += 2) pts.push(surf((i / N) * Math.PI * 2, facadeSamples + 4, 0.9)); group.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), N, 0.35, 5, true), ledMat)); }
+  { const pts = []; for (let i = 0; i <= N; i += 2) pts.push(surf((i / N) * Math.PI * 2, facadeSamples + 4, 0.9)); led = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), N, 0.35, 5, true), ledMat); led.name = 'led-ring'; group.add(led); }
 
   // concourse floor
-  group.add(new THREE.Mesh(flatRing(dirs, rBack, rOut.map((r) => r + 6), 0.15, N), new THREE.MeshStandardMaterial({ color: '#d9d2c6', roughness: 0.9, side: THREE.DoubleSide })));
+  concourse = new THREE.Mesh(flatRing(dirs, rBack, rOut.map((r) => r + 6), 0.15, N), new THREE.MeshStandardMaterial({ color: '#d9d2c6', roughness: 0.9, side: THREE.DoubleSide }));
+  concourse.name = 'concourse'; group.add(concourse);
 
   const rHole = rOpen;
-  return { group, seating, seats, seatCount: seatList.length, facade, roof, truss, lattice, shields, shieldMat, lightsMat, ledMat, dirs, rIn, rOut, rHole, rBack, at, tierMeta: E.tiers, P, profLen: prof.length, topY };
+  // Parts that follow the bowl layer toggle (the roof layer has its own).
+  const base = [plinth, soffit, concourse, lights, led];
+  return { group, base, seating, seats, seatCount: seatList.length, facade, roof, truss, lattice, shields, shieldMat, lightsMat, ledMat, dirs, rIn, rOut, rHole, rBack, at, tierMeta: E.tiers, P, profLen: prof.length, topY };
 }
 
 function profileIndexAtY(prof, y) {
