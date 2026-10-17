@@ -1,0 +1,55 @@
+Talanta photo layer, 2026-10-17
+Project: Talanta Twin, private internal work.
+Status: software comparison. Images are artistic simulation, not physical measurements.
+Sources: blender/lookdev.py and blender/render_cycles.py.
+Source scene: blender/out/talanta_site.blend. No blockout fallback.
+Handoff: enable with TALANTA_LOOKDEV=1. Leave it unset for the original behavior.
+The source scene and reference files stay intact. No scene file was saved.
+
+Settings
+Blender 5.2.2 LTS, headless CPU Cycles, two threads, one process at a time.
+Camera C06, morning 2026-01-15 at 07:35 EAT, 480x270, 8 samples, seed 6.
+OIDN denoising and adaptive sampling match the production script.
+Both renders: exposure -1.0 EV, 35 mm focal length, 36 mm sensor, DOF off.
+Sun elevation 12.75 deg, azimuth 111.37 deg, angular diameter 0.53 deg.
+The enabled layer replaces the existing volume haze with mist-pass haze.
+All effect strengths are in STRENGTHS at the top of lookdev.py.
+
+Commands run
+/snap/blender/current/blender -b --factory-startup -t 2 -P /tmp/talanta_lookdev_test.py -- off
+/snap/blender/current/blender -b --factory-startup -t 2 -P /tmp/talanta_lookdev_test.py -- on
+The temporary harness executes render_cycles.py with its real camera and lighting setup.
+It overrides resolution, threads, CPU compositing, and output paths for this comparison.
+It remaps six absolute cloud texture paths to the same existing local assets for both images.
+It uses no downloaded assets. Neither the hook nor the source scene needs a path change.
+Logs: /tmp/talanta_lookdev_off.log and /tmp/talanta_lookdev_on.log.
+
+Results
+Off: 21.896 seconds for render and image save.
+On: 22.609 seconds for render and image save.
+Time increase: 3.25%, below the 15% local limit.
+Setup plus render: off 22.360 seconds, on 23.049 seconds.
+The paired run is one comparison, not a statistical benchmark of the cloud host.
+Both images were opened for visual inspection. The treatment remains subtle.
+Mean absolute RGB difference: 7.955 on the 0 to 255 scale.
+Changed pixels: 99.849%. This measures image difference, not photographic accuracy.
+
+Observed test output
+"resolution": [480, 270], "samples": 8, "seconds": 21.9
+"resolution": [480, 270], "samples": 8, "seconds": 22.6
+STRUCTURAL_ASSERTIONS_OK
+FLAG_OFF_AST_IDENTICAL: production code differs only by the opt-in hook
+PYTHON_PARSE_OK
+
+/snap/blender/current/blender -b --factory-startup -t 2 -P /tmp/talanta_lookdev_structure.py
+STRUCTURE_OK: linked color/roughness preserved; restricted white edge; existing compositor preserved; close DOF 10m f/2.8; exposure/lens preserved; night nodes; repeat call; invalid mode
+
+Limits
+Night mode received node tests only. No night render ran.
+Fine surface and streak effects cannot be judged separately at this resolution.
+Pointiness approximates mesh curvature. Streak masks approximate crevice staining.
+Cloud timing, larger images, other cameras, and Blender versions other than 5.2.2 remain untested.
+The CUDA library warning occurred in both CPU runs. Both images saved successfully.
+The discarded first trials exposed stale texture paths and stale camera transforms.
+The harness remaps paths. The layer now updates camera transforms before focus calculations.
+No layer was omitted for cost. The source code changes only the owned module and opt-in hook.
