@@ -2,7 +2,7 @@
 
 Date of form: 2026-10-16
 Who measures: Munene or a team member, at a desktop with Google Earth Pro.
-Status: batch 1 (site boundary, pitch zone, 2026-10-16), batch 2 (roof outer ring, north plaza, warm-up track), the roof inner ring and the bowl plinth (2026-10-17) recorded. The SE training pitch is recorded; the SW training pitch is still open. Scale checks not possible on the newest image (see below).
+Status: batch 1 (site boundary, pitch zone, 2026-10-16), batch 2 (roof outer ring, north plaza, warm-up track), the roof inner ring and the bowl plinth (2026-10-17) recorded. All W1b shapes asked for are recorded. Scale checks wait for an image with pitch markings. Scale checks not possible on the newest image (see below).
 Classification: internal. Gate, parking and access measurements must not appear in a public demo (AGENTS.md rule 8).
 
 ## Rules
@@ -69,7 +69,7 @@ Height = shadow length x tan(sun elevation). The lead computes the sun elevation
 | Gate 1-8 centre positions | Lat, lon for each gate | | | | |
 | Main plaza outline | Path, vertices as lat, lon | North forecourt plaza, 10 points: 8,268 m2, 102.5 x 93.5 m, long axis 89 deg. `measurements/north_plaza_w1b_2026-10-17.csv` | | | 2025-12-26 (Airbus) |
 | Each parking area: outline and bay count | Path and count | | | | |
-| Training pitch 1 and 2: length, width | Line | SE pitch: 126.0 x 79.4 m (sides 126.1 and 125.8 m; N end 81.5 m, S end 77.3 m), 9,999 m2, long axis 178 deg, centroid 188 m E, 95 m S. `measurements/training_pitch_se_w1b_2026-10-17.csv`. SW pitch not yet measured. (The KML shape named "Training pitch" is the warm-up track, below.) | | | |
+| Training pitch 1 and 2: length, width | Line | SE pitch: 126.0 x 79.4 m (sides 126.1 and 125.8 m; N end 81.5 m, S end 77.3 m), 9,999 m2, long axis 178 deg, centroid 188 m E, 95 m S. `measurements/training_pitch_se_w1b_2026-10-17.csv`. SW field: 180.3 x 101.2 m with rounded ends, 15,485 m2, bare earth on this image, centroid 100 m W, 214 m S. `measurements/training_pitch_sw_w1b_2026-10-17.csv`. (The KML shape named "Training pitch" is the warm-up track, below.) | | | |
 | Warm-up track oval, east of the bowl | Polygon | 6 points: 12,738 m2, 166.7 x 87.8 m, long axis 179 deg. Standard 8-lane outer edge is 176.9 x 92.5 m, so use the standard shape, labelled estimated. `measurements/warmup_track_w1b_2026-10-17.csv` | | | 2025-12-26 (Airbus) |
 | Mini-stadium: outline | Path | | | | |
 | Access road widths, 5 samples | Line kerb to kerb, with location | | | | |
@@ -131,3 +131,7 @@ KML name "STADIUM OUTLINE", 30 points. The points were clicked out of order and 
 ## Training pitch SE (2026-10-17)
 
 KML name "Training pitch" (the same name as the warm-up track shape; renamed "Training pitch SE" in My Places). Four corners, 9,999 m2. Long sides 126.1 and 125.8 m; the north end is 81.5 m and the south end 77.3 m, so the four clicks give a slight trapezoid. Use 126 x 79 m. The twin's second pitch is 9,591 m2 with its centroid 189 m E, 94 m S: within 2 m of the measurement.
+
+## Training field SW (2026-10-17)
+
+KML name "Training Pitch Dirt", 12 points with rounded ends. 15,485 m2, minimum rectangle 180.3 x 101.2 m, long axis 3 deg, centroid 100 m W and 214 m S of the twin origin. On the 26 Dec 2025 image it is bare earth, with no grass or track surface yet. Its size is a little larger than the outer edge of a standard 8-lane 400 m track (176.9 x 92.5 m), so it is probably the earthworks for a track and infield. Record it as "training field, earthworks"; model the finished surface as estimated. The twin does not have this field yet.
