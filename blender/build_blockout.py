@@ -390,7 +390,8 @@ sweep("lattice", "facade_detail", sp, LSEC, WHITE, "ledger bowl.lattice.section_
 rings = [[surf(2 * math.pi * i / N, j, 0.3) for i in range(N)] for j in (J_LO, float(J_WALL))]
 curve_obj("lattice_rings", "facade_detail", rings, V("bowl.lattice.ring_r"), WHITE, closed=True, sources="ledger bowl.lattice.ring_r (estimated)")
 nrib = int(V("bowl.roof.ribs"))
-ribs = [[surf(2 * math.pi * k / nrib, j, 0) + Vector((0, 0, 0.35)) for j in np.linspace(J_FACADE, NP - 1, 14)] for k in range(nrib)]
+# ribs half sunk into the membrane (stage 02b: 12:40 shows a smooth membrane with faint seams, not raised tubes)
+ribs = [[surf(2 * math.pi * k / nrib, j, 0) + Vector((0, 0, 0.1 - V("bowl.roof.rib_r"))) for j in np.linspace(J_FACADE, NP - 1, 14)] for k in range(nrib)]
 curve_obj("roof_ribs", "facade_detail", ribs, V("bowl.roof.rib_r"), WHITE, sources="ledger bowl.roof.ribs (estimated)")
 curve_obj("ring_beam", "facade_detail", [[surf(2 * math.pi * i / N, NP - 1, 0) for i in range(N)]], V("bowl.roof.ring_beam_r"), WHITE, closed=True, sources="ledger bowl.roof.ring_beam_r (estimated)")
 

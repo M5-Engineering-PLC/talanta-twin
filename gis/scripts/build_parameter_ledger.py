@@ -198,6 +198,8 @@ fe("bowl.base.recess", 4.0, "m", "12:12, 12:16", "by eye: shaded wall set back b
 fe("bowl.base.band_h", 1.6, "m", "12:12, 12:16", "by eye: light band under the louvres", "+-0.6 m", f"{BB} base_band")
 fe("bowl.base.column_w", 1.2, "m", "12:16, 12:40", "by eye: white columns in the recess", "+-0.4 m", f"{BB} base_columns")
 fe("bowl.base.column_spacing", 9.0, "m", "12:16, 12:40", "by eye: column rhythm along the base", "+-3 m", f"{BB} base_columns")
+fe("bowl.ground.concourse_w", 35, "m", "12:40", "by eye: light paved apron round the base", "+-10 m", "gis/scripts/export_ground_regions.py", "inside the W1b site boundary")
+fe("site.ground.murram_rgb", "#8B4A2B-#A0522D", "hex", "11:20, 12:40", "lead review colour range for red murram", "", "blender/build_scene.py terrain_site", "look only")
 add("bowl.mesh.N", 240, "segments", "model resolution", "", "not a dimension", "", "estimated", f"{B}.N", "")
 
 # ---------------------------------------------------------------- site.js (all estimated, W1b now measures some)

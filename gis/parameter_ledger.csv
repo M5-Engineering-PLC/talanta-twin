@@ -169,6 +169,8 @@ bowl.base.recess,4.0,m,"JWNowpO44rw 12:12, 12:16 (by eye)",2026-10-17,by eye: sh
 bowl.base.band_h,1.6,m,"JWNowpO44rw 12:12, 12:16 (by eye)",2026-10-17,by eye: light band under the louvres,+-0.6 m,estimated,blender/build_blockout.py base_band,
 bowl.base.column_w,1.2,m,"JWNowpO44rw 12:16, 12:40 (by eye)",2026-10-17,by eye: white columns in the recess,+-0.4 m,estimated,blender/build_blockout.py base_columns,
 bowl.base.column_spacing,9.0,m,"JWNowpO44rw 12:16, 12:40 (by eye)",2026-10-17,by eye: column rhythm along the base,+-3 m,estimated,blender/build_blockout.py base_columns,
+bowl.ground.concourse_w,35,m,JWNowpO44rw 12:40 (by eye),2026-10-17,by eye: light paved apron round the base,+-10 m,estimated,gis/scripts/export_ground_regions.py,inside the W1b site boundary
+site.ground.murram_rgb,#8B4A2B-#A0522D,hex,"JWNowpO44rw 11:20, 12:40 (by eye)",2026-10-17,lead review colour range for red murram,,estimated,blender/build_scene.py terrain_site,look only
 bowl.mesh.N,240,segments,model resolution,,not a dimension,,estimated,bowl.js BOWL_EST.N,
 site.plaza.offset,78,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10 m,estimated,site.js buildSite plazaC = rN + 78,measured plaza centroid -205 m N of the origin
 site.plaza.half_across,92,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-20 m,estimated,site.js buildSite half,measured plaza: 102.5 m across (half 51.3 m)

@@ -92,6 +92,8 @@ def attr_mat(name, attr, rough=0.9):
 PBR = {
     "white_shell": principled("white_shell_pbr", (0.80, 0.80, 0.78), 0.32, 0.0, coat=0.2, noise_rough=0.06, noise_scale=0.08),
     "membrane": principled("membrane_pbr", (0.86, 0.86, 0.83), 0.55, 0.0, noise_rough=0.08, noise_scale=0.05),
+    "concrete_light": principled("concrete_light_pbr", (0.66, 0.65, 0.62), 0.85, 0.0, noise_rough=0.05, noise_scale=0.6, bump=0.03),
+    "concrete_shade": principled("concrete_shade_pbr", (0.36, 0.35, 0.33), 0.9),
     "concrete": principled("concrete_pbr", (0.55, 0.53, 0.50), 0.85, 0.0, noise_rough=0.05, noise_scale=0.6, bump=0.05),
     "plinth_glass": principled("glass_pbr", (0.04, 0.05, 0.06), 0.06, 0.0, spec=0.6),
     "grass": principled("grass_pbr", (0.10, 0.22, 0.06), 0.85, 0.0, noise_rough=0.05, noise_scale=0.3, bump=0.1),
@@ -102,6 +104,24 @@ PBR = {
     "seat_red": principled("seat_red_pbr", (0.38, 0.03, 0.04), 0.4, spec=0.6),
     "spear_white": principled("spear_pbr", (0.82, 0.82, 0.80), 0.3, 0.0, coat=0.2),
 }
+# Membrane (stage 02b fix 6, by eye from 12:40): faint radial seams at the rib spacing and slight
+# panel-to-panel brightness variation, from the angle round the bowl centre (object coordinates).
+mm = PBR["membrane"]; mn, ml = mm.node_tree.nodes, mm.node_tree.links
+mco = mn.new("ShaderNodeTexCoord"); msx = mn.new("ShaderNodeSeparateXYZ"); ml.new(mco.outputs["Object"], msx.inputs[0])
+ang = mn.new("ShaderNodeMath"); ang.operation = "ARCTAN2"; ml.new(msx.outputs["Y"], ang.inputs[0]); ml.new(msx.outputs["X"], ang.inputs[1])
+NRIB = float([r for r in __import__("csv").DictReader(open(ROOT / "gis/parameter_ledger.csv")) if r["name"] == "bowl.roof.ribs"][0]["value"])
+pa = mn.new("ShaderNodeMath"); pa.operation = "MULTIPLY"; pa.inputs[1].default_value = NRIB / (2 * math.pi); ml.new(ang.outputs[0], pa.inputs[0])
+fr = mn.new("ShaderNodeMath"); fr.operation = "FRACT"; ml.new(pa.outputs[0], fr.inputs[0])
+sd = mn.new("ShaderNodeMath"); sd.operation = "SUBTRACT"; sd.inputs[1].default_value = 0.5; ml.new(fr.outputs[0], sd.inputs[0])
+sa = mn.new("ShaderNodeMath"); sa.operation = "ABSOLUTE"; ml.new(sd.outputs[0], sa.inputs[0])
+seam = mn.new("ShaderNodeMapRange"); seam.inputs["From Min"].default_value = 0.44; seam.inputs["From Max"].default_value = 0.5
+seam.inputs["To Min"].default_value = 1.0; seam.inputs["To Max"].default_value = 0.93; ml.new(sa.outputs[0], seam.inputs["Value"])
+fl = mn.new("ShaderNodeMath"); fl.operation = "FLOOR"; ml.new(pa.outputs[0], fl.inputs[0])
+wn = mn.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = "1D"; ml.new(fl.outputs[0], wn.inputs["W"])
+pv = mn.new("ShaderNodeMapRange"); pv.inputs["To Min"].default_value = 0.96; pv.inputs["To Max"].default_value = 1.02; ml.new(wn.outputs["Value"], pv.inputs["Value"])
+mul = mn.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; ml.new(seam.outputs[0], mul.inputs[0]); ml.new(pv.outputs[0], mul.inputs[1])
+mcol = mn.new("ShaderNodeMix"); mcol.data_type = "RGBA"; mcol.blend_type = "MULTIPLY"; mcol.inputs[0].default_value = 1.0
+mcol.inputs[6].default_value = (0.86, 0.86, 0.83, 1); ml.new(mul.outputs[0], mcol.inputs[7]); ml.new(mcol.outputs[2], mn["Principled BSDF"].inputs["Base Color"])
 # The louvred wall is real fin geometry over a dark backing (build_blockout.py, stage 02b), so no louvre texture.
 PBR["facade_void"] = principled("facade_void_pbr", (0.035, 0.036, 0.04), 0.75)
 for o in scene.objects:
@@ -143,17 +163,45 @@ def terrain(meta, ground, hole, name):
 T, G = MAN["terrain"], MAN["ground"]
 box = lambda t, pad: (t["x0"] + pad, t["x0"] + (t["nx"] - 1) * t["dx"] - pad, t["z0"] + pad, t["z0"] + (t["nz"] - 1) * t["dz"] - pad)
 ts = terrain(T[0], G[0], None, "terrain_site")
-# Sentinel-2 (10 m) paints the white roof onto the ground round the bowl. Inside about 150 m use a paved
-# apron colour instead, blending out to the satellite colour by 210 m (look estimate, P2 ground).
+# Ground regions (stage 02b fix 5, by eye from JWNowpO44rw 11:20 and 12:40; look only). Inside the W1b site
+# boundary the 10 m Sentinel-2 colour (which also paints the white roof onto the ground) is replaced by red murram
+# with colour and roughness variation, and by light concrete paving on the concourse ring and the north plaza.
+# Mask: blender/textures/site_regions.png from gis/scripts/export_ground_regions.py (W1b outlines only).
+def srgb(h):
+    return tuple(((int(h[i:i + 2], 16) / 255 + 0.055) / 1.055) ** 2.4 for i in (1, 3, 5))
+
+
 tm = ts.data.materials[0]; tn, tl = tm.node_tree.nodes, tm.node_tree.links
 img = [x for x in tn if x.type == "TEX_IMAGE"][0]; pbsdf = tn["Principled BSDF"]
-geo = tn.new("ShaderNodeNewGeometry"); sxyz = tn.new("ShaderNodeSeparateXYZ"); tl.new(geo.outputs["Position"], sxyz.inputs[0])
-cxy = tn.new("ShaderNodeCombineXYZ"); tl.new(sxyz.outputs["X"], cxy.inputs["X"]); tl.new(sxyz.outputs["Y"], cxy.inputs["Y"])
-ln_ = tn.new("ShaderNodeVectorMath"); ln_.operation = "LENGTH"; tl.new(cxy.outputs[0], ln_.inputs[0])
-mr = tn.new("ShaderNodeMapRange"); mr.inputs["From Min"].default_value = 150; mr.inputs["From Max"].default_value = 210
-tl.new(ln_.outputs["Value"], mr.inputs["Value"])
-mix = tn.new("ShaderNodeMix"); mix.data_type = "RGBA"; mix.inputs[6].default_value = (0.42, 0.40, 0.36, 1)
-tl.new(mr.outputs["Result"], mix.inputs[0]); tl.new(img.outputs["Color"], mix.inputs[7]); tl.new(mix.outputs[2], pbsdf.inputs["Base Color"])
+tco = tn.new("ShaderNodeTexCoord"); mp = tn.new("ShaderNodeMapping")
+mp.inputs["Location"].default_value = (0.5, 0.5, 0); mp.inputs["Scale"].default_value = (1 / 1400, 1 / 1400, 1)
+tl.new(tco.outputs["Object"], mp.inputs["Vector"])
+mk = tn.new("ShaderNodeTexImage"); mk.image = bpy.data.images.load(str(ROOT / "blender/textures/site_regions.png"))
+mk.image.colorspace_settings.name = "Non-Color"; mk.extension = "CLIP"; tl.new(mp.outputs["Vector"], mk.inputs["Vector"])
+sep = tn.new("ShaderNodeSeparateColor"); tl.new(mk.outputs["Color"], sep.inputs["Color"])
+def noise(scale, detail=4):
+    nz = tn.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = scale; nz.inputs["Detail"].default_value = detail
+    tl.new(tco.outputs["Object"], nz.inputs["Vector"]); return nz
+def mixc(fac, a_, b_):
+    m_ = tn.new("ShaderNodeMix"); m_.data_type = "RGBA"
+    for sock, val in ((6, a_), (7, b_)):
+        if isinstance(val, tuple): m_.inputs[sock].default_value = (*val, 1)
+        else: tl.new(val, m_.inputs[sock])
+    if isinstance(fac, float): m_.inputs[0].default_value = fac
+    else: tl.new(fac, m_.inputs[0])
+    return m_.outputs[2]
+murram = mixc(noise(0.02).outputs["Fac"], srgb("#8B4A2B"), srgb("#A0522D"))
+dust = tn.new("ShaderNodeMapRange"); dust.inputs["From Min"].default_value = 0.55; dust.inputs["From Max"].default_value = 0.75
+dust.inputs["To Max"].default_value = 0.6; tl.new(noise(0.008, 3).outputs["Fac"], dust.inputs["Value"])
+murram = mixc(dust.outputs["Result"], murram, srgb("#B07A5A"))  # dusty compacted patches
+pave = mixc(noise(0.15).outputs["Fac"], srgb("#BDB7AB"), srgb("#CFCAC0"))
+col = mixc(sep.outputs["Red"], img.outputs["Color"], murram)
+col = mixc(sep.outputs["Green"], col, pave)
+tl.new(col, pbsdf.inputs["Base Color"])
+rg = tn.new("ShaderNodeMapRange"); rg.inputs["To Min"].default_value = 0.82; rg.inputs["To Max"].default_value = 1.0
+tl.new(noise(0.3).outputs["Fac"], rg.inputs["Value"]); tl.new(rg.outputs["Result"], pbsdf.inputs["Roughness"])
+bmp = tn.new("ShaderNodeBump"); bmp.inputs["Strength"].default_value = 0.15; tl.new(noise(1.5, 6).outputs["Fac"], bmp.inputs["Height"])
+tl.new(bmp.outputs["Normal"], pbsdf.inputs["Normal"])
 terrain(T[1], G[1], box(T[0], 0), "terrain_far")
 terrain(T[2], G[2], box(T[1], 0), "terrain_horizon")
 
@@ -179,11 +227,41 @@ bcol = array("B"); bcol.frombytes((DATA / MAN["buildings"]["col"]).read_bytes())
 bo = bpy.data.objects.new("buildings", mesh_from("buildings", bpos, bidx, bcol)); coll("context").objects.link(bo)
 bo.data.materials.append(attr_mat("buildings_mat", "col", 0.85)); bo["claim"] = "footprints Overture; heights mixed (see manifest height_src)"
 rpos, ridx, rw = f32(MAN["roads"]["pos"]), u32(MAN["roads"]["idx"]), f32(MAN["roads"]["w"])
-rc = []
-for w in rw: rc += [0.42, 0.41, 0.40] if w >= 9 else [0.45, 0.36, 0.28] if w <= 3 else [0.44, 0.42, 0.40]
+rc = []  # asphalt for carriageways, dusty murram for footways and tracks (look estimate)
+for w in rw: rc += [0.075, 0.075, 0.078] if w >= 4 else [0.33, 0.2, 0.13]
 ro = bpy.data.objects.new("roads", mesh_from("roads", rpos, ridx, rc, normalize=1.0)); coll("context").objects.link(ro)
 ro.location.z = 0.15
 ro.data.materials.append(attr_mat("roads_mat", "col", 0.9)); ro["claim"] = "OpenStreetMap via Overture"
+rm = bpy.data.materials["roads_mat"]; rn, rl = rm.node_tree.nodes, rm.node_tree.links
+rnz = rn.new("ShaderNodeTexNoise"); rnz.inputs["Scale"].default_value = 0.4; rco = rn.new("ShaderNodeTexCoord"); rl.new(rco.outputs["Object"], rnz.inputs["Vector"])
+rmr = rn.new("ShaderNodeMapRange"); rmr.inputs["To Min"].default_value = 0.8; rmr.inputs["To Max"].default_value = 1.25; rl.new(rnz.outputs["Fac"], rmr.inputs["Value"])
+rmu = rn.new("ShaderNodeMix"); rmu.data_type = "RGBA"; rmu.blend_type = "MULTIPLY"; rmu.inputs[0].default_value = 1.0
+rl.new(rn["Attribute"].outputs["Color"], rmu.inputs[6]); rl.new(rmr.outputs["Result"], rmu.inputs[7]); rl.new(rmu.outputs[2], rn["Principled BSDF"].inputs["Base Color"])
+# Lane markings: white centre dashes (3 m on, 6 m off, 0.18 m wide) on trunk to tertiary roads within 1.5 km
+# (OSM centrelines from gis/scripts/export_ground_regions.py), dropped onto the road surface.
+from mathutils.bvhtree import BVHTree
+from mathutils import Vector as Vec
+dg = bpy.context.evaluated_depsgraph_get(); bvh = BVHTree.FromObject(ro, dg)
+mv, mf = [], []
+for ln in json.loads((ROOT / "blender/data/road_lines.json").read_text()):
+    P = [Vec((x, -z, 0)) for x, z in ln["pts"]]
+    for a_, b_ in zip(P, P[1:]):
+        d_ = b_ - a_; L_ = d_.length
+        if L_ < 1: continue
+        t_, n_ = d_.normalized(), Vec((-d_.y, d_.x, 0)).normalized() * 0.09
+        k_ = 0.0
+        while k_ + 3 <= L_:
+            q0, q1 = a_ + t_ * k_, a_ + t_ * (k_ + 3)
+            h = [bvh.ray_cast(Vec((q.x, q.y, 3000)), Vec((0, 0, -1))) for q in (q0, q1)]
+            if all(x[0] for x in h):
+                z0, z1 = h[0][0].z + ro.location.z + 0.04, h[1][0].z + ro.location.z + 0.04; b0 = len(mv)
+                mv += [(q0.x - n_.x, q0.y - n_.y, z0), (q0.x + n_.x, q0.y + n_.y, z0), (q1.x + n_.x, q1.y + n_.y, z1), (q1.x - n_.x, q1.y - n_.y, z1)]
+                mf.append((b0, b0 + 1, b0 + 2, b0 + 3))
+            k_ += 9
+mme = bpy.data.meshes.new("road_markings"); mme.from_pydata(mv, [], mf); mme.update()
+mo = bpy.data.objects.new("road_markings", mme); coll("context").objects.link(mo)
+mo.data.materials.append(principled("marking_paint", (0.75, 0.75, 0.72), 0.6)); mo["claim"] = "look estimate on OSM centrelines"
+print("lane dashes:", len(mf))
 
 # ---------------------------------------------------------------- trees (instances on points)
 tr = f32(MAN["trees"]["file"])
