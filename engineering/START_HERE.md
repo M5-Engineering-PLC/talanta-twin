@@ -57,6 +57,8 @@ flowchart TD
 
 Hold roadmap package P1 (bowl.js polish) until gate G2 passes. After G2, the Blender blockout is the source of the bowl, and P1 work in bowl.js would be done twice. P0, P3, P5 and P7 can run at any time.
 
+Detail sheets: engineering/detail_sheets/. Read 00_README_and_lead_review.md first. The lead review in it overrides the sheets.
+
 Lead renders: research/concepts/2026-10-17/06_lead_ne_to_ngong_hills.jpg and 07_lead_ssw_to_lavington.jpg. Munene chose these two as the look target for the hero shots and Stage 03. They are internal design help, derived from the historian frames. Where the ledger and a lead render disagree, follow the ledger.
 
 ## Confidence gates
