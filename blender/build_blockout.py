@@ -133,8 +133,9 @@ seat0 = rounded_rect(V("bowl.seat_start.half_long"), V("bowl.seat_start.half_wid
 rIn = [ray_radius(seat0, ux, uz) for ux, uz in dirs]
 rBack = [r - V("bowl.back_setback") for r in rPl]
 
-plinthH, bulgeY = V("bowl.plinth_h"), V("bowl.bulge_y")
-topY, openY, shoulderW, sag = V("bowl.roof_top_y"), V("bowl.opening_y"), V("bowl.shoulder_w"), V("bowl.roof_sag")
+plinthH = V("bowl.plinth_h")
+topY, openY, sag = V("bowl.roof_top_y"), V("bowl.opening_y"), V("bowl.roof_sag")
+R = V("bowl.profile.shoulder_r")
 facadeInset = V("bowl.facade_inset")
 
 # Profile (radius, height) at direction i, from the ground edge to the opening.
@@ -142,11 +143,14 @@ def profile(i):
     p = [(rPl[i], 0.0), (rPl[i], plinthH)]
     # facade foot vs plinth face as in bowl.js (estimated), never outside the widest ring
     r0 = min(rPl[i] + V("bowl.plinth_inset") - facadeInset, rRo[i])
-    for k in range(1, 13):  # lean out to the widest point (roof outer ring) at bulgeY
-        f = k / 12; p.append((r0 + (rRo[i] - r0) * math.sin(f * math.pi / 2), plinthH + (bulgeY - plinthH) * f))
-    for k in range(1, 13):  # shoulder: quarter ellipse inward to the crest
-        a = k / 12 * math.pi / 2; p.append((rRo[i] - shoulderW * (1 - math.cos(a)), bulgeY + (topY - bulgeY) * math.sin(a)))
-    rc = rRo[i] - shoulderW
+    # Wall: near-vertical, straight from the foot to the widest ring just below the rim, then a tight
+    # rounded shoulder (radius R) onto the rim (by eye against JWNowpO44rw 07:04; estimated).
+    yR = topY - R
+    for k in range(1, 13):
+        f = k / 12; p.append((r0 + (rRo[i] - r0) * f, plinthH + (yR - plinthH) * f))
+    for k in range(1, 13):  # shoulder: quarter circle inward to the crest
+        a = k / 12 * math.pi / 2; p.append((rRo[i] - R * (1 - math.cos(a)), yR + R * math.sin(a)))
+    rc = rRo[i] - R
     for k in range(1, 11):  # roof: crest to opening, with a sag
         t = k / 10; p.append((rc + (rRi[i] - rc) * t, topY + (openY - topY) * t - sag * math.sin(t * math.pi)))
     return p
@@ -184,7 +188,7 @@ GROUND = mat("ground", (0.36, 0.34, 0.28), 1.0)
 GREEN, RED = mat("seat_green", (0.09, 0.3, 0.15), 0.6), mat("seat_red", (0.45, 0.06, 0.07), 0.6)
 
 SRC_PL = "W1b bowl_plinth_w1b_2026-10-17.csv (measured); plinth_h, facade_inset (estimated)"
-SRC_SH = "W1b plinth, roof_outer, roof_inner (measured, relief-corrected); heights bulge_y, roof_top_y, opening_y, shoulder_w (estimated)"
+SRC_SH = "W1b plinth, roof_outer, roof_inner (measured, relief-corrected); heights roof_top_y, opening_y, profile.shoulder_r and the near-vertical wall (estimated, by eye against JWNowpO44rw 07:04)"
 plinth_o = loft("plinth", "plinth", 0, 1, GLASS, "plan measured, height estimated", SRC_PL)
 # soffit: flat ring from the plinth top in to the facade foot
 v, f = [], []

@@ -147,6 +147,9 @@ bowl.floodlights.offset_out,2,m,reference frames JWNowpO44rw (look); press facts
 bowl.floodlights.drop,2.6,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-1 m,estimated,bowl.js floodlights,below the opening edge
 bowl.led_ring.r,0.35,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.2 m,estimated,bowl.js led-ring,
 bowl.concourse.width_out,6,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-3 m,estimated,bowl.js concourse,paved ring outside the outer edge
+bowl.profile.wall,near-vertical,shape,"JWNowpO44rw 07:04 (by eye, no camera solve)",2026-10-17,by eye: silhouette edges straight from plinth to rim,,estimated,blender/build_blockout.py profile(),"replaces the bowl.js bulge (bulge_y, shoulder_w, shoulder_h) in the blockout only"
+bowl.profile.shoulder_r,8,m,"JWNowpO44rw 07:04 (by eye, no camera solve)",2026-10-17,by eye: tight rounded edge between wall and roof rim,+-4 m,estimated,blender/build_blockout.py profile(),
+bowl.profile.height_to_width_704,0.2,ratio,"JWNowpO44rw 07:04 (by eye, no camera solve)",2026-10-17,by eye: 82 px rim-to-base over 413 px silhouette width,+-0.02,estimated,check for bowl.roof_top_y,about 50 m if the view is across the 250 m long side; view direction not solved
 bowl.mesh.N,240,segments,model resolution,,not a dimension,,estimated,bowl.js BOWL_EST.N,
 site.plaza.offset,78,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10 m,estimated,site.js buildSite plazaC = rN + 78,measured plaza centroid -205 m N of the origin
 site.plaza.half_across,92,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-20 m,estimated,site.js buildSite half,measured plaza: 102.5 m across (half 51.3 m)
