@@ -2,7 +2,7 @@
 
 Date of form: 2026-10-16
 Who measures: Munene or a team member, at a desktop with Google Earth Pro.
-Status: batch 1 (site boundary, pitch zone, 2026-10-16), batch 2 (roof outer ring, north plaza, warm-up track) and the roof inner ring (2026-10-17) recorded. Bowl plinth and the two training pitches still open. Scale checks not possible on the newest image (see below).
+Status: batch 1 (site boundary, pitch zone, 2026-10-16), batch 2 (roof outer ring, north plaza, warm-up track), the roof inner ring and the bowl plinth (2026-10-17) recorded. The two training pitches are still open. Scale checks not possible on the newest image (see below).
 Classification: internal. Gate, parking and access measurements must not appear in a public demo (AGENTS.md rule 8).
 
 ## Rules
@@ -111,3 +111,19 @@ Recomputed in EPSG:32737 (UTM 37S) from the CSVs, to check the lead's local-proj
 21 points, area 10,443 m2, opening 130.0 x 88.1 m, long axis 179.6 deg. Area centroid 13 m E, 29 m N of the twin origin. The roof outer ring centroid is 10 m E, 27 m N. Both roof-level outlines are shifted by the same amount, which fits relief displacement on the oblique image, not a real offset. The roof is centred on the pitch, so subtract about 10 m E, 28 m N from roof-level positions.
 
 Roof depth from the two rings: about 63 m on each side ((214.5 - 88.1) / 2) and 60 m at each end ((250.1 - 130.0) / 2). Plan area of the roof band: 36,300 m2.
+
+## Bowl plinth, ground-level outline (2026-10-17)
+
+KML name "STADIUM OUTLINE", 30 points. The points were clicked out of order and the ring crossed itself, so `measurements/bowl_plinth_w1b_2026-10-17.csv` reorders them by angle round the vertex mean (the clicked order is kept in a column). The reordered ring is valid.
+
+| Value | Measured | Twin `bowl_outer` today |
+|---|---|---|
+| Area | 45,297 m2 | |
+| Minimum rectangle | 253.0 x 202.8 m | 256 (N-S) x 203 (E-W) m |
+| Area centroid from the twin origin | 2 m W, 2 m N | about 4 m E, 2 m N |
+| North and south extent | 128.6 m N, 123.7 m S | 130.8 m N, 125.5 m S |
+| West and east extent | 105.1 m W, 98.3 m E | 97.5 m W, 105.9 m E |
+
+- The ground outline is centred on the pitch, with no relief shift. This confirms the shift of the two roof rings (about 10 m E, 28 m N) comes from the oblique view.
+- The twin's bowl size is within 3 m of the measurement. The twin is about 7 m too far east.
+- The roof outer ring (214.5 m) is about 12 m wider than the ground outline (202.8 m): the roof overhangs the facade by about 6 m on each side, or the oblique view widens it. Stage 01b checks this on the historian frames.
