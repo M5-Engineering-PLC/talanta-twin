@@ -72,6 +72,7 @@ export function createFpsMonitor({ onDowngrade, tier = 'high' }) {
           sent.add(nextTier);
           currentTier = nextTier;
           onDowngrade?.(nextTier);
+          samples = []; // a fresh 4 s window before judging the new tier
         }
       }
     },
