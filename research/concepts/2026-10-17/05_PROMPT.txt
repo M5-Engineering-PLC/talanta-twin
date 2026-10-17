@@ -1,0 +1,39 @@
+05 hero, reference matched
+
+Internal design help only. Derived from Kenyan Historian frames (JWNowpO44rw). Not measured output. Never use in a product build, texture, pitch or public page (AGENTS.md rule 2).
+
+Made by: GPT-6 Astra image generation, 2026-10-17, Codex session 01a148d1-bcfd-7dc3-9961-b456eef7ba68. Original 1672 x 941 PNG, saved here as a 1600 px JPG.
+
+Input frames (none is in gis/heldout_frames.csv):
+- research/frames/JWNowpO44rw/JWNowpO44rw_001212.500.jpg
+- research/frames/JWNowpO44rw/JWNowpO44rw_001028.000.jpg
+- research/frames/JWNowpO44rw/JWNowpO44rw_000016.934.jpg
+- research/frames/JWNowpO44rw/JWNowpO44rw_001240.000.jpg
+- research/frames/JWNowpO44rw/JWNowpO44rw_000704.867.jpg
+
+Lead review: what to copy from this image
+- The shield pattern: red field, black side lobes, white spine, boss and leaves.
+- The crossed spears: tips below the roof edge, shafts below the shield.
+- The louvre fins behind thick lattice tubes, and the light base with white columns.
+- The smooth roof membrane with radial seams.
+- The finished forecourt: pale paving, curved roads, planted islands, flag masts.
+
+Lead review: what is wrong, do not copy
+- The shields are about 55% of the wall height. The frames show about 85 to 90%.
+- The sun is in front of the camera (backlit). The brief asked for sun behind the camera.
+- The city is too dense and too tall. The real Ngong Road context has lower suburbs and more trees.
+- The Ngong Hills are a generic ridge, not the real knuckle profile.
+- The roadside billboards carry invented graphics.
+
+Prompt:
+Generate one hyper-realistic internal architectural design-help image of the finished Talanta Stadium (Raila Odinga Talanta Stadium, Ngong Road, Nairobi). Output a landscape PNG at least 1536 pixels on the long side, preferably 2560 x 1440. Use all five attached images as architectural references, not as a collage. The first shows exact shield patterns and facade layers. The second shows spear tips below the roof edge. The third shows convex shield depth and lattice tubes. The fourth is the main roof and site-layout reference. The fifth establishes the low wide proportions and Ngong Road/suburban context.
+
+Create a natural-color photoreal drone photograph from the north-east, about 150 m high and about 400 m out, looking south-west toward the Ngong Hills. Use a 24 to 35 mm lens look. The stadium occupies about 45% of the image width. Hills and a band of sky occupy the top quarter. Morning golden-hour light at about 07:35 EAT comes from low behind the camera and warmly lights the visible facade. A few cumulus clouds, light haze over a long Ngong Hills ridge with knuckle-shaped peaks. Preserve realistic scale and photographic detail.
+
+Match the reference building precisely: low, wide rounded-rectangle white bowl, gently bulging walls curving inward at the top, smooth white membrane roof with faint radial seams, oval/rounded rectangular central opening revealing green pitch and seating. Dense thin horizontal white louvre fins cover the entire wall with dark gaps behind. Large diamond lattice white tubes sit clearly in FRONT of those fins, with realistic depth and shadows. Do not replace fins with solid panels or glass.
+
+Eight large Maasai-style shields are distributed around the complete facade, with only the near-side subset visible from this viewpoint. Each shield spans 85 to 90 percent of wall height and has a slight convex bulge. Copy the reference pattern faithfully: red field, broad black crescent lobes on left and right edges, white vertical central motif, white round boss at center, long broad white leaf shapes above and below the boss with a thin red central split as shown in the close-up references. Two white spears cross behind each shield. Their broad blade tips appear left and right of the shield top just BELOW the roof edge. Their shafts extend below the shield. No spear or decorative part rises above the roof.
+
+Use a short light-gray concrete base band with white columns at ground level. No dark plinth. Translate the fourth reference's site into a finished state: broad pale concrete forecourt, curved asphalt access roads with markings, grass verges, red-brown murram open ground, flag masts, curved planted islands and the reference's radial paths. Retain the eucalyptus belt along one side and scattered acacia and jacaranda trees. Include surrounding Nairobi suburbs, mid-rise apartment blocks, and Ngong Road with modest traffic, using the fifth reference for context. Preserve site relationships as far as the references show them, without inventing elaborate infrastructure.
+
+No close-up people. No detailed gates, exits, security cameras, control rooms or security plans. No text, captions, logos, date stamps or watermarks. Do not reproduce the Kenyan Historian overlays. No construction cranes, debris or blue temporary fencing. This is a finished-state concept visualization, not measured evidence.
