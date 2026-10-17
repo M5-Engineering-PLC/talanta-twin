@@ -29,10 +29,11 @@ STAGE = BASE / "export"; STAGE.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.open_mainfile(filepath=str(BASE / "talanta_web_baked.blend"))
 s = bpy.context.scene
 bake = json.loads((BASE / "bake_log.json").read_text())
-ALBEDO_GROUPS = lambda g: g.startswith("ground_") or g in ("sport", "roads")  # procedural surfaces: ship the albedo map
+ALBEDO_GROUPS = lambda g: g.startswith("ground_") or g in ("sport", "roads", "stadium_ornament")  # procedural or painted (shields): ship the albedo map
 LOD_MIN_TRIS = 4000
 LOD_RATIO = {1: 0.35, 2: 0.10}
 CLIP = 1500.0
+THIN_TUBE = 0.35  # m bevel radius; unbaked curves thinner than this export as 4-sided tubes
 
 HERO_COLS = ["plinth", "shell", "facade_detail", "roof_detail", "bowl_detail", "tiers", "pitch", "sport"]
 SITE_COLS = ["context", "site"]
@@ -139,7 +140,7 @@ def export_material(m, o, slot_index):
         try: nm.surface_render_method = "BLENDED"
         except AttributeError: nm.blend_method = "BLEND"
     if gname: nm["talanta_bake_group"] = gname; nm["talanta_albedo_map"] = bool(ALBEDO_GROUPS(gname))
-    nm.use_backface_culling = not (base.startswith("seat") or "leaf" in base or "frond" in base or alpha < 1.0)
+    nm.use_backface_culling = False  # source meshes are not consistently wound; draw both sides like Cycles
     new_mats[key] = nm
     return nm
 
@@ -183,6 +184,8 @@ for glb, cols in (("hero", HERO_COLS), ("site", SITE_COLS)):
             if o.hide_render or o.name in SKIP or o.name in INSTANCERS or o.type not in ("MESH", "CURVE"): continue
             if any(m.type == "NODES" for m in o.modifiers) and o.type == "MESH" and not o.data.polygons: continue
             baked = "bake_group" in o.keys()
+            if o.type == "CURVE" and o.data.bevel_depth < THIN_TUBE:
+                o.data.bevel_resolution = 0  # 4-sided members: thin rails, purlins and cables read the same in the app
             src_mats = [sl.material for sl in o.material_slots]
             x = realize(o)
             if len(x.data.polygons) == 0: bpy.data.objects.remove(x); continue
@@ -224,7 +227,7 @@ def lowpoly(me_src, recipe, name):
             tmp = bpy.data.objects.new("_tmp", me_src); s.collection.objects.link(tmp)
             d = decimated(tmp, recipe, name); me = d.data; bpy.data.objects.remove(d); bpy.data.objects.remove(tmp)
         for l in list(me.uv_layers): me.uv_layers.remove(l)
-        return me
+        me.validate(clean_customdata=False); return me
     if recipe == "octa":  # canopy only: the widest material (leaves / fronds), as an octahedron over its bbox
         mi = max(range(len(me_src.materials)), key=lambda i: sum(p.area for p in me_src.polygons if p.material_index == i))
         cv = np.array([me_src.vertices[v].co[:] for p in me_src.polygons if p.material_index == mi for v in p.vertices])

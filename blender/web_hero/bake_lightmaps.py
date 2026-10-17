@@ -89,6 +89,29 @@ for k, (x0, x1, y0, y1) in enumerate(rects):
     groups[f"ground_{k:02d}"] = (256 if TEST else 1024, [o])
 ter.hide_render = True; ter.hide_viewport = True
 
+# ---------------------------------------------------------------- outward normals
+# Many builders emit faces wound inward or downward (roof, plinth, crown, shields, lattice, spears, tracks).
+# Cycles renders both sides, but a bake records the side the normal faces, so fix the copy baked here:
+# closed solids get recalculated outside normals; open sheets get each face turned up (if flat) or away
+# from the bowl axis (if vertical).
+def orient_outward(o):
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    closed = all(len(e.link_faces) == 2 for e in bm.edges)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    if not closed:
+        R = o.matrix_world.to_3x3(); flip = []
+        for f in bm.faces:
+            n = R @ f.normal; c = o.matrix_world @ f.calc_center_median()
+            bad = n.z < 0 if abs(n.z) > 0.5 else n.x * c.x + n.y * c.y < 0
+            if bad: flip.append(f)
+        bmesh.ops.reverse_faces(bm, faces=flip)
+    bm.to_mesh(o.data); bm.free(); o.data.update()
+
+
+for gname, (size, obs) in groups.items():
+    if gname.startswith("ground_"): continue
+    for o in obs: orient_outward(o)
+
 # ---------------------------------------------------------------- UV sets: UV0 kept (or added), UV1 = "lightmap"
 def ensure_uvs(o):
     if not o.data.uv_layers: o.data.uv_layers.new(name="UVMap")
