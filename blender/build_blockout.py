@@ -412,6 +412,10 @@ def shield_png(path, w=512, h=1024):
     lw = 0.085 * np.sin(np.pi * t) ** 0.7
     img[outline & (av > 0.16) & (av < 0.94) & (np.abs(au - 0.115) < lw)] = white
     img[(u / 0.18) ** 2 + (v / 0.13) ** 2 <= 1] = white  # boss
+    # RF13 (12:12): a narrow pale rim follows the outline; width from the ledger, as a fraction of the half-width
+    f = float(L["bowl.shield.rim"]["value"]) / (float(L["bowl.shield.width"]["value"]) / 2)
+    edge = np.clip(1 - av ** 2, 0, 1) ** 0.62
+    img[outline & (au > edge - f)] = [0.906, 0.902, 0.878, 1]
     im = bpy.data.images.new("shield", w, h, alpha=True); im.pixels.foreach_set(img[::-1].ravel().astype(np.float32))
     im.filepath_raw = str(path); im.file_format = "PNG"; im.save()
     return im

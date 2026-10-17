@@ -1,4 +1,4 @@
-"""Stage 02: CPU Cycles render of one critic camera from blender/out/talanta_scene.blend.
+"""Stage 02: CPU Cycles render of one critic camera from blender/out/talanta_site.blend (build_site_detail.py).
 
 Sun state comes from app/cameras/manifest.json (date, EAT time) via a NOAA solar position.
 Run from the repo root:
@@ -41,7 +41,7 @@ def sun_position(date, hhmm_eat, lat, lon):
     return 90 - zen, az
 
 
-bpy.ops.wm.open_mainfile(filepath=str(ROOT / "blender/out/talanta_scene.blend"))
+bpy.ops.wm.open_mainfile(filepath=str(ROOT / "blender/out/talanta_site.blend"))
 s = bpy.context.scene
 m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json")
 apply_render_settings(s, m, look_check=(quality != "hero"))
@@ -67,6 +67,18 @@ if overcast:  # cloud deck: weak diffuse sun, brighter flat sky, denser haze
     sun.data.energy = 0.6; sun.data.angle = math.radians(25); sky.sun_elevation = math.radians(60)
     bg.inputs["Strength"].default_value = 0.9
     bpy.data.materials["haze"].node_tree.nodes["haze"].inputs["Density"].default_value = 6e-5
+night = st["kind"].startswith("night")
+if night:  # sun below the horizon: no sun lamp, a faint sky; night fixtures on (build_site_detail.py, Visualization)
+    sun.data.energy = 0.0; bg.inputs["Strength"].default_value = 0.02
+    for mt in bpy.data.materials:
+        if not mt.node_tree: continue
+        for nd in mt.node_tree.nodes:
+            if nd.label.startswith("night:"):
+                v = float(nd.label.split(":")[1])
+                if nd.type == "BSDF_PRINCIPLED": nd.inputs["Emission Strength"].default_value = v
+                elif nd.type == "EMISSION": nd.inputs["Strength"].default_value = v
+    for ob in bpy.data.objects:
+        if ob.type == "LIGHT" and "night_energy" in ob: ob.data.energy = ob["night_energy"]
 c = s.cycles
 c.device = "CPU"; c.samples = m["cycles"]["hero" if quality == "hero" else "look_check"]["samples"]
 if quality == "preview": c.samples = 8; s.render.resolution_percentage = 25

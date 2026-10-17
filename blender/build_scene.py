@@ -167,10 +167,12 @@ def terrain(meta, ground, hole, name):
 T, G = MAN["terrain"], MAN["ground"]
 box = lambda t, pad: (t["x0"] + pad, t["x0"] + (t["nx"] - 1) * t["dx"] - pad, t["z0"] + pad, t["z0"] + (t["nz"] - 1) * t["dz"] - pad)
 ts = terrain(T[0], G[0], None, "terrain_site")
-# Ground regions (stage 02b fix 5, by eye from JWNowpO44rw 11:20 and 12:40; look only). Inside the W1b site
-# boundary the 10 m Sentinel-2 colour (which also paints the white roof onto the ground) is replaced by red murram
-# with colour and roughness variation, and by light concrete paving on the concourse ring and the north plaza.
-# Mask: blender/textures/site_regions.png from gis/scripts/export_ground_regions.py (W1b outlines only).
+# Ground regions. Stage 03 (detail sheets SR, lead review correction 1): the finished landscape, not the
+# construction site. Inside the W1b site boundary the 10 m Sentinel-2 colour (which also paints the white roof onto
+# the ground) is replaced by mown lawn, pale stone paving with shallow joints and a darker edge band, red flower
+# beds, a wet jet deck and car-park asphalt. Masks at 0.5 m/px from gis/scripts/export_site_plan.py (W1b outlines,
+# OSM and the estimated layout only; no imagery). Tracks, pitches, Ngong Road and furniture are objects
+# (blender/build_site_detail.py).
 def srgb(h):
     return tuple(((int(h[i:i + 2], 16) / 255 + 0.055) / 1.055) ** 2.4 for i in (1, 3, 5))
 
@@ -180,9 +182,11 @@ img = [x for x in tn if x.type == "TEX_IMAGE"][0]; pbsdf = tn["Principled BSDF"]
 tco = tn.new("ShaderNodeTexCoord"); mp = tn.new("ShaderNodeMapping")
 mp.inputs["Location"].default_value = (0.5, 0.5, 0); mp.inputs["Scale"].default_value = (1 / 1400, 1 / 1400, 1)
 tl.new(tco.outputs["Object"], mp.inputs["Vector"])
-mk = tn.new("ShaderNodeTexImage"); mk.image = bpy.data.images.load(str(ROOT / "blender/textures/site_regions.png"))
-mk.image.colorspace_settings.name = "Non-Color"; mk.extension = "CLIP"; tl.new(mp.outputs["Vector"], mk.inputs["Vector"])
-sep = tn.new("ShaderNodeSeparateColor"); tl.new(mk.outputs["Color"], sep.inputs["Color"])
+def mask_img(fn):
+    mk = tn.new("ShaderNodeTexImage"); mk.image = bpy.data.images.load(str(ROOT / "blender/textures" / fn))
+    mk.image.colorspace_settings.name = "Non-Color"; mk.extension = "CLIP"; tl.new(mp.outputs["Vector"], mk.inputs["Vector"])
+    sep = tn.new("ShaderNodeSeparateColor"); tl.new(mk.outputs["Color"], sep.inputs["Color"]); return sep
+M1, M2, M3 = mask_img("site_regions.png"), mask_img("site_regions2.png"), mask_img("site_regions3.png")
 def noise(scale, detail=4):
     nz = tn.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = scale; nz.inputs["Detail"].default_value = detail
     tl.new(tco.outputs["Object"], nz.inputs["Vector"]); return nz
@@ -194,18 +198,41 @@ def mixc(fac, a_, b_):
     if isinstance(fac, float): m_.inputs[0].default_value = fac
     else: tl.new(fac, m_.inputs[0])
     return m_.outputs[2]
-murram = mixc(noise(0.02).outputs["Fac"], srgb("#8B4A2B"), srgb("#A0522D"))
-dust = tn.new("ShaderNodeMapRange"); dust.inputs["From Min"].default_value = 0.55; dust.inputs["From Max"].default_value = 0.75
-dust.inputs["To Max"].default_value = 0.6; tl.new(noise(0.008, 3).outputs["Fac"], dust.inputs["Value"])
-murram = mixc(dust.outputs["Result"], murram, srgb("#B07A5A"))  # dusty compacted patches
-pave = mixc(noise(0.15).outputs["Fac"], srgb("#BDB7AB"), srgb("#CFCAC0"))
-col = mixc(sep.outputs["Red"], img.outputs["Color"], murram)
-col = mixc(sep.outputs["Green"], col, pave)
+LG = {r["name"]: r["value"] for r in __import__("csv").DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
+lawn = mixc(noise(0.05).outputs["Fac"], srgb("#3F6331"), srgb("#52713E"))  # SR10 turf, mown (design model)
+lawn = mixc(noise(0.6, 6).outputs["Fac"], lawn, srgb("#5E7A45"))
+# SR02 paving: muted stone panels (joint spacing from the ledger) with slight panel-to-panel tone, shallow joints
+brk = tn.new("ShaderNodeTexBrick"); J = float(LG["site.paving.joint"])
+brk.inputs["Scale"].default_value = 1 / J; brk.inputs["Mortar Size"].default_value = 0.012; brk.offset = 0.5; brk.squash = 1.0
+brk.inputs["Brick Width"].default_value = 1.0; brk.inputs["Row Height"].default_value = 1.0
+tl.new(tco.outputs["Object"], brk.inputs["Vector"])
+brk.inputs["Color1"].default_value = (*srgb(LG["site.paving.rgb"]), 1); brk.inputs["Color2"].default_value = (*srgb("#C5BFB2"), 1)
+brk.inputs["Mortar"].default_value = (*srgb("#9A948A"), 1)
+pave = mixc(noise(0.08).outputs["Fac"], brk.outputs["Color"], srgb("#CFCAC0"))
+pave = mixc(noise(0.015, 3).outputs["Fac"], pave, srgb("#ADA699"))  # broad tone drift across the forecourt
+pave = mixc(M3.outputs["Red"], pave, srgb("#9C9488"))  # SR06 entrance apron next to the facade, low contrast
+pave = mixc(M2.outputs["Red"], pave, srgb("#81796D"))  # SR03 darker edge band
+pave = mixc(M2.outputs["Green"], pave, srgb("#8E8A82"))  # SR13 wet jet deck
+fl = tn.new("ShaderNodeMapRange"); fl.inputs["From Min"].default_value = 0.45; fl.inputs["From Max"].default_value = 0.6
+tl.new(noise(1.2, 3).outputs["Fac"], fl.inputs["Value"])
+bed = mixc(fl.outputs["Result"], srgb("#49643A"), srgb(LG["site.bed.flower_rgb"]))  # SR08 beds: red flowers in green
+asph = mixc(noise(0.5).outputs["Fac"], srgb("#3A3C3A"), srgb("#4A4C49"))  # SR32 car-park asphalt
+col = mixc(M1.outputs["Red"], img.outputs["Color"], lawn)
+col = mixc(M1.outputs["Blue"], col, bed)
+col = mixc(M1.outputs["Green"], col, pave)
+col = mixc(M2.outputs["Blue"], col, asph)
 tl.new(col, pbsdf.inputs["Base Color"])
 rg = tn.new("ShaderNodeMapRange"); rg.inputs["To Min"].default_value = 0.82; rg.inputs["To Max"].default_value = 1.0
-tl.new(noise(0.3).outputs["Fac"], rg.inputs["Value"]); tl.new(rg.outputs["Result"], pbsdf.inputs["Roughness"])
+tl.new(noise(0.3).outputs["Fac"], rg.inputs["Value"])
+wet = tn.new("ShaderNodeMapRange"); wet.inputs["To Min"].default_value = 1.0; wet.inputs["To Max"].default_value = 0.12
+tl.new(M2.outputs["Green"], wet.inputs["Value"])
+rmul = tn.new("ShaderNodeMath"); rmul.operation = "MULTIPLY"; tl.new(rg.outputs["Result"], rmul.inputs[0]); tl.new(wet.outputs["Result"], rmul.inputs[1])
+tl.new(rmul.outputs[0], pbsdf.inputs["Roughness"])
 bmp = tn.new("ShaderNodeBump"); bmp.inputs["Strength"].default_value = 0.15; tl.new(noise(1.5, 6).outputs["Fac"], bmp.inputs["Height"])
-tl.new(bmp.outputs["Normal"], pbsdf.inputs["Normal"])
+jb = tn.new("ShaderNodeMath"); jb.operation = "MULTIPLY"; tl.new(brk.outputs["Fac"], jb.inputs[0]); tl.new(M1.outputs["Green"], jb.inputs[1])
+bmp2 = tn.new("ShaderNodeBump"); bmp2.inputs["Strength"].default_value = 0.3; bmp2.invert = True
+tl.new(jb.outputs[0], bmp2.inputs["Height"]); tl.new(bmp.outputs["Normal"], bmp2.inputs["Normal"])
+tl.new(bmp2.outputs["Normal"], pbsdf.inputs["Normal"])
 terrain(T[1], G[1], box(T[0], 0), "terrain_far")
 terrain(T[2], G[2], box(T[1], 0), "terrain_horizon")
 
@@ -230,9 +257,39 @@ bpos, bidx = f32(MAN["buildings"]["pos"]), u32(MAN["buildings"]["idx"])
 bcol = array("B"); bcol.frombytes((DATA / MAN["buildings"]["col"]).read_bytes())
 bo = bpy.data.objects.new("buildings", mesh_from("buildings", bpos, bidx, bcol)); coll("context").objects.link(bo)
 bo.data.materials.append(attr_mat("buildings_mat", "col", 0.85)); bo["claim"] = "footprints Overture; heights mixed (see manifest height_src)"
+# Roofs (Stage 03 checklist, suburbs; by eye from JWNowpO44rw 07:04): up-facing faces take red and brown tile or
+# iron-sheet colours, picked per 9 m cell so neighbouring houses differ; a share keeps a grey concrete roof.
+LGs = {r["name"]: r["value"] for r in __import__("csv").DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
+bm_ = bpy.data.materials["buildings_mat"]; bn, bl = bm_.node_tree.nodes, bm_.node_tree.links
+geo = bn.new("ShaderNodeNewGeometry"); sxyz = bn.new("ShaderNodeSeparateXYZ"); bl.new(geo.outputs["Normal"], sxyz.inputs[0])
+up = bn.new("ShaderNodeMath"); up.operation = "GREATER_THAN"; up.inputs[1].default_value = 0.6; bl.new(sxyz.outputs["Z"], up.inputs[0])
+sc = bn.new("ShaderNodeVectorMath"); sc.operation = "SCALE"; sc.inputs["Scale"].default_value = 1 / 9; bl.new(geo.outputs["Position"], sc.inputs[0])
+fl9 = bn.new("ShaderNodeVectorMath"); fl9.operation = "FLOOR"; bl.new(sc.outputs[0], fl9.inputs[0])
+wn9 = bn.new("ShaderNodeTexWhiteNoise"); wn9.noise_dimensions = "3D"; bl.new(fl9.outputs[0], wn9.inputs["Vector"])
+ramp = bn.new("ShaderNodeValToRGB"); ramp.color_ramp.interpolation = "CONSTANT"
+pal = LGs["site.roof_palette"].split(",") + ["#9A9A96"]
+els = ramp.color_ramp.elements
+while len(els) < len(pal): els.new(0.5)
+for i_, h_ in enumerate(pal):
+    els[i_].position = i_ / len(pal); els[i_].color = (*srgb(h_), 1)
+bl.new(wn9.outputs["Value"], ramp.inputs["Fac"])
+rmx = bn.new("ShaderNodeMix"); rmx.data_type = "RGBA"; bl.new(up.outputs[0], rmx.inputs[0])
+bl.new(bn["Attribute"].outputs["Color"], rmx.inputs[6]); bl.new(ramp.outputs["Color"], rmx.inputs[7])
+bl.new(rmx.outputs[2], bn["Principled BSDF"].inputs["Base Color"])
 rpos, ridx, rw = f32(MAN["roads"]["pos"]), u32(MAN["roads"]["idx"]), f32(MAN["roads"]["w"])
-rc = []  # asphalt for carriageways, dusty murram for footways and tracks (look estimate)
-for w in rw: rc += [0.075, 0.075, 0.078] if w >= 4 else [0.33, 0.2, 0.13]
+import numpy as np
+SITE = np.array([(float(r["x_east"]), float(r["z_south"])) for r in __import__("csv").DictReader(open(ROOT / "gis/measurements/normalized/site_boundary_w1b_2026-10-16.csv"))])
+def in_site(x, z):
+    """Even-odd point-in-polygon test against the W1b site boundary (arrays of local x, z)."""
+    x, z = np.asarray(x, float), np.asarray(z, float); ins = np.zeros(x.shape, bool)
+    xa, za, xb, zb = SITE[:, 0], SITE[:, 1], np.roll(SITE[:, 0], -1), np.roll(SITE[:, 1], -1)
+    for x0, z0, x1, z1 in zip(xa, za, xb, zb):
+        c = ((z0 > z) != (z1 > z)) & (x < (x1 - x0) * (z - z0) / ((z1 - z0) or 1e-9) + x0); ins ^= c
+    return ins
+rc = []  # asphalt for carriageways, dusty murram for footways and tracks outside the site (look estimate)
+# Inside the site every road is finished asphalt (lead review correction 1; the frames show construction state).
+P_ = np.array(rpos).reshape(-1, 3); site_v = in_site(P_[:, 0], P_[:, 2])
+for w, ins in zip(rw, site_v): rc += [0.075, 0.075, 0.078] if (w >= 4 or ins) else [0.33, 0.2, 0.13]
 ro = bpy.data.objects.new("roads", mesh_from("roads", rpos, ridx, rc, normalize=1.0)); coll("context").objects.link(ro)
 ro.location.z = 0.15
 ro.data.materials.append(attr_mat("roads_mat", "col", 0.9)); ro["claim"] = "OpenStreetMap via Overture"
@@ -248,6 +305,7 @@ from mathutils import Vector as Vec
 dg = bpy.context.evaluated_depsgraph_get(); bvh = BVHTree.FromObject(ro, dg)
 mv, mf = [], []
 for ln in json.loads((ROOT / "blender/data/road_lines.json").read_text()):
+    if ln.get("name") == "Ngong Road": continue  # Ngong Road is rebuilt as a dual carriageway in build_site_detail.py
     P = [Vec((x, -z, 0)) for x, z in ln["pts"]]
     for a_, b_ in zip(P, P[1:]):
         d_ = b_ - a_; L_ = d_.length
@@ -272,10 +330,10 @@ print("lane dashes:", len(mf))
 # read as an even carpet. Keep the densest 40 m cells (wooded belts and forest, kept almost whole); elsewhere cut
 # clearings with a low-frequency noise so trees stand in clumps. Positions are jittered off the grid, and each tree
 # gets its own type (eucalyptus-heavy in belts), size and crown proportions. Seeded.
-import numpy as np
 rng = np.random.default_rng(17)
 tr = np.frombuffer((DATA / MAN["trees"]["file"]).read_bytes(), np.float32).reshape(-1, 4)
 tr = tr[np.hypot(tr[:, 0], tr[:, 2]) < 4000]
+tr = tr[~in_site(tr[:, 0], tr[:, 2])]  # the finished site is planted to the design layout (build_site_detail.py)
 cell = np.floor(tr[:, [0, 2]] / 40).astype(int)
 _, inv, cnt = np.unique(cell, axis=0, return_inverse=True, return_counts=True)
 belt = cnt[inv.ravel()] >= 32
