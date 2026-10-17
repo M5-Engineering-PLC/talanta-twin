@@ -2,7 +2,7 @@
 
 Date of form: 2026-10-16
 Who measures: Munene or a team member, at a desktop with Google Earth Pro.
-Status: batch 1 (site boundary, pitch zone, 2026-10-16) and batch 2 (roof outer ring, north plaza, warm-up track, 2026-10-17) recorded. Roof inner ring, bowl plinth and the two training pitches still open. Scale checks not possible on the newest image (see below).
+Status: batch 1 (site boundary, pitch zone, 2026-10-16), batch 2 (roof outer ring, north plaza, warm-up track) and the roof inner ring (2026-10-17) recorded. Bowl plinth and the two training pitches still open. Scale checks not possible on the newest image (see below).
 Classification: internal. Gate, parking and access measurements must not appear in a public demo (AGENTS.md rule 8).
 
 ## Rules
@@ -46,8 +46,8 @@ Expected values come from the satellite and OSM work in `coverage_report.md`. Th
 | Grass area width, edge to edge | Line | about 85 m | | | | |
 | Roof outer edge, long axis | Line through pitch centre spot along the long axis | 256-274 m | 252.0 (min. rectangle of the 12-point roof-top polygon; 250.1 in EPSG:32737) | | | 2025-12-26 (Airbus), Dec 2025 frame |
 | Roof outer edge, short axis | Line through the centre spot across | 204-234 m | 214.4 (214.5 in EPSG:32737) | | | 2025-12-26 (Airbus), Dec 2025 frame |
-| Roof inner edge, long axis | Line | unknown | | | | |
-| Roof inner edge, short axis | Line | unknown | | | | |
+| Roof inner edge, long axis | Line | unknown | 130.0 (min. rectangle of the 21-point polygon "ROOF RING", EPSG:32737; bearing 179.6 deg). `measurements/roof_inner_w1b_2026-10-17.csv` | | | 2025-12-26 (Airbus) |
+| Roof inner edge, short axis | Line | unknown | 88.1 (opening area 10,443 m2) | | | 2025-12-26 (Airbus) |
 | Long-axis bearing | Ruler heading along the touchline | 176-180 degrees | 181 (roof-top polygon, 1 deg = 181 deg); pitch zone 1.76 deg | | | 2025-12-26 (Airbus) |
 | Centre spot position | Lat, lon | -1.30602, 36.74965 | | | | |
 | Roof outline, 16 points | Path round the outer roof edge. Read out the lat, lon of each vertex | | 12 points (corners cut): `measurements/roof_outer_w1b_2026-10-17.csv`, 47,041 m2 | | | 2025-12-26 (Airbus) |
@@ -105,3 +105,9 @@ Recomputed in EPSG:32737 (UTM 37S) from the CSVs, to check the lead's local-proj
 - The lead's centroids are vertex means. The points are unevenly spaced, so the area centroid is the better position. The roof-top centroid is still uncertain by about 20 m from relief displacement.
 - The roof short axis (214 m) is 11 m wider than the twin bowl (203 m). The long axis (250 to 252 m) is 4 to 6 m shorter. Stage 00 puts both in the parameter ledger.
 - The plaza position matches the twin. Its width is about half the twin's (102 m against 184 m). Stage 00 corrects it.
+
+## Roof inner ring (2026-10-17)
+
+21 points, area 10,443 m2, opening 130.0 x 88.1 m, long axis 179.6 deg. Area centroid 13 m E, 29 m N of the twin origin. The roof outer ring centroid is 10 m E, 27 m N. Both roof-level outlines are shifted by the same amount, which fits relief displacement on the oblique image, not a real offset. The roof is centred on the pitch, so subtract about 10 m E, 28 m N from roof-level positions.
+
+Roof depth from the two rings: about 63 m on each side ((214.5 - 88.1) / 2) and 60 m at each end ((250.1 - 130.0) / 2). Plan area of the roof band: 36,300 m2.
