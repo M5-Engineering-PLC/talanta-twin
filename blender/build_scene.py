@@ -1,6 +1,6 @@
 """Stage 02: look-pass scene. Blockout + context + PBR materials + sun/sky + haze.
 
-Opens blender/out/talanta_blockout.blend and adds:
+Opens blender/out/talanta_detail.blend (blockout + bowl detail, build_bowl_detail.py) and adds:
 - terrain (GLO-30 grids from app/public/data, with the Sentinel-2 ground colour; 3 rings with holes),
 - buildings (Overture footprints, heights per buildings_src), roads, trees (Sentinel-2 NDVI points),
 - physically based materials for the white shell, membrane, concrete, glass, seats, grass and paving,
@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT / "blender/scripts"))
 MAN = json.loads((DATA / "manifest.json").read_text())
 R_EARTH = 6371000.0
 
-bpy.ops.wm.open_mainfile(filepath=str(ROOT / "blender/out/talanta_blockout.blend"))
+bpy.ops.wm.open_mainfile(filepath=str(ROOT / "blender/out/talanta_detail.blend"))  # blockout + bowl detail
 scene = bpy.context.scene
 
 
@@ -122,6 +122,10 @@ pv = mn.new("ShaderNodeMapRange"); pv.inputs["To Min"].default_value = 0.96; pv.
 mul = mn.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; ml.new(seam.outputs[0], mul.inputs[0]); ml.new(pv.outputs[0], mul.inputs[1])
 mcol = mn.new("ShaderNodeMix"); mcol.data_type = "RGBA"; mcol.blend_type = "MULTIPLY"; mcol.inputs[0].default_value = 1.0
 mcol.inputs[6].default_value = (0.86, 0.86, 0.83, 1); ml.new(mul.outputs[0], mcol.inputs[7]); ml.new(mcol.outputs[2], mn["Principled BSDF"].inputs["Base Color"])
+# PTFE membrane lets daylight through: the underside glows (stage 03, by eye from JWNowpO44rw 10:04)
+mtr = mn.new("ShaderNodeBsdfTranslucent"); ml.new(mcol.outputs[2], mtr.inputs["Color"])
+mms = mn.new("ShaderNodeMixShader"); mms.inputs[0].default_value = 0.35
+ml.new(mn["Principled BSDF"].outputs[0], mms.inputs[1]); ml.new(mtr.outputs[0], mms.inputs[2]); ml.new(mms.outputs[0], mn["Material Output"].inputs["Surface"])
 # The louvred wall is real fin geometry over a dark backing (build_blockout.py, stage 02b), so no louvre texture.
 PBR["facade_void"] = principled("facade_void_pbr", (0.035, 0.036, 0.04), 0.75)
 for o in scene.objects:

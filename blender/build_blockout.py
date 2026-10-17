@@ -484,6 +484,10 @@ flat("site_pad", "ground", outline("site_boundary_w1b_2026-10-16.csv"), Y(0.0), 
 
 # ---------------------------------------------------------------- outputs
 os.makedirs(ROOT / "blender/out", exist_ok=True)
+# Polar rings and the shell profile, for blender/build_bowl_detail.py (same geometry, no recomputation)
+(ROOT / "blender/out/bowl_rings.json").write_text(json.dumps({
+    "N": N, "pad": PAD, "dirs": dirs, "rPl": rPl, "rRo": rRo, "rRi": rRi, "rIn": rIn, "rBack": rBack,
+    "prof": PROF, "j_facade": J_FACADE, "j_wall": J_WALL, "bearing": bearing}))
 blend = ROOT / "blender/out/talanta_blockout.blend"
 bpy.ops.wm.save_as_mainfile(filepath=str(blend))
 glb = ROOT / "app/public/data/blockout.glb"

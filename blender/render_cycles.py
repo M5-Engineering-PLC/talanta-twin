@@ -2,8 +2,8 @@
 
 Sun state comes from app/cameras/manifest.json (date, EAT time) via a NOAA solar position.
 Run from the repo root:
-  ~/.venvs/bpy/bin/python blender/render_cycles.py <out_dir> <camera> [morning|golden|neutral|night|overcast] [preview|look|hero]
-  preview = 8 samples at a quarter of full size, for framing checks only
+  ~/.venvs/bpy/bin/python blender/render_cycles.py <out_dir> <camera> [morning|golden|neutral|night|overcast] [preview|check|look|hero]
+  preview = 8 samples at a quarter of full size, for framing checks only; check = 32 samples at look size
 """
 import json, math, sys, time, datetime as dt
 from pathlib import Path
@@ -44,7 +44,7 @@ def sun_position(date, hhmm_eat, lat, lon):
 bpy.ops.wm.open_mainfile(filepath=str(ROOT / "blender/out/talanta_scene.blend"))
 s = bpy.context.scene
 m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json")
-apply_render_settings(s, m, look_check=(quality == "look"))
+apply_render_settings(s, m, look_check=(quality != "hero"))
 s.camera = cams[cid]
 st = m["suns"][sun_key]
 lon, lat = m["frame"]["origin_lonlat"]
@@ -70,6 +70,7 @@ if overcast:  # cloud deck: weak diffuse sun, brighter flat sky, denser haze
 c = s.cycles
 c.device = "CPU"; c.samples = m["cycles"]["hero" if quality == "hero" else "look_check"]["samples"]
 if quality == "preview": c.samples = 8; s.render.resolution_percentage = 25
+if quality == "check": c.samples = 32
 c.use_adaptive_sampling = True; c.use_denoising = True; c.denoiser = "OPENIMAGEDENOISE"
 c.max_bounces = 6; c.volume_bounces = 0; c.volume_step_rate = 4.0
 s.render.engine = "CYCLES"; s.render.film_transparent = False
