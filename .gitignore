@@ -4,3 +4,4 @@ gis/raw/
 __pycache__/
 blender/out/*.blend1
 blender/out/web_hero/
+blender/web_hero/node/node_modules/

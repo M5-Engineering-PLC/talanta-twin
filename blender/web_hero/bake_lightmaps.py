@@ -5,7 +5,7 @@ CPU Cycles. Three passes over every bake group in one call each:
   light   DIFFUSE, direct + indirect, no colour: the light arriving at a white surface (sun, sky, bounce)
   ao      ambient occlusion, 2 m distance
   albedo  DIFFUSE colour only, so procedural materials (terrain masks, turf stripes, track lanes) export
-Groups: stadium shell, stadium ornament and roof on 2048 px atlases; sport, roads, built site items and
+UV set from lightmap_uv.py (chart packing). Groups: stadium shell, louvre fins, stadium ornament and roof on 2048 px atlases; sport, roads, built site items and
 24 ground tiles (terrain_site cut into 16 inner tiles of 350 m over the site and 8 outer tiles) on 1024 px.
 Writes blender/out/web_hero/maps/<group>_{light,ao,albedo}.png, blender/out/web_hero/talanta_web_baked.blend
 and blender/out/web_hero/bake_log.json (times, light scales). Lightmaps are 8-bit sRGB of light / scale.
@@ -14,6 +14,7 @@ import json, math, sys, time
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import ROOT, OUT, MAPS, setup_morning, sun_vector_app, write_json
+import lightmap_uv
 
 SAMPLES = int(sys.argv[-1]) if sys.argv[-1].isdigit() else 128
 TEST = "test" in sys.argv  # quarter-size atlases and few samples, for a quick pipeline check
@@ -24,11 +25,12 @@ import numpy as np
 s = bpy.context.scene
 t_start = time.time()
 GROUPS = {
-    "stadium_shell": (2048, ["plinth", "base_recess", "base_band", "base_columns", "soffit", "facade_backing", "louvre_fins", "facade", "opening_trim"]),
+    "stadium_shell": (2048, ["plinth", "base_recess", "base_band", "base_columns", "soffit", "facade_backing", "facade", "opening_trim"]),
+    "stadium_fins": (2048, ["louvre_fins"]),
     "stadium_ornament": (2048, ["lattice", "lattice_rings", "shields", "spears"]),
     "roof": (2048, ["roof", "roof_ribs", "ring_beam"]),
     "sport": (1024, ["pitch_zone", "pitch", "pitch_apron", "warmup_track_ne", "warmup_track_ne_infield", "track_sw", "track_sw_infield", "training_pitch_se_turf"]),
-    "roads": (1024, ["ngong_road", "ngong_barrier", "roads"]),
+    "roads": (2048, ["ngong_road", "ngong_barrier", "roads"]),
     "site_built": (1024, ["planters", "entrance_canopies", "sign_frames"]),
 }
 CLIP = 1500.0  # the site GLB stops here; the panorama carries everything beyond
@@ -95,6 +97,8 @@ def ensure_uvs(o):
     o.data.uv_layers.active = o.data.uv_layers["lightmap"]
 
 
+TUBES = {"spears", "lattice_rings", "roof_ribs", "ring_beam"}  # thin round members: unrolled, not boxed
+uv_stats = {}
 t_uv = time.time()
 for gname, (size, obs) in groups.items():
     for o in obs: ensure_uvs(o)
@@ -105,19 +109,8 @@ for gname, (size, obs) in groups.items():
         q = (vx[li] - lo) / (hi - lo)
         uv.foreach_set("uv", (0.002 + q * 0.996).ravel())
         continue
-    bpy.ops.object.select_all(action="DESELECT")
-    for o in obs: o.select_set(True)
-    bpy.context.view_layer.objects.active = obs[0]
-    bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.select_all(action="SELECT")
-    if gname.startswith("stadium_"):
-        # Faceted rings (fins, lattice, spears) are hundreds of metres long and under a metre wide; island
-        # packing shrinks them to nothing. Lightmap pack gives every face its own cell, sized by face area.
-        bpy.ops.uv.lightmap_pack(PREF_CONTEXT="ALL_FACES", PREF_PACK_IN_ONE=True, PREF_NEW_UVLAYER=False, PREF_BOX_DIV=12, PREF_MARGIN_DIV=0.3)
-    else:
-        bpy.ops.uv.smart_project(angle_limit=math.radians(60), island_margin=0.0, area_weight=0.0, scale_to_bounds=False)
-        bpy.ops.uv.pack_islands(margin=4.0 / size, rotate=False)
-    bpy.ops.object.mode_set(mode="OBJECT")
-    print(f"uv {gname}: {time.time() - t_uv:.0f} s", flush=True)
+    st = lightmap_uv.pack(obs, size, tube_names=TUBES); uv_stats[gname] = st
+    print(f"uv {gname}: {st} at {time.time() - t_uv:.0f} s", flush=True)
 print(f"uv sets: {time.time() - t_uv:.1f} s")
 if "uvonly" in sys.argv:  # report how much of each atlas the UV set covers, then stop
     for gname, (size, obs) in groups.items():
@@ -163,14 +156,14 @@ bpy.ops.object.select_all(action="DESELECT")
 for o in all_obs: o.select_set(True)
 bpy.context.view_layer.objects.active = all_obs[0]
 c = s.cycles; c.device = "CPU"; c.use_adaptive_sampling = False; c.use_denoising = False
-s.render.bake.margin = 8; s.render.bake.margin_type = "EXTEND"; s.render.bake.target = "IMAGE_TEXTURES"
+s.render.bake.margin = 2; s.render.bake.margin_type = "EXTEND"; s.render.bake.target = "IMAGE_TEXTURES"
 s.world.light_settings.distance = 2.0
 times = {}
 for kind, btype, filt, spp in (("albedo", "DIFFUSE", {"COLOR"}, 4), ("ao", "AO", set(), 4 if TEST else 64), ("light", "DIFFUSE", {"DIRECT", "INDIRECT"}, 4 if TEST else SAMPLES)):
     target(kind); c.samples = spp
     t0 = time.time()
-    if filt: bpy.ops.object.bake(type=btype, pass_filter=filt, use_clear=True, margin=8)
-    else: bpy.ops.object.bake(type=btype, use_clear=True, margin=8)
+    if filt: bpy.ops.object.bake(type=btype, pass_filter=filt, use_clear=True, margin=2)
+    else: bpy.ops.object.bake(type=btype, use_clear=True, margin=2)
     times[kind] = round(time.time() - t0, 1); print(f"bake {kind}: {times[kind]} s at {spp} samples", flush=True)
 
 # ---------------------------------------------------------------- encode and save (8-bit sRGB PNG)
@@ -203,7 +196,7 @@ el, az = g["el"], g["az"]
 log = {"date": "2026-01-15", "time_eat": "07:35", "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2),
        "sun_dir_app": sun_vector_app(el, az), "sun_energy": g["sun"].data.energy, "sun_color": list(g["sun"].data.color),
        "samples": {"light": SAMPLES, "ao": 64, "albedo": 4}, "bake_seconds": times, "total_seconds": round(time.time() - t_start, 1),
-       "groups": {gname: {"size": size, "objects": [o.name for o in obs], "light_scale": scales[gname]} for gname, (size, obs) in groups.items()},
+       "groups": {gname: {"size": size, "objects": [o.name for o in obs], "light_scale": scales[gname], "uv": uv_stats.get(gname, "planar tile")} for gname, (size, obs) in groups.items()},
        "encoding": "light png = sRGB(light / light_scale); multiply by light_scale to get linear light on a white diffuse surface"}
 if TEST: OUT = OUT / "test"
 write_json(OUT / "bake_log.json", log)
