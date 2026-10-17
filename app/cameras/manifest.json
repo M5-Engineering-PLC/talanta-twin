@@ -1,0 +1,544 @@
+{
+ "version": 1,
+ "frozen": "2026-10-17",
+ "note": "Render viewpoints for review only. Not real camera locations; do not publish as such (AGENTS.md rule 8).",
+ "frame": {
+  "x": "east",
+  "y": "up",
+  "z": "south",
+  "units": "m",
+  "origin_lonlat": [
+   36.749597,
+   -1.306037
+  ],
+  "site_pad_y": 6.12,
+  "blender": "Blender (X, Y, Z) = (x, -z, y)"
+ },
+ "sensor_width_mm": 36,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "look_check_scale": 0.5,
+ "exposure": {
+  "view_transform": "AgX",
+  "exposure_ev": 0.0,
+  "f_stop": 8.0,
+  "dof": false
+ },
+ "suns": {
+  "neutral": {
+   "date": "2026-01-15",
+   "time_eat": "12:30",
+   "kind": "neutral daylight"
+  },
+  "golden": {
+   "date": "2026-01-15",
+   "time_eat": "17:45",
+   "kind": "golden hour"
+  },
+  "night": {
+   "date": "2026-01-15",
+   "time_eat": "20:30",
+   "kind": "night, venue lights on"
+  }
+ },
+ "cycles": {
+  "look_check": {
+   "samples": 64,
+   "adaptive": true,
+   "denoiser": "OPENIMAGEDENOISE"
+  },
+  "hero": {
+   "samples": 128,
+   "adaptive": true,
+   "denoiser": "OPENIMAGEDENOISE"
+  }
+ },
+ "cameras": [
+  {
+   "id": "C01",
+   "name": "North elevation",
+   "purpose": "geometry: silhouette and heights against the ledger",
+   "position": [
+    0.0,
+    31.12,
+    -600.0
+   ],
+   "target": [
+    0,
+    31.12,
+    0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "orthographic",
+   "ortho_scale_m": 300,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 1
+  },
+  {
+   "id": "C02",
+   "name": "East elevation",
+   "purpose": "geometry: silhouette and heights against the ledger",
+   "position": [
+    600.0,
+    31.12,
+    -0.0
+   ],
+   "target": [
+    0,
+    31.12,
+    0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "orthographic",
+   "ortho_scale_m": 300,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 2
+  },
+  {
+   "id": "C03",
+   "name": "South elevation",
+   "purpose": "geometry: silhouette and heights against the ledger",
+   "position": [
+    0.0,
+    31.12,
+    600.0
+   ],
+   "target": [
+    0,
+    31.12,
+    0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "orthographic",
+   "ortho_scale_m": 300,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 3
+  },
+  {
+   "id": "C04",
+   "name": "West elevation",
+   "purpose": "geometry: silhouette and heights against the ledger",
+   "position": [
+    -600.0,
+    31.12,
+    0.0
+   ],
+   "target": [
+    0,
+    31.12,
+    0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "orthographic",
+   "ortho_scale_m": 300,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 4
+  },
+  {
+   "id": "C05",
+   "name": "Roof plan",
+   "purpose": "geometry: roof rings, plinth and pitch against the W1b shapes",
+   "position": [
+    0.0,
+    606.12,
+    -0.01
+   ],
+   "target": [
+    0,
+    6.12,
+    0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "orthographic",
+   "ortho_scale_m": 300,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 5
+  },
+  {
+   "id": "C06",
+   "name": "Hero aerial, north-east",
+   "purpose": "hero: dry golden-hour aerial looking south-west to the bowl and Ngong Hills",
+   "position": [
+    199.82,
+    101.95,
+    -231.29
+   ],
+   "target": [
+    -6,
+    22.12,
+    14
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 35,
+   "vfov_deg": 32.269,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "17:45",
+    "kind": "golden hour"
+   },
+   "variants": [
+    "golden",
+    "night"
+   ],
+   "seed": 6
+  },
+  {
+   "id": "C07",
+   "name": "Aerial, south-east",
+   "purpose": "geometry and materials: elevated diagonal",
+   "position": [
+    220.41,
+    101.95,
+    240.41
+   ],
+   "target": [
+    -6,
+    22.12,
+    14
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 35,
+   "vfov_deg": 32.269,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 7
+  },
+  {
+   "id": "C08",
+   "name": "Aerial, south-west",
+   "purpose": "geometry and materials: elevated diagonal",
+   "position": [
+    -232.41,
+    101.95,
+    240.41
+   ],
+   "target": [
+    -6,
+    22.12,
+    14
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 35,
+   "vfov_deg": 32.269,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 8
+  },
+  {
+   "id": "C09",
+   "name": "Aerial, north-west",
+   "purpose": "geometry and materials: elevated diagonal",
+   "position": [
+    -232.41,
+    101.95,
+    -212.41
+   ],
+   "target": [
+    -6,
+    22.12,
+    14
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 35,
+   "vfov_deg": 32.269,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 9
+  },
+  {
+   "id": "C10",
+   "name": "Across the bowl, long axis",
+   "purpose": "bowl: tiers, roof underside and opening, looking south",
+   "position": [
+    0,
+    50.12,
+    -112
+   ],
+   "target": [
+    0,
+    14.120000000000001,
+    40
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [
+    "golden",
+    "night"
+   ],
+   "seed": 10
+  },
+  {
+   "id": "C11",
+   "name": "Across the bowl, short axis",
+   "purpose": "bowl: tiers and roof, looking east",
+   "position": [
+    -86,
+    48.12,
+    0
+   ],
+   "target": [
+    40,
+    16.12,
+    0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 11
+  },
+  {
+   "id": "C12",
+   "name": "Seat section",
+   "purpose": "seats, rows and aisles of the west lower tier",
+   "position": [
+    -32,
+    8.620000000000001,
+    6
+   ],
+   "target": [
+    -70,
+    16.12,
+    -4
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 50,
+   "vfov_deg": 22.895,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 12
+  },
+  {
+   "id": "C13",
+   "name": "Roof underside",
+   "purpose": "roof structure, membrane and ring beam from the pitch",
+   "position": [
+    0,
+    8.120000000000001,
+    20
+   ],
+   "target": [
+    -40,
+    51.12,
+    -55
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 13
+  },
+  {
+   "id": "C14",
+   "name": "Facade and shield detail",
+   "purpose": "north shield, spears, lattice and louvres",
+   "position": [
+    22,
+    26.12,
+    -178
+   ],
+   "target": [
+    -2,
+    32.12,
+    -128
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 50,
+   "vfov_deg": 22.895,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 14
+  },
+  {
+   "id": "C15",
+   "name": "Forecourt and fountain",
+   "purpose": "north forecourt, plaza and fountain pool",
+   "position": [
+    30,
+    23.12,
+    -210
+   ],
+   "target": [
+    0,
+    8.120000000000001,
+    -160
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 35,
+   "vfov_deg": 32.269,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [
+    "golden",
+    "night"
+   ],
+   "seed": 15
+  },
+  {
+   "id": "C16",
+   "name": "Approach and horizon",
+   "purpose": "approach from Ngong Road, skyline and Ngong Hills",
+   "position": [
+    442.67,
+    146.9,
+    -832.55
+   ],
+   "target": [
+    0,
+    31.12,
+    0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 50,
+   "vfov_deg": 22.895,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 16
+  }
+ ]
+}

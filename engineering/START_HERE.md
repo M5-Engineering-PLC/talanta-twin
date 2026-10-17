@@ -94,7 +94,7 @@ The reference project ran its critic loop overnight. Do the same after G5:
 | Sol fixes and quick wins | Done | 565e38b to 7be3c7e |
 | A | Done (2026-10-17) | Seven W1b CSVs in gis/measurements/ (roof outer and inner rings, bowl plinth, north plaza, warm-up track, training pitch SE, training field SW), each with source and image date 2025-12-26 (Airbus). Scale checks not possible: no pitch markings |
 | G1 | Pass (2026-10-17) | Blender 5.2.2 (bpy wheel), 4 CPUs, 15.7 GB RAM. CPU Cycles 960x540, 64 samples, OIDN: default scene 7.1 s; 297,866-triangle scene 29.0 s. blender/renders/g1/g1_times.json |
-| 00 | Not started | |
+| 00 | Done (2026-10-17) | gis/parameter_ledger.csv: 172 rows (52 measured, 24 derived, 96 estimated). app/cameras/manifest.json: 16 cameras, load checks pass in three.js and Blender |
 | 01 and G2 | Not started | |
 | 01b and G3 | Not started | |
 | 02, G4 and G5 | Not started | |

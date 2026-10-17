@@ -1,0 +1,173 @@
+name,value,unit,source,date,method,uncertainty,status,used_in,note
+origin.lon,36.749597,deg,"Google Earth Pro 7.3.7, Munene; pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),centroid of the W1b pitch zone,+-2 m,measured,export_web.py,twin origin
+origin.lat,-1.306037,deg,"Google Earth Pro 7.3.7, Munene; pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),centroid of the W1b pitch zone,+-2 m,measured,export_web.py,
+origin.ground_elev,1809.6,m AMSL,Copernicus GLO-30 DEM,2021,DEM sample at the origin,+-4 m,derived,export_web.py,
+site.pad_y,6.12,m,GLO-30 DEM over the site boundary,2021,graded pad height relative to the origin,+-2 m,derived,main.js PAD,
+pitch.bearing,1.76,deg,"Google Earth Pro 7.3.7, Munene; pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),long axis of the pitch zone,+-1 deg,measured,"bowl.js, site.js, pitch.js","agrees with the roof rings (179.6, 181 deg)"
+pitch_zone.length,115.3,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-1.5 m,measured,pitch.js PITCH.zoneL/zoneW,"bare-earth pitch zone, no markings"
+pitch_zone.width,75.7,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-1.5 m,measured,pitch.js PITCH.zoneL/zoneW,"bare-earth pitch zone, no markings"
+pitch_zone.area,8534,m2,"Google Earth Pro 7.3.7, Munene; gis/measurements/pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",,measured,pitch.js PITCH.zoneL/zoneW,"bare-earth pitch zone, no markings"
+pitch_zone.bearing,0.5,deg,"Google Earth Pro 7.3.7, Munene; gis/measurements/pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),long axis of min. rectangle (0-180),+-2 deg,measured,pitch.js PITCH.zoneL/zoneW,"bare-earth pitch zone, no markings"
+pitch_zone.centroid_x,-0.0,m east,"Google Earth Pro 7.3.7, Munene; gis/measurements/pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),"area centroid, local frame",+-2 m,measured,pitch.js PITCH.zoneL/zoneW,"bare-earth pitch zone, no markings"
+pitch_zone.centroid_z,0.0,m south,"Google Earth Pro 7.3.7, Munene; gis/measurements/pitch_zone_w1b_2026-10-16.csv",2025-12-26 (Airbus),"area centroid, local frame",+-2 m,measured,pitch.js PITCH.zoneL/zoneW,"bare-earth pitch zone, no markings"
+bowl_plinth.length,253.0,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/bowl_plinth_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-2 m,measured,bowl.js rOut (via bowl_outer),bowl outline at ground level; N and E sides partly hidden by the roof
+bowl_plinth.width,202.8,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/bowl_plinth_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-2 m,measured,bowl.js rOut (via bowl_outer),bowl outline at ground level
+bowl_plinth.area,45297,m2,"Google Earth Pro 7.3.7, Munene; gis/measurements/bowl_plinth_w1b_2026-10-17.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",,measured,bowl.js rOut (via bowl_outer),bowl outline at ground level
+bowl_plinth.bearing,177.8,deg,"Google Earth Pro 7.3.7, Munene; gis/measurements/bowl_plinth_w1b_2026-10-17.csv",2025-12-26 (Airbus),long axis of min. rectangle (0-180),+-2 deg,measured,bowl.js rOut (via bowl_outer),bowl outline at ground level
+bowl_plinth.centroid_x,-2.2,m east,"Google Earth Pro 7.3.7, Munene; gis/measurements/bowl_plinth_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-2 m,measured,bowl.js rOut (via bowl_outer),bowl outline at ground level
+bowl_plinth.centroid_z,-1.9,m south,"Google Earth Pro 7.3.7, Munene; gis/measurements/bowl_plinth_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-2 m,measured,bowl.js rOut (via bowl_outer),bowl outline at ground level
+roof_outer.length,250.1,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_outer_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-3 m,measured,bowl.js rOut,"roof-top outer ring (steel frame); 12 points, corners cut"
+roof_outer.width,214.5,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_outer_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-3 m,measured,bowl.js rOut,roof-top outer ring (steel frame)
+roof_outer.area,46761,m2,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_outer_w1b_2026-10-17.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",,measured,bowl.js rOut,roof-top outer ring (steel frame)
+roof_outer.bearing,1.2,deg,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_outer_w1b_2026-10-17.csv",2025-12-26 (Airbus),long axis of min. rectangle (0-180),+-2 deg,measured,bowl.js rOut,roof-top outer ring (steel frame)
+roof_outer.centroid_x,10.4,m east,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_outer_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-20 m (relief displacement),measured,bowl.js rOut,roof-top outer ring (steel frame)
+roof_outer.centroid_z,-27.3,m south,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_outer_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-20 m (relief displacement),measured,bowl.js rOut,roof-top outer ring (steel frame)
+roof_inner.length,130.0,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_inner_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-2 m,measured,bowl.js BOWL_EST.opening,roof inner edge (opening)
+roof_inner.width,88.1,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_inner_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-2 m,measured,bowl.js BOWL_EST.opening,roof inner edge (opening)
+roof_inner.area,10443,m2,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_inner_w1b_2026-10-17.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",,measured,bowl.js BOWL_EST.opening,roof inner edge (opening)
+roof_inner.bearing,179.6,deg,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_inner_w1b_2026-10-17.csv",2025-12-26 (Airbus),long axis of min. rectangle (0-180),+-2 deg,measured,bowl.js BOWL_EST.opening,roof inner edge (opening)
+roof_inner.centroid_x,13.1,m east,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_inner_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-20 m (relief displacement),measured,bowl.js BOWL_EST.opening,roof inner edge (opening)
+roof_inner.centroid_z,-29.3,m south,"Google Earth Pro 7.3.7, Munene; gis/measurements/roof_inner_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-20 m (relief displacement),measured,bowl.js BOWL_EST.opening,roof inner edge (opening)
+plaza_north.length,102.5,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/north_plaza_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-2 m,measured,site.js plazaC/half/depth,north forecourt plaza (eye/shield shape)
+plaza_north.width,92.9,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/north_plaza_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-2 m,measured,site.js plazaC/half/depth,north forecourt plaza (eye/shield shape)
+plaza_north.area,8219,m2,"Google Earth Pro 7.3.7, Munene; gis/measurements/north_plaza_w1b_2026-10-17.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",,measured,site.js plazaC/half/depth,north forecourt plaza (eye/shield shape)
+plaza_north.bearing,88.9,deg,"Google Earth Pro 7.3.7, Munene; gis/measurements/north_plaza_w1b_2026-10-17.csv",2025-12-26 (Airbus),long axis of min. rectangle (0-180),+-2 deg,measured,site.js plazaC/half/depth,north forecourt plaza (eye/shield shape)
+plaza_north.centroid_x,2.2,m east,"Google Earth Pro 7.3.7, Munene; gis/measurements/north_plaza_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-2 m,measured,site.js plazaC/half/depth,north forecourt plaza (eye/shield shape)
+plaza_north.centroid_z,-205.3,m south,"Google Earth Pro 7.3.7, Munene; gis/measurements/north_plaza_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-2 m,measured,site.js plazaC/half/depth,north forecourt plaza (eye/shield shape)
+warmup_track.length,165.8,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/warmup_track_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-5 m (6 points),measured,manifest sport[track],warm-up track oval east of the bowl
+warmup_track.width,87.2,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/warmup_track_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-5 m (6 points),measured,manifest sport[track],warm-up track oval east of the bowl
+warmup_track.area,12662,m2,"Google Earth Pro 7.3.7, Munene; gis/measurements/warmup_track_w1b_2026-10-17.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",,measured,manifest sport[track],warm-up track oval east of the bowl
+warmup_track.bearing,178.5,deg,"Google Earth Pro 7.3.7, Munene; gis/measurements/warmup_track_w1b_2026-10-17.csv",2025-12-26 (Airbus),long axis of min. rectangle (0-180),+-2 deg,measured,manifest sport[track],warm-up track oval east of the bowl
+warmup_track.centroid_x,169.1,m east,"Google Earth Pro 7.3.7, Munene; gis/measurements/warmup_track_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-3 m,measured,manifest sport[track],warm-up track oval east of the bowl
+warmup_track.centroid_z,-117.2,m south,"Google Earth Pro 7.3.7, Munene; gis/measurements/warmup_track_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-3 m,measured,manifest sport[track],warm-up track oval east of the bowl
+training_pitch_se.length,126.1,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_se_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-2 m,measured,manifest sport[pitch 2],"training pitch SE, grass edge"
+training_pitch_se.width,81.5,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_se_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-2 m,measured,manifest sport[pitch 2],"training pitch SE, grass edge"
+training_pitch_se.area,9999,m2,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_se_w1b_2026-10-17.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",,measured,manifest sport[pitch 2],"training pitch SE, grass edge"
+training_pitch_se.bearing,0.2,deg,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_se_w1b_2026-10-17.csv",2025-12-26 (Airbus),long axis of min. rectangle (0-180),+-2 deg,measured,manifest sport[pitch 2],"training pitch SE, grass edge"
+training_pitch_se.centroid_x,188.5,m east,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_se_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-2 m,measured,manifest sport[pitch 2],"training pitch SE, grass edge"
+training_pitch_se.centroid_z,95.3,m south,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_se_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-2 m,measured,manifest sport[pitch 2],"training pitch SE, grass edge"
+training_field_sw.length,180.3,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_sw_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-3 m,measured,not modelled yet,"training field SW, earthworks"
+training_field_sw.width,101.2,m,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_sw_w1b_2026-10-17.csv",2025-12-26 (Airbus),min. area rectangle in EPSG:32737,+-3 m,measured,not modelled yet,"training field SW, earthworks"
+training_field_sw.area,15485,m2,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_sw_w1b_2026-10-17.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",,measured,not modelled yet,"training field SW, earthworks"
+training_field_sw.bearing,2.5,deg,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_sw_w1b_2026-10-17.csv",2025-12-26 (Airbus),long axis of min. rectangle (0-180),+-2 deg,measured,not modelled yet,"training field SW, earthworks"
+training_field_sw.centroid_x,-100.3,m east,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_sw_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-3 m,measured,not modelled yet,"training field SW, earthworks"
+training_field_sw.centroid_z,214.0,m south,"Google Earth Pro 7.3.7, Munene; gis/measurements/training_pitch_sw_w1b_2026-10-17.csv",2025-12-26 (Airbus),"area centroid, local frame",+-3 m,measured,not modelled yet,"training field SW, earthworks"
+site.boundary_area,338660,m2,"Google Earth Pro 7.3.7, Munene; site_boundary_w1b_2026-10-16.csv",2025-12-26 (Airbus),"polygon area, EPSG:32737",+-1%,measured,manifest site,8 points
+roof.relief_shift_x,13.9,m east,"roof_outer, roof_inner, bowl_plinth CSVs",2025-12-26 (Airbus),mean roof-ring centroid minus plinth centroid,+-3 m,derived,subtract from roof-level positions,oblique image; roof is centred on the plinth
+roof.relief_shift_z,-26.3,m south,"roof_outer, roof_inner, bowl_plinth CSVs",2025-12-26 (Airbus),as above,+-3 m,derived,,
+roof.depth_side,63.2,m,"roof_outer, roof_inner",2025-12-26 (Airbus),(outer width - inner width) / 2,+-3 m,derived,bowl.js shoulderW + roof span,
+roof.depth_end,60.1,m,"roof_outer, roof_inner",2025-12-26 (Airbus),(outer length - inner length) / 2,+-3 m,derived,,
+roof.band_area,36317,m2,"roof_outer, roof_inner",2025-12-26 (Airbus),outer area - opening area,+-3%,derived,,plan area of the roof
+roof.overhang_side,5.8,m,"roof_outer, bowl_plinth",2025-12-26 (Airbus),(roof outer width - plinth width) / 2,+-3 m,derived,bowl.js facadeInset/plinthInset,roof edge beyond the ground outline; oblique view may widen it (check in 01b)
+roof.overhang_end,-1.4,m,"roof_outer, bowl_plinth",2025-12-26 (Airbus),(roof outer length - plinth length) / 2,+-3 m,derived,,negative: the roof ends inside the ground outline at the ends
+bowl_outer.length,256.3,m,OSM building r20072298,2025,N-S extent of the OSM outline,+-5 m,derived,bowl.js rOut,measured plinth 253.0 m
+bowl_outer.width,203.4,m,OSM building r20072298,2025,E-W extent of the OSM outline,+-5 m,derived,bowl.js rOut,measured plinth 202.8 m
+bowl_outer.centroid_x,4.0,m east,OSM building r20072298,2025,area centroid,+-5 m,derived,bowl.js rOut,measured plinth -2.2 m: the OSM outline sits about 6 m east
+bowl_outer.centroid_z,-1.8,m south,OSM building r20072298,2025,area centroid,+-5 m,derived,bowl.js rOut,measured plinth -1.9 m
+pitch.length,105,m,assumed FIFA recommended size,,assumption,100-110 m,estimated,pitch.js PITCH.L,derive from the camera match (stage 01b)
+pitch.width,68,m,assumed FIFA recommended size,,assumption,64-75 m,estimated,pitch.js PITCH.W,
+pitch.penalty_area.depth,16.5,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.penalty_area.width,40.32,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.goal_area.depth,5.5,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.goal_area.width,18.32,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.centre_circle.radius,9.15,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.penalty_spot.distance,11,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.goal.width,7.32,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.goal.height,2.44,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.corner_arc.radius,1,m,"IFAB Laws of the Game, Law 1",,fixed by the Laws of the Game,0,derived,pitch.js PITCH,
+pitch.line_width,0.12,m,"IFAB Laws of the Game, Law 1",,Law 1 maximum,0,derived,pitch.js,
+pitch.grass_bands,18,count,look choice,,mowing pattern,,estimated,pitch.js bands,
+bowl.seat_start.half_long,59.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-3 m,estimated,bowl.js BOWL_EST.seatStart,front row from the pitch centre along the long axis
+bowl.seat_start.half_wide,39.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-3 m,estimated,bowl.js BOWL_EST.seatStart,
+bowl.seat_start.corner_r,14,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-4 m,estimated,bowl.js BOWL_EST.seatStart,
+bowl.opening.half_long,63,m,"Sentinel-2 opening area (about 9,900 m2)",2026,rounded rectangle sized to the S2 area,+-3 m,estimated,bowl.js BOWL_EST.opening,measured roof inner ring: half length 65.0 m
+bowl.opening.half_wide,40,m,Sentinel-2 opening area,2026,as above,+-3 m,estimated,bowl.js BOWL_EST.opening,measured: half width 44.0 m
+bowl.opening.corner_r,20,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-5 m,estimated,bowl.js BOWL_EST.opening,
+bowl.back_setback,9,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-3 m,estimated,bowl.js BOWL_EST.backSetback,back of the top row inside the outer edge
+bowl.plinth_h,5.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-1.5 m,estimated,bowl.js BOWL_EST.plinthH,
+bowl.plinth_inset,8,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-3 m,estimated,bowl.js BOWL_EST.plinthInset,compare roof.overhang_side
+bowl.facade_inset,7,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-3 m,estimated,bowl.js BOWL_EST.facadeInset,
+bowl.bulge_y,30,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-5 m,estimated,bowl.js BOWL_EST.bulgeY,height of the widest point of the facade
+bowl.shoulder_w,15,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-5 m,estimated,bowl.js BOWL_EST.shoulderW,
+bowl.shoulder_h,24,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-5 m,estimated,bowl.js BOWL_EST.shoulderH,
+bowl.roof_top_y,54,m,bulge_y + shoulder_h,2026-10-16,derived from two estimates,+-6 m,estimated,bowl.js topY,press: 56 m maximum height
+bowl.max_height_press,56,m,research/Talanta_design_facts_2026-10-16.md (press),2026,press statement,unknown,estimated,check for bowl.roof_top_y,
+bowl.opening_y,47,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-5 m,estimated,bowl.js BOWL_EST.openingY,roof inner edge height
+bowl.roof_sag,1.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-1 m,estimated,bowl.js P() roof,membrane sag between crest and opening
+bowl.tier_lower.t0,0.0,fraction,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.05,estimated,bowl.js BOWL_EST.tiers,fraction of the rake from front row to back wall
+bowl.tier_lower.t1,0.38,fraction,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.05,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_lower.y0,1.2,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_lower.y1,12.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_lower.rows,24,count,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-4,estimated,bowl.js BOWL_EST.tiers,count in stage 01b
+bowl.tier_lower.seat_colour,#2c7a46,hex,research/Talanta_design_facts_2026-10-16.md; frames,2026-10-16,design facts and frames,,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_middle.t0,0.45,fraction,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.05,estimated,bowl.js BOWL_EST.tiers,fraction of the rake from front row to back wall
+bowl.tier_middle.t1,0.66,fraction,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.05,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_middle.y0,20.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_middle.y1,29.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_middle.rows,13,count,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-4,estimated,bowl.js BOWL_EST.tiers,count in stage 01b
+bowl.tier_middle.seat_colour,#b0232b,hex,research/Talanta_design_facts_2026-10-16.md; frames,2026-10-16,design facts and frames,,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_upper.t0,0.7,fraction,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.05,estimated,bowl.js BOWL_EST.tiers,fraction of the rake from front row to back wall
+bowl.tier_upper.t1,1.0,fraction,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.05,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_upper.y0,33.0,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_upper.y1,46.0,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js BOWL_EST.tiers,
+bowl.tier_upper.rows,21,count,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-4,estimated,bowl.js BOWL_EST.tiers,count in stage 01b
+bowl.tier_upper.seat_colour,#b0232b to #1c1b1b,hex,research/Talanta_design_facts_2026-10-16.md; frames,2026-10-16,design facts and frames,,estimated,bowl.js BOWL_EST.tiers,
+bowl.band.base_wall_h,1.2,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.5 m,estimated,bowl.js band(0),pitch-side wall
+bowl.band.lower_back_y0,12.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js band(0.38),
+bowl.band.vip_glass_y0,14.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js band(0.45),VIP glazing band
+bowl.band.vip_glass_y1,20.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js band(0.45),
+bowl.band.middle_back_y1,31.0,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js band(0.66),
+bowl.band.upper_front_y1,33.0,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-2 m,estimated,bowl.js band(0.70),
+bowl.back_wall_h,46,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-4 m,estimated,bowl.js back wall quad,
+bowl.seat_pitch,0.5,m,typical stadium seat width,,standard practice,0.45-0.55 m,estimated,bowl.js BOWL_EST.seatPitch,"do not tune to force capacity (V4 failed: 56,972 against 60,000)"
+bowl.aisle_every,16,seats,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-4,estimated,bowl.js BOWL_EST.aisleEvery,
+bowl.aisle_w,1.3,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.3 m,estimated,bowl.js BOWL_EST.aisleW,
+bowl.capacity_target,60000,seats,research/Talanta_design_facts_2026-10-16.md (press),2026,press statement,unknown,estimated,validation V4,
+bowl.seats_modelled,56972,seats,app console (seatCount),2026-10-17,count of seat instances,,derived,bowl.js seats,V4 failed: 5.05% short
+bowl.seat.width,0.44,m,typical plastic stadium seat,,standard practice,+-0.04 m,estimated,bowl.js seatGeometry,
+bowl.seat.pan_h,0.42,m,typical plastic stadium seat,,standard practice,+-0.04 m,estimated,bowl.js seatGeometry,
+bowl.shields.count,8,count,research/Talanta_design_facts_2026-10-16.md; frames,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0,estimated,bowl.js BOWL_EST.shields,count in stage 01b
+bowl.shield.width,21,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-4 m,estimated,bowl.js BOWL_EST.shieldW,
+bowl.shield.y0,6.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-3 m,estimated,bowl.js BOWL_EST.shieldY0,
+bowl.shield.y1,46,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-4 m,estimated,bowl.js BOWL_EST.shieldY1,
+bowl.shield.offset,2.6,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-1 m,estimated,"bowl.js surf(th, j, 2.6)",shield face off the facade
+bowl.spear.offset,1.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-1 m,estimated,bowl.js spears,spears behind the shield
+bowl.spear.radius,0.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.2 m,estimated,bowl.js spears,
+bowl.shield.red,#d0202a,hex,frames (look),2026-10-17,colour pick by eye,,estimated,bowl.js shieldTexture,
+bowl.lattice.members,40,count per direction,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-8,estimated,bowl.js BOWL_EST.lattice,count in stage 01b
+bowl.lattice.tube_r,0.42,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.15 m,estimated,bowl.js TubeGeometry 0.42,
+bowl.lattice.ring_r,0.5,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.15 m,estimated,bowl.js horizontal rings,
+bowl.roof.ribs,60,count,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-12,estimated,bowl.js rib every 4 of N=240,count in stage 01b
+bowl.roof.rib_r,0.22,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.1 m,estimated,bowl.js rib tubes,
+bowl.roof.ring_beam_r,0.9,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.3 m,estimated,bowl.js opening ring beam,
+bowl.roof.trusses,60,count,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-12,estimated,bowl.js truss nT = N/4,
+bowl.roof.truss_depth,2.4,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-1 m,estimated,bowl.js truss scale,
+bowl.roof.truss_width,0.6,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.3 m,estimated,bowl.js truss scale,
+bowl.floodlights.offset_out,2,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-1 m,estimated,bowl.js floodlights,outside the opening edge
+bowl.floodlights.drop,2.6,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-1 m,estimated,bowl.js floodlights,below the opening edge
+bowl.led_ring.r,0.35,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-0.2 m,estimated,bowl.js led-ring,
+bowl.concourse.width_out,6,m,reference frames JWNowpO44rw (look); press facts,2026-10-16,"estimate from frames, to be derived in stage 01b",+-3 m,estimated,bowl.js concourse,paved ring outside the outer edge
+bowl.mesh.N,240,segments,model resolution,,not a dimension,,estimated,bowl.js BOWL_EST.N,
+site.plaza.offset,78,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10 m,estimated,site.js buildSite plazaC = rN + 78,measured plaza centroid -205 m N of the origin
+site.plaza.half_across,92,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-20 m,estimated,site.js buildSite half,measured plaza: 102.5 m across (half 51.3 m)
+site.plaza.depth,46,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10 m,estimated,site.js buildSite depth,measured plaza: 92.9 m deep
+site.planter.r,7,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-2 m,estimated,site.js buildSite planter,
+site.planter.h,0.8,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-0.3 m,estimated,site.js buildSite planter,
+site.forecourt.width,150,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-20 m,estimated,site.js buildSite fc,
+site.pool.offset,36,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-8 m,estimated,site.js buildSite poolC = rN + 36,measure in a later W1b batch
+site.pool.length,66,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10 m,estimated,site.js buildSite poolL,
+site.pool.width,15,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-4 m,estimated,site.js buildSite poolW,
+site.pool.step_h,0.18,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-0.03 m,estimated,site.js buildSite STEP,
+site.pool.steps,3,count,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-1,estimated,site.js buildSite,
+site.pool.water_y,0.42,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-0.1 m,estimated,site.js buildSite waterY,
+site.jets.rows,2,count,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,,estimated,site.js buildSite jets,
+site.jets.per_row,30,count,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10,estimated,site.js buildSite jets,
+site.jets.row_offset,3.5,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-1 m,estimated,site.js buildSite jets,
+site.jets.h,4,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-2 m,estimated,site.js buildSite jets,
+site.jets.arc_count,13,count,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-4,estimated,site.js buildSite jets,
+site.jets.arc_h,8,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-3 m,estimated,site.js buildSite jets,
+site.masts.spacing,70,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-20 m,estimated,site.js buildSite masts,
+site.masts.inset,22,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10 m,estimated,site.js buildSite masts,inside the site boundary
+site.masts.h,26,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-6 m,estimated,site.js buildSite poles,
+site.masts.forecourt_rows,4,count per side,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-1,estimated,site.js buildSite masts,"at rN + 20 + 38k, 70 m either side"
+site.people.count,300,count,Visualization,,illustrative only,,estimated,site.js buildSite people,"Visualization, not a crowd model (AGENTS.md rule 7)"
