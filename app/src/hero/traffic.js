@@ -49,7 +49,8 @@ function wheelsGeometry(spec, count = 4) {
 function addBatch(group, instances, geometry, material, colorOf) {
   if (!instances.length) return null;
   const mesh = new THREE.InstancedMesh(geometry, material, instances.length);
-  mesh.castShadow = true; mesh.receiveShadow = true; mesh.userData.claim = 'Visualization';
+  // Vehicles move every frame, so cached bounds go stale: skip frustum culling instead of recomputing them.
+  mesh.castShadow = true; mesh.receiveShadow = true; mesh.frustumCulled = false; mesh.userData.claim = 'Visualization';
   if (colorOf) instances.forEach((v, i) => mesh.setColorAt(i, colorOf(v)));
   group.add(mesh);
   return mesh;
@@ -191,7 +192,8 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
   assignMix(fleet.filter((v) => v.lane.name?.toLowerCase() === 'ngong road'), { car: 0.55, nganya: 0.25, bus: 0.12, boda: 0.08 });
   assignMix(fleet.filter((v) => v.lane.name?.toLowerCase() !== 'ngong road'), { car: 0.82, nganya: 0.10, boda: 0.08 });
   for (const lane of lanes) lane.vehicles.forEach((v, i) => { v.distance = (i + 0.15 + random() * 0.7) / lane.vehicles.length * lane.length; });
-  const carMeshesAll = [...cars].flatMap(([spec, vehicles]) => carMeshes(group, spec, vehicles));
+  const carMeshesBySpec = new Map([...cars].map(([spec, vehicles]) => [spec, carMeshes(group, spec, vehicles)]));
+  const carMeshesAll = [...carMeshesBySpec.values()].flat();
   const busMeshesAll = busMeshes(group, buses), bodaMeshesAll = bodaMeshes(group, bodas);
 
   const proxyGeo = new THREE.BoxGeometry(7, 2.5, 2.25); proxyGeo.translate(0, 1.28, 0);
@@ -218,7 +220,7 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
             if (name === 'LIGHTS' || name === 'LIGT') material.emissiveNode = instanceColor;
             const mesh = new THREE.InstancedMesh(geometry, material, nganyas.length);
             mesh.count = 0; mesh.visible = false; mesh.castShadow = true; mesh.receiveShadow = true; mesh.userData.claim = 'Visualization';
-            group.add(mesh); modelMeshes.push({ name, mesh });
+            mesh.frustumCulled = false; group.add(mesh); modelMeshes.push({ name, mesh });
           }
           modelReady = modelMeshes.some(({ name }) => name === 'Plane__0');
         } catch (error) { console.warn('Nganya model setup failed; box proxies stay active.', error); }
@@ -240,6 +242,10 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
     rootMatrix.compose(position, rotation, scale);
     return rootMatrix;
   }
+  // A quality downgrade can lower the live vehicle count; vehicles past the limit are parked out of sight.
+  let limit = fleet.length; const hidden = new THREE.Matrix4().makeScale(0, 0, 0);
+  fleet.forEach((v, i) => { v.order = i; });
+  function setLimit(n) { limit = Math.max(0, Math.min(fleet.length, Math.floor(n))); }
   function update(dt) {
     const stepDt = Math.max(0, Math.min(0.25, dt || 0));
     for (const lane of lanes) {
@@ -251,17 +257,17 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
       for (const v of ordered) v.distance = (v.distance + v.speed * stepDt) % lane.length;
     }
     for (const v of [...fleet]) if (v.kind === 'car' || v.kind === 'bus' || v.kind === 'boda') {
-      const matrix = vehicleMatrix(v);
-      const meshes = v.kind === 'car' ? carMeshesAll : v.kind === 'bus' ? busMeshesAll : bodaMeshesAll;
-      const indexMeshes = v.kind === 'car' ? cars.get(v.spec) : v.kind === 'bus' ? buses : bodas;
-      const index = indexMeshes.indexOf(v);
-      for (const mesh of meshes) mesh.setMatrixAt(index, matrix);
+      const matrix = v.order < limit ? vehicleMatrix(v) : hidden;
+      // Each car style has its own batch; v.index is the vehicle's slot in that batch.
+      const meshes = v.kind === 'car' ? carMeshesBySpec.get(v.spec) : v.kind === 'bus' ? busMeshesAll : bodaMeshesAll;
+      for (const mesh of meshes) mesh.setMatrixAt(v.index, matrix);
     }
     for (const mesh of [...carMeshesAll, ...busMeshesAll, ...bodaMeshesAll]) mesh.instanceMatrix.needsUpdate = true;
     if (!nganyas.length) { updateStats(); return; }
     let near = 0, far = 0;
     const cameraPos = camera?.position;
     for (const v of nganyas) {
+      if (v.order >= limit) continue;
       const matrix = vehicleMatrix(v);
       const isFar = modelReady && cameraPos && cameraPos.distanceToSquared(position) > proxyDistance * proxyDistance;
       if (isFar || !modelReady) {
@@ -288,5 +294,5 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
     ngong: countRoadTypes(fleet.filter((v) => v.lane.name?.toLowerCase() === 'ngong road')),
     other: countRoadTypes(fleet.filter((v) => v.lane.name?.toLowerCase() !== 'ngong road')),
   };
-  return { group, update };
+  return { group, update, setLimit };
 }

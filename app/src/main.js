@@ -689,6 +689,11 @@ const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   tier = next; quality = TIERS[tier];
   renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
   renderer.shadowMap.enabled = quality.shadows && !hero;
+  // Apply the rest of the tier to what already exists: post-processing off, fewer trees, cheaper traffic.
+  if (!quality.postProcessing) pipeline = null;
+  { const keep = quality.treeCount / Math.max(1, trees.children.reduce((n, m) => n + m.count, 0)); if (keep < 1) for (const m of trees.children) if (m.isInstancedMesh) m.count = Math.floor(m.count * keep); }
+  traffic?.setLimit(quality.trafficCount);
+  if (crowd && quality.crowdFraction < 1) { scene.remove(crowd.group); crowd = null; if (state.matchday) ensureCrowd(); }
 } });
 if (fpsMonitor.element) stage.appendChild(fpsMonitor.element);
 
