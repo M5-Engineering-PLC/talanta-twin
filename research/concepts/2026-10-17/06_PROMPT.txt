@@ -1,0 +1,25 @@
+06 NE view to the Ngong Hills. LEAD RENDER.
+
+Status: one of the two lead renders, chosen by Munene on 2026-10-17. Use it as the look target for the C06-family hero shots and the Stage 03 builds. Measured facts in gis/parameter_ledger.csv outrank this image.
+
+Internal design help only. Derived from Kenyan Historian frames (JWNowpO44rw) and a Google Earth Pro screenshot used as a layout reference. Not measured output. Never use in a product build, texture, pitch or public page (AGENTS.md rule 2).
+
+View: drone from the north-east above Ngong Road, looking south-west across the stadium, the forest sanctuary and the racecourse to the Ngong Hills. Morning light.
+Made by: GPT-6 Astra image generation, Codex session 01a148da-208d-73b2-9021-ff165b862417. Original 1672 x 941 PNG, saved here as a 1600 px JPG.
+
+Input images (none is in gis/heldout_frames.csv):
+- research/concepts/2026-10-17/05_hero_reference_matched.jpg
+- a Google Earth Pro screenshot of the site layout (image 26 Dec 2025). Not saved in the repository.
+- research/frames/JWNowpO44rw/JWNowpO44rw_001212.500.jpg
+- research/frames/JWNowpO44rw/JWNowpO44rw_001240.000.jpg
+- research/frames/JWNowpO44rw/JWNowpO44rw_000704.867.jpg
+
+Prompt:
+Create one landscape PNG, at least 1536 pixels on its long side, preferably 2048x1152. Use case: photorealistic-natural. Internal design-help visualization of Talanta Stadium in Nairobi, not a measured reconstruction.
+Use exactly the five supplied references in order: 1 is the hero concept whose photographic finish, natural color, light quality and architectural appearance to retain; 2 is Google Earth layout reference ONLY, never copy its imagery texture, overlays, red outlines or labels; 3 is authoritative for shields, crossed spears and louvres; 4 for roof and bowl form; 5 for proportions and Ngong Road context. Correct image 1 geography and lighting rather than reproducing its wrong dense city background.
+Camera: morning golden-hour drone photograph from NORTH-EAST, about 150 m high and 450 m out, above Ngong Road near Kenya Science Campus, looking SOUTH-WEST. Natural 24 to 35 mm lens. Stadium about 45% of image width. Sky occupies top quarter. Low sun in EAST BEHIND camera at approximately 07:35 EAT, outside image, illuminating visible facade warmly. No sun disk in front of camera. A few cumulus clouds, light haze.
+Front-to-back composition: Ngong Road wide dual carriageway with modest traffic in lower frame, running WSW to ENE along NORTH side of stadium site; shield-shaped paved forecourt with flag masts between road and stadium; low wide stadium; dense dark-green Ngong Road Forest Sanctuary BEHIND stadium to south and southwest; open oval Ngong Racecourse and Golf Park beyond forest; distinctive rounded rolling Ngong Hills on far southwest horizon. No dense high-rise city behind stadium.
+Site is SOUTH of road, a trapezoid of red murram and paving. Bowl centered. Forecourt on north toward road. Warm-up running track with grass pitch EAST of stadium, appearing on LEFT in this camera view. Training pitch southeast, dirt training field southwest. Jamhuri Park and Jamhuri prison farther south, only distant nonspecific context without facility details. Nairobi Polo Club open fields southeast. North of road only low leafy Lavington/Kilimani-side suburbs at frame edges: red and brown roofs, many mature trees, occasional mid-rise apartment blocks in Ngando/Liberty Centre area. Junction Mall northeast along road, Kenya Science Campus and Nairobi Chapel east, peripheral or offscreen as camera permits. Overall green leafy area.
+Stadium: low wide rounded-rectangle white bowl, not a tall cylinder. Gently bulging walls curve inward at top into smooth white membrane roof, faint radial seams and oval opening. Dense thin horizontal white louvre fins over entire wall with dark gaps behind. Large diamond lattice of thick white tubes in front of fins.
+Eight large Maasai-style shields distributed around complete facade, only naturally visible ones shown from camera. Every shield is 85 to 90% of wall height, top almost touches roof edge, bottom almost reaches base. Match reference 3: red field, black crescent lobes at left and right, white vertical spine, round white central boss, broad white leaves above and below boss, slightly convex surface. Two white spears cross behind EACH shield; blade tips visible left and right of shield top just BELOW roof edge, shafts visible below shield. Nothing projects above roof. Short light-grey concrete base band with white columns, no dark plinth.
+Hyper-realistic drone photographic finish like reference 1, natural colors and fine material detail. No text, labels, logos, watermarks, billboard graphics, Google Earth overlays or red outlines. No close-up people. No detailed gates, exits, security cameras or control rooms. This image is internal reference only, never a product texture, pitch or public page.

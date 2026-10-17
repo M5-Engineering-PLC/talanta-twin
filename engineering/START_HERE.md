@@ -51,11 +51,13 @@ flowchart TD
 | 00 | Parameter ledger and 16-camera manifest | workorder_hyperreal_phaseA_2026-10-17.md (Stage 00), review_astra_hyperreal_2026-10-17.md | none | Every number in bowl.js, site.js and pitch.js has a ledger row |
 | 01 | Blender blockout from the ledger. Workbench renders C01 to C05. glTF round trip behind `?blender` | Phase A work order (Stage 01) | none | G2: geometry matches the ledger within its uncertainty |
 | 01b | Camera match on historian frames. Measure heights and the roof, count ribs and bays, and write detail specs | Phase A work order (Stage 01b), research/frames/JWNowpO44rw/, research/video_index/MASTER_INDEX.csv, gis/heldout_frames.csv | none | G3: at least 3 frames solve below 3 px |
-| 02 | Hero shot C06, golden hour, CPU Cycles, up to 3 scored passes | Phase A work order (Stage 02), research/concepts/2026-10-17/ (mood only) | Look at the C06 renders and take them to the lead session | G4: 85/100 on two consecutive passes. G5: blind test |
+| 02 | Hero shot C06, golden hour, CPU Cycles, up to 3 scored passes | Phase A work order (Stage 02), research/concepts/2026-10-17/: the lead renders 06 and 07 are the look target (internal only; the ledger outranks them) | Look at the C06 renders and take them to the lead session | G4: 85/100 on two consecutive passes. G5: blind test |
 | 03 | Four specialist builds (roof and envelope, facade and bowl, landscape, people dressing) with an overnight critic loop | Astra review (pipeline stages 03 to 05) | Approve the start | Lead review of the critic scores |
 | Web | Export the accepted Blender assets to three.js. Then run roadmap packages P0 to P13 | roadmap_hero_v1_2026-10-17.md | P0 device baseline. P5 measurements | The gates in the roadmap |
 
 Hold roadmap package P1 (bowl.js polish) until gate G2 passes. After G2, the Blender blockout is the source of the bowl, and P1 work in bowl.js would be done twice. P0, P3, P5 and P7 can run at any time.
+
+Lead renders: research/concepts/2026-10-17/06_lead_ne_to_ngong_hills.jpg and 07_lead_ssw_to_lavington.jpg. Munene chose these two as the look target for the hero shots and Stage 03. They are internal design help, derived from the historian frames. Where the ledger and a lead render disagree, follow the ledger.
 
 ## Confidence gates
 
