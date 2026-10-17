@@ -7,27 +7,27 @@ import bpy
 from mathutils import Vector
 
 STRENGTHS = {
-    "roughness_coarse": 0.025,  # Maximum coarse roughness offset in either direction.
-    "roughness_fine": 0.012,  # Maximum fine roughness offset in either direction.
+    "roughness_coarse": 0.06,  # Maximum coarse roughness offset in either direction.
+    "roughness_fine": 0.03,  # Maximum fine roughness offset in either direction.
     "noise_coarse_scale": 0.6,  # World-space noise frequency per meter.
     "noise_fine_scale": 18.0,  # Fine world-space noise frequency per meter.
-    "color_variation": 0.018,  # Maximum color darkening from broad noise.
-    "dirt": 0.035,  # Maximum AO dirt darkening, below 8 percent.
-    "ao_distance": 0.4,  # Local crevice search distance in meters, one sample.
-    "edge_highlight": 0.025,  # White coating highlight, without simulated damage.
-    "rain_streaks": 0.012,  # Maximum darkening on fin and roof-edge crevices.
+    "color_variation": 0.10,  # Maximum color darkening from broad noise (panel-to-panel paint tone).
+    "dirt": 0.15,  # Maximum AO dirt darkening in crevices; open faces stay clean (new stadium).
+    "ao_distance": 0.6,  # Local crevice search distance in meters, one sample.
+    "edge_highlight": 0.04,  # White coating highlight, without simulated damage.
+    "rain_streaks": 0.05,  # Maximum darkening on fin and roof-edge crevices.
     "streak_scale": 3.0,  # Lateral streak frequency per meter.
     "streak_vertical_scale": 0.025,  # Low vertical frequency for gravity-aligned streaks.
-    "haze_day": 0.22,  # Maximum distant daylight sky blend.
+    "haze_day": 0.12,  # Maximum distant daylight sky blend (lowered: 0.22 flattened the image).
     "haze_night": 0.055,  # Maximum distant night sky blend.
     "mist_start": 150.0,  # Clear foreground distance in meters.
     "mist_depth": 6000.0,  # Distance to full aerial perspective in meters.
     "glare": 0.035,  # Fog-glow blend with the original image.
     "glare_threshold": 2.0,  # Linear brightness threshold for highlights.
     "vignette": 0.055,  # Maximum smooth corner darkening.
-    "distortion": 0.002,  # Mild barrel distortion.
+    "distortion": 0.0,  # Off: with Fit the barrel zoomed C06 by about 5% and broke the frozen framing.
     "dispersion": 0.0005,  # Small chromatic lens dispersion.
-    "grain": 0.006,  # Fine, centered multiplicative film grain amplitude.
+    "grain": 0.03,  # Fine, centered multiplicative film grain amplitude.
     "sensor_width": 36.0,  # Physical camera sensor width in millimeters.
     "aerial_distance": 150.0,  # Target distance above which DOF is disabled, meters.
     "f_stop": 2.8,  # Close-camera aperture.
@@ -241,10 +241,11 @@ def _compositor(scene, mode):
     lens = tree.nodes.new("CompositorNodeLensdist")
     lens.inputs["Distortion"].default_value = STRENGTHS["distortion"]
     lens.inputs["Dispersion"].default_value = STRENGTHS["dispersion"]
+    # No Fit: the frozen camera framing must stay identical with the layer on or off.
     if "Fit" in lens.inputs:
-        lens.inputs["Fit"].default_value = True
+        lens.inputs["Fit"].default_value = False
     else:
-        lens.use_fit = True
+        lens.use_fit = False
     tree.links.new(image, lens.inputs["Image"])
     image = lens.outputs["Image"]
     if modern:

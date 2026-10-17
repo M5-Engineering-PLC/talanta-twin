@@ -1,0 +1,30 @@
+{
+ "method": "concentric superellipse about the pitch centre, axes on pitch.bearing, least squares on radius",
+ "bearing_deg": 1.76,
+ "rings": {
+  "plinth": {
+   "a_cross": 100.5,
+   "b_long": 124.8,
+   "n": 3.38,
+   "rms_m": 3.69,
+   "max_m": 9.53,
+   "source": "bowl_plinth_w1b_2026-10-17.csv"
+  },
+  "roof_outer": {
+   "a_cross": 106.24,
+   "b_long": 124.04,
+   "n": 3.08,
+   "rms_m": 3.39,
+   "max_m": 9.1,
+   "source": "roof_outer_w1b_2026-10-17.csv"
+  },
+  "roof_inner": {
+   "a_cross": 43.6,
+   "b_long": 63.92,
+   "n": 4.46,
+   "rms_m": 2.21,
+   "max_m": 4.63,
+   "source": "roof_inner_w1b_2026-10-17.csv"
+  }
+ }
+}

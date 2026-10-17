@@ -482,7 +482,7 @@ def light_cubes(name, pts, mats_cycle, size, claim):
         b0 = len(verts); verts += box_verts(p.x, p.y, p.z, size, size, size, 0)
         for f in BOXF: faces.append([b0 + i for i in f]); midx.append(k % len(mats_cycle))
     return mesh_obj(name, verts, faces, mats_cycle, "night_lights", claim, mat_idx=midx)
-jw = RG["j_wall"]
+jw = RG.get("j_fascia", RG["j_wall"])  # fascia line (fins now run up the shoulder to it)
 light_cubes("night_fascia_points", ring_points(lambda i: prof[i][jw][0] + 0.45, lambda i: prof[i][jw][1] + 0.4, V("bowl.night.fascia_spacing")),
             [mat("night_fascia_white", "#FFFFFF", 0.4, night=40.0), mat("night_fascia_cyan", "#32C6FF", 0.4, night=40.0), mat("night_fascia_violet", "#B35CFF", 0.4, night=40.0)],
             0.35, "Visualization (detail sheet RF25, frame 11:48)")

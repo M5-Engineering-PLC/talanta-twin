@@ -420,5 +420,83 @@ for sg in (1, -1):
 mesh_obj("video_boards", "bowl_detail", bv, bf, principled("screen_black", (0.015, 0.015, 0.018), 0.15, 0.2), "estimated", "ledger bowl.screen.* (estimated, by eye from 10:38, 10:55)")
 tube_obj("video_board_hangers", "bowl_detail", bh_, 0.1, STEEL, "estimated", "ledger bowl.screen.* (estimated)")
 
+# ---------------------------------------------------------------- E. detail sheet BS (group 2, with the lead review)
+SRC_BS = "detail sheet BS (engineering/detail_sheets/02_bowl_seats.md) with the lead review"
+# Speaker clusters (BS30; lead review correction 4, frame 02:00): curved white line arrays with dark grilles, a J of
+# boxes bending down towards the stands, hung by chains from a white steel frame under the roof above the upper tier.
+SPK_W = principled("speaker_white", srgb("#E4E4E0"), 0.45, 0.1); SPK_G = principled("speaker_grille", srgb("#171819"), 0.6, 0.2)
+ne, ew, eh, ed = int(V("bowl.speaker.elements")), V("bowl.speaker.el_w"), V("bowl.speaker.el_h"), V("bowl.speaker.el_d")
+nsp = int(V("bowl.speaker.count")); t0u = V("bowl.tier_upper.t0"); y0u, y1u = V("bowl.tier_upper.y0"), V("bowl.tier_upper.y1")
+wv_, wf_, gv_, gf_, ch_ = [], [], [], [], []
+for k in range(nsp):
+    th = 2 * math.pi * (k + 0.25) / nsp; i0 = int(round(th / (2 * math.pi) * N)) % N
+    ux, uz = dirs[i0]; tx, tz = -uz, ux
+    r = at(i0, t0u + V("bowl.speaker.t_over_tier") * (1 - t0u)); top = roof_under_at(i0, r) - V("bowl.speaker.drop")
+    # J curve in the radial plane: each element turns a little more towards the stands (outward, away from the pitch)
+    p_r, p_y, ang = r, top, 0.0
+    for e in range(ne):
+        ang += math.radians(3 + 4 * e)  # splay grows down the array
+        dr_, dy_ = math.sin(ang) * eh, -math.cos(ang) * eh
+        cr, cy = p_r + dr_ / 2, p_y + dy_ / 2; p_r += dr_; p_y += dy_
+        nr, ny = math.cos(ang), math.sin(ang)  # front face normal (outward and slightly up)
+        def cpt(su, sn_, sv):  # across, front/back, along the array
+            rr = cr + nr * sn_ + math.sin(ang) * sv; yy = cy + ny * sn_ - math.cos(ang) * sv
+            return B(ux * rr + tx * su, yy, uz * rr + tz * su)
+        hw_, hd_, hh_ = ew / 2, ed / 2, eh / 2 * 0.96
+        box(wv_, wf_, [cpt(-hw_, -hd_, -hh_), cpt(hw_, -hd_, -hh_), cpt(hw_, hd_, -hh_), cpt(-hw_, hd_, -hh_),
+                       cpt(-hw_, -hd_, hh_), cpt(hw_, -hd_, hh_), cpt(hw_, hd_, hh_), cpt(-hw_, hd_, hh_)])
+        gi_ = hw_ * 0.78; b0 = len(gv_)  # dark grille set just proud of the front face
+        gv_ += [cpt(-gi_, hd_ + 0.02, -hh_ * 0.8), cpt(gi_, hd_ + 0.02, -hh_ * 0.8), cpt(gi_, hd_ + 0.02, hh_ * 0.8), cpt(-gi_, hd_ + 0.02, hh_ * 0.8)]
+        gf_.append((b0, b0 + 1, b0 + 2, b0 + 3))
+    # hanging frame and chains
+    fw_ = ew * 0.8
+    for su in (-fw_, fw_):
+        ch_.append([B(ux * (r - 0.6) + tx * su, top + 0.3, uz * (r - 0.6) + tz * su), B(ux * (r - 0.6) + tx * su, roof_under_at(i0, r) - 0.2, uz * (r - 0.6) + tz * su)])
+        ch_.append([B(ux * (r + 0.6) + tx * su, top + 0.3, uz * (r + 0.6) + tz * su), B(ux * (r + 0.6) + tx * su, roof_under_at(i0, r) - 0.2, uz * (r + 0.6) + tz * su)])
+    hw_ = ew / 2 + 0.3
+    box(wv_, wf_, [B(ux * (r + a_) + tx * b_, top + yy, uz * (r + a_) + tz * b_) for yy in (0.15, 0.4) for a_, b_ in ((-1.0, -hw_), (-1.0, hw_), (1.0, hw_), (1.0, -hw_))])
+mesh_obj("speaker_clusters", "roof_detail", wv_, wf_, SPK_W, "estimated", SRC_BS + "; ledger bowl.speaker.* (by eye from JWNowpO44rw 02:00)")
+mesh_obj("speaker_grilles", "roof_detail", gv_, gf_, SPK_G, "estimated", SRC_BS + "; ledger bowl.speaker.*")
+tube_obj("speaker_chains", "roof_detail", ch_, 0.04, STEEL, "estimated", SRC_BS)
+# VIP glazing (BS18, BS19): warm light behind the glass, mullions dividing the band into boxes
+gl = bpy.data.objects["vip_glass"]; gm = principled("vip_glass_lit", srgb("#27302F"), 0.08, 0.0)
+gp = gm.node_tree.nodes["Principled BSDF"]; gp.inputs["Emission Color"].default_value = (*srgb("#FFD9A0"), 1)
+gp.inputs["Emission Strength"].default_value = V("bowl.vip.glow_day"); gp.label = f"night:{V('bowl.vip.glow_night')}"
+gl.data.materials.clear(); gl.data.materials.append(gm)
+yv0, yv1 = V("bowl.band.vip_glass_y0"), V("bowl.band.vip_glass_y1")
+columns("vip_mullions", lambda i: at(i, V("bowl.tier_middle.t0")) - 0.08, yv0, lambda i: yv1, V("bowl.vip.mullion_spacing"), 0.06,
+        SRC_BS + "; ledger bowl.vip.mullion_spacing (estimated, BS19)")
+# floodlight lenses (BS28): white lens faces under the heads, lit at night
+lens = principled("night_floodlight_lens", srgb("#F2F2EE"), 0.2); lp_ = lens.node_tree.nodes["Principled BSDF"]
+lp_.inputs["Emission Color"].default_value = (1, 1, 1, 1); lp_.inputs["Emission Strength"].default_value = 0.0; lp_.label = "night:40"
+fo = bpy.data.objects["floodlights"]; fo.data.materials.append(lens)
+for p in fo.data.polygons:
+    if p.normal.z < -0.5: p.material_index = 1
+# pitch apron (BS41, BS47): pale paved strip in front of the lowest rows, with a low kerb at the grass edge
+APW = V("bowl.apron.width"); av, af = [], []
+for i in range(N):
+    ux, uz = dirs[i]; r0_ = rIn[i] - APW
+    av += [B(ux * r0_, 0.09, uz * r0_), B(ux * rIn[i], 0.09, uz * rIn[i]), B(ux * r0_, 0.2, uz * r0_), B(ux * (r0_ + 0.25), 0.2, uz * (r0_ + 0.25))]
+for i in range(N):
+    a, b_ = 4 * i, 4 * ((i + 1) % N); af += [(a, b_, b_ + 1, a + 1), (a, a + 2, b_ + 2, b_), (a + 2, a + 3, b_ + 3, b_ + 2)]
+mesh_obj("pitch_apron", "pitch", av, af, principled("apron_paving", srgb("#D1CEC5"), 0.85), "estimated", SRC_BS + "; ledger bowl.apron.width (BS41, BS47)")
+# corner flags (BS40; Law 1: at least 1.5 m, not pointed)
+fl_v, fl_f, poles_ = [], [], []
+for sx in (-1, 1):
+    for sz in (-1, 1):
+        x, z = rot(sx * hw, sz * hl); poles_.append([B(x, YM, z), B(x, YM + V("bowl.corner_flag.h"), z)])
+        b0 = len(fl_v); top_ = YM + V("bowl.corner_flag.h")
+        fl_v += [B(x, top_, z), B(x + 0.45, top_ - 0.05, z), B(x + 0.45, top_ - 0.4, z), B(x, top_ - 0.35, z)]; fl_f.append((b0, b0 + 1, b0 + 2, b0 + 3))
+tube_obj("corner_flag_poles", "pitch", poles_, 0.02, principled("flag_pole", srgb("#F4F3ED"), 0.4), "derived (Laws of the Game)", SRC_BS)
+mesh_obj("corner_flags", "pitch", fl_v, fl_f, principled("corner_flag_yellow", srgb("#F0D84A"), 0.7), "estimated", SRC_BS + " (BS40, render only)")
+# dugouts (BS44, render only, kept estimated): two generic shelters on one touchline either side of halfway
+dv_, df_ = [], []
+DL, DW, DH = V("bowl.dugout.length"), V("bowl.dugout.depth"), V("bowl.dugout.h")
+for sg in (-1, 1):
+    zc = sg * (V("bowl.dugout.offset_halfway") + DL / 2); xo = -(hw + V("bowl.dugout.from_touchline"))
+    box(dv_, df_, [B(*rot(xo + a_, zc + b_), y) for y in (YM, YM + DH) for a_, b_ in ((-DW, -DL / 2), (0, -DL / 2), (0, DL / 2), (-DW, DL / 2))])
+mesh_obj("dugouts", "pitch", dv_, df_, principled("dugout_shell", srgb("#B7B9B8"), 0.4, 0.2), "estimated", SRC_BS + "; ledger bowl.dugout.* (BS44, render only)")
+print("speakers:", nsp, "x", ne, "elements")
+
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "blender/out/talanta_detail.blend"))
 print("saved talanta_detail.blend")

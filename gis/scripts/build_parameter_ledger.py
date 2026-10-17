@@ -81,6 +81,11 @@ pl = poly("bowl_plinth_w1b_2026-10-17.csv").centroid
 dx = ((ro.centroid.x + ri.centroid.x) / 2 - pl.x); dz = -((ro.centroid.y + ri.centroid.y) / 2 - pl.y)
 add("roof.relief_shift_x", round(dx, 1), "m east", "roof_outer, roof_inner, bowl_plinth CSVs", IMG, "mean roof-ring centroid minus plinth centroid", "+-3 m", "derived", "subtract from roof-level positions", "oblique image; roof is centred on the plinth")
 add("roof.relief_shift_z", round(dz, 1), "m south", "roof_outer, roof_inner, bowl_plinth CSVs", IMG, "as above", "+-3 m", "derived", "", "")
+# Design plan (gis/scripts/fit_design_plan.py): symmetric superellipses fitted to the three W1b rings
+DP = json.loads((ROOT / "gis/measurements/normalized/bowl_design_plan_2026-10-17.json").read_text())
+for ring, f in DP["rings"].items():
+    for k, u, note in (("a_cross", "m", "half width across the pitch"), ("b_long", "m", "half length along the pitch"), ("n", "exponent", "superellipse exponent; 2 = ellipse, higher = squarer")):
+        add(f"bowl.plan.{ring}.{k}", f[k], u, f"{f['source']} (W1b trace)", "2026-10-17", DP["method"], f"rms {f['rms_m']} m, max {f['max_m']} m against the trace", "estimated", "blender/build_blockout.py, gis/scripts/export_site_plan.py, export_ground_regions.py", note)
 add("roof.depth_side", round((roW - riW) / 2, 1), "m", "roof_outer, roof_inner", IMG, "(outer width - inner width) / 2", "+-3 m", "derived", "bowl.js shoulderW + roof span", "")
 add("roof.depth_end", round((roL - riL) / 2, 1), "m", "roof_outer, roof_inner", IMG, "(outer length - inner length) / 2", "+-3 m", "derived", "", "")
 add("roof.band_area", round(ro.area - ri.area), "m2", "roof_outer, roof_inner", IMG, "outer area - opening area", "+-3%", "derived", "", "plan area of the roof")
@@ -173,7 +178,7 @@ e("bowl.concourse.width_out", 6, "m", "+-3 m", "bowl.js concourse", "paved ring 
 # W1b point is identifiable in it. Shape fixed by eye against that frame; values stay estimated.
 EYE = "JWNowpO44rw 07:04 (by eye, no camera solve)"
 add("bowl.profile.wall", "near-vertical", "shape", EYE, "2026-10-17", "by eye: silhouette edges straight from plinth to rim", "", "estimated", "blender/build_blockout.py profile()", "replaces the bowl.js bulge (bulge_y, shoulder_w, shoulder_h) in the blockout only")
-add("bowl.profile.shoulder_r", 8, "m", EYE, "2026-10-17", "by eye: tight rounded edge between wall and roof rim", "+-4 m", "estimated", "blender/build_blockout.py profile()", "")
+add("bowl.profile.shoulder_r", 3, "m", "JWNowpO44rw 12:12, 12:16 (by eye); JWNowpO44rw 07:04", "2026-10-17", "by eye: louvres run up to a thin fascia band, then the edge turns onto the roof within about one fascia height", "+-1.5 m", "estimated", "blender/build_blockout.py profile()", "was 8 m (07:04 silhouette only); the smooth 8 m shoulder read as wall above the louvres")
 add("bowl.profile.height_to_width_704", 0.20, "ratio", EYE, "2026-10-17", "by eye: 82 px rim-to-base over 413 px silhouette width", "+-0.02", "estimated", "check for bowl.roof_top_y", "about 50 m if the view is across the 250 m long side; view direction not solved")
 add("bowl.profile.lattice_members_704", 20, "count per direction", EYE, "2026-10-17", "by eye: about 7 diamonds across the visible facade", "+-4", "estimated", "blender/build_blockout.py lattice", "bowl.js uses 40")
 # Stage 02b facade details for the Blender build (lead review 2026-10-17). By eye from named
@@ -187,7 +192,8 @@ fe("bowl.fin.backing_inset", 1.4, "m", "10:28, 12:12", "by eye: dark openings be
 fe("bowl.lattice.section_w", 1.5, "m", "12:12, 12:16", "by eye: member width against the 1 m spear shaft", "+-0.4 m", f"{BB} lattice", "trapezoid section, flat face out")
 fe("bowl.lattice.section_d", 0.8, "m", "12:12", "by eye: member stands proud of the fins", "+-0.3 m", f"{BB} lattice")
 fe("bowl.shield.blockout_y0", 6.0, "m", "12:12, 12:16, 12:40", "by eye: shield foot at the bottom of the louvred band", "+-2 m", f"{BB} shields")
-fe("bowl.shield.blockout_y1", 45.5, "m", "12:12, 12:16, 12:40", "by eye: shield tip just under the fascia; about 95% of the louvred band, 85-90% of ground-to-fascia height", "+-2 m", f"{BB} shields", "bowl.js uses shield.y0/y1")
+fe("bowl.fin.fascia_h", 1.5, "m", "12:12, 12:16", "by eye: thin white band between the top fin and the roof edge, against the 0.6 m fin pitch", "+-0.5 m", f"{BB} louvre_fins, facade", "fins follow the shoulder up to this line")
+fe("bowl.shield.blockout_y1", 51.5, "m", "12:12, 12:16, 12:40", "by eye: shield tip about one fin pitch under the fascia line (roof_top_y - fin.fascia_h)", "+-2 m", f"{BB} shields", "was 45.5 m under the 8 m shoulder; bowl.js uses shield.y0/y1")
 fe("bowl.shield.bulge", 1.2, "m", "12:12, 12:16", "by eye: slight convex bulge at the centre", "+-0.6 m", f"{BB} shields")
 fe("bowl.spear.span_shields", 1.4, "shield widths", "12:12, 00:16", "by eye: horizontal reach of each crossed spear", "+-0.2", f"{BB} spears")
 fe("bowl.spear.blade_len", 6.5, "m", "10:28, 12:12", "by eye: blade length against the shield height", "+-2 m", f"{BB} spears")

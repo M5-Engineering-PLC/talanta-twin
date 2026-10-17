@@ -6,9 +6,9 @@ collections: plinth, shell (facade and roof), tiers, pitch, forecourt, sport, gr
 Every object carries its sources and a claim level ("measured" or "estimated") as custom
 properties, and the glTF export keeps them as extras.
 
-Shell plan: ground edge = W1b plinth outline; widest point of the facade = W1b roof outer ring;
-roof opening = W1b roof inner ring. The two roof rings are corrected for the relief shift
-of the oblique image. Heights are estimates (ledger) until stage 01b.
+Shell plan: ground edge = design plinth ring; widest point of the facade = design roof outer ring;
+roof opening = design roof inner ring. The design rings are concentric superellipses fitted to the
+W1b traces (gis/scripts/fit_design_plan.py), roof rings corrected for the relief shift of the oblique image. Heights are estimates (ledger) until stage 01b.
 
 Run from the repo root:
   ~/.venvs/bpy/bin/python blender/build_blockout.py            (build, save .blend, export glb)
@@ -115,9 +115,11 @@ def flat(name, collection, ring, y, material, status, sources):
 
 # ---------------------------------------------------------------- plan rings (polar, N directions)
 shift = (V("roof.relief_shift_x"), V("roof.relief_shift_z"))
-plinth = outline("bowl_plinth_w1b_2026-10-17.csv")
-roof_out = outline("roof_outer_w1b_2026-10-17.csv", shift)
-roof_in = outline("roof_inner_w1b_2026-10-17.csv", shift)
+# Design plan: symmetric superellipses fitted to the W1b traces (gis/scripts/fit_design_plan.py, ledger
+# bowl.plan.*). The roof rings are already relief-corrected there, so no shift here.
+plinth = outline("bowl_plinth_design_2026-10-17.csv")
+roof_out = outline("bowl_roof_outer_design_2026-10-17.csv")
+roof_in = outline("bowl_roof_inner_design_2026-10-17.csv")
 bearing = V("pitch.bearing")
 dirs = [(math.cos(2 * math.pi * i / N), math.sin(2 * math.pi * i / N)) for i in range(N)]
 rPl = smooth([ray_radius(plinth, ux, uz) for ux, uz in dirs])
@@ -187,14 +189,14 @@ TRACK = mat("track", (0.55, 0.24, 0.17), 0.9)
 GROUND = mat("ground", (0.36, 0.34, 0.28), 1.0)
 GREEN, RED = mat("seat_green", (0.09, 0.3, 0.15), 0.6), mat("seat_red", (0.45, 0.06, 0.07), 0.6)
 
-SRC_PL = "W1b bowl_plinth_w1b_2026-10-17.csv (measured); plinth_h, facade_inset (estimated)"
-SRC_SH = "W1b plinth, roof_outer, roof_inner (measured, relief-corrected); heights roof_top_y, opening_y, profile.shoulder_r and the near-vertical wall (estimated, by eye against JWNowpO44rw 07:04)"
+SRC_PL = "design plan bowl_plinth_design_2026-10-17.csv (superellipse fit to the W1b trace); plinth_h, facade_inset (estimated)"
+SRC_SH = "design plan: superellipse fits to the W1b plinth, roof_outer, roof_inner traces (relief-corrected; ledger bowl.plan.*); heights roof_top_y, opening_y, profile.shoulder_r and the near-vertical wall (estimated, by eye against JWNowpO44rw 07:04)"
 # Base (stage 02b, by eye from JWNowpO44rw 12:12, 12:16, 12:40; estimated): a light concrete step on the measured
 # plinth outline, a shaded wall set back behind white columns, and a light band under the louvres.
 STEP, REC, BAND = V("bowl.base.step_h"), V("bowl.base.recess"), V("bowl.base.band_h")
 LIGHT = mat("concrete_light", (0.78, 0.77, 0.74), 0.85)
 SHADE = mat("concrete_shade", (0.42, 0.41, 0.39), 0.9)
-SRC_BASE = "W1b bowl_plinth_w1b_2026-10-17.csv (outline, measured); ledger bowl.base.*, plinth_h (estimated, by eye from 12:12, 12:16, 12:40)"
+SRC_BASE = "design plan bowl_plinth_design_2026-10-17.csv (outline, fitted to W1b); ledger bowl.base.*, plinth_h (estimated, by eye from 12:12, 12:16, 12:40)"
 
 
 def ring_band(name, collection, rings, material, status, sources):
@@ -238,8 +240,17 @@ obj("base_columns", "plinth", v, f, WHITE, "estimated", SRC_BASE)
 # above the wall the solid white shoulder (fascia) runs onto the roof. All fin values estimated.
 J_WALL = 13  # profile index of the wall top yR = topY - R
 yR = PROF[0][J_WALL][1]
+# The fins carry on up the shoulder to a thin fascia line (12:12): the profile point on the shoulder
+# nearest to topY - fin.fascia_h. Above it the solid white fascia runs onto the roof.
+J_F = min(range(J_WALL, J_FACADE), key=lambda j: abs(PROF[0][j][1] - (topY - V("bowl.fin.fascia_h"))))
+yF = PROF[0][J_F][1]
 R0 = [min(rPl[i] + V("bowl.plinth_inset") - facadeInset, rRo[i]) for i in range(N)]
-rw = lambda i, y: R0[i] + (rRo[i] - R0[i]) * (y - plinthH) / (yR - plinthH)
+
+
+def rw(i, y):
+    """Outer face radius at height y: the straight wall, then the shoulder arc."""
+    if y <= yR: return R0[i] + (rRo[i] - R0[i]) * (y - plinthH) / (yR - plinthH)
+    return rRo[i] - R * (1 - math.cos(math.asin(min((y - yR) / R, 1.0))))
 FIN_P, FIN_D, FIN_DROP, BACK = V("bowl.fin.pitch"), V("bowl.fin.depth"), V("bowl.fin.drop"), V("bowl.fin.backing_inset")
 VOID = mat("facade_void", (0.05, 0.05, 0.055), 0.8)
 SRC_FIN = "ledger bowl.fin.* (estimated, by eye from JWNowpO44rw 10:28, 12:12-12:16); wall line from W1b rings"
@@ -250,18 +261,20 @@ for i in range(N):
 for i in range(N):
     a, b = 2 * i, 2 * ((i + 1) % N); f.append((a, a + 1, b + 1, b))
 obj("soffit", "plinth", v, f, WHITE, "estimated", SRC_PL)
-# backing: the wall line pushed in by BACK, from the plinth top to the wall top, closed by a cap under the shoulder
+# backing: the wall line and shoulder pushed in by BACK, from the plinth top to the fascia line, closed by a cap
 v, f = [], []
+BY = [plinthH] + [PROF[0][j][1] for j in range(J_WALL, J_F + 1)]
+nb = len(BY) + 1
 for i in range(N):
     ux, uz = dirs[i]
-    for y in (plinthH, yR):
+    for y in BY:
         r = rw(i, y) - BACK; v.append((ux * r, Y(y), uz * r))
-    v.append((ux * rRo[i], Y(yR), uz * rRo[i]))
+    r = rw(i, yF); v.append((ux * r, Y(yF), uz * r))
 for i in range(N):
-    a, b = 3 * i, 3 * ((i + 1) % N); f += [(a, b, b + 1, a + 1), (a + 1, b + 1, b + 2, a + 2)]
+    a, b = nb * i, nb * ((i + 1) % N); f += [(a + k, b + k, b + k + 1, a + k + 1) for k in range(nb - 1)]
 obj("facade_backing", "shell", v, f, VOID, "estimated", SRC_FIN)
 v, f = [], []
-nf = int((yR - plinthH - 0.4) / FIN_P)
+nf = int((yF - FIN_DROP - plinthH - 0.4) / FIN_P) + 1
 for k in range(nf):
     y = plinthH + 0.4 + k * FIN_P; base = len(v)
     for i in range(N):
@@ -270,8 +283,8 @@ for k in range(nf):
     for i in range(N):
         a, b = base + 2 * i, base + 2 * ((i + 1) % N); f.append((a, b, b + 1, a + 1))
 obj("louvre_fins", "shell", v, f, WHITE, "estimated", SRC_FIN)
-# facade object = the solid shoulder (fascia) from the wall top to the crest; its widest ring is rRo (geometry gate)
-facade = loft("facade", "shell", J_WALL, J_FACADE, WHITE, "plan measured, heights estimated", SRC_SH)
+# facade object = the solid fascia from the fascia line over the shoulder to the crest; its widest ring is rRo (geometry gate)
+facade = loft("facade", "shell", J_F, J_FACADE, WHITE, "plan fitted to measured traces, heights estimated", SRC_SH)
 roof = loft("roof", "shell", J_FACADE, NP - 1, MEMB, "plan measured, heights estimated", SRC_SH)
 
 # ---------------------------------------------------------------- tiers (stepped rake)
@@ -385,9 +398,9 @@ sp = []
 for k in range(K):
     for sg in (1, -1):
         th0 = 2 * math.pi * k / K; d = sg * 2 * math.pi / K
-        sp.append([(surf(th0 + d * (j - J_LO) / (J_WALL - J_LO), j, 0), th0 + d * (j - J_LO) / (J_WALL - J_LO)) for j in np.linspace(J_LO, J_WALL, 48)])
+        sp.append([(surf(th0 + d * (j - J_LO) / (J_F - J_LO), j, 0), th0 + d * (j - J_LO) / (J_F - J_LO)) for j in np.linspace(J_LO, J_F, 48)])
 sweep("lattice", "facade_detail", sp, LSEC, WHITE, "ledger bowl.lattice.section_*, bowl.profile.lattice_members_704 (estimated)")
-rings = [[surf(2 * math.pi * i / N, j, 0.3) for i in range(N)] for j in (J_LO, float(J_WALL))]
+rings = [[surf(2 * math.pi * i / N, j, 0.3) for i in range(N)] for j in (J_LO, float(J_F))]
 curve_obj("lattice_rings", "facade_detail", rings, V("bowl.lattice.ring_r"), WHITE, closed=True, sources="ledger bowl.lattice.ring_r (estimated)")
 nrib = int(V("bowl.roof.ribs"))
 # ribs half sunk into the membrane (stage 02b: 12:40 shows a smooth membrane with faint seams, not raised tubes)
@@ -434,7 +447,7 @@ axisA = math.radians(-bearing); sw = V("bowl.shield.width")
 sy0, sy1 = V("bowl.shield.blockout_y0"), V("bowl.shield.blockout_y1")
 bulge, soff = V("bowl.shield.bulge"), V("bowl.shield.offset")
 span, bl, br, srad = V("bowl.spear.span_shields"), V("bowl.spear.blade_len"), V("bowl.spear.blade_r"), V("bowl.spear.radius")
-tip_y = yR - V("bowl.spear.tip_below_fascia")
+tip_y = yF - V("bowl.spear.tip_below_fascia")
 verts, faces, uvs, spear_paths = [], [], [], []
 for k in range(int(V("bowl.shields.count"))):
     th = axisA - math.pi / 2 + k * 2 * math.pi / int(V("bowl.shields.count"))
@@ -450,7 +463,7 @@ for k in range(int(V("bowl.shields.count"))):
             k0 = base + a * (nv + 1) + b; k1 = k0 + nv + 1; faces.append((k0, k1, k1 + 1, k0 + 1))
     # two crossed spears behind the shield: butt below the shield's lower edge, blade tip just under the fascia
     for sg in (1, -1):
-        t0, t1 = th - sg * half * span, th + sg * half * span; y0 = max(sy0 - 0.5, plinthH + 1.0)
+        t0, t1 = th - sg * half * span, th + sg * half * span; y0 = max(sy0 - 0.5, plinthH + 0.2)  # butt below the shield foot, just above the soffit
         n = 160; pts = []
         for f in np.linspace(0, 1, n):
             y = y0 + (tip_y - y0) * f; t = t0 + (t1 - t0) * f
@@ -491,7 +504,7 @@ os.makedirs(ROOT / "blender/out", exist_ok=True)
 # Polar rings and the shell profile, for blender/build_bowl_detail.py (same geometry, no recomputation)
 (ROOT / "blender/out/bowl_rings.json").write_text(json.dumps({
     "N": N, "pad": PAD, "dirs": dirs, "rPl": rPl, "rRo": rRo, "rRi": rRi, "rIn": rIn, "rBack": rBack,
-    "prof": PROF, "j_facade": J_FACADE, "j_wall": J_WALL, "bearing": bearing}))
+    "prof": PROF, "j_facade": J_FACADE, "j_wall": J_WALL, "j_fascia": J_F, "bearing": bearing}))
 blend = ROOT / "blender/out/talanta_blockout.blend"
 bpy.ops.wm.save_as_mainfile(filepath=str(blend))
 glb = ROOT / "app/public/data/blockout.glb"

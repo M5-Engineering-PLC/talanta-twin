@@ -37,7 +37,7 @@ def ring(fn):
 
 
 site = Polygon(ring("site_boundary_w1b_2026-10-16.csv"))
-plinth = Polygon(ring("bowl_plinth_w1b_2026-10-17.csv"))
+plinth = Polygon(ring("bowl_plinth_design_2026-10-17.csv"))  # design plan (fit_design_plan.py)
 plaza = Polygon(ring("north_plaza_w1b_2026-10-17.csv"))
 track_ne = Polygon(ring("warmup_track_w1b_2026-10-17.csv"))
 track_sw = Polygon(ring("training_pitch_sw_w1b_2026-10-17.csv"))

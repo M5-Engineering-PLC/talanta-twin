@@ -37,7 +37,7 @@ def mask(polys, blur=1.5):
 
 
 site = Polygon(ring("site_boundary_w1b_2026-10-16.csv"))
-plinth = Polygon(ring("bowl_plinth_w1b_2026-10-17.csv"))
+plinth = Polygon(ring("bowl_plinth_design_2026-10-17.csv"))  # design plan (fit_design_plan.py)
 conc = plinth.buffer(float(L["bowl.ground.concourse_w"]["value"]), join_style="round").intersection(site)
 plaza = Polygon(ring("north_plaza_w1b_2026-10-17.csv"))
 R = mask([site]); G = mask([conc, plaza])
