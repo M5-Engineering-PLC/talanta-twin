@@ -46,6 +46,9 @@ s = bpy.context.scene
 m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json")
 apply_render_settings(s, m, look_check=(quality != "hero"))
 s.camera = cams[cid]
+# Objects a camera stands inside or right behind (blender/data/camera_hides.json, with a reason)
+for name in json.loads((ROOT / "blender/data/camera_hides.json").read_text()).get(cid, {}).get("hide", []):
+    if name in bpy.data.objects: bpy.data.objects[name].hide_render = True
 st = m["suns"][sun_key]
 lon, lat = m["frame"]["origin_lonlat"]
 el, az = sun_position(st["date"], st["time_eat"], lat, lon)

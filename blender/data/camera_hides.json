@@ -1,0 +1,4 @@
+{
+ "note": "Blender render only. Objects a frozen camera stands inside or right behind. Read by blender/render_cycles.py.",
+ "C10": {"hide": ["video_board_N", "video_board_hangers_N"], "reason": "C10 stands on the axis at the back of the north upper tier, where the north video board hangs; the board's back would fill the frame."}
+}

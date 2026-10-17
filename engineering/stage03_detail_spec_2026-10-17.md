@@ -111,6 +111,40 @@ New values are in gis/parameter_ledger.csv as "estimated (detail sheet <id>)" or
 | SR48, SR49, SR51 | done | two generic canopies on paved aprons at the plaza's road side |
 | SR50 | done | 3 blank sign frames on the Ngong Road verge |
 
+### Group 2: BS bowl interior and seats
+
+| Id | Status | Note |
+|---|---|---|
+| BS01-BS06 | done | green lower tier with red flecks rising to 30% at the top, red middle tier with 8% green, red upper tier with dark seats rising to 60%; seat 0.44 m, pitch 0.50 m |
+| BS07 | done | lower tier 24 rows (sheet: about 20-25) |
+| BS08, BS09 | partly done | middle 13 and upper 21 rows against the sheet's 15-20 by render estimate; left until the rows are measured (lead review item 6) |
+| BS10 | partly done | seat spacing unchanged; the capacity gate stays failed until the rows are measured (lead review item 6) |
+| BS11-BS14 | done | pale treads, 1.2 m aisles about every 14 m, aisle half-steps |
+| BS15 | done | grey steel rails up the aisles (lead review item 5; no black wrap) |
+| BS16, BS17 | partly done | bands between the tiers built; 02:00 reads white parapets over dark glazing, not the sheet's charcoal cladding |
+| BS18 | done | glazed VIP band, dark by day with a faint warm glow (0.03), bright at night |
+| BS19 | partly done | mullions every 4 m suggest boxes; no box fronts or rooms |
+| BS20, BS21 | done | white VIP columns, upper colonnade with the louvred screen |
+| BS22 | partly done | generic glazing only; no media rooms identified (security, lead review item 8) |
+| BS23 | not possible | no camera inside the concourse |
+| BS24, BS25 | done | radial ribs with tension cables and struts, ring purlins (frame 10:38 outranks the sheet's diagonal grid) |
+| BS26 | partly done | warm white underside; no translucency |
+| BS27, BS28 | done | catwalk ring with hangers; floodlight heads with white lenses, lit at night |
+| BS29 | done | under RF31 (opening-edge light row) |
+| BS30 | done | 16 curved white line-array clusters with dark grilles on frames and chains above the upper tier (lead review item 4, 02:00) |
+| BS31 | done | two blank video boards at the ends, no content; C10 stands at the north board, so that board is hidden for C10 only (blender/data/camera_hides.json) |
+| BS32-BS38 | done | turf with 20 mowing bands, Law 1 markings, goals |
+| BS39 | done (left out) | conflict: the frames show no nets (lead review item 9) |
+| BS40 | done | 1.5 m corner flags, render only, estimated |
+| BS41 | done | 3 m pale apron in front of the lowest rows |
+| BS42 | done | no track inside the bowl |
+| BS43 | done (left out) | render only; the frames do not establish boards (lead review item 9) |
+| BS44 | done | two generic dugouts on the east touchline, render only, estimated |
+| BS45 | partly done | apron strip only; no marked technical area |
+| BS46 | not possible | drains not visible in any frame |
+| BS47 | partly done | low kerb at the grass edge; section estimated |
+| BS48 | moved to group 3 | crowd is PL, matchday camera only |
+
 ## Render budget
 
 - CPU Cycles in the cloud (4 CPUs).
@@ -135,3 +169,4 @@ G2 still passes: roof top 53.1 m, opening edge 50.0 m.
 - blender/renders/stage03_c18/: C18 upper gallery view, about 105 s.
 - blender/renders/stage03_site_a/ (group 1, RF and SR): C06 morning 68 s, C08 75 s, C15 78 s, C17 overcast 75 s, C06 night 98 s, all 960x540 at 32 samples. Side-by-side sheets *_internal.jpg put each render next to its frame and lead render (internal only, AGENTS.md rule 2).
 - blender/renders/stage03_lookdev_shield/ (lead fixes, 2026-10-17): C06 morning check with TALANTA_LOOKDEV unset 83.9 s and set 57.4 s, 960x540 at 32 samples, side by side with 12:12 (C06_lookdev_off_on_vs_1212_internal.jpg). Changes: bowl plan from concentric superellipses fitted to the W1b traces (gis/scripts/fit_design_plan.py, ledger bowl.plan.*, plan_design_vs_w1b.png); louvre fins and lattice carried up the shoulder to a 1.5 m fascia line (bowl.fin.fascia_h); bowl.profile.shoulder_r 8 to 3 m and bowl.shield.blockout_y1 45.5 to 51.5 m (estimated, 12:12); spear butts now start 0.5 m below the shield foot; lookdev dirt 0.15, colour variation 0.10, grain 0.03, roughness noise doubled, haze_day lowered 0.22 to 0.12, lens distortion off (its Fit zoomed the frozen framing about 5%).
+- blender/renders/stage03_bowl_c/ (group 2, BS): C10 104 s, C12 102 s, C13 87 s, C18 108 s, neutral sun, 960x540 at 32 samples. Sheets *_vs_<frame>_03_internal.jpg put each render next to its frame (00:46, 02:00, 10:04, 10:38) and lead render 03 (internal only).

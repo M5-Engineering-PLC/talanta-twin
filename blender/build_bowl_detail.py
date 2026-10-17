@@ -398,8 +398,8 @@ mesh_obj("colonnade_screen", "bowl_detail", lv, lf, scr, "estimated", "back of t
 
 # Video boards under the roof at the north and south ends of the pitch axis (10:38, 10:55; estimated, no content)
 bw, bh = V("bowl.screen.width") / 2, V("bowl.screen.height")
-bv, bf, bh_ = [], [], []
 for sg in (1, -1):
+    bv, bf, bh_ = [], [], []
     ex, ez = rot(0, sg)  # along-pitch direction in the app frame
     th = math.atan2(ez, ex); i0 = int(round(th / (2 * math.pi) * N)) % N
     t0u, t1u, y0u, y1u = (V(f"bowl.tier_upper.{k}") for k in ("t0", "t1", "y0", "y1"))
@@ -417,8 +417,9 @@ for sg in (1, -1):
     box(bv, bf, corners)
     for su in (-bw * 0.7, bw * 0.7):
         bh_.append([B(ux * r + tx * su, top, uz * r + tz * su), B(ux * r + tx * su, roof_under_at(i0, r) + 0.5, uz * r + tz * su)])
-mesh_obj("video_boards", "bowl_detail", bv, bf, principled("screen_black", (0.015, 0.015, 0.018), 0.15, 0.2), "estimated", "ledger bowl.screen.* (estimated, by eye from 10:38, 10:55)")
-tube_obj("video_board_hangers", "bowl_detail", bh_, 0.1, STEEL, "estimated", "ledger bowl.screen.* (estimated)")
+    end = "S" if sg > 0 else "N"  # one object per end, so a camera standing at one end can hide it (blender/data/camera_hides.json)
+    mesh_obj(f"video_board_{end}", "bowl_detail", bv, bf, principled("screen_black", (0.015, 0.015, 0.018), 0.15, 0.2), "estimated", "ledger bowl.screen.* (estimated, by eye from 10:38, 10:55)")
+    tube_obj(f"video_board_hangers_{end}", "bowl_detail", bh_, 0.1, STEEL, "estimated", "ledger bowl.screen.* (estimated)")
 
 # ---------------------------------------------------------------- E. detail sheet BS (group 2, with the lead review)
 SRC_BS = "detail sheet BS (engineering/detail_sheets/02_bowl_seats.md) with the lead review"
@@ -489,12 +490,13 @@ for sx in (-1, 1):
         fl_v += [B(x, top_, z), B(x + 0.45, top_ - 0.05, z), B(x + 0.45, top_ - 0.4, z), B(x, top_ - 0.35, z)]; fl_f.append((b0, b0 + 1, b0 + 2, b0 + 3))
 tube_obj("corner_flag_poles", "pitch", poles_, 0.02, principled("flag_pole", srgb("#F4F3ED"), 0.4), "derived (Laws of the Game)", SRC_BS)
 mesh_obj("corner_flags", "pitch", fl_v, fl_f, principled("corner_flag_yellow", srgb("#F0D84A"), 0.7), "estimated", SRC_BS + " (BS40, render only)")
-# dugouts (BS44, render only, kept estimated): two generic shelters on one touchline either side of halfway
+# dugouts (BS44, render only, kept estimated): two generic shelters on the east touchline either side of halfway
+# (east, so they stay clear of the C12 camera on the west touchline)
 dv_, df_ = [], []
 DL, DW, DH = V("bowl.dugout.length"), V("bowl.dugout.depth"), V("bowl.dugout.h")
 for sg in (-1, 1):
-    zc = sg * (V("bowl.dugout.offset_halfway") + DL / 2); xo = -(hw + V("bowl.dugout.from_touchline"))
-    box(dv_, df_, [B(*rot(xo + a_, zc + b_), y) for y in (YM, YM + DH) for a_, b_ in ((-DW, -DL / 2), (0, -DL / 2), (0, DL / 2), (-DW, DL / 2))])
+    zc = sg * (V("bowl.dugout.offset_halfway") + DL / 2); xo = hw + V("bowl.dugout.from_touchline")
+    box(dv_, df_, [B(*rot(xo + a_, zc + b_), y) for y in (YM, YM + DH) for a_, b_ in ((0, -DL / 2), (DW, -DL / 2), (DW, DL / 2), (0, DL / 2))])
 mesh_obj("dugouts", "pitch", dv_, df_, principled("dugout_shell", srgb("#B7B9B8"), 0.4, 0.2), "estimated", SRC_BS + "; ledger bowl.dugout.* (BS44, render only)")
 print("speakers:", nsp, "x", ne, "elements")
 

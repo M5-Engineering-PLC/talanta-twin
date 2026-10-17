@@ -293,7 +293,7 @@ bowl.speaker.el_h,0.55,m,JWNowpO44rw 02:00 (by eye); lead review correction 4,20
 bowl.speaker.el_d,0.8,m,JWNowpO44rw 02:00 (by eye); lead review correction 4,2026-10-17,by eye,+-0.3 m,estimated (detail sheet BS30),blender/build_bowl_detail.py,
 bowl.speaker.drop,4.5,m,JWNowpO44rw 02:00 (by eye); lead review correction 4,2026-10-17,by eye: frame hung on chains below the roof steel,+-2 m,estimated (detail sheet BS30),blender/build_bowl_detail.py,
 bowl.speaker.t_over_tier,0.12,fraction,JWNowpO44rw 02:00 (by eye); lead review correction 4,2026-10-17,by eye: above the front of the upper tier,+-0.1,estimated (detail sheet BS30),blender/build_bowl_detail.py,
-bowl.vip.glow_day,0.6,W/m2 (emission),JWNowpO44rw 02:00; cyNgbyZv6BM 10:02 (by eye),2026-10-17,look value: warm light behind the glazing,,estimated (detail sheet BS18),blender/build_bowl_detail.py,
+bowl.vip.glow_day,0.03,W/m2 (emission),JWNowpO44rw 02:00; cyNgbyZv6BM 10:02 (by eye),2026-10-17,look value: warm light behind the glazing; 0.6 and 0.15 read as a beige band in C13 and C18; the frames show dark glass by day,,estimated (detail sheet BS18),blender/build_bowl_detail.py,
 bowl.vip.glow_night,4.0,W/m2 (emission),detail sheet BS18,2026-10-17,"look value, Visualization",,estimated (detail sheet BS18),blender/build_bowl_detail.py,
 bowl.vip.mullion_spacing,4.0,m,detail sheet BS19 (box fronts not clear),2026-10-17,modelling estimate,+-2 m,estimated (detail sheet BS19),blender/build_bowl_detail.py,
 bowl.apron.width,3.0,m,JWNowpO44rw 05:56; KEOmkVfjhu8 02:48 (by eye),2026-10-17,by eye: pale strip before the lowest rows,+-1.5 m,estimated (detail sheet BS41),blender/build_bowl_detail.py,
