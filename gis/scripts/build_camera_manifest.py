@@ -1,4 +1,5 @@
-"""Stage 00: write app/cameras/manifest.json, the 16 frozen critic cameras C01-C16 (Astra review).
+"""Stage 00: write app/cameras/manifest.json, the 16 frozen critic cameras C01-C16 (Astra review),
+plus C17, the by-eye match of historian frame 07:04 for the G5 blind test (internal).
 
 These are render viewpoints for review, not real camera locations (AGENTS.md rule 8).
 Positions are in the app's local frame: x = east, y = up, z = south (metres, origin = W1b pitch
@@ -25,6 +26,7 @@ def pose(target, az, el, d):
 NEUTRAL = {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}
 GOLDEN = {"date": "2026-01-15", "time_eat": "17:45", "kind": "golden hour"}
 NIGHT = {"date": "2026-01-15", "time_eat": "20:30", "kind": "night, venue lights on"}
+OVERCAST = {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}
 
 
 def cam(cid, name, purpose, pos, target, lens=None, ortho=None, sun=NEUTRAL, variants=()):
@@ -61,6 +63,14 @@ cams.append(cam("C14", "Facade and shield detail", "north shield, spears, lattic
 cams.append(cam("C15", "Forecourt and fountain", "north forecourt, plaza and fountain pool", [30, PAD + 17, -210], [0, PAD + 2, -160], lens=35, variants=["golden", "night"]))
 p, t = pose([0, PAD + 25, 0], 28, 7, 950)
 cams.append(cam("C16", "Approach and horizon", "approach from Ngong Road, skyline and Ngong Hills", p, t, lens=50))
+# C17: composition of historian frame JWNowpO44rw 07:04, matched BY EYE (no camera solve; stage 01b found
+# no identifiable ground-level W1b point). Drone over Ngong Road ENE of the stadium, about 100 m up,
+# looking WSW; stadium 7.8 deg left of centre, horizon about 13.5 deg above centre, 24 mm on 36 mm.
+# Internal: used for the G5 blind test only (AGENTS.md rule 2); the frame itself is never a texture.
+cp = [756.3, -6.1 + 100, -601.1]
+yaw, pitch = math.radians(231.5 + 7.8), math.radians(-13.5)
+tgt = [round(cp[0] + math.sin(yaw) * math.cos(pitch) * 966, 2), round(cp[1] + math.sin(pitch) * 966, 2), round(cp[2] - math.cos(yaw) * math.cos(pitch) * 966, 2)]
+cams.append(cam("C17", "07:04 match (by eye)", "G5 blind test: composition of JWNowpO44rw 07:04, overcast; internal only", cp, tgt, lens=24, sun=OVERCAST))
 
 manifest = {
     "version": 1,
@@ -72,7 +82,7 @@ manifest = {
     "resolution": [1920, 1080],
     "look_check_scale": 0.5,
     "exposure": {"view_transform": "AgX", "exposure_ev": 0.0, "f_stop": 8.0, "dof": False},
-    "suns": {"neutral": NEUTRAL, "golden": GOLDEN, "night": NIGHT},
+    "suns": {"neutral": NEUTRAL, "golden": GOLDEN, "night": NIGHT, "overcast": OVERCAST},
     "cycles": {"look_check": {"samples": 64, "adaptive": True, "denoiser": "OPENIMAGEDENOISE"},
                "hero": {"samples": 128, "adaptive": True, "denoiser": "OPENIMAGEDENOISE"}},
     "cameras": cams,

@@ -41,6 +41,11 @@
    "date": "2026-01-15",
    "time_eat": "20:30",
    "kind": "night, venue lights on"
+  },
+  "overcast": {
+   "date": "2026-01-15",
+   "time_eat": "11:00",
+   "kind": "overcast"
   }
  },
  "cycles": {
@@ -539,6 +544,36 @@
    },
    "variants": [],
    "seed": 16
+  },
+  {
+   "id": "C17",
+   "name": "07:04 match (by eye)",
+   "purpose": "G5 blind test: composition of JWNowpO44rw 07:04, overcast; internal only",
+   "position": [
+    756.3,
+    93.9,
+    -601.1
+   ],
+   "target": [
+    -51.37,
+    -131.61,
+    -121.54
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "11:00",
+    "kind": "overcast"
+   },
+   "variants": [],
+   "seed": 17
   }
  ]
 }
