@@ -1,0 +1,9 @@
+category,score,note
+geometry,4,"unchanged from pass 6"
+materials,3.5,"unchanged from pass 6"
+lighting,3,"unchanged: sun angle right, but the image is grey and flat next to the lead render 06"
+atmosphere,2.5,"procedural cumulus band now visible near the top edge, but faint and low-contrast (Poly Haven HDRI blocked by the network policy)"
+vegetation,2.5,"belts kept, clearings cut elsewhere, varied sizes and crowns; still reads as a uniform conifer-like mass at C06 distance"
+people,n/a,"C06 has no people by spec"
+camera,4,"unchanged"
+process,4,"scripted, seeded, render time logged"
