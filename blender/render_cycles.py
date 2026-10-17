@@ -94,6 +94,7 @@ s.render.engine = "CYCLES"; s.render.film_transparent = False
 c.seed = cams[cid]["seed"]
 s.render.image_settings.file_format = "PNG"
 s.render.filepath = str(out / f"{cid}_{sun_key}_{quality}.png")
+# ---- end of scene setup: blender/web_hero/*.py run this file up to this line for the same sun and sky
 # Opt-in photographic layer. Existing cloud commands retain the original path.
 if __import__("os").environ.get("TALANTA_LOOKDEV") == "1":
     sys.path.insert(0, str(ROOT / "blender"))

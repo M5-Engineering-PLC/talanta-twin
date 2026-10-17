@@ -3,3 +3,4 @@ engineering/.luna_gaps_resume.log
 gis/raw/
 __pycache__/
 blender/out/*.blend1
+blender/out/web_hero/
