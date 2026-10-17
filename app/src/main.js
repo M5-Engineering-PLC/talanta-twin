@@ -239,8 +239,19 @@ const trackF = sportSorted.find((s) => s.kind === 'track');
 const lamwia = M.labels.find((l) => l.text.startsWith('Ngong Hills ·'));
 const roofRingAt = (r, y) => ({ pts: bowl.dirs.map(([ux, uz], i) => [ux * r[i], uz * r[i]]), y });
 const P0 = PAD + 0.35;
+// Fit distance: the whole bowl (plus a margin) fills the frame at any window shape.
+const BOWL_R = Math.max(...bowl.rOut);
+function fitD(radius, margin = 1.15) {
+  const vf = THREE.MathUtils.degToRad(camera.fov) / 2, hf = Math.atan(Math.tan(vf) * camera.aspect);
+  return (radius * margin) / Math.sin(Math.min(vf, hf));
+}
+const CENTRE = [0, PAD + 22, 0];
+const fitted = (az, el, k = 1) => () => poseFrom({ target: CENTRE, az, el, d: fitD(BOWL_R) * k });
 const FOCUS = [
-  { id: 'overview', name: 'Overview', k: 'Bowl with Ngong Hills behind', pose: poseFrom({ target: [-6, PAD + 16, 14], az: 40, el: 13, d: 285 }), label: null, rings: [] },
+  { id: 'overview', name: 'Overview', k: 'Whole bowl, centred, Ngong Hills behind', poseFn: fitted(40, 22), label: null, rings: [] },
+  { id: 'lead06', name: 'Lead view NE', k: 'Lead render 06: from Ngong Road, looking SW to the Ngong Hills', poseFn: fitted(45, 18, 1.35), label: null, rings: [] },
+  { id: 'lead07', name: 'Lead view SSW', k: 'Lead render 07: from the forest, looking NNE to Lavington', poseFn: fitted(202, 18, 1.35), label: null, rings: [] },
+  { id: 'top', name: 'Top down', k: 'Plan view of the bowl and roof opening', poseFn: () => poseFrom({ target: [0, PAD, 0.01], az: 0, el: 89.5, d: fitD(BOWL_R, 1.25) }), label: null, rings: [] },
   { id: 'entrance', name: 'Main forecourt', k: 'Shield facade, plaza · positions estimated', pose: { pos: new THREE.Vector3(site.plaza.x + 60, PAD + 22, site.plaza.z - 70), target: new THREE.Vector3(0, PAD + 24, -40) }, label: null, rings: [] },
   { id: 'fountain', name: 'Fountain', k: 'Dry-deck jets · position estimated', pose: { pos: new THREE.Vector3(site.pool.x + 30, PAD + 17, site.pool.z - 44), target: new THREE.Vector3(site.pool.x, PAD + 2, site.pool.z + 6) }, label: [site.pool.x, PAD + 10, site.pool.z], rings: [] },
   { id: 'shield', name: 'Shield facade', k: 'Maasai shield, crossed spears, louvres', pose: { pos: new THREE.Vector3(18, PAD + 28, site.pool.z - 8), target: new THREE.Vector3(0, PAD + 26, -110) }, label: null, rings: [] },
@@ -265,12 +276,37 @@ function focus(id, ms) {
   const f = FOCUS.find((x) => x.id === id); if (!f) return;
   focusId = id; focusLabelPos = f.label ? { pos: new THREE.Vector3(...f.label), text: f.name } : null;
   setHighlight(f.rings);
-  flyTo(f.pose, ms);
+  flyTo(f.poseFn ? f.poseFn() : f.pose, ms);
   document.querySelectorAll('[data-focus]').forEach((b) => b.classList.toggle('on', b.dataset.focus === id));
 }
-// Six chips on the stage; every target is in the Focus tab.
-const chips = ['overview', 'entrance', 'fountain', 'shield', 'pitch', 'ngong'];
-$('#focusbar').innerHTML = chips.filter((c) => FOCUS.some((f) => f.id === c)).map((c) => `<button data-focus="${c}">${FOCUS.find((f) => f.id === c).name}</button>`).join('');
+// Views bar: numbered views (keys 1-9), previous/next (arrow keys) and Centre (C or Home).
+const chips = ['overview', 'lead06', 'lead07', 'entrance', 'shield', 'seating', 'pitch', 'top', 'ngong'].filter((c) => FOCUS.some((f) => f.id === c));
+$('#focusbar').innerHTML = `<button class="nav" id="vprev" title="Previous view (←)">‹</button>`
+  + chips.map((c, i) => `<button data-focus="${c}" title="${FOCUS.find((f) => f.id === c).k} (key ${i + 1})"><b>${i + 1}</b> ${FOCUS.find((f) => f.id === c).name}</button>`).join('')
+  + `<button class="nav" id="vnext" title="Next view (→)">›</button><button class="nav centre" id="vcentre" title="Centre on the stadium (C)">◎ Centre</button>`;
+function stepView(dir) { const i = chips.indexOf(focusId); focus(chips[(i < 0 ? 0 : i + dir + chips.length) % chips.length]); }
+// Centre: keep the current viewing direction, re-aim at the stadium and fit it in the frame.
+function centreView() {
+  const dir = camera.position.clone().sub(controls.target).normalize(); if (dir.y < 0.15) dir.y = 0.15; dir.normalize();
+  const T = new THREE.Vector3(...CENTRE); flyTo({ target: T, pos: T.clone().addScaledVector(dir, fitD(BOWL_R)) }, 1200);
+}
+$('#vprev').onclick = () => { stopTour(); stepView(-1); };
+$('#vnext').onclick = () => { stopTour(); stepView(1); };
+$('#vcentre').onclick = () => { stopTour(); centreView(); };
+addEventListener('keydown', (e) => {
+  if (e.target.closest('input, select, textarea')) return;
+  const n = +e.key; if (n >= 1 && n <= chips.length) { stopTour(); focus(chips[n - 1]); }
+  else if (e.key === 'ArrowRight') { stopTour(); stepView(1); }
+  else if (e.key === 'ArrowLeft') { stopTour(); stepView(-1); }
+  else if (e.key === 'c' || e.key === 'C' || e.key === 'Home') { stopTour(); centreView(); }
+});
+// Double-click a point to orbit around it.
+renderer.domElement.addEventListener('dblclick', (e) => {
+  const r = renderer.domElement.getBoundingClientRect(), rc = new THREE.Raycaster();
+  rc.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
+  const hit = rc.intersectObjects(scene.children, true).find((h) => h.object.visible && !h.object.isSprite); if (!hit) return;
+  const off = camera.position.clone().sub(controls.target); flyTo({ target: hit.point.clone(), pos: hit.point.clone().add(off.multiplyScalar(0.6)) }, 900);
+});
 $('#focuslist').innerHTML = FOCUS.map((f) => `<div class="focus-item" data-focus="${f.id}"><div>${f.name}<div class="k">${f.k}</div></div><span class="muted">›</span></div>`).join('');
 document.addEventListener('click', (e) => { const b = e.target.closest('[data-focus]'); if (b) { stopTour(); focus(b.dataset.focus); } });
 let tour = null;
