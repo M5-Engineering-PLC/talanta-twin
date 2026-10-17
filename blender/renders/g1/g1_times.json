@@ -1,0 +1,18 @@
+{
+ "blender": "5.2.2 LTS",
+ "cpus": 4,
+ "ram_gb": 15.7,
+ "cpu": "x86_64",
+ "renders": [
+  {
+   "frame": "default_scene",
+   "triangles": 12,
+   "seconds": 7.1
+  },
+  {
+   "frame": "test_200k",
+   "triangles": 297866,
+   "seconds": 29.0
+  }
+ ]
+}

@@ -93,7 +93,7 @@ The reference project ran its critic loop overnight. Do the same after G5:
 |---|---|---|
 | Sol fixes and quick wins | Done | 565e38b to 7be3c7e |
 | A | Batch 2 recorded; roof inner ring, plinth and training pitches open | roof_outer, north_plaza, warmup_track CSVs in gis/measurements/ |
-| G1 | Not started | |
+| G1 | Pass (2026-10-17) | Blender 5.2.2 (bpy wheel), 4 CPUs, 15.7 GB RAM. CPU Cycles 960x540, 64 samples, OIDN: default scene 7.1 s; 297,866-triangle scene 29.0 s. blender/renders/g1/g1_times.json |
 | 00 | Not started | |
 | 01 and G2 | Not started | |
 | 01b and G3 | Not started | |
