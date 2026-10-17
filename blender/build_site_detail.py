@@ -498,7 +498,7 @@ def spot(name, loc, aim, rgb, size_deg, night_energy):
 k_ = 0
 for p in ring_points(lambda i: rPl[i] + 2.5, lambda i: 0.3, V("bowl.night.wash_spacing")):
     r_ = math.hypot(p.x, p.y); inward = Vector((-p.x / r_, -p.y / r_, 0))
-    spot(f"night_wash_{k_:03d}", p, p + inward * 6 + Vector((0, 0, 30)), wash_cols[k_ % 3], 50, 2500.0); k_ += 1
+    spot(f"night_wash_{k_:03d}", p, p + inward * 6 + Vector((0, 0, 30)), wash_cols[k_ % 3], 50, 8000.0); k_ += 1
 axisA = math.radians(-RG["bearing"]); ymid = (V("bowl.shield.blockout_y0") + V("bowl.shield.blockout_y1")) / 2
 for k in range(int(V("bowl.shields.count"))):
     th = axisA - math.pi / 2 + k * 2 * math.pi / int(V("bowl.shields.count")); i = int(round(th / (2 * math.pi) * N)) % N

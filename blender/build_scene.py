@@ -203,12 +203,12 @@ lawn = mixc(noise(0.05).outputs["Fac"], srgb("#3F6331"), srgb("#52713E"))  # SR1
 lawn = mixc(noise(0.6, 6).outputs["Fac"], lawn, srgb("#5E7A45"))
 # SR02 paving: muted stone panels (joint spacing from the ledger) with slight panel-to-panel tone, shallow joints
 brk = tn.new("ShaderNodeTexBrick"); J = float(LG["site.paving.joint"])
-brk.inputs["Scale"].default_value = 1 / J; brk.inputs["Mortar Size"].default_value = 0.012; brk.offset = 0.5; brk.squash = 1.0
+brk.inputs["Scale"].default_value = 1 / J; brk.inputs["Mortar Size"].default_value = 0.03; brk.offset = 0.5; brk.squash = 1.0
 brk.inputs["Brick Width"].default_value = 1.0; brk.inputs["Row Height"].default_value = 1.0
 tl.new(tco.outputs["Object"], brk.inputs["Vector"])
-brk.inputs["Color1"].default_value = (*srgb(LG["site.paving.rgb"]), 1); brk.inputs["Color2"].default_value = (*srgb("#C5BFB2"), 1)
-brk.inputs["Mortar"].default_value = (*srgb("#9A948A"), 1)
-pave = mixc(noise(0.08).outputs["Fac"], brk.outputs["Color"], srgb("#CFCAC0"))
+brk.inputs["Color1"].default_value = (*srgb(LG["site.paving.rgb"]), 1); brk.inputs["Color2"].default_value = (*srgb("#ABA597"), 1); brk.inputs["Bias"].default_value = 0.0
+brk.inputs["Mortar"].default_value = (*srgb("#7F796F"), 1)
+pave = mixc(0.25, brk.outputs["Color"], srgb("#C2BCB0"))  # slight lift towards render 06, joints kept
 pave = mixc(noise(0.015, 3).outputs["Fac"], pave, srgb("#ADA699"))  # broad tone drift across the forecourt
 pave = mixc(M3.outputs["Red"], pave, srgb("#9C9488"))  # SR06 entrance apron next to the facade, low contrast
 pave = mixc(M2.outputs["Red"], pave, srgb("#81796D"))  # SR03 darker edge band

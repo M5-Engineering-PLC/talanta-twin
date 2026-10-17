@@ -69,7 +69,9 @@ if overcast:  # cloud deck: weak diffuse sun, brighter flat sky, denser haze
     bpy.data.materials["haze"].node_tree.nodes["haze"].inputs["Density"].default_value = 6e-5
 night = st["kind"].startswith("night")
 if night:  # sun below the horizon: no sun lamp, a faint sky; night fixtures on (build_site_detail.py, Visualization)
-    sun.data.energy = 0.0; bg.inputs["Strength"].default_value = 0.02
+    sun.data.energy = 0.0; bg.inputs["Strength"].default_value = 1.0
+    for lk in list(bg.inputs["Color"].links): s.world.node_tree.links.remove(lk)
+    bg.inputs["Color"].default_value = (0.0015, 0.002, 0.0045, 1)  # moonless sky; no sunset band
     for mt in bpy.data.materials:
         if not mt.node_tree: continue
         for nd in mt.node_tree.nodes:

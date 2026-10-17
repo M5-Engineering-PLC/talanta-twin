@@ -133,3 +133,4 @@ G2 still passes: roof top 53.1 m, opening edge 50.0 m.
 - blender/renders/stage03_bowl_b/: C13 84 s and C10 102 s (roof steel, catwalk, floodlights, VIP columns, colonnade).
 - All at 960x540, 32 samples, neutral sun.
 - blender/renders/stage03_c18/: C18 upper gallery view, about 105 s.
+- blender/renders/stage03_site_a/ (group 1, RF and SR): C06 morning 68 s, C08 75 s, C15 78 s, C17 overcast 75 s, C06 night 98 s, all 960x540 at 32 samples. Side-by-side sheets *_internal.jpg put each render next to its frame and lead render (internal only, AGENTS.md rule 2).
