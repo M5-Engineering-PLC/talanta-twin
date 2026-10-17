@@ -1,0 +1,55 @@
+Talanta shield investigation, 2026-10-17
+Project: Talanta Twin. Evidence: software visualization, not physical measurement.
+Status: partial. The reported 55% height does not reproduce.
+Source: blender/build_blockout.py and the four existing blender/out/talanta_*.blend stages.
+Handoff: leave these artifacts uncommitted for the lead.
+
+Finding
+No height defect was found in the current source or saved stages.
+blender/build_blockout.py:434 reads 6.0 and 45.5 m from the ledger.
+Lines 446-447 map that complete interval onto the facade through j_at_height().
+The resulting mesh spans 39.5 m, or 85.87% of the 46 m ground-to-fascia height.
+Lines 402-404 and 419 use the complete texture height, without vertical padding.
+All four saved stages retain Z = 12.12 to 51.62 m, including the 6.12 m site pad.
+Their shield scales are (1, 1, 1), and hide_render is false.
+Their texture alpha occupies rows 0 through 1023 of 1024.
+No later script rebuilds, scales, hides, or replaces the shields.
+The supplied C06_morning_check.png also visually shows near-full-height shields.
+The cause of the reported 55% remains unknown. No source change is justified by this evidence.
+
+C06 image measurement
+before.png: 480x270 Workbench, texture color mode, rebuilt current blockout.
+after.png: identical repeat with unchanged source, not evidence of a fix.
+The central front shield occupies pixel rows 172 through 238, inclusive: 67 pixels.
+Ground and fascia project to rows 248.788 and 170.973 at the same facade angle.
+Rounded pixel reference rows are 249 and 171: wall span = 78 pixels.
+Before: 67 / 78 = 85.90%. After: 67 / 78 = 85.90%.
+Raster uncertainty is about two percentage points at this resolution.
+The subpixel projection gives 67.077 / 77.815 = 86.20% in both images.
+Shield endpoints project to rows 238.924 and 171.847.
+The other two front shields give projected ratios of 86.17% and 86.28%.
+Pixel selection: central ROI x=230..239, y=169..240, R>80, R>1.3G, R>1.3B.
+The two rendered images contain identical pixels.
+
+Method and actual output
+Direct binary: /snap/blender/current/blender (5.2.2 LTS).
+Command for each image:
+/snap/blender/current/blender -b --factory-startup -t 2 -P /tmp/talanta_shield_check.py -- before
+/snap/blender/current/blender -b --factory-startup -t 2 -P /tmp/talanta_shield_check.py -- after
+The temporary script executes build_blockout.py up to its outputs section.
+It redirects the generated shield texture to /tmp, then loads the frozen C06 camera.
+It renders Workbench at 480x270. No tracked texture, GLB, or saved blend changes.
+Output: SHIELD_Z_RANGE 12.119999885559082 51.619998931884766 PAD 6.12 YR 46.0
+Output: SHIELD_PROJECTION 1 ... fraction 0.86201
+Output: IDENTICAL_PIXELS True SIZE (480, 270) (480, 270)
+Both render commands exit 0 and save their named images.
+A separate read-only Blender audit reads all four saved stages without rendering.
+Its printed data agrees across all stages. Its process stalls during audio shutdown.
+
+Spears and limits
+Saved spear geometry reaches 45.40000046 m above the site pad, 0.6 m below the fascia.
+The saved spear butt is about 6.4226 m above the pad, slightly above the 6.0 m shield foot.
+Line 453 clamps the butt to plinthH + 1.0. No spear change was made without a shield-size change.
+No Cycles render, full build chain, physical measurement, or real-world size validation was performed.
+Changed source lines: none. The ledger and shield pattern remain unchanged.
+Lead decision: identify a failing revision or clarify the intended comparison before resizing shields.
