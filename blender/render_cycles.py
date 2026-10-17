@@ -91,6 +91,11 @@ s.render.engine = "CYCLES"; s.render.film_transparent = False
 c.seed = cams[cid]["seed"]
 s.render.image_settings.file_format = "PNG"
 s.render.filepath = str(out / f"{cid}_{sun_key}_{quality}.png")
+# Opt-in photographic layer. Existing cloud commands retain the original path.
+if __import__("os").environ.get("TALANTA_LOOKDEV") == "1":
+    sys.path.insert(0, str(ROOT / "blender"))
+    from lookdev import apply_lookdev
+    apply_lookdev(s, "night" if night else "day")
 t0 = time.time(); bpy.ops.render.render(write_still=True); sec = time.time() - t0
 rec = {"camera": cid, "sun": st, "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2), "quality": quality,
        "resolution": [s.render.resolution_x * s.render.resolution_percentage // 100, s.render.resolution_y * s.render.resolution_percentage // 100],
