@@ -95,12 +95,13 @@ for (const glb of ["hero", "site"]) {
   for (const mat of root.listMaterials()) {
     const ex = mat.getExtras() || {}; const g = ex.talanta_bake_group;
     if (!g) continue;
-    const scale = bake.groups[g].light_scale;
+    const scale = bake.groups[g].light_scale; const tc = ex.talanta_lightmap_texcoord ?? 0;
     mat.setEmissiveTexture(await ktx(doc, cache, g, "light")).setEmissiveFactor([0, 0, 0]);
-    mat.getEmissiveTextureInfo().setTexCoord(0);
-    if (AO_GROUPS(g)) { mat.setOcclusionTexture(await ktx(doc, cache, g, "ao")); mat.getOcclusionTextureInfo().setTexCoord(0); }
+    mat.getEmissiveTextureInfo().setTexCoord(tc);
+    if (AO_GROUPS(g)) { mat.setOcclusionTexture(await ktx(doc, cache, g, "ao")); mat.getOcclusionTextureInfo().setTexCoord(tc); }
+    if (ex.talanta_alpha_mask) mat.setAlphaMode("MASK").setAlphaCutoff(0.5);
     if (ex.talanta_albedo_map) { mat.setBaseColorTexture(await ktx(doc, cache, g, "albedo")); mat.getBaseColorTextureInfo().setTexCoord(0); mat.setBaseColorFactor([1, 1, 1, 1]); }
-    mat.setExtras({ talanta_bake_group: g, talanta_lightmap: { source: "emissiveTexture", texCoord: 0, intensity: +(scale * Math.PI).toFixed(4), color_space: "sRGB" } });
+    mat.setExtras({ talanta_bake_group: g, talanta_lightmap: { source: "emissiveTexture", texCoord: tc, intensity: +(scale * Math.PI).toFixed(4), color_space: "sRGB" } });
   }
   // ---------------------------------------------------------------- compression
   await doc.transform(dedup(), prune({ keepAttributes: true, keepLeaves: false }),
@@ -147,7 +148,7 @@ const manifest = {
   models: result,
   lod: { levels_m: LOD_D, rule: "nodes share extras.lod_group; extras.lod is the level and extras.lod_switch_m the start distance of each level; extras.lod_max_m hides the group beyond it. Build a THREE.LOD per lod_group." },
   lightmaps: {
-    how: "Baked materials carry extras.talanta_lightmap. Move material.emissiveMap to material.lightMap (texture.channel stays 0, sRGB), set emissive to black and lightMapIntensity = extras.talanta_lightmap.intensity (light_scale x pi, three.js r155+ physically based lights).",
+    how: "Baked materials carry extras.talanta_lightmap. Move material.emissiveMap to material.lightMap (keep its texture.channel: extras.talanta_lightmap.texCoord, 0 except painted shields which use 1; sRGB), set emissive to black and lightMapIntensity = extras.talanta_lightmap.intensity (light_scale x pi, three.js r155+ physically based lights).",
     contains: "Cycles diffuse direct + indirect at 07:35 (sun, sky, bounce) for a white surface; sky occlusion is already inside, so do not add a DirectionalLight, hemisphere light or environment diffuse to lightmapped meshes. Use the environment map for specular only; aoMap (occlusionTexture) occludes it.",
     textures: "KTX2 (Basis ETC1S, mipmaps, KHR_texture_basisu, required): GLTFLoader needs a KTX2Loader.",
     maps: texLog,
