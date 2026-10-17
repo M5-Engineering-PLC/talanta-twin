@@ -17,6 +17,10 @@ import { loadHero } from './hero/loadHero.js';
 import { loadEnvironment, limitEnvToSpecular, horizonFogColor } from './hero/environment.js';
 import { applyHeroToneMapping, heroGrade } from './hero/heroLook.js';
 import { initOverlay } from './hero/overlay.js';
+import { buildTraffic } from './hero/traffic.js';
+import { buildCrowd } from './hero/crowd.js';
+import { createTour, enableTouchUX } from './tour.js';
+import { detectTier, TIERS, createFpsMonitor } from './perf.js';
 
 const $ = (s) => document.querySelector(s);
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -36,8 +40,10 @@ const stage = $('#stage');
 const LITE = new URLSearchParams(location.search).has('lite'); // software-GPU test mode
 const renderer = new THREE.WebGPURenderer({ antialias: true, logarithmicDepthBuffer: true });
 await renderer.init();
-renderer.setPixelRatio(LITE ? 1 : Math.min(devicePixelRatio, 2));
-renderer.shadowMap.enabled = !LITE;
+// Quality tier (app/src/perf.js): ?lite = low, ?tier=<high|medium|low>, ?fps shows the readout.
+let tier = detectTier(renderer), quality = TIERS[tier];
+renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
+renderer.shadowMap.enabled = quality.shadows;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 $('#view').appendChild(renderer.domElement);
@@ -82,7 +88,7 @@ const terrains = [terrainSite, terrainFar, terrainHz];
 const buildings = makeBuildings(D.bPos, D.bCol, D.bIdx, D.bSrc);
 const BH = M.buildings.height_src, bEst = BH.default_by_area + BH.osm_floors;
 const roads = makeRoads(D.rPos, D.rW, D.rIdx);
-const trees = makeTrees(D.trees, LITE ? 4000 : innerWidth < 900 ? 18000 : 60000, LITE ? 800 : innerWidth < 900 ? 1200 : 2500);
+const trees = makeTrees(D.trees, quality.treeCount, tier === 'high' ? 2500 : tier === 'medium' ? 1200 : 800);
 scene.add(buildings, roads, trees);
 
 // ---------------------------------------------------------------- stadium
@@ -313,15 +319,18 @@ renderer.domElement.addEventListener('dblclick', (e) => {
 });
 $('#focuslist').innerHTML = FOCUS.map((f) => `<div class="focus-item" data-focus="${f.id}"><div>${f.name}<div class="k">${f.k}</div></div><span class="muted">›</span></div>`).join('');
 document.addEventListener('click', (e) => { const b = e.target.closest('[data-focus]'); if (b) { stopTour(); focus(b.dataset.focus); } });
-let tour = null;
-function stopTour() { clearInterval(tour); tour = null; $('#tour').classList.remove('on'); $('#tour').textContent = '▶ Tour'; }
-$('#tour').onclick = () => {
-  if (tour) return stopTour();
-  let i = Math.max(0, FOCUS.findIndex((f) => f.id === focusId));
-  const next = () => { i = (i + 1) % FOCUS.length; focus(FOCUS[i].id, 2600); };
-  next(); tour = setInterval(next, 7000);
-  $('#tour').classList.add('on'); $('#tour').textContent = '■ Stop tour';
+const tourBtn = $('#tour');
+const tour = createTour({
+  camera, controls, focus,
+  views: chips.map((id) => FOCUS.find((f) => f.id === id)),
+  onStop: () => { tourBtn.classList.remove('on'); tourBtn.textContent = '▶ Tour'; },
+});
+function stopTour() { if (tour.running) tour.stop(); }
+tourBtn.onclick = () => {
+  if (tour.running) return tour.stop();
+  tour.start(); tourBtn.classList.add('on'); tourBtn.textContent = '■ Stop tour';
 };
+enableTouchUX({ stage, controls, onPrev: () => { stopTour(); stepView(-1); }, onNext: () => { stopTour(); stepView(1); }, onCentre: () => { stopTour(); centreView(); } });
 controls.addEventListener('start', () => { fly = null; });
 
 // ---------------------------------------------------------------- labels
@@ -538,6 +547,7 @@ document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   if (b.disabled) return;
   document.querySelectorAll('#modes button').forEach((x) => x.classList.toggle('on', x === b));
   state.mode = b.dataset.mode === 'construction' ? 'construction' : 'venue';
+  state.matchday = b.dataset.mode === 'matchday'; if (state.matchday) ensureCrowd();
   stopPlay(); buildTimeline(); applyBuild();
   if (b.dataset.mode === 'construction') { state.build = Date.UTC(2023, 0, 8); focus('bowl'); }
   if (b.dataset.mode === 'weather') { $('#weather').scrollIntoView({ behavior: 'smooth' }); focus('overview'); }
@@ -615,7 +625,7 @@ if (new URLSearchParams(location.search).has('hero')) {
     const h = await withTimeout(loadHero({ renderer, scene }), 180000, 'hero models').catch((e) => { late = true; console.warn(e); return null; });
     if (!h) return;
     let envLate = false;
-    const envP = loadEnvironment({ renderer, scene: new THREE.Scene(), manifest: h.manifest, preferSmall: LITE }).then((e) => { if (envLate) { e?.dispose(); return null; } return e; });
+    const envP = loadEnvironment({ renderer, scene: new THREE.Scene(), manifest: h.manifest, preferSmall: quality.panoramaSize === '2048' }).then((e) => { if (envLate) { e?.dispose(); return null; } return e; });
     const env = await withTimeout(envP, 120000, 'panorama').catch((e) => { envLate = true; console.warn(e); return null; });
     if (late) return;
     if (env) { scene.background = scene.environment = env.texture; scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation); }
@@ -644,7 +654,7 @@ initOverlay({ stage, camera, controls });
 
 // ---------------------------------------------------------------- post: ambient occlusion + bloom
 let pipeline = null, bloomPass = null;
-if (!LITE && !new URLSearchParams(location.search).has('nopost')) {
+if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost')) {
   try {
     pipeline = new THREE.RenderPipeline(renderer);
     const scenePass = pass(scene, camera);
@@ -661,6 +671,27 @@ if (!LITE && !new URLSearchParams(location.search).has('nopost')) {
 }
 
 // ---------------------------------------------------------------- loop
+// ---------------------------------------------------------------- life: traffic and match-day crowd (Visualization)
+// Traffic includes nganyas (CC-BY-4.0 model, app/public/vehicles/CREDITS.md) and Super Metro-style buses.
+let traffic = null;
+fetch('./data/traffic_lines.json').then((r) => r.json()).then((lines) => {
+  traffic = buildTraffic({ lines, groundAt, camera, count: quality.trafficCount, proxyDistance: tier === 'high' ? 250 : 120 });
+  scene.add(traffic.group);
+}).catch((e) => console.warn('traffic off:', e));
+// The crowd is heavy (about 56 triangles per fan), so it is built only when Match day is first opened.
+let crowd = null;
+function ensureCrowd() {
+  if (crowd || !bowl.seats) return;
+  crowd = buildCrowd({ seats: bowl.seats, pitch: { centre: [0, 0, 0], bearing: F.pitch_bearing_deg }, fraction: quality.crowdFraction });
+  crowd.group.position.y = PAD; scene.add(crowd.group);
+}
+const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
+  tier = next; quality = TIERS[tier];
+  renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
+  renderer.shadowMap.enabled = quality.shadows && !hero;
+} });
+if (fpsMonitor.element) stage.appendChild(fpsMonitor.element);
+
 buildTimeline();
 applyBuild();
 focus('overview', 1);
@@ -673,6 +704,9 @@ renderer.setAnimationLoop((now) => {
   }
   stepFly(now);
   site.update(now / 1000, night);
+  traffic?.update(dt);
+  if (crowd) { crowd.group.visible = state.matchday && bowl.seats.visible; if (crowd.group.visible) crowd.update(now / 1000, night); }
+  fpsMonitor.update(now);
   controls.update();
   const sp = applyTime();
   const b = applyBuild();
