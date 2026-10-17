@@ -2,7 +2,8 @@
 
 Sun state comes from app/cameras/manifest.json (date, EAT time) via a NOAA solar position.
 Run from the repo root:
-  ~/.venvs/bpy/bin/python blender/render_cycles.py <out_dir> <camera> [golden|neutral|night] [look|hero]
+  ~/.venvs/bpy/bin/python blender/render_cycles.py <out_dir> <camera> [morning|golden|neutral|night|overcast] [preview|look|hero]
+  preview = 8 samples at a quarter of full size, for framing checks only
 """
 import json, math, sys, time, datetime as dt
 from pathlib import Path
@@ -54,7 +55,9 @@ sun.rotation_euler = Euler((math.radians(90 - el), 0, math.radians(180 - az)), "
 golden = el < 15 and st["kind"] != "overcast"
 overcast = st["kind"] == "overcast"
 sun.data.energy = 4.5 if not golden else 3.5
-sun.data.color = (1.0, 0.76, 0.52) if golden else (1.0, 0.97, 0.92)
+morning = st["kind"].startswith("morning")
+sun.data.color = (1.0, 0.86, 0.70) if morning else (1.0, 0.76, 0.52) if golden else (1.0, 0.97, 0.92)
+if morning: sun.data.energy = 4.0
 s.view_settings.exposure = m["exposure"]["exposure_ev"] + m["exposure"].get("exposure_ev_by_sun", {}).get(sun_key, 0.0)
 if golden: s.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.25
 sky = s.world.node_tree.nodes["sky"]
@@ -66,6 +69,7 @@ if overcast:  # cloud deck: weak diffuse sun, brighter flat sky, denser haze
     bpy.data.materials["haze"].node_tree.nodes["haze"].inputs["Density"].default_value = 6e-5
 c = s.cycles
 c.device = "CPU"; c.samples = m["cycles"]["hero" if quality == "hero" else "look_check"]["samples"]
+if quality == "preview": c.samples = 8; s.render.resolution_percentage = 25
 c.use_adaptive_sampling = True; c.use_denoising = True; c.denoiser = "OPENIMAGEDENOISE"
 c.max_bounces = 6; c.volume_bounces = 0; c.volume_step_rate = 4.0
 s.render.engine = "CYCLES"; s.render.film_transparent = False

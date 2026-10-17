@@ -193,6 +193,11 @@ fe("bowl.spear.span_shields", 1.4, "shield widths", "12:12, 00:16", "by eye: hor
 fe("bowl.spear.blade_len", 6.5, "m", "10:28, 12:12", "by eye: blade length against the shield height", "+-2 m", f"{BB} spears")
 fe("bowl.spear.blade_r", 1.2, "m", "10:28", "by eye: blade about 2.4 shaft widths", "+-0.4 m", f"{BB} spears")
 fe("bowl.spear.tip_below_fascia", 0.6, "m", "10:28, 12:12", "by eye: blade tips stop just under the roof edge", "+-0.5 m", f"{BB} spears", "never above the roof edge")
+fe("bowl.base.step_h", 0.6, "m", "12:16, 12:40", "by eye: light concrete step at the ground edge", "+-0.3 m", f"{BB} plinth", "outline stays the measured W1b plinth")
+fe("bowl.base.recess", 4.0, "m", "12:12, 12:16", "by eye: shaded wall set back behind the columns", "+-2 m", f"{BB} base_recess")
+fe("bowl.base.band_h", 1.6, "m", "12:12, 12:16", "by eye: light band under the louvres", "+-0.6 m", f"{BB} base_band")
+fe("bowl.base.column_w", 1.2, "m", "12:16, 12:40", "by eye: white columns in the recess", "+-0.4 m", f"{BB} base_columns")
+fe("bowl.base.column_spacing", 9.0, "m", "12:16, 12:40", "by eye: column rhythm along the base", "+-3 m", f"{BB} base_columns")
 add("bowl.mesh.N", 240, "segments", "model resolution", "", "not a dimension", "", "estimated", f"{B}.N", "")
 
 # ---------------------------------------------------------------- site.js (all estimated, W1b now measures some)

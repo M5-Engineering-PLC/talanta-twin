@@ -12,4 +12,4 @@ pitch width,68.07,68.0,pitch.width,estimated,0.1,0.07,True,
 roof top height,52.84,54.0,bowl.roof_top_y,estimated,6.0,-1.16,True,estimated; press says 56 m
 opening edge height,47.0,47.0,bowl.opening_y,estimated,1.0,-0.0,True,estimated; mean of the opening ring
 plinth centre offset from origin,1.59,2.91,bowl_plinth.centroid_x/z,measured,2,,True,vertex mean vs area centroid
-objects with a claim label,24,24,,,0,0,True,20 carry 'estimated'
+objects with a claim label,27,27,,,0,0,True,23 carry 'estimated'

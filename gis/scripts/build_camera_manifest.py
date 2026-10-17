@@ -25,6 +25,9 @@ def pose(target, az, el, d):
 
 NEUTRAL = {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}
 GOLDEN = {"date": "2026-01-15", "time_eat": "17:45", "kind": "golden hour"}
+# Stage 02b (lead review): morning light for C06, sun from the east-south-east onto the camera side.
+# 07:35 EAT on 2026-01-15 gives about 12.8 deg elevation at azimuth 111 deg (NOAA, render_cycles.sun_position).
+MORNING = {"date": "2026-01-15", "time_eat": "07:35", "kind": "morning low sun"}
 NIGHT = {"date": "2026-01-15", "time_eat": "20:30", "kind": "night, venue lights on"}
 OVERCAST = {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}
 
@@ -43,6 +46,7 @@ def cam(cid, name, purpose, pos, target, lens=None, ortho=None, sun=NEUTRAL, var
 
 
 T0 = [0, PAD + 25, 0]
+C06_EL, C06_D, C06_PITCH = 14, 405, 10.8  # camera elevation angle and distance from the old target; view pitch down
 cams = []
 for cid, nm, az in [("C01", "North elevation", 0), ("C02", "East elevation", 90), ("C03", "South elevation", 180), ("C04", "West elevation", 270)]:
     p, t = pose(T0, az, 0, 600)
@@ -52,8 +56,14 @@ cams.append(cam("C05", "Roof plan", "geometry: roof rings, plinth and pitch agai
 for cid, nm, az, var in [("C06", "Hero aerial, north-east", 40, ["golden", "night"]), ("C07", "Aerial, south-east", 135, []),
                          ("C08", "Aerial, south-west", 225, []), ("C09", "Aerial, north-west", 315, [])]:
     p, t = pose([-6, PAD + 16, 14], az, 14, 330)
-    sun = GOLDEN if cid == "C06" else NEUTRAL
-    purpose = "hero: dry golden-hour aerial looking south-west to the bowl and Ngong Hills" if cid == "C06" else "geometry and materials: elevated diagonal"
+    if cid == "C06":
+        # stage 02b: pulled back and tilted up so the Ngong Hills and a sky band (about 15% of the frame) are in
+        # view without clipping the base (lead review 2026-10-17)
+        p, _ = pose([-6, PAD + 16, 14], az, C06_EL, C06_D)
+        yaw, pit = math.radians(az + 180), math.radians(-C06_PITCH)
+        t = [round(p[0] + math.sin(yaw) * math.cos(pit) * C06_D, 2), round(p[1] + math.sin(pit) * C06_D, 2), round(p[2] - math.cos(yaw) * math.cos(pit) * C06_D, 2)]
+    sun = MORNING if cid == "C06" else NEUTRAL
+    purpose = "hero: dry morning aerial looking south-west to the bowl and Ngong Hills" if cid == "C06" else "geometry and materials: elevated diagonal"
     cams.append(cam(cid, nm, purpose, p, t, lens=35, sun=sun, variants=var))
 cams.append(cam("C10", "Across the bowl, long axis", "bowl: tiers, roof underside and opening, looking south", [0, PAD + 44, -112], [0, PAD + 8, 40], lens=24, variants=["golden", "night"]))
 cams.append(cam("C11", "Across the bowl, short axis", "bowl: tiers and roof, looking east", [-86, PAD + 42, 0], [40, PAD + 10, 0], lens=24))
@@ -81,8 +91,8 @@ manifest = {
     "sensor_width_mm": 36,
     "resolution": [1920, 1080],
     "look_check_scale": 0.5,
-    "exposure": {"view_transform": "AgX", "exposure_ev": 0.0, "exposure_ev_by_sun": {"golden": -1.0, "overcast": -1.3}, "f_stop": 8.0, "dof": False},
-    "suns": {"neutral": NEUTRAL, "golden": GOLDEN, "night": NIGHT, "overcast": OVERCAST},
+    "exposure": {"view_transform": "AgX", "exposure_ev": 0.0, "exposure_ev_by_sun": {"golden": -1.0, "morning": -1.0, "overcast": -1.3}, "f_stop": 8.0, "dof": False},
+    "suns": {"neutral": NEUTRAL, "morning": MORNING, "golden": GOLDEN, "night": NIGHT, "overcast": OVERCAST},
     "cycles": {"look_check": {"samples": 64, "adaptive": True, "denoiser": "OPENIMAGEDENOISE"},
                "hero": {"samples": 128, "adaptive": True, "denoiser": "OPENIMAGEDENOISE"}},
     "cameras": cams,

@@ -189,7 +189,50 @@ GREEN, RED = mat("seat_green", (0.09, 0.3, 0.15), 0.6), mat("seat_red", (0.45, 0
 
 SRC_PL = "W1b bowl_plinth_w1b_2026-10-17.csv (measured); plinth_h, facade_inset (estimated)"
 SRC_SH = "W1b plinth, roof_outer, roof_inner (measured, relief-corrected); heights roof_top_y, opening_y, profile.shoulder_r and the near-vertical wall (estimated, by eye against JWNowpO44rw 07:04)"
-plinth_o = loft("plinth", "plinth", 0, 1, GLASS, "plan measured, height estimated", SRC_PL)
+# Base (stage 02b, by eye from JWNowpO44rw 12:12, 12:16, 12:40; estimated): a light concrete step on the measured
+# plinth outline, a shaded wall set back behind white columns, and a light band under the louvres.
+STEP, REC, BAND = V("bowl.base.step_h"), V("bowl.base.recess"), V("bowl.base.band_h")
+LIGHT = mat("concrete_light", (0.78, 0.77, 0.74), 0.85)
+SHADE = mat("concrete_shade", (0.42, 0.41, 0.39), 0.9)
+SRC_BASE = "W1b bowl_plinth_w1b_2026-10-17.csv (outline, measured); ledger bowl.base.*, plinth_h (estimated, by eye from 12:12, 12:16, 12:40)"
+
+
+def ring_band(name, collection, rings, material, status, sources):
+    """Rings of (radius list, y) joined in order round the N directions."""
+    v, f = [], []; nr = len(rings)
+    for i in range(N):
+        ux, uz = dirs[i]
+        for rr, y in rings: v.append((ux * rr[i], Y(y), uz * rr[i]))
+    for i in range(N):
+        a, b = nr * i, nr * ((i + 1) % N)
+        for k in range(nr - 1): f.append((a + k, b + k, b + k + 1, a + k + 1))
+    return obj(name, collection, v, f, material, status, sources)
+
+
+rRec = [r - REC for r in rPl]
+plinth_o = ring_band("plinth", "plinth", [(rPl, 0.0), (rPl, STEP), (rRec, STEP)], LIGHT, "plan measured, height estimated", SRC_BASE)
+ring_band("base_recess", "plinth", [(rRec, STEP), (rRec, plinthH - BAND)], SHADE, "estimated", SRC_BASE)
+ring_band("base_band", "plinth", [(rRec, plinthH - BAND), (rPl, plinthH - BAND), (rPl, plinthH)], LIGHT, "estimated", SRC_BASE)
+# white columns at an even spacing along the plinth outline, just behind the band face
+cw, csp = V("bowl.base.column_w") / 2, V("bowl.base.column_spacing")
+ring = [(dirs[i][0] * rPl[i], dirs[i][1] * rPl[i]) for i in range(N)]
+seg = [math.dist(ring[i], ring[(i + 1) % N]) for i in range(N)]
+v, f = [], []; acc, nxt = 0.0, 0.0
+for i in range(N):
+    while nxt <= acc + seg[i]:
+        t = (nxt - acc) / seg[i]; a, b = ring[i], ring[(i + 1) % N]
+        px, pz = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
+        tx, tz = (b[0] - a[0]) / seg[i], (b[1] - a[1]) / seg[i]; nx_, nz_ = tz, -tx  # outward for an anticlockwise ring
+        if nx_ * px + nz_ * pz < 0: nx_, nz_ = -nx_, -nz_
+        cx, cz = px - nx_ * (cw + 0.3), pz - nz_ * (cw + 0.3)
+        base = len(v)
+        for y in (STEP, plinthH - BAND):
+            for su, so in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                v.append((cx + tx * su * cw + nx_ * so * cw, Y(y), cz + tz * su * cw + nz_ * so * cw))
+        for k in range(4): f.append((base + k, base + (k + 1) % 4, base + 4 + (k + 1) % 4, base + 4 + k))
+        nxt += csp
+    acc += seg[i]
+obj("base_columns", "plinth", v, f, WHITE, "estimated", SRC_BASE)
 # Louvred wall (stage 02b, by eye from JWNowpO44rw 10:28 and 12:12-12:16): thin horizontal fins, sloping
 # down outward, over a dark recessed backing. The fins' outer edges lie on the wall line of profile();
 # above the wall the solid white shoulder (fascia) runs onto the roof. All fin values estimated.
