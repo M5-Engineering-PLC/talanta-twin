@@ -1,9 +1,45 @@
 import * as THREE from 'three/webgpu';
+import { vec3 } from 'three/tsl';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 
 // The panorama centre maps to +x in three.js equirectangular UVs, so a +90 deg yaw turns it to north (-z) (checked by Sol with a software probe).
 // Check by eye when the panorama lands: the Ngong Hills must sit to the south-west. ?panoyaw=<deg> overrides.
-const NORTH_YAW = (() => { const q = new URLSearchParams(location.search).get('panoyaw'); return q == null ? Math.PI / 2 : (+q * Math.PI) / 180; })();
+const NORTH_YAW = (() => { const q = new URLSearchParams(typeof location === 'undefined' ? '' : location.search).get('panoyaw'); return q == null ? Math.PI / 2 : (+q * Math.PI) / 180; })();
+
+function specularEnvironmentMaterial(BaseMaterial) {
+  return class extends BaseMaterial {
+    copy(source) {
+      super.copy(source);
+      // NodeMaterial.copy skips Material's inherited alphaTest accessor in three.js 0.186.1.
+      this.alphaTest = source.alphaTest;
+      return this;
+    }
+
+    customProgramCacheKey() {
+      return `${super.customProgramCacheKey()}:hero-env-specular`;
+    }
+
+    setupLightingModel(builder) {
+      const model = super.setupLightingModel(builder);
+      const indirectSpecular = model.indirectSpecular;
+      model.indirectSpecular = function (builder) {
+        const context = builder.context;
+        // PhysicalLightingModel.indirectSpecular adds BOTH environment lobes. Discard only its diffuse output.
+        // Keep iblIrradiance: specular multiscattering and sheen use it too. Lightmap diffuse and AO stay unchanged.
+        builder.context = { ...context, reflectedLight: { ...context.reflectedLight, indirectDiffuse: vec3().toVar() } };
+        try {
+          indirectSpecular.call(this, builder);
+        } finally {
+          builder.context = context;
+        }
+      };
+      return model;
+    }
+  };
+}
+
+const SpecularStandardMaterial = specularEnvironmentMaterial(THREE.MeshStandardNodeMaterial);
+const SpecularPhysicalMaterial = specularEnvironmentMaterial(THREE.MeshPhysicalNodeMaterial);
 
 function listedEnvironmentFile(manifest, small) {
   const wanted = small ? manifest.environment?.file_2048 : manifest.environment?.file;
@@ -45,22 +81,28 @@ export async function loadEnvironment({ renderer, scene, manifest, base = './', 
 }
 
 /**
- * Keep the environment mostly specular on lightmapped meshes: their lightmap already holds the sky and bounce
- * diffuse (export contract), so full environment light would count it twice. three.js has no per-material
- * "specular only" switch that survives the WebGPU renderer's material conversion, so scale envMapIntensity by
- * (1 - roughness): rough surfaces, whose environment term is almost all diffuse, get little; glossy ones keep
- * their reflections. Approximation: glossy surfaces still get a little double diffuse.
+ * Convert lightmapped materials to node materials with specular-only environment lighting on both WebGPURenderer backends.
+ * Their lightmaps already hold sky and bounce diffuse light (export contract). Discard the environment diffuse output,
+ * but retain the full specular calculation, panorama rotation, and AO. Materials without lightmaps keep full environment lighting.
  */
 export function limitEnvToSpecular(root, envTexture) {
   if (!envTexture) return;
+  const converted = new Map();
   root.traverse((object) => {
     if (!object.isMesh || !object.userData.heroLightmapped) return;
-    for (const material of [object.material].flat()) {
-      if (!material || !('envMapIntensity' in material)) continue;
-      // envMapIntensity only applies when the material has its own envMap; scene.environment alone ignores it.
-      material.envMap = envTexture; material.envMapRotation.y = NORTH_YAW;
-      material.envMapIntensity = Math.max(0, 1 - (material.roughness ?? 1)); material.needsUpdate = true;
-    }
+    const convert = (source) => {
+      if (!source?.lightMap || !('envMapIntensity' in source)) return source;
+      if (converted.has(source)) return converted.get(source);
+      const physical = source.isMeshPhysicalMaterial || source.isMeshPhysicalNodeMaterial;
+      const Material = physical ? SpecularPhysicalMaterial : SpecularStandardMaterial;
+      const material = source instanceof Material ? source : new Material().copy(source);
+      material.envMap = envTexture;
+      material.envMapRotation.y = NORTH_YAW;
+      material.needsUpdate = true;
+      converted.set(source, material);
+      return material;
+    };
+    object.material = Array.isArray(object.material) ? object.material.map(convert) : convert(object.material);
   });
 }
 
