@@ -2,7 +2,7 @@
 
 Date of form: 2026-10-16
 Who measures: Munene or a team member, at a desktop with Google Earth Pro.
-Status: first entry made (site boundary, 2026-10-16). Pitch, roof and scale checks still open.
+Status: batch 1 (site boundary, pitch zone, 2026-10-16) and batch 2 (roof outer ring, north plaza, warm-up track, 2026-10-17) recorded. Roof inner ring, bowl plinth and the two training pitches still open. Scale checks not possible on the newest image (see below).
 Classification: internal. Gate, parking and access measurements must not appear in a public demo (AGENTS.md rule 8).
 
 ## Rules
@@ -32,6 +32,8 @@ The Laws of the Game fix these markings, so they test the imagery scale. Pitch l
 
 If a check is off by more than 1 m, note it and continue. The lead uses the four checks to correct the scale.
 
+**Status 2026-10-17: not possible: no pitch markings on the newest image (26 Dec 2025, Airbus).** This is not a failed check. Repeat when Google Earth Pro offers an image with the pitch marked.
+
 ## Pitch and bowl
 
 Expected values come from the satellite and OSM work in `coverage_report.md`. They are there to catch mistakes, not to steer the reading.
@@ -42,13 +44,13 @@ Expected values come from the satellite and OSM work in `coverage_report.md`. Th
 | Pitch width, touchline to touchline | Line across halfway line | about 68 m | | | | |
 | Grass area length, edge to edge | Line | about 130 m | | | | |
 | Grass area width, edge to edge | Line | about 85 m | | | | |
-| Roof outer edge, long axis | Line through pitch centre spot along the long axis | 256-274 m | | | | |
-| Roof outer edge, short axis | Line through the centre spot across | 204-234 m | | | | |
+| Roof outer edge, long axis | Line through pitch centre spot along the long axis | 256-274 m | 252.0 (min. rectangle of the 12-point roof-top polygon; 250.1 in EPSG:32737) | | | 2025-12-26 (Airbus), Dec 2025 frame |
+| Roof outer edge, short axis | Line through the centre spot across | 204-234 m | 214.4 (214.5 in EPSG:32737) | | | 2025-12-26 (Airbus), Dec 2025 frame |
 | Roof inner edge, long axis | Line | unknown | | | | |
 | Roof inner edge, short axis | Line | unknown | | | | |
-| Long-axis bearing | Ruler heading along the touchline | 176-180 degrees | | | | |
+| Long-axis bearing | Ruler heading along the touchline | 176-180 degrees | 181 (roof-top polygon, 1 deg = 181 deg); pitch zone 1.76 deg | | | 2025-12-26 (Airbus) |
 | Centre spot position | Lat, lon | -1.30602, 36.74965 | | | | |
-| Roof outline, 16 points | Path round the outer roof edge. Read out the lat, lon of each vertex | | | | | |
+| Roof outline, 16 points | Path round the outer roof edge. Read out the lat, lon of each vertex | | 12 points (corners cut): `measurements/roof_outer_w1b_2026-10-17.csv`, 47,041 m2 | | | 2025-12-26 (Airbus) |
 
 ## Heights from shadows
 
@@ -65,9 +67,10 @@ Height = shadow length x tan(sun elevation). The lead computes the sun elevation
 | Item | How | Run 1 | Run 2 | Run 3 | Image date |
 |---|---|---|---|---|---|
 | Gate 1-8 centre positions | Lat, lon for each gate | | | | |
-| Main plaza outline | Path, vertices as lat, lon | | | | |
+| Main plaza outline | Path, vertices as lat, lon | North forecourt plaza, 10 points: 8,268 m2, 102.5 x 93.5 m, long axis 89 deg. `measurements/north_plaza_w1b_2026-10-17.csv` | | | 2025-12-26 (Airbus) |
 | Each parking area: outline and bay count | Path and count | | | | |
-| Training pitch 1 and 2: length, width | Line | | | | |
+| Training pitch 1 and 2: length, width | Line | Not yet measured. (The KML shape named "Training pitch" is the warm-up track, below.) | | | |
+| Warm-up track oval, east of the bowl | Polygon | 6 points: 12,738 m2, 166.7 x 87.8 m, long axis 179 deg. Standard 8-lane outer edge is 176.9 x 92.5 m, so use the standard shape, labelled estimated. `measurements/warmup_track_w1b_2026-10-17.csv` | | | 2025-12-26 (Airbus) |
 | Mini-stadium: outline | Path | | | | |
 | Access road widths, 5 samples | Line kerb to kerb, with location | | | | |
 | Site boundary fence | Path | 8-point polygon: 33.87 ha, perimeter 2,349 m. Vertices in `measurements/site_boundary_w1b_2026-10-16.csv` | | | 2025-12-26 (Airbus) |
@@ -87,3 +90,18 @@ List every image date that Google Earth Pro offers for the site from 2023 on. We
 | Image date | What it shows (fields, earthworks, frame, roof, finished) |
 |---|---|
 | | |
+
+## Batch 2 check (cloud session, 2026-10-17)
+
+Recomputed in EPSG:32737 (UTM 37S) from the CSVs, to check the lead's local-projection numbers. Centroids are relative to the twin origin (-1.306037, 36.749597).
+
+| Shape | Lead area | UTM area | Lead rectangle | UTM rectangle | Area centroid | Vertex mean (lead's method) | Twin today |
+|---|---|---|---|---|---|---|---|
+| Roof outer ring | 47,041 m2 | 46,761 m2 | 252.0 x 214.4 | 250.1 x 214.5 | 10 m E, 27 m N | 4 m W, 22 m N | bowl_outer 256 (N-S) x 203 (E-W) m |
+| North plaza | 8,268 m2 | 8,219 m2 | 102.5 x 93.5 | 102.5 x 92.9 | 2 m E, 205 m N | 15 m W, 204 m N | eye plaza about 184 x 92 m, centre about 203 m N |
+| Warm-up track | 12,738 m2 | 12,662 m2 | 166.7 x 87.8 | 165.8 x 87.2 | 169 m E, 117 m N | 171 m E, 122 m N | not modelled at this position |
+
+- Areas agree within 0.6%. UTM scale (0.9996) and the projection account for the gap.
+- The lead's centroids are vertex means. The points are unevenly spaced, so the area centroid is the better position. The roof-top centroid is still uncertain by about 20 m from relief displacement.
+- The roof short axis (214 m) is 11 m wider than the twin bowl (203 m). The long axis (250 to 252 m) is 4 to 6 m shorter. Stage 00 puts both in the parameter ledger.
+- The plaza position matches the twin. Its width is about half the twin's (102 m against 184 m). Stage 00 corrects it.
