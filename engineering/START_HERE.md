@@ -80,6 +80,19 @@ The reference project ran its critic loop overnight. Do the same after G5:
 - Stop at 85/100 on two consecutive passes, after 8 passes, or after three passes that gain less than 2 points.
 - Commit after each pass, with the scores in blender/renders/pass_NN/scores.csv.
 
+## Stage 02b (lead review of stage 02, 2026-10-17)
+
+The lead (with a GPT-6.1 Sol second opinion) approved the direction; no stage 01 redo. Pass 3 re-scored at 52/100 (materials, lighting, atmosphere and vegetation 2 each): blender/renders/stage02_pass3/scores_rescored.csv. This section amends the flow above:
+
+- Up to 4 more C06 passes (stage02_pass4 onward). Then go to stage 03 whatever the score. G4 (85 on two passes) is judged after stage 03.
+- Stop early if two passes in a row gain less than 3 points.
+- Score each pass side by side with reference frames, not from memory: 12:12, 12:16, 10:28 (facade, shields, spears), 11:20, 12:40 (roof, ground, context), 07:04 (proportions). Never frames in gis/heldout_frames.csv.
+- Fixes in order: (1) louvre fins over a dark recessed backing, clearer lattice; (2) shields at 85-90% of facade height with the full pattern and a slight bulge, and two crossed spears behind each, tips below the roof edge; (3) base: light concrete band, white columns, recessed shadow; (4) morning sun for C06 (about 07:30-07:45 EAT, 11-14 deg) and a raised target showing the Ngong Hills and a sky band; (5) ground regions: murram, concrete paving, asphalt with markings, green only on pitches; (6) roof: lower ribs, faint seams, panel variation; (7) trees: wooded belt, clumps and clearings; (8) sky: low-resolution CC0 HDRI with clouds, recorded in the ledger.
+- Keep each render under about 5 minutes, and report its time.
+- C17 waits for stage 03 (landscape specialist). For the G5 test, crop or mask the watermark on the real frame. C17 stays internal.
+- After each pass, commit a side-by-side sheet of C06 and the 12:12 frame (internal only).
+- Shield, spear, fin and lattice sizes are "estimated, by eye from <frame>" in the ledger.
+
 ## Rules
 
 - Follow AGENTS.md. Frames, Google Earth imagery and the concept renders are references only. Never use them as textures.
@@ -98,4 +111,5 @@ The reference project ran its critic loop overnight. Do the same after G5:
 | 01 and G2 | Done, G2 pass (2026-10-17) | blender/build_blockout.py from the ledger and the normalized W1b shapes; 19 objects, 77,097 triangles. Workbench C01-C06 in 2.9-3.6 s each (blender/renders/pass_01/). G2: 14 of 14 checks pass (geometry_gate.csv). glTF round trip behind ?blender works. Open: 28 of 240 directions where the 12-point roof trace is over 4 m inside the plinth are clamped (estimated) |
 | 01b and G3 | G3 not passed (2026-10-17): no pitch markings in the historian frames, and the 07:04 aerial has no identifiable ground-level W1b point, so no camera solved (no second frame, per Munene). Wall shape fixed by eye against 07:04 (near-vertical wall, 8 m shoulder), labelled estimated; heights stay estimated. G2 still passes. Before/after: blender/renders/pass_02/C02_wall_before_after.png, C06_wall_before_after.png | |
 | 02, G4 and G5 | 3 passes done (2026-10-17); G4 not reached: C06 scores 47, 57, 62/100 (CPU Cycles 960x540, 64 samples, 99-105 s each). Waiting on lead review. C17 (07:04 match by eye, internal) rendered for G5 prep, 85 s | blender/renders/stage02_pass1-3/, stage02_c17/ |
+| 02b | In progress (2026-10-17): lead review re-scored pass 3 at 52/100; up to 4 passes | blender/renders/stage02_pass3/scores_rescored.csv |
 | 03 | Not started | |
