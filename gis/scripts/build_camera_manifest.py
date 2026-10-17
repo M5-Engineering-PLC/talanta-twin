@@ -80,6 +80,17 @@ cams.append(cam("C16", "Approach and horizon", "approach from Ngong Road, skylin
 cp = [756.3, -6.1 + 100, -601.1]
 yaw, pitch = math.radians(231.5 + 7.8), math.radians(-13.5)
 tgt = [round(cp[0] + math.sin(yaw) * math.cos(pitch) * 966, 2), round(cp[1] + math.sin(pitch) * 966, 2), round(cp[2] - math.cos(yaw) * math.cos(pitch) * 966, 2)]
+# C18: the 10:55 view (Munene's screenshot): standing on the upper gallery walkway at the back of the east upper tier,
+# near the north end, looking south-south-west across the bowl to the south video board. By eye; internal for now.
+import csv as _csv
+RINGS = json.loads((ROOT / "blender/out/bowl_rings.json").read_text())
+LED = {r["name"]: float(r["value"]) for r in _csv.DictReader(open(ROOT / "gis/parameter_ledger.csv")) if r["name"] in ("bowl.tier_upper.y1_blockout", "bowl.gallery.width")}
+th = math.radians(-50); i_c = int(round(th / (2 * math.pi) * RINGS["N"])) % RINGS["N"]
+r_c = RINGS["rBack"][i_c] + 1.0
+p18 = [round(math.cos(th) * r_c, 2), round(PAD + LED["bowl.tier_upper.y1_blockout"] + 0.3 + 1.6, 2), round(math.sin(th) * r_c, 2)]
+i_s = int(round(math.radians(90) / (2 * math.pi) * RINGS["N"])) % RINGS["N"]
+t18 = [-20.0, round(PAD + 24, 2), round(RINGS["rBack"][i_s] - 30, 2)]
+cams.append(cam("C18", "Upper gallery, 10:55 view (by eye)", "bowl: tiers, roof steel and video board from the upper gallery walkway", p18, t18, lens=18))
 cams.append(cam("C17", "07:04 match (by eye)", "G5 blind test: composition of JWNowpO44rw 07:04, overcast; internal only", cp, tgt, lens=24, sun=OVERCAST))
 
 manifest = {

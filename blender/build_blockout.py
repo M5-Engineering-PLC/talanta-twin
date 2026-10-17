@@ -25,7 +25,7 @@ N = 240
 
 # ---------------------------------------------------------------- inputs
 L = {r["name"]: r for r in csv.DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
-V = lambda k: float(L[k]["value"])
+V = lambda k: float(L[k + "_blockout"]["value"]) if k + "_blockout" in L else float(L[k]["value"])  # Blender overrides
 MAN = json.loads((ROOT / "app/public/data/manifest.json").read_text())
 PAD = MAN["features"]["site_pad_y"]
 

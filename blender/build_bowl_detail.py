@@ -4,8 +4,9 @@ Opens blender/out/talanta_blockout.blend and the rings it wrote (blender/out/bow
 - A. seats: one instanced seat per 0.5 m along every row, coloured by tier with the speckle mix seen in the frames,
      on pale grey concrete treads; radial aisles with half-steps and a centre handrail;
 - B. pitch: mowing stripes, FIFA Law 1 markings on the estimated 105 x 68 m pitch, goals; grass run-off;
-- C. roof underside: diamond grid of primary members, arched purlin rings, catwalk ring with hangers and floodlights;
-- D. white VIP columns and bands, and the upper colonnade with the louvred screen up to the roof.
+- C. roof underside: radial ribs with tension cables and struts, ring purlins, catwalk ring with hangers and floodlights;
+- D. white VIP columns and bands; the upper gallery walkway with its railing (the 10:55 view), the colonnade with
+     the louvred screen up to the roof, and video boards at both ends.
 Saves blender/out/talanta_detail.blend (build_scene.py opens it). The web glTF stays the light blockout.
 Sizes and colours: ledger rows bowl.seat.*, bowl.aisle.*, bowl.tread.*, pitch.* (estimated, by eye from the
 named JWNowpO44rw frames; markings from the Laws of the Game). Frames are references only (AGENTS.md rule 2).
@@ -20,7 +21,7 @@ from mathutils import Matrix
 
 ROOT = Path(__file__).resolve().parents[1]
 L = {r["name"]: r for r in csv.DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
-V = lambda k: float(L[k]["value"])
+V = lambda k: float(L[k + "_blockout"]["value"]) if k + "_blockout" in L else float(L[k]["value"])  # Blender overrides
 G = json.loads((ROOT / "blender/out/bowl_rings.json").read_text())
 N, PAD, dirs = G["N"], G["pad"], G["dirs"]
 rIn, rBack = np.array(G["rIn"]), np.array(G["rBack"])
@@ -62,7 +63,7 @@ def mesh_obj(name, collection, verts, faces, material, claim, sources, smooth=Fa
 
 
 def tube_obj(name, collection, paths, r, material, claim, sources, closed=False):
-    cu = bpy.data.curves.new(name, "CURVE"); cu.dimensions = "3D"; cu.bevel_depth = r; cu.bevel_resolution = 2
+    cu = bpy.data.curves.new(name, "CURVE"); cu.dimensions = "3D"; cu.bevel_depth = r; cu.bevel_resolution = 2; cu.use_fill_caps = True
     for pts in paths:
         sp = cu.splines.new("POLY"); sp.points.add(len(pts) - 1)
         for k, v in enumerate(pts): sp.points[k].co = (*v, 1)
@@ -270,15 +271,24 @@ def surf(theta, jf, down=0.0):
 
 
 STEEL = principled("roof_steel_white", (0.78, 0.78, 0.76), 0.4, 0.1)
-SRC_ROOF = "ledger bowl.roofsteel.*, bowl.catwalk.*, bowl.floodlights.* (estimated, by eye from JWNowpO44rw 10:04, 09:12)"
-KR, dr = int(V("bowl.roofsteel.members")), V("bowl.roofsteel.drop")
+SRC_ROOF = "ledger bowl.roofsteel.*, bowl.catwalk.*, bowl.floodlights.* (estimated, by eye from JWNowpO44rw 10:04, 10:38 and the 10:55 view)"
+# Tension cable roof (10:38, 10:55): radial ribs from the rim to the opening ring, each with a dark tension cable
+# sagging below it and vertical struts between them; ring purlins between the ribs.
+KR, dr = int(V("bowl.roofsteel.ribs")), V("bowl.roofsteel.drop")
 J0, J1 = JF + 1.0, NP - 1.3
-prim = []
+prim, cables, struts = [], [], []
+sag = V("bowl.roofsteel.cable_sag")
 for k in range(KR):
-    for sg in (1, -1):
-        th0 = 2 * math.pi * k / KR; d = sg * 2 * (2 * math.pi / KR)  # two crossings between crest and opening
-        prim.append([surf(th0 + d * (j - J0) / (J1 - J0), j, dr) for j in np.linspace(J0, J1, 40)])
-tube_obj("roof_primaries", "roof_detail", prim, V("bowl.roofsteel.member_r"), STEEL, "estimated", SRC_ROOF)
+    th = 2 * math.pi * (k + 0.5) / KR
+    js = np.linspace(J0, J1, 40)
+    prim.append([surf(th, j, dr) for j in js])
+    cab = [surf(th, j, dr + sag * math.sin(math.pi * (j - J0) / (J1 - J0))) for j in js]
+    cables.append(cab)
+    for q in range(5, 40, 6): struts.append([prim[-1][q], cab[q]])
+tube_obj("roof_ribs_under", "roof_detail", prim, V("bowl.roofsteel.member_r"), STEEL, "estimated", SRC_ROOF)
+CABLE = principled("cable_dark", (0.05, 0.05, 0.055), 0.4, 0.8)
+tube_obj("roof_cables", "roof_detail", cables, 0.06, CABLE, "estimated", SRC_ROOF)
+tube_obj("roof_struts", "roof_detail", struts, 0.08, STEEL, "estimated", SRC_ROOF)
 nring = int(V("bowl.roofsteel.purlin_rings"))
 purl = [[surf(2 * math.pi * i / (4 * N), j, 0.45) for i in range(4 * N)] for j in np.linspace(J0, J1, nring)]
 tube_obj("roof_purlins", "roof_detail", purl, 0.13, STEEL, "estimated", SRC_ROOF, closed=True)
@@ -299,7 +309,7 @@ for off in (-cw, cw):
         th = 2 * math.pi * i / (2 * N); x, y, z = ring_c[i]; pts.append((x + math.cos(th) * off, y - math.sin(th) * off, z + 1.1))
     rails_c.append(pts)
 tube_obj("catwalk_rails", "roof_detail", rails_c, 0.04, STEEL, "estimated", SRC_ROOF, closed=True)
-hang = [[surf(2 * math.pi * k / KR, jc, cd), surf(2 * math.pi * k / KR, jc, dr)] for k in range(KR * 2)]
+hang = [[surf(2 * math.pi * (k + 0.5) / KR, jc, cd), surf(2 * math.pi * (k + 0.5) / KR, jc, dr)] for k in range(KR)]
 tube_obj("catwalk_hangers", "roof_detail", [[(x, y, z) for x, y, z in h] for h in hang], 0.05, STEEL, "estimated", SRC_ROOF)
 fv, ff = [], []
 length = sum(math.dist(ring_c[i], ring_c[(i + 1) % (2 * N)]) for i in range(2 * N))
@@ -313,7 +323,7 @@ for q in range(nfl):
             corners.append((cx + tx * su + ux * (so - inset * 4), cy + ty * su + uy * (so - inset * 4), zz))
     box(fv, ff, corners)
 mesh_obj("floodlights", "roof_detail", fv, ff, principled("floodlight_head", (0.12, 0.12, 0.13), 0.35, 0.6), "estimated", SRC_ROOF)
-print("roof primaries:", len(prim), "floodlights:", nfl)
+print("roof ribs:", len(prim), "floodlights:", nfl)
 
 # ---------------------------------------------------------------- D. VIP band and upper colonnade (09:12, 08:00; estimated)
 WHITE_P = principled("paint_white", (0.8, 0.8, 0.78), 0.5)
@@ -321,8 +331,8 @@ for nm in ("band_lower", "band_middle", "pitch_wall"):
     o = bpy.data.objects[nm]; o.data.materials.clear(); o.data.materials.append(WHITE_P)
 
 
-def columns(name, t, y0, y1_fn, spacing, r, sources):
-    ring = [(dirs[i][0] * at(i, t), dirs[i][1] * at(i, t)) for i in range(N)]
+def columns(name, r_fn, y0, y1_fn, spacing, r, sources):
+    ring = [(dirs[i][0] * r_fn(i), dirs[i][1] * r_fn(i)) for i in range(N)]
     seg = [math.dist(ring[i], ring[(i + 1) % N]) for i in range(N)]; tot = sum(seg)
     paths, acc, nxt = [], 0.0, spacing / 2
     for i in range(N):
@@ -335,7 +345,7 @@ def columns(name, t, y0, y1_fn, spacing, r, sources):
 
 
 tm0 = V("bowl.tier_middle.t0") - 0.012
-columns("vip_columns", tm0, V("bowl.tier_lower.y1"), lambda i: V("bowl.band.vip_glass_y1"), V("bowl.vip.column_spacing"), V("bowl.vip.column_r"),
+columns("vip_columns", lambda i: at(i, tm0), V("bowl.tier_lower.y1"), lambda i: V("bowl.band.vip_glass_y1"), V("bowl.vip.column_spacing"), V("bowl.vip.column_r"),
         "ledger bowl.vip.*, bowl.band.* (estimated, by eye from JWNowpO44rw 09:12)")
 
 
@@ -349,13 +359,29 @@ def roof_under_at(i, r):
 
 
 yU = V("bowl.tier_upper.y1")
-columns("colonnade", 1.0, yU, lambda i: roof_under_at(i, rBack[i]) - 0.3, V("bowl.colonnade.spacing"), 0.5,
-        "ledger bowl.colonnade.spacing (estimated, by eye from JWNowpO44rw 08:00)")
-# louvred screen between the colonnade columns: from the back of the upper tier up to the roof underside
+GW, RH = V("bowl.gallery.width"), V("bowl.gallery.rail_h")
+yG = yU + 0.3  # gallery deck just above the top row (10:55)
+rCol = lambda i: rBack[i] + GW + 0.3
+columns("colonnade", rCol, yG, lambda i: roof_under_at(i, rCol(i)) - 0.3, V("bowl.colonnade.spacing"), 0.5,
+        "ledger bowl.colonnade.spacing (estimated, by eye from JWNowpO44rw 08:00 and the 10:55 view)")
+# Upper gallery walkway (the 10:55 view): deck from the back of the upper tier out to the colonnade, white
+# railing on the bowl side (posts, top and mid rails). Estimated, by eye.
+SRC_GAL = "ledger bowl.gallery.* (estimated, by eye from JWNowpO44rw 10:55, Munene's screenshot)"
+gv, gf = [], []
+for i in range(N):
+    ux, uz = dirs[i]; gv += [B(ux * rBack[i], yG, uz * rBack[i]), B(ux * (rBack[i] + GW + 0.8), yG, uz * (rBack[i] + GW + 0.8))]
+for i in range(N):
+    a, b_ = 2 * i, 2 * ((i + 1) % N); gf.append((a, b_, b_ + 1, a + 1))
+mesh_obj("gallery_deck", "bowl_detail", gv, gf, TREAD, "estimated", SRC_GAL)
+rr = lambda i: rBack[i] + 0.1
+dense = [(dirs[i % N][0] * rr(i % N), dirs[i % N][1] * rr(i % N)) for i in range(N)]
+tube_obj("gallery_rails", "bowl_detail", [[B(x, yG + h, z) for x, z in dense] for h in (RH, RH / 2)], 0.04, WHITE_P, "estimated", SRC_GAL, closed=True)
+columns("gallery_posts", rr, yG, lambda i: yG + RH, V("bowl.gallery.post_spacing"), 0.03, SRC_GAL)
+# louvred screen between the colonnade columns: from the gallery up to the roof underside
 lv, lf = [], []
 for i in range(N):
-    ux, uz = dirs[i]; r = rBack[i] + 0.4
-    lv += [B(ux * r, yU, uz * r), B(ux * r, roof_under_at(i, rBack[i]) - 0.3, uz * r)]
+    ux, uz = dirs[i]; r = rCol(i) + 0.4
+    lv += [B(ux * r, yG, uz * r), B(ux * r, roof_under_at(i, r) - 0.3, uz * r)]
 for i in range(N):
     a, b_ = 2 * i, 2 * ((i + 1) % N); lf.append((a, b_, b_ + 1, a + 1))
 scr = bpy.data.materials.new("colonnade_louvre")
@@ -369,6 +395,30 @@ crp.color_ramp.elements[0].position = 0.35; crp.color_ramp.elements[1].position 
 cl.new(wv.outputs["Fac"], crp.inputs["Fac"]); cl.new(crp.outputs["Color"], cn["Principled BSDF"].inputs["Base Color"])
 scr.diffuse_color = (0.5, 0.5, 0.5, 1)
 mesh_obj("colonnade_screen", "bowl_detail", lv, lf, scr, "estimated", "back of the louvred facade seen from inside (estimated, by eye from 08:00)")
+
+# Video boards under the roof at the north and south ends of the pitch axis (10:38, 10:55; estimated, no content)
+bw, bh = V("bowl.screen.width") / 2, V("bowl.screen.height")
+bv, bf, bh_ = [], [], []
+for sg in (1, -1):
+    ex, ez = rot(0, sg)  # along-pitch direction in the app frame
+    th = math.atan2(ez, ex); i0 = int(round(th / (2 * math.pi) * N)) % N
+    t0u, t1u, y0u, y1u = (V(f"bowl.tier_upper.{k}") for k in ("t0", "t1", "y0", "y1"))
+    seat_y = lambda r: y0u + (y1u - y0u) * min(max(((r - rIn[i0]) / (rBack[i0] - rIn[i0]) - t0u) / (t1u - t0u), 0), 1)
+    r = rBack[i0] - 4
+    while roof_under_at(i0, r) - 0.8 - bh < seat_y(r) + 4: r -= 1  # hang it in until it clears the rows below by 4 m
+    top = roof_under_at(i0, r) - 0.8
+    print(f"video board at {rBack[i0] - r:.0f} m in from the back of the upper tier, clearance {top - bh - seat_y(r):.1f} m")
+    print(f"video board {'S' if sg > 0 else 'N'}: top {top:.1f} m, bottom {top - bh:.1f} m, top row {V('bowl.tier_upper.y1'):.1f} m")
+    ux, uz = dirs[i0]; tx, tz = -uz, ux
+    corners = []
+    for yy in (top - bh, top):
+        for su, so in ((-bw, -0.4), (bw, -0.4), (bw, 0.4), (-bw, 0.4)):
+            corners.append(B(ux * (r + so) + tx * su, yy, uz * (r + so) + tz * su))
+    box(bv, bf, corners)
+    for su in (-bw * 0.7, bw * 0.7):
+        bh_.append([B(ux * r + tx * su, top, uz * r + tz * su), B(ux * r + tx * su, roof_under_at(i0, r) + 0.5, uz * r + tz * su)])
+mesh_obj("video_boards", "bowl_detail", bv, bf, principled("screen_black", (0.015, 0.015, 0.018), 0.15, 0.2), "estimated", "ledger bowl.screen.* (estimated, by eye from 10:38, 10:55)")
+tube_obj("video_board_hangers", "bowl_detail", bh_, 0.1, STEEL, "estimated", "ledger bowl.screen.* (estimated)")
 
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "blender/out/talanta_detail.blend"))
 print("saved talanta_detail.blend")

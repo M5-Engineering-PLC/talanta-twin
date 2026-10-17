@@ -556,6 +556,36 @@
    "seed": 16
   },
   {
+   "id": "C18",
+   "name": "Upper gallery, 10:55 view (by eye)",
+   "purpose": "bowl: tiers, roof steel and video board from the upper gallery walkway",
+   "position": [
+    77.39,
+    52.02,
+    -92.23
+   ],
+   "target": [
+    -20.0,
+    30.12,
+    84.7
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 18,
+   "vfov_deg": 58.716,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 18
+  },
+  {
    "id": "C17",
    "name": "07:04 match (by eye)",
    "purpose": "G5 blind test: composition of JWNowpO44rw 07:04, overcast; internal only",

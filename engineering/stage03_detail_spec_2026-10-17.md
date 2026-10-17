@@ -23,11 +23,13 @@ Status values: done, in progress, to do.
 | Individual seats, about 58,000, tier colours with speckle mix | 03 | 02:00, 08:00 | done |
 | Pale stepped treads, aisles with half-steps and handrails | 03 | 08:00, 09:12 | done |
 | Pitch: mowing stripes, Law 1 markings, goals with nets | 03 | 00:46 | done (nets to do) |
-| Roof underside: diamond primaries, arched purlins, glowing membrane | 03 | 10:04 | done (C13 check) |
+| Roof underside: radial ribs with tension cables and struts, ring purlins, glowing membrane | 03 | 10:04, 10:38, 10:55 | done (the first diamond grid was replaced after 10:38) |
 | Catwalk ring with floodlight heads near the opening | 03 | 10:04 | done (C13 check) |
 | Light string along the opening edge (03 point lights) | 03 | 11:20 (LED ring at night) | to do |
 | VIP band: lit glazing, white round columns, white fascia | 03 | 09:12 | columns and white bands done; lit interiors to do |
 | Upper colonnade with louvred screen to the roof | (03 shows arches) | 08:00 | done (C13 check) |
+| Upper gallery walkway with white railing, colonnade outside it (the 10:55 view, camera C18) | - | 10:55 (Munene's screenshot, not in the repository) | done (C18 check) |
+| Video boards under the roof at both ends, 20 x 11 m | - | 10:38, 10:55 | done; smaller in C18 than in 10:55 |
 | Speaker clusters hung from the roof | - | 02:00, 10:04 | to do |
 | Pitch-side: perimeter boards (no text), dugouts, technical area, camera platforms off | 03 | 00:46, 13:07 | to do |
 | Players and officials on the pitch (matchday camera only) | 03 | - | to do, Visualization |
@@ -55,8 +57,18 @@ Status values: done, in progress, to do.
 - Look renders: 960x540 at 64 samples, under 5 min.
 - Hero renders: 1920x1080 at 128 samples. Time to be measured. Run them overnight if they take long.
 
+## Height changes from the 10:55 view
+
+The 10:55 view puts the far roof edge and video board under the near roof. Our heights blocked that sight line, so the Blender build overrides two bowl.js estimates (ledger rows *_blockout, both within the stated uncertainty):
+
+- bowl.opening_y_blockout 50 m (bowl.js 47 m). This also gives the flatter roof seen in 12:40.
+- bowl.tier_upper.y1_blockout and bowl.back_wall_h_blockout 44 m (bowl.js 46 m).
+
+G2 still passes: roof top 53.1 m, opening edge 50.0 m.
+
 ## Check renders
 
 - blender/renders/stage03_bowl_a/: C10 110 s and C12 97 s (seats, aisles, pitch).
 - blender/renders/stage03_bowl_b/: C13 84 s and C10 102 s (roof steel, catwalk, floodlights, VIP columns, colonnade).
 - All at 960x540, 32 samples, neutral sun.
+- blender/renders/stage03_c18/: C18 upper gallery view, about 105 s.

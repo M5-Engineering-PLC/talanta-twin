@@ -10,7 +10,7 @@ import bpy
 ROOT = Path(__file__).resolve().parents[1]
 out = ROOT / (sys.argv[-1] if len(sys.argv) > 1 else "blender/renders/pass_01")
 L = {r["name"]: r for r in csv.DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
-V = lambda k: float(L[k]["value"])
+V = lambda k: float(L[k + "_blockout"]["value"]) if k + "_blockout" in L else float(L[k]["value"])  # Blender overrides, as the build
 U = lambda k, d: float(L[k]["uncertainty"].replace("+-", "").split()[0]) if L[k]["uncertainty"].startswith("+-") else d
 bpy.ops.wm.open_mainfile(filepath=str(ROOT / "blender/out/talanta_blockout.blend"))
 PAD = 0

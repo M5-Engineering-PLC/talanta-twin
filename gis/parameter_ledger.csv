@@ -182,16 +182,25 @@ bowl.aisle.width,1.2,m,JWNowpO44rw 08:00 (by eye),2026-10-17,by eye: aisle stair
 bowl.tread.colour,#c9cacb,hex,"JWNowpO44rw 08:00, 09:12 (by eye)",2026-10-17,colour pick by eye: pale grey painted concrete,,estimated,blender/build_bowl_detail.py tiers,
 pitch.markings,"FIFA Laws of the Game, Law 1",standard,IFAB Laws of the Game 2025/26,2026-10-17,standard dimensions on the estimated 105 x 68 m pitch,,estimated,blender/build_bowl_detail.py pitch_markings,"centre circle 9.15 m, penalty area 16.5 x 40.32 m, goal area 5.5 x 18.32 m, goal 7.32 x 2.44 m"
 pitch.mow_stripes,20,count along the length,"JWNowpO44rw 00:46, 09:48 (by eye)",2026-10-17,by eye: alternating mowing bands,+-4,estimated,blender/build_bowl_detail.py pitch_turf,look only
-bowl.roofsteel.members,30,count per direction,"JWNowpO44rw 10:04, 09:12 (by eye)",2026-10-17,by eye: diamond bays about 18 m wide under the membrane,+-8,estimated,blender/build_bowl_detail.py roof_primaries,
-bowl.roofsteel.member_r,0.4,m,JWNowpO44rw 10:04 (by eye),2026-10-17,by eye: primary member against the catwalk width,+-0.15 m,estimated,blender/build_bowl_detail.py roof_primaries,
-bowl.roofsteel.drop,1.2,m,JWNowpO44rw 10:04 (by eye),2026-10-17,by eye: primaries hang below the membrane,+-0.5 m,estimated,blender/build_bowl_detail.py roof_primaries,
+bowl.roofsteel.ribs,60,count,"JWNowpO44rw 10:38, 10:55 (by eye)",2026-10-17,by eye: radial ribs from the rim to the opening ring (tension cable roof),+-12,estimated,blender/build_bowl_detail.py roof_ribs_under,matches bowl.roof.trusses
+bowl.roofsteel.cable_sag,3.0,m,JWNowpO44rw 10:55 (by eye),2026-10-17,"by eye: tension cable below each rib, with struts",+-1.5 m,estimated,blender/build_bowl_detail.py roof_cables,
+bowl.roofsteel.member_r,0.3,m,"JWNowpO44rw 10:04, 10:55 (by eye)",2026-10-17,by eye: rib against the catwalk width and the railing,+-0.15 m,estimated,blender/build_bowl_detail.py roof_ribs_under,
+bowl.roofsteel.drop,1.2,m,JWNowpO44rw 10:04 (by eye),2026-10-17,by eye: primaries hang below the membrane,+-0.5 m,estimated,blender/build_bowl_detail.py roof_ribs_under,
 bowl.roofsteel.purlin_rings,9,count,JWNowpO44rw 10:04 (by eye),2026-10-17,by eye: arched purlins between the primaries,+-3,estimated,blender/build_bowl_detail.py roof_purlins,
 bowl.catwalk.drop,3.0,m,"JWNowpO44rw 10:04, 09:12 (by eye)",2026-10-17,by eye: catwalk below the membrane near the opening,+-1 m,estimated,blender/build_bowl_detail.py catwalk,floodlights on its inner side
 bowl.catwalk.width,1.4,m,JWNowpO44rw 10:04 (by eye),2026-10-17,by eye: catwalk deck width,+-0.4 m,estimated,blender/build_bowl_detail.py catwalk,
 bowl.floodlights.spacing,2.5,m,JWNowpO44rw 10:04 (by eye),2026-10-17,by eye: floodlight heads along the catwalk,+-1 m,estimated,blender/build_bowl_detail.py floodlights,
 bowl.vip.column_spacing,8,m,JWNowpO44rw 09:12 (by eye),2026-10-17,by eye: round white columns in front of the VIP glazing,+-2 m,estimated,blender/build_bowl_detail.py vip_columns,
 bowl.vip.column_r,0.45,m,JWNowpO44rw 09:12 (by eye),2026-10-17,by eye,+-0.15 m,estimated,blender/build_bowl_detail.py vip_columns,
-bowl.colonnade.spacing,8,m,JWNowpO44rw 08:00 (by eye),2026-10-17,by eye: white columns behind the upper tier,+-2 m,estimated,blender/build_bowl_detail.py colonnade,
+bowl.colonnade.spacing,8,m,"JWNowpO44rw 08:00, 10:55 (by eye)",2026-10-17,by eye: white columns behind the upper tier,+-2 m,estimated,blender/build_bowl_detail.py colonnade,
+bowl.tier_upper.y1_blockout,44.0,m,JWNowpO44rw 10:55 (Munene's screenshot) (by eye),2026-10-17,"by eye: the far roof edge sits well above the gallery eye line, so the top of the upper tier is lower than bowl.js 46 m",+-2 m,estimated,"blender/build_blockout.py, build_bowl_detail.py tiers",overrides bowl.tier_upper.y1 in the Blender build only
+bowl.opening_y_blockout,50.0,m,"JWNowpO44rw 10:55 (Munene's screenshot), 12:40 (by eye)",2026-10-17,"by eye: from the upper gallery the far roof edge and video board show under the near roof, and 12:40 shows a flatter roof than bowl.js",+-3 m,estimated,blender/build_blockout.py profile(),overrides bowl.opening_y (47) in the Blender build only
+bowl.back_wall_h_blockout,44.0,m,JWNowpO44rw 10:55 (Munene's screenshot) (by eye),2026-10-17,follows bowl.tier_upper.y1_blockout,+-2 m,estimated,blender/build_blockout.py back_wall,overrides bowl.back_wall_h in the Blender build only
+bowl.gallery.width,2.2,m,"JWNowpO44rw 10:55 (Munene's screenshot, not in the repository) (by eye)",2026-10-17,by eye: walkway at the back of the upper tier,+-0.6 m,estimated,blender/build_bowl_detail.py gallery_deck,
+bowl.gallery.rail_h,1.1,m,JWNowpO44rw 10:55 (Munene's screenshot) (by eye),2026-10-17,by eye: white railing against a standing person,+-0.1 m,estimated,blender/build_bowl_detail.py gallery_rail,
+bowl.gallery.post_spacing,1.5,m,JWNowpO44rw 10:55 (Munene's screenshot) (by eye),2026-10-17,by eye: railing posts,+-0.5 m,estimated,blender/build_bowl_detail.py gallery_rail,
+bowl.screen.width,20,m,"JWNowpO44rw 10:38, 10:55 (by eye)",2026-10-17,by eye: about 6% of the 10:55 frame width at about 200 m with a 90 deg lens,+-5 m,estimated,blender/build_bowl_detail.py video_boards,"two boards, north and south ends"
+bowl.screen.height,11,m,"JWNowpO44rw 10:38, 10:55 (by eye)",2026-10-17,by eye: aspect about 1.8 in 10:55,+-3 m,estimated,blender/build_bowl_detail.py video_boards,
 bowl.mesh.N,240,segments,model resolution,,not a dimension,,estimated,bowl.js BOWL_EST.N,
 site.plaza.offset,78,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10 m,estimated,site.js buildSite plazaC = rN + 78,measured plaza centroid -205 m N of the origin
 site.plaza.half_across,92,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-20 m,estimated,site.js buildSite half,measured plaza: 102.5 m across (half 51.3 m)
