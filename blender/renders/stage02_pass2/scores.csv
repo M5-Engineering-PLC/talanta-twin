@@ -1,0 +1,9 @@
+category,score,note
+geometry,3,"lattice, eight shields, roof ribs and ring beam read; no louvres; dark plinth slab still reads as a skirt; shields smaller than in 07:04"
+materials,2,"shell is one flat white; Sentinel-2 colour of the white roof paints a pale halo on the ground round the stadium"
+lighting,3,"exposure -1 EV fixed the blow-out; camera side is backlit, so little golden warmth on visible faces"
+atmosphere,3,"haze on the hills; flat sky"
+vegetation,2,"uniform blob carpet, one tree shape"
+people,n/a,"C06 has no people by spec"
+camera,3,"stadium dominant; Ngong Hills cut by the top edge"
+process,4,"scripted from the ledger, seeded, logged render time"

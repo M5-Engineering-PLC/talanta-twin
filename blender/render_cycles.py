@@ -53,15 +53,17 @@ sun = bpy.data.objects["sun"]
 sun.rotation_euler = Euler((math.radians(90 - el), 0, math.radians(180 - az)), "XYZ")
 golden = el < 15 and st["kind"] != "overcast"
 overcast = st["kind"] == "overcast"
-sun.data.energy = 4.5 if not golden else 3.2
-sun.data.color = (1.0, 0.86, 0.68) if golden else (1.0, 0.97, 0.92)
+sun.data.energy = 4.5 if not golden else 3.5
+sun.data.color = (1.0, 0.76, 0.52) if golden else (1.0, 0.97, 0.92)
+s.view_settings.exposure = m["exposure"]["exposure_ev"] + m["exposure"].get("exposure_ev_by_sun", {}).get(sun_key, 0.0)
+if golden: s.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.25
 sky = s.world.node_tree.nodes["sky"]
 sky.sun_elevation = math.radians(max(el, 0.5)); sky.sun_rotation = math.radians(90 - az)
 bg = s.world.node_tree.nodes["Background"]
 if overcast:  # cloud deck: weak diffuse sun, brighter flat sky, denser haze
     sun.data.energy = 0.6; sun.data.angle = math.radians(25); sky.sun_elevation = math.radians(60)
     bg.inputs["Strength"].default_value = 0.9
-    s.world.node_tree.nodes["haze"].inputs["Density"].default_value = 8e-5
+    bpy.data.materials["haze"].node_tree.nodes["haze"].inputs["Density"].default_value = 6e-5
 c = s.cycles
 c.device = "CPU"; c.samples = m["cycles"]["hero" if quality == "hero" else "look_check"]["samples"]
 c.use_adaptive_sampling = True; c.use_denoising = True; c.denoiser = "OPENIMAGEDENOISE"

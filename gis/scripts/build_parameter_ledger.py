@@ -175,6 +175,7 @@ EYE = "JWNowpO44rw 07:04 (by eye, no camera solve)"
 add("bowl.profile.wall", "near-vertical", "shape", EYE, "2026-10-17", "by eye: silhouette edges straight from plinth to rim", "", "estimated", "blender/build_blockout.py profile()", "replaces the bowl.js bulge (bulge_y, shoulder_w, shoulder_h) in the blockout only")
 add("bowl.profile.shoulder_r", 8, "m", EYE, "2026-10-17", "by eye: tight rounded edge between wall and roof rim", "+-4 m", "estimated", "blender/build_blockout.py profile()", "")
 add("bowl.profile.height_to_width_704", 0.20, "ratio", EYE, "2026-10-17", "by eye: 82 px rim-to-base over 413 px silhouette width", "+-0.02", "estimated", "check for bowl.roof_top_y", "about 50 m if the view is across the 250 m long side; view direction not solved")
+add("bowl.profile.lattice_members_704", 20, "count per direction", EYE, "2026-10-17", "by eye: about 7 diamonds across the visible facade", "+-4", "estimated", "blender/build_blockout.py lattice", "bowl.js uses 40")
 add("bowl.mesh.N", 240, "segments", "model resolution", "", "not a dimension", "", "estimated", f"{B}.N", "")
 
 # ---------------------------------------------------------------- site.js (all estimated, W1b now measures some)

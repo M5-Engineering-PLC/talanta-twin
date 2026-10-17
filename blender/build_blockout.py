@@ -236,6 +236,111 @@ for nm, ta, ya, yb, m in [("vip_glass", V("bowl.tier_middle.t0"), V("bowl.band.v
         a, b = 2 * i, 2 * ((i + 1) % N); f.append((a, b, b + 1, a + 1))
     obj(nm, "tiers", v, f, m, "estimated", "ledger bowl.band.* (estimated)")
 
+# ---------------------------------------------------------------- facade details (stage 02 pass 2; all estimated)
+# Diamond lattice, rings, roof ribs, opening ring beam, eight shields. Counts and
+# sizes come from the ledger rows that bowl.js uses (estimated, from frames as look references).
+import numpy as np
+from mathutils import Vector
+
+
+def surf(theta, jf, off=0.0):
+    """Point on the shell profile at angle theta (rad) and fractional profile index jf, pushed out by off."""
+    fi = (theta / (2 * math.pi)) % 1 * N
+    i0 = int(fi) % N; i1 = (i0 + 1) % N; fi -= int(fi)
+    j0 = int(jf); j1 = min(j0 + 1, NP - 1); fj = jf - j0
+    def rp(i): return [PROF[i][j0][k] * (1 - fj) + PROF[i][j1][k] * fj for k in (0, 1)]
+    a, b = rp(i0), rp(i1)
+    r = a[0] * (1 - fi) + b[0] * fi + off; y = a[1] * (1 - fi) + b[1] * fi
+    return Vector(B(math.cos(theta) * r, Y(y), math.sin(theta) * r))
+
+
+def j_at_height(y):
+    p = PROF[0]
+    for j in range(2, J_FACADE):
+        if p[j][1] <= y <= p[j + 1][1]: return j + (y - p[j][1]) / (p[j + 1][1] - p[j][1])
+    return J_FACADE
+
+
+def curve_obj(name, collection, splines, depth, material, closed=False, status="estimated", sources=""):
+    cu = bpy.data.curves.new(name, "CURVE"); cu.dimensions = "3D"; cu.bevel_depth = depth; cu.bevel_resolution = 1
+    for pts in splines:
+        sp = cu.splines.new("POLY"); sp.points.add(len(pts) - 1)
+        for k, v in enumerate(pts): sp.points[k].co = (v.x, v.y, v.z, 1)
+        sp.use_cyclic_u = closed
+    o = bpy.data.objects.new(name, cu); coll(collection).objects.link(o); o.data.materials.append(material)
+    o["claim"] = status; o["sources"] = sources
+    return o
+
+
+LAT_TOP = 20  # lattice runs from the facade foot (j=2) to partway round the shoulder
+K = int(V("bowl.profile.lattice_members_704"))  # wider diamonds than bowl.js, by eye from 07:04
+sp = []
+for k in range(K):
+    for sg in (1, -1):
+        th0 = 2 * math.pi * k / K; d = sg * 2 * math.pi / K
+        sp.append([surf(th0 + d * (j - 2) / (LAT_TOP - 2), j, 0.55) for j in np.linspace(2, LAT_TOP, 40)])
+curve_obj("lattice", "facade_detail", sp, V("bowl.lattice.tube_r"), WHITE, sources="ledger bowl.lattice.* (estimated)")
+rings = [[surf(2 * math.pi * i / N, j, 0.6) for i in range(N)] for j in (2.0, 14.0, float(LAT_TOP))]
+curve_obj("lattice_rings", "facade_detail", rings, V("bowl.lattice.ring_r"), WHITE, closed=True, sources="ledger bowl.lattice.ring_r (estimated)")
+nrib = int(V("bowl.roof.ribs"))
+ribs = [[surf(2 * math.pi * k / nrib, j, 0) + Vector((0, 0, 0.35)) for j in np.linspace(J_FACADE, NP - 1, 14)] for k in range(nrib)]
+curve_obj("roof_ribs", "facade_detail", ribs, V("bowl.roof.rib_r"), WHITE, sources="ledger bowl.roof.ribs (estimated)")
+curve_obj("ring_beam", "facade_detail", [[surf(2 * math.pi * i / N, NP - 1, 0) for i in range(N)]], V("bowl.roof.ring_beam_r"), WHITE, closed=True, sources="ledger bowl.roof.ring_beam_r (estimated)")
+
+# Shield image painted here from simple shapes (our own drawing, not a frame): black lens, red field,
+# white spine, centre lens and side curves. Red from the ledger (bowl.shield.red).
+def shield_png(path, w=256, h=512):
+    yy, xx = np.mgrid[0:h, 0:w]; u = (xx + 0.5) / w * 2 - 1; v = (yy + 0.5) / h * 2 - 1
+    lens = lambda a, b: np.abs(u) / a <= (1 - np.clip(np.abs(v) / b, 0, 1) ** 2) ** 0.85
+    hexr = L["bowl.shield.red"]["value"].lstrip("#"); red = [int(hexr[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    img = np.zeros((h, w, 4)); outer = lens(0.95, 0.99)
+    img[outer] = [0.06, 0.06, 0.06, 1]
+    inner = lens(0.8, 0.9) & (np.abs(u) < 0.62); img[inner] = [*red, 1]
+    white = [0.95, 0.95, 0.93, 1]
+    img[outer & (np.abs(u) < 0.04)] = white
+    img[lens(0.16, 0.13)] = white
+    for sg in (-1, 1):
+        cx = sg * (0.12 + 0.2 * (1 - v ** 2)); img[outer & (np.abs(u - cx) < 0.025) & (np.abs(v) < 0.78)] = white
+    im = bpy.data.images.new("shield", w, h, alpha=True); im.pixels.foreach_set(img[::-1].ravel().astype(np.float32))
+    im.filepath_raw = str(path); im.file_format = "PNG"; im.save()
+    return im
+
+
+(ROOT / "blender/textures").mkdir(exist_ok=True)
+sh_img = shield_png(ROOT / "blender/textures/shield.png")
+sm = bpy.data.materials.new("shield_paint")
+try: sm.use_nodes = True
+except Exception: pass
+nt = sm.node_tree; pb = nt.nodes["Principled BSDF"]; tx = nt.nodes.new("ShaderNodeTexImage"); tx.image = sh_img
+nt.links.new(tx.outputs["Color"], pb.inputs["Base Color"]); nt.links.new(tx.outputs["Alpha"], pb.inputs["Alpha"])
+pb.inputs["Roughness"].default_value = 0.5; sm.diffuse_color = (0.7, 0.1, 0.1, 1)
+SPEAR = mat("spear_white", (0.92, 0.92, 0.9), 0.35)
+axisA = math.radians(-bearing); sw = V("bowl.shield.width"); sy0, sy1 = V("bowl.shield.y0"), V("bowl.shield.y1")
+spears, verts, faces, uvs, tips = [], [], [], [], []
+for k in range(int(V("bowl.shields.count"))):
+    th = axisA - math.pi / 2 + k * 2 * math.pi / int(V("bowl.shields.count"))
+    rc = surf(th, 10).xy.length; half = sw / 2 / rc
+    nu, nv = 10, 18; base = len(verts)
+    for a in range(nu + 1):
+        for b in range(nv + 1):
+            t = th - half + 2 * half * a / nu; y = sy0 + (sy1 - sy0) * b / nv
+            verts.append(surf(t, j_at_height(y), V("bowl.shield.offset"))); uvs.append((a / nu, b / nv))
+    for a in range(nu):
+        for b in range(nv):
+            k0 = base + a * (nv + 1) + b; k1 = k0 + nv + 1; faces.append((k0, k1, k1 + 1, k0 + 1))
+    for sg in (1, -1):
+        a0, a1 = th + sg * half * 1.25, th - sg * half * 1.25; y0, y1 = sy0 + 2, sy1 + 4
+        pts = [surf(a0 + (a1 - a0) * f, j_at_height(min(y0 + (y1 - y0) * f, topY - R)), V("bowl.spear.offset")) for f in np.linspace(0, 1, 17)]
+        for q, f in zip(pts, np.linspace(0, 1, 17)): q.z = Y(y0 + (y1 - y0) * f)
+        spears.append(pts); tips.append((pts[-1], (pts[-1] - pts[-3]).normalized()))
+me = bpy.data.meshes.new("shields"); me.from_pydata(verts, [], faces); me.update()
+uvl = me.uv_layers.new(name="UVMap")
+for poly in me.polygons:
+    for li in poly.loop_indices: uvl.data[li].uv = uvs[me.loops[li].vertex_index]
+so = bpy.data.objects.new("shields", me); coll("facade_detail").objects.link(so); me.materials.append(sm)
+so["claim"] = "estimated"; so["sources"] = "ledger bowl.shield.* (estimated; count from design facts)"
+# No spear tubes or tips: JWNowpO44rw 07:04 shows none above the rim (bowl.js still draws them).
+
 # ---------------------------------------------------------------- pitch and site surfaces
 pz = outline("pitch_zone_w1b_2026-10-16.csv")
 flat("pitch_zone", "pitch", pz, Y(0.05), EARTH, "measured", "W1b pitch_zone_w1b_2026-10-16.csv")

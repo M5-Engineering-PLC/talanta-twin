@@ -81,7 +81,7 @@ manifest = {
     "sensor_width_mm": 36,
     "resolution": [1920, 1080],
     "look_check_scale": 0.5,
-    "exposure": {"view_transform": "AgX", "exposure_ev": 0.0, "f_stop": 8.0, "dof": False},
+    "exposure": {"view_transform": "AgX", "exposure_ev": 0.0, "exposure_ev_by_sun": {"golden": -1.0, "overcast": -1.3}, "f_stop": 8.0, "dof": False},
     "suns": {"neutral": NEUTRAL, "golden": GOLDEN, "night": NIGHT, "overcast": OVERCAST},
     "cycles": {"look_check": {"samples": 64, "adaptive": True, "denoiser": "OPENIMAGEDENOISE"},
                "hero": {"samples": 128, "adaptive": True, "denoiser": "OPENIMAGEDENOISE"}},
