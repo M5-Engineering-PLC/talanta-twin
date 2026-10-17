@@ -85,9 +85,13 @@ body {
 #scalebar { color: #fff; font-size: 10px; text-shadow: 0 1px 2px rgba(0,0,0,.6); width: 140px; }
 #scalebar .ticks { display: flex; justify-content: space-between; }
 #scalebar .rule { height: 5px; border: 1.5px solid #fff; border-top: 0; }
-#focusbar { position: absolute; left: 14px; bottom: 46px; display: flex; gap: 6px; flex-wrap: wrap; max-width: 62%; }
-#focusbar button { background: rgba(246,242,234,.92); border-radius: 14px; padding: 3px 11px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+#focusbar { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 140px); z-index: 3; }
+#focusbar button { background: rgba(246,242,234,.94); border-radius: 16px; padding: 6px 13px; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,.22); }
+#focusbar button b { color: var(--accent); margin-right: 3px; }
 #focusbar button.on { background: var(--ke-black); color: #fff; }
+#focusbar button.on b { color: var(--glow); }
+#focusbar button.nav { font-weight: 600; padding: 6px 12px; }
+#focusbar button.centre { background: var(--ke-green); color: #fff; }
 
 /* side panel */
 #side { grid-area: side; background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; overflow-y: auto; }
