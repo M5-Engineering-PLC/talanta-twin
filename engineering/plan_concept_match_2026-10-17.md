@@ -19,7 +19,15 @@ Concept 06 above our C06, side by side: our render is close-up, flat grey light,
 7. Traffic on Ngong Road in the Blender scene.
 8. The lit inner bowl visible through the roof opening.
 
-## Decisions for Munene
+## Decisions (Munene, 2026-10-17)
+
+- The Kenyan Historian footage (JWNowpO44rw frames and the drone keep frames) is the single source of truth for geometry and detail: shape, proportions, shields, facade, roof, site layout, materials.
+- The Codex concept renders (05, 06, 07) set the theme and look: golden light, colour, composition, atmosphere, density of trees and city. They never override the footage.
+- Light (lead's choice): morning golden hour, 07:30 EAT, warm low sun, for the bake, the web twin and the 06-style still (C19). Evening golden hour, 17:30 EAT, for the 07-style still (C20) only.
+- Skies: blender/assets/hdri (kloppenheim_06 for morning, wasteland_clouds for evening). Textures and foliage: blender/assets/ (see CREDITS.md).
+- Stills first; film later.
+
+## Original options (kept for the record)
 
 | Decision | Options | Lead recommendation |
 |---|---|---|
