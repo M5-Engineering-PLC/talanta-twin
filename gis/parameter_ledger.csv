@@ -151,6 +151,19 @@ bowl.profile.wall,near-vertical,shape,"JWNowpO44rw 07:04 (by eye, no camera solv
 bowl.profile.shoulder_r,8,m,"JWNowpO44rw 07:04 (by eye, no camera solve)",2026-10-17,by eye: tight rounded edge between wall and roof rim,+-4 m,estimated,blender/build_blockout.py profile(),
 bowl.profile.height_to_width_704,0.2,ratio,"JWNowpO44rw 07:04 (by eye, no camera solve)",2026-10-17,by eye: 82 px rim-to-base over 413 px silhouette width,+-0.02,estimated,check for bowl.roof_top_y,about 50 m if the view is across the 250 m long side; view direction not solved
 bowl.profile.lattice_members_704,20,count per direction,"JWNowpO44rw 07:04 (by eye, no camera solve)",2026-10-17,by eye: about 7 diamonds across the visible facade,+-4,estimated,blender/build_blockout.py lattice,bowl.js uses 40
+bowl.fin.pitch,0.6,m,"JWNowpO44rw 10:28, 12:12 (by eye)",2026-10-17,by eye: fin spacing against the 1 m spear shaft,+-0.2 m,estimated,blender/build_blockout.py louvre_fins,
+bowl.fin.depth,0.7,m,JWNowpO44rw 10:28 (by eye),2026-10-17,by eye: fin depth against the spacing,+-0.3 m,estimated,blender/build_blockout.py louvre_fins,
+bowl.fin.drop,0.25,m,"JWNowpO44rw 10:28, 12:16 (by eye)",2026-10-17,by eye: fins slope down outward,+-0.15 m,estimated,blender/build_blockout.py louvre_fins,
+bowl.fin.backing_inset,1.4,m,"JWNowpO44rw 10:28, 12:12 (by eye)",2026-10-17,by eye: dark openings behind the fins,+-0.5 m,estimated,blender/build_blockout.py facade_backing,
+bowl.lattice.section_w,1.5,m,"JWNowpO44rw 12:12, 12:16 (by eye)",2026-10-17,by eye: member width against the 1 m spear shaft,+-0.4 m,estimated,blender/build_blockout.py lattice,"trapezoid section, flat face out"
+bowl.lattice.section_d,0.8,m,JWNowpO44rw 12:12 (by eye),2026-10-17,by eye: member stands proud of the fins,+-0.3 m,estimated,blender/build_blockout.py lattice,
+bowl.shield.blockout_y0,6.0,m,"JWNowpO44rw 12:12, 12:16, 12:40 (by eye)",2026-10-17,by eye: shield foot at the bottom of the louvred band,+-2 m,estimated,blender/build_blockout.py shields,
+bowl.shield.blockout_y1,45.5,m,"JWNowpO44rw 12:12, 12:16, 12:40 (by eye)",2026-10-17,"by eye: shield tip just under the fascia; about 95% of the louvred band, 85-90% of ground-to-fascia height",+-2 m,estimated,blender/build_blockout.py shields,bowl.js uses shield.y0/y1
+bowl.shield.bulge,1.2,m,"JWNowpO44rw 12:12, 12:16 (by eye)",2026-10-17,by eye: slight convex bulge at the centre,+-0.6 m,estimated,blender/build_blockout.py shields,
+bowl.spear.span_shields,1.4,shield widths,"JWNowpO44rw 12:12, 00:16 (by eye)",2026-10-17,by eye: horizontal reach of each crossed spear,+-0.2,estimated,blender/build_blockout.py spears,
+bowl.spear.blade_len,6.5,m,"JWNowpO44rw 10:28, 12:12 (by eye)",2026-10-17,by eye: blade length against the shield height,+-2 m,estimated,blender/build_blockout.py spears,
+bowl.spear.blade_r,1.2,m,JWNowpO44rw 10:28 (by eye),2026-10-17,by eye: blade about 2.4 shaft widths,+-0.4 m,estimated,blender/build_blockout.py spears,
+bowl.spear.tip_below_fascia,0.6,m,"JWNowpO44rw 10:28, 12:12 (by eye)",2026-10-17,by eye: blade tips stop just under the roof edge,+-0.5 m,estimated,blender/build_blockout.py spears,never above the roof edge
 bowl.mesh.N,240,segments,model resolution,,not a dimension,,estimated,bowl.js BOWL_EST.N,
 site.plaza.offset,78,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-10 m,estimated,site.js buildSite plazaC = rN + 78,measured plaza centroid -205 m N of the origin
 site.plaza.half_across,92,m,"reference frames JWNowpO44rw 04:45, 20:05; 8n3ILabO8uw; CuS83a44PG8 (look)",2026-10-16,estimate from frames,+-20 m,estimated,site.js buildSite half,measured plaza: 102.5 m across (half 51.3 m)

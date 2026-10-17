@@ -100,19 +100,10 @@ PBR = {
     "track": principled("track_pbr", (0.42, 0.15, 0.09), 0.8),
     "seat_green": principled("seat_green_pbr", (0.04, 0.22, 0.10), 0.4, spec=0.6),
     "seat_red": principled("seat_red_pbr", (0.38, 0.03, 0.04), 0.4, spec=0.6),
+    "spear_white": principled("spear_pbr", (0.82, 0.82, 0.80), 0.3, 0.0, coat=0.2),
 }
-# Louvred facade: horizontal bands 1.5 m apart (look estimate; bowl.js louvre texture), darker gaps and bump.
-louv = principled("louvre_pbr", (0.80, 0.80, 0.78), 0.35, 0.0, coat=0.15)
-ln, ll = louv.node_tree.nodes, louv.node_tree.links
-lp = ln["Principled BSDF"]; tc = ln.new("ShaderNodeTexCoord"); wv = ln.new("ShaderNodeTexWave")
-wv.wave_type = "BANDS"; wv.bands_direction = "Z"; wv.wave_profile = "SAW"; wv.inputs["Scale"].default_value = 0.0667
-wv.inputs["Distortion"].default_value = 0.0; wv.inputs["Detail"].default_value = 0.0
-ll.new(tc.outputs["Object"], wv.inputs["Vector"])
-ramp = ln.new("ShaderNodeValToRGB"); ramp.color_ramp.elements[0].color = (0.42, 0.43, 0.44, 1); ramp.color_ramp.elements[0].position = 0.12
-ramp.color_ramp.elements[1].color = (0.82, 0.82, 0.80, 1); ramp.color_ramp.elements[1].position = 0.3
-ll.new(wv.outputs["Fac"], ramp.inputs["Fac"]); ll.new(ramp.outputs["Color"], lp.inputs["Base Color"])
-bp = ln.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.4; ll.new(wv.outputs["Fac"], bp.inputs["Height"]); ll.new(bp.outputs["Normal"], lp.inputs["Normal"])
-if "facade" in bpy.data.objects: bpy.data.objects["facade"].material_slots[0].material = louv
+# The louvred wall is real fin geometry over a dark backing (build_blockout.py, stage 02b), so no louvre texture.
+PBR["facade_void"] = principled("facade_void_pbr", (0.035, 0.036, 0.04), 0.75)
 for o in scene.objects:
     if o.type == "MESH":
         for slot in o.material_slots:

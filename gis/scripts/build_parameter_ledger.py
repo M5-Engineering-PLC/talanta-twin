@@ -176,6 +176,23 @@ add("bowl.profile.wall", "near-vertical", "shape", EYE, "2026-10-17", "by eye: s
 add("bowl.profile.shoulder_r", 8, "m", EYE, "2026-10-17", "by eye: tight rounded edge between wall and roof rim", "+-4 m", "estimated", "blender/build_blockout.py profile()", "")
 add("bowl.profile.height_to_width_704", 0.20, "ratio", EYE, "2026-10-17", "by eye: 82 px rim-to-base over 413 px silhouette width", "+-0.02", "estimated", "check for bowl.roof_top_y", "about 50 m if the view is across the 250 m long side; view direction not solved")
 add("bowl.profile.lattice_members_704", 20, "count per direction", EYE, "2026-10-17", "by eye: about 7 diamonds across the visible facade", "+-4", "estimated", "blender/build_blockout.py lattice", "bowl.js uses 40")
+# Stage 02b facade details for the Blender build (lead review 2026-10-17). By eye from named
+# historian frames (look references only, never textures); all estimated.
+fe = lambda n, v, u, frames, method, unc, used, note="": add(n, v, u, f"JWNowpO44rw {frames} (by eye)", "2026-10-17", method, unc, "estimated", used, note)
+BB = "blender/build_blockout.py"
+fe("bowl.fin.pitch", 0.6, "m", "10:28, 12:12", "by eye: fin spacing against the 1 m spear shaft", "+-0.2 m", f"{BB} louvre_fins")
+fe("bowl.fin.depth", 0.7, "m", "10:28", "by eye: fin depth against the spacing", "+-0.3 m", f"{BB} louvre_fins")
+fe("bowl.fin.drop", 0.25, "m", "10:28, 12:16", "by eye: fins slope down outward", "+-0.15 m", f"{BB} louvre_fins")
+fe("bowl.fin.backing_inset", 1.4, "m", "10:28, 12:12", "by eye: dark openings behind the fins", "+-0.5 m", f"{BB} facade_backing")
+fe("bowl.lattice.section_w", 1.5, "m", "12:12, 12:16", "by eye: member width against the 1 m spear shaft", "+-0.4 m", f"{BB} lattice", "trapezoid section, flat face out")
+fe("bowl.lattice.section_d", 0.8, "m", "12:12", "by eye: member stands proud of the fins", "+-0.3 m", f"{BB} lattice")
+fe("bowl.shield.blockout_y0", 6.0, "m", "12:12, 12:16, 12:40", "by eye: shield foot at the bottom of the louvred band", "+-2 m", f"{BB} shields")
+fe("bowl.shield.blockout_y1", 45.5, "m", "12:12, 12:16, 12:40", "by eye: shield tip just under the fascia; about 95% of the louvred band, 85-90% of ground-to-fascia height", "+-2 m", f"{BB} shields", "bowl.js uses shield.y0/y1")
+fe("bowl.shield.bulge", 1.2, "m", "12:12, 12:16", "by eye: slight convex bulge at the centre", "+-0.6 m", f"{BB} shields")
+fe("bowl.spear.span_shields", 1.4, "shield widths", "12:12, 00:16", "by eye: horizontal reach of each crossed spear", "+-0.2", f"{BB} spears")
+fe("bowl.spear.blade_len", 6.5, "m", "10:28, 12:12", "by eye: blade length against the shield height", "+-2 m", f"{BB} spears")
+fe("bowl.spear.blade_r", 1.2, "m", "10:28", "by eye: blade about 2.4 shaft widths", "+-0.4 m", f"{BB} spears")
+fe("bowl.spear.tip_below_fascia", 0.6, "m", "10:28, 12:12", "by eye: blade tips stop just under the roof edge", "+-0.5 m", f"{BB} spears", "never above the roof edge")
 add("bowl.mesh.N", 240, "segments", "model resolution", "", "not a dimension", "", "estimated", f"{B}.N", "")
 
 # ---------------------------------------------------------------- site.js (all estimated, W1b now measures some)

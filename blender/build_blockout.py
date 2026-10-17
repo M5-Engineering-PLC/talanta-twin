@@ -190,14 +190,45 @@ GREEN, RED = mat("seat_green", (0.09, 0.3, 0.15), 0.6), mat("seat_red", (0.45, 0
 SRC_PL = "W1b bowl_plinth_w1b_2026-10-17.csv (measured); plinth_h, facade_inset (estimated)"
 SRC_SH = "W1b plinth, roof_outer, roof_inner (measured, relief-corrected); heights roof_top_y, opening_y, profile.shoulder_r and the near-vertical wall (estimated, by eye against JWNowpO44rw 07:04)"
 plinth_o = loft("plinth", "plinth", 0, 1, GLASS, "plan measured, height estimated", SRC_PL)
-# soffit: flat ring from the plinth top in to the facade foot
+# Louvred wall (stage 02b, by eye from JWNowpO44rw 10:28 and 12:12-12:16): thin horizontal fins, sloping
+# down outward, over a dark recessed backing. The fins' outer edges lie on the wall line of profile();
+# above the wall the solid white shoulder (fascia) runs onto the roof. All fin values estimated.
+J_WALL = 13  # profile index of the wall top yR = topY - R
+yR = PROF[0][J_WALL][1]
+R0 = [min(rPl[i] + V("bowl.plinth_inset") - facadeInset, rRo[i]) for i in range(N)]
+rw = lambda i, y: R0[i] + (rRo[i] - R0[i]) * (y - plinthH) / (yR - plinthH)
+FIN_P, FIN_D, FIN_DROP, BACK = V("bowl.fin.pitch"), V("bowl.fin.depth"), V("bowl.fin.drop"), V("bowl.fin.backing_inset")
+VOID = mat("facade_void", (0.05, 0.05, 0.055), 0.8)
+SRC_FIN = "ledger bowl.fin.* (estimated, by eye from JWNowpO44rw 10:28, 12:12-12:16); wall line from W1b rings"
+# soffit: flat ring from the plinth top in to the backing
 v, f = [], []
 for i in range(N):
-    ux, uz = dirs[i]; rf = PROF[i][2][0]; v += [(ux * rPl[i], Y(plinthH), uz * rPl[i]), (ux * rf, Y(plinthH), uz * rf)]
+    ux, uz = dirs[i]; rf = R0[i] - BACK; v += [(ux * rPl[i], Y(plinthH), uz * rPl[i]), (ux * rf, Y(plinthH), uz * rf)]
 for i in range(N):
     a, b = 2 * i, 2 * ((i + 1) % N); f.append((a, a + 1, b + 1, b))
 obj("soffit", "plinth", v, f, WHITE, "estimated", SRC_PL)
-facade = loft("facade", "shell", 2, J_FACADE, WHITE, "plan measured, heights estimated", SRC_SH)
+# backing: the wall line pushed in by BACK, from the plinth top to the wall top, closed by a cap under the shoulder
+v, f = [], []
+for i in range(N):
+    ux, uz = dirs[i]
+    for y in (plinthH, yR):
+        r = rw(i, y) - BACK; v.append((ux * r, Y(y), uz * r))
+    v.append((ux * rRo[i], Y(yR), uz * rRo[i]))
+for i in range(N):
+    a, b = 3 * i, 3 * ((i + 1) % N); f += [(a, b, b + 1, a + 1), (a + 1, b + 1, b + 2, a + 2)]
+obj("facade_backing", "shell", v, f, VOID, "estimated", SRC_FIN)
+v, f = [], []
+nf = int((yR - plinthH - 0.4) / FIN_P)
+for k in range(nf):
+    y = plinthH + 0.4 + k * FIN_P; base = len(v)
+    for i in range(N):
+        ux, uz = dirs[i]; ro = rw(i, y); ri = ro - FIN_D
+        v += [(ux * ri, Y(y + FIN_DROP), uz * ri), (ux * ro, Y(y), uz * ro)]
+    for i in range(N):
+        a, b = base + 2 * i, base + 2 * ((i + 1) % N); f.append((a, b, b + 1, a + 1))
+obj("louvre_fins", "shell", v, f, WHITE, "estimated", SRC_FIN)
+# facade object = the solid shoulder (fascia) from the wall top to the crest; its widest ring is rRo (geometry gate)
+facade = loft("facade", "shell", J_WALL, J_FACADE, WHITE, "plan measured, heights estimated", SRC_SH)
 roof = loft("roof", "shell", J_FACADE, NP - 1, MEMB, "plan measured, heights estimated", SRC_SH)
 
 # ---------------------------------------------------------------- tiers (stepped rake)
@@ -247,7 +278,7 @@ def surf(theta, jf, off=0.0):
     """Point on the shell profile at angle theta (rad) and fractional profile index jf, pushed out by off."""
     fi = (theta / (2 * math.pi)) % 1 * N
     i0 = int(fi) % N; i1 = (i0 + 1) % N; fi -= int(fi)
-    j0 = int(jf); j1 = min(j0 + 1, NP - 1); fj = jf - j0
+    j0 = min(max(int(math.floor(jf)), 2), NP - 2); j1 = j0 + 1; fj = jf - j0  # below j=2: extend the wall line down
     def rp(i): return [PROF[i][j0][k] * (1 - fj) + PROF[i][j1][k] * fj for k in (0, 1)]
     a, b = rp(i0), rp(i1)
     r = a[0] * (1 - fi) + b[0] * fi + off; y = a[1] * (1 - fi) + b[1] * fi
@@ -256,6 +287,7 @@ def surf(theta, jf, off=0.0):
 
 def j_at_height(y):
     p = PROF[0]
+    if y < p[2][1]: return 2 + (y - p[2][1]) / (p[3][1] - p[2][1])
     for j in range(2, J_FACADE):
         if p[j][1] <= y <= p[j + 1][1]: return j + (y - p[j][1]) / (p[j + 1][1] - p[j][1])
     return J_FACADE
@@ -272,35 +304,70 @@ def curve_obj(name, collection, splines, depth, material, closed=False, status="
     return o
 
 
-LAT_TOP = 20  # lattice runs from the facade foot (j=2) to partway round the shoulder
-K = int(V("bowl.profile.lattice_members_704"))  # wider diamonds than bowl.js, by eye from 07:04
+def outward(theta):
+    return Vector((math.cos(theta), -math.sin(theta), 0.0))
+
+
+def sweep(name, collection, paths, section, material, sources, status="estimated", smooth_shade=False):
+    """Sweep a 2D section (side, out) along each path of (point, theta, scale); side is across the path on the
+    facade, out is radial. scale (optional) multiplies the section. Open ends."""
+    verts, faces = [], []
+    ns = len(section)
+    for path in paths:
+        base = len(verts)
+        for k, (p, th, *sc) in enumerate(path):
+            sc = sc[0] if sc else (1.0, 1.0)
+            q = path[min(k + 1, len(path) - 1)][0] - path[max(k - 1, 0)][0]
+            o = outward(th); side = q.cross(o).normalized()
+            for su, so in section: verts.append(p + side * (su * sc[0]) + o * (so * sc[1]))
+        for k in range(len(path) - 1):
+            for m in range(ns):
+                a0 = base + k * ns + m; a1 = base + k * ns + (m + 1) % ns
+                faces.append((a0, a1, a1 + ns, a0 + ns))
+    me = bpy.data.meshes.new(name); me.from_pydata(verts, [], faces); me.validate(); me.update()
+    if smooth_shade:
+        for p in me.polygons: p.use_smooth = True
+    o = bpy.data.objects.new(name, me); coll(collection).objects.link(o); o.data.materials.append(material)
+    o["claim"] = status; o["sources"] = sources
+    return o
+
+
+# Diamond lattice: flat-faced members of trapezoid section standing proud of the fins, from the bottom of the
+# louvred band to the fascia (by eye from 12:12-12:16; one diamond spans the band height, 07:04 count).
+K = int(V("bowl.profile.lattice_members_704"))
+lw, ld = V("bowl.lattice.section_w") / 2, V("bowl.lattice.section_d")
+LSEC = [(-lw, -0.1), (lw, -0.1), (lw * 0.3, ld), (-lw * 0.3, ld)]
+J_LO = j_at_height(plinthH + 0.2)
 sp = []
 for k in range(K):
     for sg in (1, -1):
         th0 = 2 * math.pi * k / K; d = sg * 2 * math.pi / K
-        sp.append([surf(th0 + d * (j - 2) / (LAT_TOP - 2), j, 0.55) for j in np.linspace(2, LAT_TOP, 40)])
-curve_obj("lattice", "facade_detail", sp, V("bowl.lattice.tube_r"), WHITE, sources="ledger bowl.lattice.* (estimated)")
-rings = [[surf(2 * math.pi * i / N, j, 0.6) for i in range(N)] for j in (2.0, 14.0, float(LAT_TOP))]
+        sp.append([(surf(th0 + d * (j - J_LO) / (J_WALL - J_LO), j, 0), th0 + d * (j - J_LO) / (J_WALL - J_LO)) for j in np.linspace(J_LO, J_WALL, 48)])
+sweep("lattice", "facade_detail", sp, LSEC, WHITE, "ledger bowl.lattice.section_*, bowl.profile.lattice_members_704 (estimated)")
+rings = [[surf(2 * math.pi * i / N, j, 0.3) for i in range(N)] for j in (J_LO, float(J_WALL))]
 curve_obj("lattice_rings", "facade_detail", rings, V("bowl.lattice.ring_r"), WHITE, closed=True, sources="ledger bowl.lattice.ring_r (estimated)")
 nrib = int(V("bowl.roof.ribs"))
 ribs = [[surf(2 * math.pi * k / nrib, j, 0) + Vector((0, 0, 0.35)) for j in np.linspace(J_FACADE, NP - 1, 14)] for k in range(nrib)]
 curve_obj("roof_ribs", "facade_detail", ribs, V("bowl.roof.rib_r"), WHITE, sources="ledger bowl.roof.ribs (estimated)")
 curve_obj("ring_beam", "facade_detail", [[surf(2 * math.pi * i / N, NP - 1, 0) for i in range(N)]], V("bowl.roof.ring_beam_r"), WHITE, closed=True, sources="ledger bowl.roof.ring_beam_r (estimated)")
 
-# Shield image painted here from simple shapes (our own drawing, not a frame): black lens, red field,
-# white spine, centre lens and side curves. Red from the ledger (bowl.shield.red).
-def shield_png(path, w=256, h=512):
+# Shield image painted here from simple shapes (our own drawing, not a frame), per the lead's description
+# checked against 12:12, 12:16 and 10:28: red field, black crescent lobes on the left and right edges, a white
+# vertical spine, a white central boss and broad white leaf shapes above and below it. Red from the ledger.
+def shield_png(path, w=512, h=1024):
     yy, xx = np.mgrid[0:h, 0:w]; u = (xx + 0.5) / w * 2 - 1; v = (yy + 0.5) / h * 2 - 1
-    lens = lambda a, b: np.abs(u) / a <= (1 - np.clip(np.abs(v) / b, 0, 1) ** 2) ** 0.85
+    au, av = np.abs(u), np.abs(v)
+    outline = au <= np.clip(1 - av ** 2, 0, 1) ** 0.62
     hexr = L["bowl.shield.red"]["value"].lstrip("#"); red = [int(hexr[i:i + 2], 16) / 255 for i in (0, 2, 4)]
-    img = np.zeros((h, w, 4)); outer = lens(0.95, 0.99)
-    img[outer] = [0.06, 0.06, 0.06, 1]
-    inner = lens(0.8, 0.9) & (np.abs(u) < 0.62); img[inner] = [*red, 1]
     white = [0.95, 0.95, 0.93, 1]
-    img[outer & (np.abs(u) < 0.04)] = white
-    img[lens(0.16, 0.13)] = white
-    for sg in (-1, 1):
-        cx = sg * (0.12 + 0.2 * (1 - v ** 2)); img[outer & (np.abs(u - cx) < 0.025) & (np.abs(v) < 0.78)] = white
+    img = np.zeros((h, w, 4)); img[outline] = [*red, 1]
+    crescent = outline & (au >= 1 - 0.4 * np.sqrt(np.clip(1 - (v / 0.56) ** 2, 0, 1)))
+    img[crescent] = [0.04, 0.04, 0.04, 1]
+    img[outline & (au < 0.014) & (av < 0.97)] = white  # spine
+    t = np.clip((av - 0.16) / 0.78, 0, 1)  # leaves above and below the boss, pointed at both ends
+    lw = 0.085 * np.sin(np.pi * t) ** 0.7
+    img[outline & (av > 0.16) & (av < 0.94) & (np.abs(au - 0.115) < lw)] = white
+    img[(u / 0.18) ** 2 + (v / 0.13) ** 2 <= 1] = white  # boss
     im = bpy.data.images.new("shield", w, h, alpha=True); im.pixels.foreach_set(img[::-1].ravel().astype(np.float32))
     im.filepath_raw = str(path); im.file_format = "PNG"; im.save()
     return im
@@ -313,33 +380,52 @@ try: sm.use_nodes = True
 except Exception: pass
 nt = sm.node_tree; pb = nt.nodes["Principled BSDF"]; tx = nt.nodes.new("ShaderNodeTexImage"); tx.image = sh_img
 nt.links.new(tx.outputs["Color"], pb.inputs["Base Color"]); nt.links.new(tx.outputs["Alpha"], pb.inputs["Alpha"])
-pb.inputs["Roughness"].default_value = 0.5; sm.diffuse_color = (0.7, 0.1, 0.1, 1)
+pb.inputs["Roughness"].default_value = 0.45; sm.diffuse_color = (0.7, 0.1, 0.1, 1)
 SPEAR = mat("spear_white", (0.92, 0.92, 0.9), 0.35)
-axisA = math.radians(-bearing); sw = V("bowl.shield.width"); sy0, sy1 = V("bowl.shield.y0"), V("bowl.shield.y1")
-spears, verts, faces, uvs, tips = [], [], [], [], []
+axisA = math.radians(-bearing); sw = V("bowl.shield.width")
+sy0, sy1 = V("bowl.shield.blockout_y0"), V("bowl.shield.blockout_y1")
+bulge, soff = V("bowl.shield.bulge"), V("bowl.shield.offset")
+span, bl, br, srad = V("bowl.spear.span_shields"), V("bowl.spear.blade_len"), V("bowl.spear.blade_r"), V("bowl.spear.radius")
+tip_y = yR - V("bowl.spear.tip_below_fascia")
+verts, faces, uvs, spear_paths = [], [], [], []
 for k in range(int(V("bowl.shields.count"))):
     th = axisA - math.pi / 2 + k * 2 * math.pi / int(V("bowl.shields.count"))
-    rc = surf(th, 10).xy.length; half = sw / 2 / rc
-    nu, nv = 10, 18; base = len(verts)
+    rc = surf(th, j_at_height((sy0 + sy1) / 2)).xy.length; half = sw / 2 / rc
+    nu, nv = 16, 32; base = len(verts)
     for a in range(nu + 1):
         for b in range(nv + 1):
-            t = th - half + 2 * half * a / nu; y = sy0 + (sy1 - sy0) * b / nv
-            verts.append(surf(t, j_at_height(y), V("bowl.shield.offset"))); uvs.append((a / nu, b / nv))
+            uu, vv = 2 * a / nu - 1, 2 * b / nv - 1
+            y = sy0 + (sy1 - sy0) * b / nv
+            verts.append(surf(th + half * uu, j_at_height(y), soff + bulge * (1 - uu * uu) * (1 - vv * vv))); uvs.append((a / nu, b / nv))
     for a in range(nu):
         for b in range(nv):
             k0 = base + a * (nv + 1) + b; k1 = k0 + nv + 1; faces.append((k0, k1, k1 + 1, k0 + 1))
+    # two crossed spears behind the shield: butt below the shield's lower edge, blade tip just under the fascia
     for sg in (1, -1):
-        a0, a1 = th + sg * half * 1.25, th - sg * half * 1.25; y0, y1 = sy0 + 2, sy1 + 4
-        pts = [surf(a0 + (a1 - a0) * f, j_at_height(min(y0 + (y1 - y0) * f, topY - R)), V("bowl.spear.offset")) for f in np.linspace(0, 1, 17)]
-        for q, f in zip(pts, np.linspace(0, 1, 17)): q.z = Y(y0 + (y1 - y0) * f)
-        spears.append(pts); tips.append((pts[-1], (pts[-1] - pts[-3]).normalized()))
+        t0, t1 = th - sg * half * span, th + sg * half * span; y0 = max(sy0 - 0.5, plinthH + 1.0)
+        n = 160; pts = []
+        for f in np.linspace(0, 1, n):
+            y = y0 + (tip_y - y0) * f; t = t0 + (t1 - t0) * f
+            pts.append([surf(t, j_at_height(y), V("bowl.spear.offset")), t])
+        L_ = sum((pts[q + 1][0] - pts[q][0]).length for q in range(n - 1)); acc = 0.0
+        for q in range(n):
+            if q: acc += (pts[q][0] - pts[q - 1][0]).length
+            m = L_ - acc  # distance from the tip
+            if m <= bl:
+                x = min(max(m / bl, 0.0), 1.0); r = max(br * max(math.sin(math.pi * x), 0.0) ** 0.8, srad * 0.85 if x > 0.9 else 0.0); squash = 0.55
+            else:
+                r = srad * min(1.0, 0.25 + 0.75 * acc / 2.5); squash = 1.0
+            pts[q].append((r, r * squash))
+        spear_paths.append(pts)
 me = bpy.data.meshes.new("shields"); me.from_pydata(verts, [], faces); me.update()
+for p in me.polygons: p.use_smooth = True
 uvl = me.uv_layers.new(name="UVMap")
 for poly in me.polygons:
     for li in poly.loop_indices: uvl.data[li].uv = uvs[me.loops[li].vertex_index]
 so = bpy.data.objects.new("shields", me); coll("facade_detail").objects.link(so); me.materials.append(sm)
-so["claim"] = "estimated"; so["sources"] = "ledger bowl.shield.* (estimated; count from design facts)"
-# No spear tubes or tips: JWNowpO44rw 07:04 shows none above the rim (bowl.js still draws them).
+so["claim"] = "estimated"; so["sources"] = "ledger bowl.shield.blockout_y0/y1, width, bulge (estimated, by eye from 12:12, 12:16, 12:40; count from design facts)"
+circ = [(math.cos(2 * math.pi * q / 12), math.sin(2 * math.pi * q / 12)) for q in range(12)]
+sweep("spears", "facade_detail", spear_paths, circ, SPEAR, "ledger bowl.spear.* (estimated, by eye from 10:28, 12:12, 00:16)", smooth_shade=True)
 
 # ---------------------------------------------------------------- pitch and site surfaces
 pz = outline("pitch_zone_w1b_2026-10-16.csv")
