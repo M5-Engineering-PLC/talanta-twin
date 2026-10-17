@@ -13,6 +13,10 @@ import { buildSite } from './world/site.js';
 import { pass, mrt, output, normalView, vec4 } from 'three/tsl';
 import { ao } from 'three/addons/tsl/display/GTAONode.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
+import { loadHero } from './hero/loadHero.js';
+import { loadEnvironment, limitEnvToSpecular, horizonFogColor } from './hero/environment.js';
+import { applyHeroToneMapping, heroGrade } from './hero/heroLook.js';
+import { initOverlay } from './hero/overlay.js';
 
 const $ = (s) => document.querySelector(s);
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -598,6 +602,46 @@ function updateHud() {
   $('#sb-mid').textContent = f(nice / 2); $('#sb-end').textContent = f(nice);
 }
 
+// ---------------------------------------------------------------- web hero (?hero)
+// Baked Blender export (blender/web_hero, app/public/models + env). Lighting is baked for one moment
+// (manifest.time), so hero mode locks the clock there and lights the scene from the lightmaps and the panorama.
+// It loads in the background: the procedural twin stays usable until the hero is ready, or if it never is.
+let hero = null, heroHidden = [], heroFog = null, heroGradeOn = null;
+const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} timed out after ${ms / 1000} s`)), ms))]);
+if (new URLSearchParams(location.search).has('hero')) {
+  (async () => {
+    // A load that times out is cancelled: if it completes later, its result is dropped, never shown.
+    let late = false;
+    const h = await withTimeout(loadHero({ renderer, scene }), 180000, 'hero models').catch((e) => { late = true; console.warn(e); return null; });
+    if (!h) return;
+    let envLate = false;
+    const envP = loadEnvironment({ renderer, scene: new THREE.Scene(), manifest: h.manifest, preferSmall: LITE }).then((e) => { if (envLate) { e?.dispose(); return null; } return e; });
+    const env = await withTimeout(envP, 120000, 'panorama').catch((e) => { envLate = true; console.warn(e); return null; });
+    if (late) return;
+    if (env) { scene.background = scene.environment = env.texture; scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation); }
+    scene.add(h.group);
+    limitEnvToSpecular(h.group, env?.texture);
+    let hasGround = false; h.group.traverse((o) => { if (o.isMesh && /^ground/.test(o.name)) hasGround = true; });
+    heroHidden = [bowl.group, pitch.group, sport.group, site.group, buildings, roads, trees, siteLine, blockout].filter(Boolean);
+    if (env) { heroHidden.push(sky, terrainHz, terrainFar); heroFog = horizonFogColor(env.texture); scene.fog = new THREE.Fog(heroFog, 1500, 9000); }
+    if (hasGround) heroHidden.push(terrainSite);
+    sun.castShadow = false; renderer.shadowMap.enabled = false;
+    const [hh, mm] = (h.manifest.time?.local ?? '07:35').split(/[: ]/).map(Number);
+    state.minutes = hh * 60 + mm; state.playing = false;
+    hero = h; heroGradeOn?.();
+    console.info('hero mode on:', h.manifest.time, env ? 'panorama loaded' : 'no panorama, procedural sky kept');
+  })();
+}
+// In hero mode the baked light is the light. Runs every frame after applyTime() and applyBuild(), which
+// otherwise relight the scene and bring the procedural stadium back.
+function heroLock() {
+  sun.intensity = 0; hemi.intensity = 0; for (const s of flood) s.intensity = 0;
+  for (const o of heroHidden) o.visible = false;
+  if (heroFog) scene.fog.color.copy(heroFog);
+  applyHeroToneMapping(renderer, hero.manifest);
+}
+initOverlay({ stage, camera, controls });
+
 // ---------------------------------------------------------------- post: ambient occlusion + bloom
 let pipeline = null, bloomPass = null;
 if (!LITE && !new URLSearchParams(location.search).has('nopost')) {
@@ -612,6 +656,7 @@ if (!LITE && !new URLSearchParams(location.search).has('nopost')) {
     const shaded = vec4(color.rgb.mul(aoPass.getTextureNode().r.mul(0.85).add(0.15)), color.a);
     bloomPass = bloom(shaded, 0.08, 0.35, 0.82);
     pipeline.outputNode = shaded.add(bloomPass);
+    heroGradeOn = () => { pipeline.outputNode = heroGrade(shaded).add(bloomPass); pipeline.needsUpdate = true; };
   } catch (e) { console.warn('post-processing off:', e); pipeline = null; bloomPass = null; }
 }
 
@@ -631,6 +676,7 @@ renderer.setAnimationLoop((now) => {
   controls.update();
   const sp = applyTime();
   const b = applyBuild();
+  if (hero) heroLock();
   const cv = curVal();
   $('#thumb').style.left = `${pct(cv)}%`;
   $('#thumb-label').textContent = state.mode === 'construction' ? fmtD(cv) : fmtHM(cv);
