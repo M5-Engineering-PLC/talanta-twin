@@ -264,16 +264,37 @@ mo.data.materials.append(principled("marking_paint", (0.75, 0.75, 0.72), 0.6)); 
 print("lane dashes:", len(mf))
 
 # ---------------------------------------------------------------- trees (instances on points)
-tr = f32(MAN["trees"]["file"])
-pts, sc = [], []
-for i in range(0, len(tr), 4):
-    x, y, z, s = tr[i], tr[i + 1], tr[i + 2], tr[i + 3]
-    if x * x + z * z < 4000 ** 2: pts.append((x, -z, y - 0.5)); sc.append(s)
+# Stage 02b fix 7 (by eye from JWNowpO44rw 12:40; look only): the NDVI points sit on a near-regular grid and
+# read as an even carpet. Keep the densest 40 m cells (wooded belts and forest, kept almost whole); elsewhere cut
+# clearings with a low-frequency noise so trees stand in clumps. Positions are jittered off the grid, and each tree
+# gets its own type (eucalyptus-heavy in belts), size and crown proportions. Seeded.
+import numpy as np
+rng = np.random.default_rng(17)
+tr = np.frombuffer((DATA / MAN["trees"]["file"]).read_bytes(), np.float32).reshape(-1, 4)
+tr = tr[np.hypot(tr[:, 0], tr[:, 2]) < 4000]
+cell = np.floor(tr[:, [0, 2]] / 40).astype(int)
+_, inv, cnt = np.unique(cell, axis=0, return_inverse=True, return_counts=True)
+belt = cnt[inv.ravel()] >= 32
+X, Z = tr[:, 0], tr[:, 2]
+n = np.zeros(len(tr))
+for wl in (130, 190, 260):
+    a, ph = rng.uniform(0, np.pi, 2), rng.uniform(0, 2 * np.pi, 2)
+    n += np.sin((X * np.cos(a[0]) + Z * np.sin(a[0])) * 2 * np.pi / wl + ph[0]) * np.sin((X * np.cos(a[1]) + Z * np.sin(a[1])) * 2 * np.pi / wl + ph[1])
+n /= 1.5
+keep_p = np.where(belt, 0.95, np.clip((n + 0.15) / 0.5, 0, 1) * 0.9)
+keep = rng.random(len(tr)) < keep_p
+tr, belt = tr[keep], belt[keep]; k = len(tr)
+jit = rng.uniform(-4, 4, (k, 2))
+proto = np.where(belt, rng.choice([0, 2], k, p=[0.3, 0.7]), rng.choice([0, 1, 2], k, p=[0.5, 0.35, 0.15]))
+size = tr[:, 3] * rng.uniform(0.75, 1.3, k)
+sx, sy, sz = size * rng.uniform(0.8, 1.25, k), size * rng.uniform(0.8, 1.25, k), size * rng.uniform(0.8, 1.3, k)
+pts = [(float(x + j[0]), float(-(z + j[1])), float(y - 0.5)) for (x, y, z, _), j in zip(tr, jit)]
 tme = bpy.data.meshes.new("tree_points"); tme.from_pydata(pts, [], [])
-sa = tme.attributes.new("tscale", "FLOAT", "POINT"); sa.data.foreach_set("value", sc)
-tobj = bpy.data.objects.new("trees", tme); coll("context").objects.link(tobj); tobj["claim"] = "positions Sentinel-2 NDVI; shapes estimated"
+tme.attributes.new("proto", "INT", "POINT").data.foreach_set("value", proto.astype(int).tolist())
+tme.attributes.new("tscale3", "FLOAT_VECTOR", "POINT").data.foreach_set("vector", np.stack([sx, sy, sz], 1).ravel().tolist())
+tobj = bpy.data.objects.new("trees", tme); coll("context").objects.link(tobj); tobj["claim"] = "positions Sentinel-2 NDVI (thinned into clumps, jittered); shapes estimated"
 # Three tree prototypes in metres (shapes estimated; P3 "tree variety"): flat-top acacia, tall eucalyptus,
-# and the round two-crown tree from makeTrees() in context.js. One is picked at random per point.
+# and the round two-crown tree from makeTrees() in context.js. Names sort in index order (proto attribute 0-2).
 from mathutils import Matrix
 protos = coll("tree_protos"); protos.hide_render = True
 def make_proto(name, trunk_h, trunk_r, crowns, leaf_rgb):
@@ -286,9 +307,9 @@ def make_proto(name, trunk_h, trunk_r, crowns, leaf_rgb):
     for p in me.polygons: p.use_smooth = True
     me.materials.append(principled(name + "_leaf", leaf_rgb, 0.8, noise_rough=0.1, noise_scale=3, bump=0.3))
     o = bpy.data.objects.new(name, me); protos.objects.link(o); return o
-make_proto("tree_round", 4.6, 0.34, [(0, 0, 6.2, 3.0, 2.6), (1.7, -0.9, 4.9, 1.9, 1.7)], (0.06, 0.13, 0.04))
-make_proto("tree_acacia", 5.5, 0.3, [(0, 0, 6.6, 4.6, 1.1), (1.8, 1.2, 6.2, 2.6, 0.8)], (0.08, 0.14, 0.05))
-make_proto("tree_eucalyptus", 9.0, 0.32, [(0, 0, 11.5, 2.2, 4.2), (0.6, 0.4, 8.2, 1.6, 2.2)], (0.09, 0.13, 0.08))
+make_proto("tree_0_round", 4.6, 0.34, [(0, 0, 6.2, 3.0, 2.6), (1.7, -0.9, 4.9, 1.9, 1.7)], (0.06, 0.13, 0.04))
+make_proto("tree_1_acacia", 5.5, 0.3, [(0, 0, 6.6, 4.6, 1.1), (1.8, 1.2, 6.2, 2.6, 0.8)], (0.08, 0.14, 0.05))
+make_proto("tree_2_eucalyptus", 9.0, 0.32, [(0, 0, 11.5, 2.2, 4.2), (0.6, 0.4, 8.2, 1.6, 2.2)], (0.09, 0.13, 0.08))
 gn = bpy.data.node_groups.new("tree_scatter", "GeometryNodeTree")
 try:
     gn.interface.new_socket("Geometry", in_out="INPUT", socket_type="NodeSocketGeometry")
@@ -299,18 +320,17 @@ N_ = gn.nodes; L_ = gn.links
 gi, go = N_.new("NodeGroupInput"), N_.new("NodeGroupOutput")
 ci = N_.new("GeometryNodeCollectionInfo"); ci.inputs["Collection"].default_value = protos
 ci.inputs["Separate Children"].default_value = True; ci.inputs["Reset Children"].default_value = True
-pick = N_.new("FunctionNodeRandomValue"); pick.data_type = "INT"; pick.inputs["Min"].default_value = 0; pick.inputs["Max"].default_value = 2
-pick.inputs["Seed"].default_value = 7
-na = N_.new("GeometryNodeInputNamedAttribute"); na.data_type = "FLOAT"; na.inputs["Name"].default_value = "tscale"
+pick = N_.new("GeometryNodeInputNamedAttribute"); pick.data_type = "INT"; pick.inputs["Name"].default_value = "proto"
+na = N_.new("GeometryNodeInputNamedAttribute"); na.data_type = "FLOAT_VECTOR"; na.inputs["Name"].default_value = "tscale3"
 rnd = N_.new("FunctionNodeRandomValue"); rnd.data_type = "FLOAT"; rnd.inputs["Max"].default_value = 6.283
 cr = N_.new("ShaderNodeCombineXYZ"); L_.new(rnd.outputs["Value"], cr.inputs["Z"])
 iop = N_.new("GeometryNodeInstanceOnPoints")
 L_.new(gi.outputs[0], iop.inputs["Points"]); L_.new(ci.outputs["Instances"], iop.inputs["Instance"])
-iop.inputs["Pick Instance"].default_value = True; L_.new(pick.outputs["Value"], iop.inputs["Instance Index"])
+iop.inputs["Pick Instance"].default_value = True; L_.new(pick.outputs["Attribute"], iop.inputs["Instance Index"])
 L_.new(na.outputs["Attribute"], iop.inputs["Scale"]); L_.new(cr.outputs["Vector"], iop.inputs["Rotation"])
 L_.new(iop.outputs["Instances"], go.inputs[0])
 mod = tobj.modifiers.new("scatter", "NODES"); mod.node_group = gn
-print("trees within 4 km:", len(pts), "scale range", round(min(sc), 2), round(max(sc), 2))
+print("trees within 4 km:", len(pts), "of which in belts:", int(belt.sum()), "size range", round(float(size.min()), 2), round(float(size.max()), 2))
 
 # ---------------------------------------------------------------- world: sky + haze (set per render in render_cycles.py)
 w = bpy.data.worlds.new("sky"); scene.world = w
@@ -321,6 +341,31 @@ sky = n.new("ShaderNodeTexSky"); sky.name = "sky"
 sky.sky_type = "MULTIPLE_SCATTERING"; sky.sun_disc = False; sky.altitude = 1800; sky.aerosol_density = 2.0
 l.new(sky.outputs["Color"], n["Background"].inputs["Color"])
 n["Background"].inputs["Strength"].default_value = 0.35
+# Stage 02b fix 8: cheap cloud background (the lead's fallback; Poly Haven is not reachable from the cloud session).
+# Camera rays only: a procedural cumulus layer on a plane 2 km up, faded into the haze at the horizon. Lighting
+# still comes from the physical sky and the sun lamp. Look only, no volumes.
+cco = n.new("ShaderNodeTexCoord"); csx = n.new("ShaderNodeSeparateXYZ"); l.new(cco.outputs["Generated"], csx.inputs[0])
+cz = n.new("ShaderNodeMath"); cz.operation = "MAXIMUM"; cz.inputs[1].default_value = 0.02; l.new(csx.outputs["Z"], cz.inputs[0])
+cux, cuy = n.new("ShaderNodeMath"), n.new("ShaderNodeMath"); cux.operation = cuy.operation = "DIVIDE"
+l.new(csx.outputs["X"], cux.inputs[0]); l.new(cz.outputs[0], cux.inputs[1]); l.new(csx.outputs["Y"], cuy.inputs[0]); l.new(cz.outputs[0], cuy.inputs[1])
+cuv = n.new("ShaderNodeCombineXYZ"); l.new(cux.outputs[0], cuv.inputs["X"]); l.new(cuy.outputs[0], cuv.inputs["Y"])
+def wnoise(scale, detail, rough):
+    nz = n.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = scale; nz.inputs["Detail"].default_value = detail
+    nz.inputs["Roughness"].default_value = rough; l.new(cuv.outputs[0], nz.inputs["Vector"]); return nz
+cov = n.new("ShaderNodeMapRange"); cov.inputs["From Min"].default_value = 0.5; cov.inputs["From Max"].default_value = 0.64
+l.new(wnoise(1.6, 8, 0.62).outputs["Fac"], cov.inputs["Value"])
+fade = n.new("ShaderNodeMapRange"); fade.inputs["From Min"].default_value = 0.004; fade.inputs["From Max"].default_value = 0.05; fade.inputs["To Max"].default_value = 0.9
+l.new(csx.outputs["Z"], fade.inputs["Value"])
+lp_ = n.new("ShaderNodeLightPath")
+cm1 = n.new("ShaderNodeMath"); cm1.operation = "MULTIPLY"; l.new(cov.outputs[0], cm1.inputs[0]); l.new(fade.outputs[0], cm1.inputs[1])
+cm2 = n.new("ShaderNodeMath"); cm2.operation = "MULTIPLY"; l.new(cm1.outputs[0], cm2.inputs[0]); l.new(lp_.outputs["Is Camera Ray"], cm2.inputs[1])
+lum = n.new("ShaderNodeRGBToBW"); l.new(sky.outputs["Color"], lum.inputs[0])
+shade = n.new("ShaderNodeMapRange"); shade.inputs["To Min"].default_value = 0.85; shade.inputs["To Max"].default_value = 2.2
+l.new(wnoise(4.0, 4, 0.5).outputs["Fac"], shade.inputs["Value"])
+cv = n.new("ShaderNodeMath"); cv.operation = "MULTIPLY"; l.new(lum.outputs[0], cv.inputs[0]); l.new(shade.outputs[0], cv.inputs[1])
+ccol = n.new("ShaderNodeCombineColor"); [l.new(cv.outputs[0], ccol.inputs[k]) for k in range(3)]
+cmix = n.new("ShaderNodeMix"); cmix.data_type = "RGBA"; l.new(cm2.outputs[0], cmix.inputs[0])
+l.new(sky.outputs["Color"], cmix.inputs[6]); l.new(ccol.outputs[0], cmix.inputs[7]); l.new(cmix.outputs[2], n["Background"].inputs["Color"])
 # Haze: a finite volume box (50 x 50 km, 3.2 km high). A world volume renders black in Cycles here.
 bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 1500)); hb = bpy.context.object
 hb.name = "haze_volume"; hb.scale = (50000, 50000, 3200)
