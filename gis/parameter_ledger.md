@@ -36,3 +36,7 @@ Every dimension constant in `app/src/world/bowl.js`, `site.js` and `pitch.js` ha
 `app/cameras/manifest.json` freezes C01 to C16 from the Astra review: four orthographic elevations, an orthographic roof plan, four elevated diagonals (C06 is the hero), two views across the bowl, a seat section, the roof underside, a shield detail, the forecourt and the approach. Each camera has a position, target, lens on a 36 mm sensor, resolution, exposure, sun state and seed. These are render viewpoints for review, not real camera locations (AGENTS.md rule 8).
 
 Checks (both pass on 2026-10-17): `node cameras/check.mjs` from `app/`, and `~/.venvs/bpy/bin/python blender/scripts/check_cameras.py` from the repository root. Both put every target at the frame centre, and the vertical field of view agrees to 0.01 degree.
+
+## Normalized shapes
+
+`gis/scripts/normalize_shapes.py` writes `gis/measurements/normalized/`: each W1b ring closed once, duplicates removed, made valid (the bowl plinth was reordered), wound anticlockwise from above, started at its northernmost vertex, and densified to 2 m edges with the original vertices flagged. Areas are unchanged. The raw CSVs stay as Munene's record. The Blender blockout reads the normalized rings.

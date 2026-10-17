@@ -1,5 +1,6 @@
 import * as THREE from 'three/webgpu';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { loadData, TOTAL_FILES } from './data.js';
 import { makeTerrain, heightSampler, boxOf } from './world/terrain.js';
 import { makeBuildings, makeRoads, makeTrees } from './world/context.js';
@@ -84,6 +85,19 @@ scene.add(buildings, roads, trees);
 const bowl = buildBowl(F);
 bowl.group.position.y = PAD;
 scene.add(bowl.group);
+// Stage 01 round trip: ?blender shows the Blender blockout (glTF, built from gis/parameter_ledger.csv)
+// in place of the procedural bowl and pitch. The procedural bowl stays the default.
+const BLENDER = new URLSearchParams(location.search).has('blender');
+let blockout = null;
+if (BLENDER) {
+  new GLTFLoader().load('./data/blockout.glb', (g) => {
+    blockout = g.scene; blockout.name = 'blender-blockout';
+    blockout.traverse((o) => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; if (o.name === 'site_pad') o.visible = false; } });
+    scene.add(blockout);
+    bowl.group.visible = false; pitch.group.visible = false;
+    console.info('blender blockout loaded:', blockout.children.length, 'objects');
+  }, undefined, (e) => console.warn('blender blockout failed to load', e));
+}
 const pitch = buildPitch(F.pitch_bearing_deg);
 pitch.group.position.y = PAD;
 scene.add(pitch.group);
@@ -170,7 +184,7 @@ function applyBuild() {
   const t = state.mode === 'construction' ? state.build : Date.now();
   const struct = smooth(Date.UTC(2024, 4, 1), Date.UTC(2025, 9, 1), t);
   const roof = state.mode === 'construction' ? roofAt(t) : 1;
-  bowl.group.visible = t >= Date.UTC(2024, 2, 1);
+  bowl.group.visible = t >= Date.UTC(2024, 2, 1) && !blockout; // ?blender: the blockout replaces it
   bowl.seating.scale.y = Math.max(0.02, struct);
   const fs = Math.max(0.001, smooth(Date.UTC(2025, 5, 1), Date.UTC(2026, 2, 1), t));
   bowl.facade.scale.y = fs; bowl.lattice.scale.y = fs;
@@ -597,4 +611,4 @@ renderer.setAnimationLoop((now) => {
 });
 setTimeout(() => $('#splash').classList.add('done'), 250);
 $('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 seats · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.) · ${bowl.seatCount.toLocaleString()} seats modelled`;
-window.__twin = { scene, camera, controls, focus, state, FOCUS };
+window.__twin = { scene, camera, controls, focus, state, FOCUS, get blockout() { return blockout; } };

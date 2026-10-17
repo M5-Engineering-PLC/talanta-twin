@@ -95,7 +95,7 @@ The reference project ran its critic loop overnight. Do the same after G5:
 | A | Done (2026-10-17) | Seven W1b CSVs in gis/measurements/ (roof outer and inner rings, bowl plinth, north plaza, warm-up track, training pitch SE, training field SW), each with source and image date 2025-12-26 (Airbus). Scale checks not possible: no pitch markings |
 | G1 | Pass (2026-10-17) | Blender 5.2.2 (bpy wheel), 4 CPUs, 15.7 GB RAM. CPU Cycles 960x540, 64 samples, OIDN: default scene 7.1 s; 297,866-triangle scene 29.0 s. blender/renders/g1/g1_times.json |
 | 00 | Done (2026-10-17) | gis/parameter_ledger.csv: 172 rows (52 measured, 24 derived, 96 estimated). app/cameras/manifest.json: 16 cameras, load checks pass in three.js and Blender |
-| 01 and G2 | Not started | |
+| 01 and G2 | Done, G2 pass (2026-10-17) | blender/build_blockout.py from the ledger and the normalized W1b shapes; 19 objects, 77,097 triangles. Workbench C01-C06 in 2.9-3.6 s each (blender/renders/pass_01/). G2: 14 of 14 checks pass (geometry_gate.csv). glTF round trip behind ?blender works. Open: 28 of 240 directions where the 12-point roof trace is over 4 m inside the plinth are clamped (estimated) |
 | 01b and G3 | Not started | |
 | 02, G4 and G5 | Not started | |
 | 03 | Not started | |

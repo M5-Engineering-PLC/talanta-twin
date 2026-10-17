@@ -46,7 +46,7 @@ for cid, nm, az in [("C01", "North elevation", 0), ("C02", "East elevation", 90)
     p, t = pose(T0, az, 0, 600)
     cams.append(cam(cid, nm, "geometry: silhouette and heights against the ledger", p, t, ortho=300))
 p, t = pose([0, PAD, 0], 0, 89.999, 600)
-cams.append(cam("C05", "Roof plan", "geometry: roof rings, plinth and pitch against the W1b shapes", p, t, ortho=300))
+cams.append(cam("C05", "Roof plan", "geometry: roof rings, plinth and pitch against the W1b shapes", p, t, ortho=480))
 for cid, nm, az, var in [("C06", "Hero aerial, north-east", 40, ["golden", "night"]), ("C07", "Aerial, south-east", 135, []),
                          ("C08", "Aerial, south-west", 225, []), ("C09", "Aerial, north-west", 315, [])]:
     p, t = pose([-6, PAD + 16, 14], az, 14, 330)
