@@ -19,11 +19,11 @@ PRESETS = {
     # Munene's decision (plan_concept_match_2026-10-17.md): morning golden hour for the bake, web twin and C19
     "morning_golden": {"date": "2026-01-15", "time_eat": "07:30", "kind": "morning golden",
                        "hdri": "blender/assets/hdri/kloppenheim_06_puresky_4k.hdr", "sky_strength": 1.0,
-                       "sun_kelvin": 4300, "sun_to_sky": 5.0},
+                       "sun_kelvin": 4300, "sun_to_sky": 5.0, "exposure_ev": -1.0},
     # evening golden hour for the C20 still only
     "evening_golden": {"date": "2026-01-15", "time_eat": "17:30", "kind": "evening golden",
                        "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0,
-                       "sun_kelvin": 3800, "sun_to_sky": 5.0},
+                       "sun_kelvin": 3800, "sun_to_sky": 5.0, "exposure_ev": -1.7},
 }
 
 
@@ -80,13 +80,13 @@ def apply(scene, preset_key, el, az, sun):
     w = scene.world; n, l = w.node_tree.nodes, w.node_tree.links
     bg = n["Background"]
     for lk in list(bg.inputs["Color"].links): l.remove(lk)
-    tc = n.new("ShaderNodeTexCoord"); mp = n.new("ShaderNodeMapping"); mp.vector_type = "POINT"
+    tc = n.new("ShaderNodeTexCoord"); mp = n.new("ShaderNodeMapping"); mp.vector_type = "POINT"; mp.name = "hdri_rotation"
     env = n.new("ShaderNodeTexEnvironment"); env.name = "hdri"
     env.image = bpy.data.images.load(str(ROOT / p["hdri"]), check_existing=True)
     alpha_s = math.radians(90 - az)              # scene sun direction angle atan2(y north, x east)
     rot = math.radians(hs["sun_alpha_deg"]) - alpha_s
     mp.inputs["Rotation"].default_value = (0, 0, rot)
-    cl = n.new("ShaderNodeVectorMath"); cl.operation = "MINIMUM"; cl.inputs[1].default_value = (hs["clip"],) * 3
+    cl = n.new("ShaderNodeVectorMath"); cl.operation = "MINIMUM"; cl.name = "hdri_clip"; cl.inputs[1].default_value = (hs["clip"],) * 3
     l.new(tc.outputs["Generated"], mp.inputs["Vector"]); l.new(mp.outputs["Vector"], env.inputs["Vector"])
     l.new(env.outputs["Color"], cl.inputs[0]); l.new(cl.outputs["Vector"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = p["sky_strength"]
@@ -96,3 +96,18 @@ def apply(scene, preset_key, el, az, sun):
     return {"preset": preset_key, "hdri": p["hdri"], "rotation_deg": round(math.degrees(rot), 2),
             "hdri_sun_elevation_deg": hs["sun_elevation_deg"], "scene_sun_elevation_deg": round(el, 2),
             "sun_energy": round(sun.data.energy, 3), "sun_kelvin": p["sun_kelvin"], "sun_color": [round(c, 4) for c in sun.data.color]}
+
+
+def horizon_rgb(scene, view_alpha_deg, half_width_deg=35, elev_deg=(0.5, 4.0)):
+    """Mean clipped HDRI radiance just above the horizon around a world view direction (angle from east,
+    counter-clockwise): the colour aerial perspective tends to (lookdev.py haze)."""
+    n = scene.world.node_tree.nodes; env = n["hdri"]; im = env.image
+    rot = n["hdri_rotation"].inputs["Rotation"].default_value[2]
+    clip = n["hdri_clip"].inputs[1].default_value[0]
+    w, h = im.size
+    px = np.empty(w * h * 4, np.float32); im.pixels.foreach_get(px); px = px.reshape(h, w, 4)[..., :3]
+    r0, r1 = (int((0.5 + math.radians(e) / math.pi) * h) for e in elev_deg)
+    a = np.radians(view_alpha_deg + np.linspace(-half_width_deg, half_width_deg, 64)) + rot
+    cols = (((-a / (2 * math.pi) + 0.5) % 1.0) * w).astype(int)
+    band = np.minimum(px[r0:r1 + 1][:, cols], clip)
+    return [round(float(c), 4) for c in band.reshape(-1, 3).mean(0) * scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value]

@@ -620,14 +620,14 @@
    "name": "Lead view 06 match",
    "purpose": "score against lead render 06: NE aerial over Ngong Road looking SW to the Ngong Hills; internal only",
    "position": [
-    305.3,
-    143.84,
-    -280.91
+    511.17,
+    146.14,
+    -470.13
    ],
    "target": [
-    -31.55,
-    18.12,
-    -45.05
+    11.49,
+    9.91,
+    12.55
    ],
    "up": [
     0,
@@ -635,32 +635,32 @@
     0
    ],
    "projection": "perspective",
-   "focal_length_mm": 28,
-   "vfov_deg": 39.761,
+   "focal_length_mm": 35,
+   "vfov_deg": 32.269,
    "sun": {
     "date": "2026-01-15",
-    "time_eat": "07:35",
-    "kind": "morning low sun"
+    "time_eat": "07:30",
+    "kind": "morning golden"
    },
    "variants": [
     "golden"
    ],
    "seed": 19,
-   "note": "composition by eye from the lead render (bearing, elevation, distance, stadium left of centre); refine with ?overlay and Copy pose"
+   "note": "pass 1: Sol's start pose, solved to the concept stadium box and sky band (blender/concept_match/solve_cameras.py, residuals in blender/data/concept_cameras.json)"
   },
   {
    "id": "C20",
    "name": "Lead view 07 match",
    "purpose": "score against lead render 07: SSW aerial over the forest looking NNE to Lavington; internal only",
    "position": [
-    -88.96,
-    143.84,
-    405.22
+    -170.06,
+    144.41,
+    617.95
    ],
    "target": [
-    51.68,
-    18.12,
-    18.81
+    23.05,
+    22.01,
+    5.95
    ],
    "up": [
     0,
@@ -668,18 +668,18 @@
     0
    ],
    "projection": "perspective",
-   "focal_length_mm": 28,
-   "vfov_deg": 39.761,
+   "focal_length_mm": 38,
+   "vfov_deg": 29.839,
    "sun": {
     "date": "2026-01-15",
     "time_eat": "17:30",
-    "kind": "golden"
+    "kind": "evening golden"
    },
    "variants": [
     "golden"
    ],
    "seed": 20,
-   "note": "composition by eye from the lead render (bearing, elevation, distance, stadium left of centre); refine with ?overlay and Copy pose"
+   "note": "pass 1: Sol's start pose, solved to the concept stadium box and sky band (blender/concept_match/solve_cameras.py, residuals in blender/data/concept_cameras.json)"
   }
  ]
 }

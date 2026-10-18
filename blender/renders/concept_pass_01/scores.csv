@@ -1,0 +1,10 @@
+category,weight,score,note
+geometry,30,4,"unchanged: stadium, shields and site from the historian footage (keep frames 000641.633 and 001244.833); concept-only features (06 road diagonal, 07 forest foreground) are not copied by rule"
+materials,15,3.5,"unchanged: roof 8 to 12 L* darker than the concepts and warmer (b* +5 to +8); C19 forecourt is lawn green where 06 has paving (pass 3)"
+lighting,15,3.5,"was 3: HDRI skies (kloppenheim_06 morning, wasteland_clouds evening) rotated to the NOAA sun, sun lamp from the clipped HDRI disc, land L* within 3 of the concepts; sun direction kept physical (C19 shadows point right, 06 left: 06 is lit like an evening image); almost no specular highlights (clipping 0.1% and 0% against 1.4% and 3.2%)"
+atmosphere,5,3,"was 2.5: depth haze toward the HDRI horizon colour, sky band within 0.4% of the concepts; far terrain still a beige smear and the Ngong Hills do not read (horizon crop L* 13 to 16 low, no ridge contrast; pass 2)"
+vegetation,10,2.5,"unchanged: smooth procedural crowns; canopy colour close (dE 2.4 and 6.3) but edge density 0.12 to 0.43 against 0.49 to 0.51 (pass 2)"
+people,10,n/a,"not observed: no people at this distance in either view"
+camera,5,4.5,"was 4: C19 and C20 solved to the concept stadium box (max error 12 px and 5 px at 960) and sky band (14.6% vs 15%, 15.7% vs 16%); bearing and focal length are Sol's"
+process,10,4.5,"was 4: solver, metrics and sheets scripted (blender/concept_match/), seeded renders, timings in render_log.jsonl, frozen crops"
+total,,73.9,"weighted over the observed categories (90%): 332.5 / 450; pass 7 baseline on the same rule 70.0; plan forecast 72 to 76"

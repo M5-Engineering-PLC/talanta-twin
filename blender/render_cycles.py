@@ -8,7 +8,7 @@ Run from the repo root:
 import json, math, sys, time, datetime as dt
 from pathlib import Path
 import bpy
-from mathutils import Euler
+from mathutils import Euler, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "blender/scripts"))
@@ -91,6 +91,9 @@ sky_log = None
 if sun_key in sky_hdri.PRESETS:
     sky_log = sky_hdri.apply(s, sun_key, el, az, sun)
     s.view_settings.exposure = sky_hdri.PRESETS[sun_key].get("exposure_ev", s.view_settings.exposure)
+    bpy.context.view_layer.update()  # camera matrices are stale until the view layer is evaluated
+    fwd = s.camera.matrix_world.to_3x3() @ Vector((0, 0, -1))
+    s["talanta_haze_rgb"] = sky_log["haze_rgb"] = sky_hdri.horizon_rgb(s, math.degrees(math.atan2(fwd.y, fwd.x)))
 c = s.cycles
 c.device = "CPU"; c.samples = m["cycles"]["hero" if quality == "hero" else "look_check"]["samples"]
 if quality == "preview": c.samples = 8; s.render.resolution_percentage = 25
@@ -111,6 +114,11 @@ t0 = time.time(); bpy.ops.render.render(write_still=True); sec = time.time() - t
 rec = {"camera": cid, "sky": sky_log, "sun": st, "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2), "quality": quality,
        "resolution": [s.render.resolution_x * s.render.resolution_percentage // 100, s.render.resolution_y * s.render.resolution_percentage // 100],
        "samples": c.samples, "seconds": round(sec, 1)}
+# image direction of cast shadows: a 100 m ground step away from the sun at the pitch centre (0 = right, ccw)
+from bpy_extras.object_utils import world_to_camera_view
+g0 = Vector((0, 0, m["frame"]["site_pad_y"])); g1 = g0 + 100 * Vector((-math.sin(math.radians(az)), -math.cos(math.radians(az)), 0))
+p0, p1 = (world_to_camera_view(s, s.camera, g) for g in (g0, g1))
+rec["shadow_image_deg"] = round(math.degrees(math.atan2((p1.y - p0.y) * s.render.resolution_y, (p1.x - p0.x) * s.render.resolution_x)), 1)
 print(json.dumps(rec))
 log = out / "render_log.jsonl"
 with open(log, "a") as f: f.write(json.dumps(rec) + "\n")

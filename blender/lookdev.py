@@ -22,6 +22,17 @@ STRENGTHS = {
     "haze_night": 0.055,  # Maximum distant night sky blend.
     "mist_start": 150.0,  # Clear foreground distance in meters.
     "mist_depth": 6000.0,  # Distance to full aerial perspective in meters.
+    # Pass 1 aerial haze and golden grade, used when an HDRI preset set scene["talanta_haze_rgb"] (sky_hdri.py)
+    "aerial_haze_max": 0.55,  # Haze blend at full mist depth; forest, racecourse and hills layer into it.
+    "aerial_mist_start": 200.0,  # Clear foreground distance in meters.
+    "aerial_mist_depth": 20000.0,  # Linear mist depth; the Ngong Hills ridge (about 18 km) reaches about 0.5.
+    "aerial_gamma": 0.7,  # Haze = max x mist^gamma: faster build-up over the first few kilometres.
+    "aerial_blue": 0.25,  # Pull of the haze colour toward a cool blue-grey (0.58, 0.66, 0.78), keeping its brightness.
+    "grade_saturation": 1.12,  # Richer greens and warm earth; applied before the view transform.
+    "grade_warm": (1.05, 1.0, 0.93),  # Warm gain on mid-tones and highlights.
+    "grade_warm_rise": (0.03, 0.18),  # Display-equivalent luminance where the warm gain fades in.
+    "grade_warm_fall": (0.55, 1.4),  # ...and fades out again, so the white roof stays neutral.
+    "grade_look": "AgX - High Contrast",  # More contrast than the default Medium High Contrast.
     "glare": 0.035,  # Fog-glow blend with the original image.
     "glare_threshold": 2.0,  # Linear brightness threshold for highlights.
     "vignette": 0.055,  # Maximum smooth corner darkening.
@@ -195,6 +206,34 @@ def _cameras(scene):
         camera.dof.aperture_fstop = STRENGTHS["f_stop"]
 
 
+def _aerial_grade(scene, tree, render, source, layer):
+    """Depth haze toward the HDRI horizon colour, then saturation and a warm mid-tone gain (Visualization)."""
+    layer.use_pass_z = True
+    scene.world.mist_settings.start = STRENGTHS["aerial_mist_start"]
+    scene.world.mist_settings.depth = STRENGTHS["aerial_mist_depth"]
+    rgb = list(scene["talanta_haze_rgb"])
+    lum = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
+    blue = (0.58, 0.66, 0.78); blue_l = 0.2126 * blue[0] + 0.7152 * blue[1] + 0.0722 * blue[2]
+    k = STRENGTHS["aerial_blue"]
+    tint = [(1 - k) * c + k * b * lum / blue_l for c, b in zip(rgb, blue)] + [1.0]
+    land = _math(tree, "LESS_THAN", render.outputs["Depth"], 1e8)  # the sky is not hazed twice
+    haze = _math(tree, "POWER", render.outputs["Mist"], STRENGTHS["aerial_gamma"])
+    haze = _math(tree, "MULTIPLY", _math(tree, "MULTIPLY", haze, STRENGTHS["aerial_haze_max"]), land)
+    image = _mix(tree, "MIX", haze, source, tint)
+    hs = tree.nodes.new("CompositorNodeHueSat")
+    tree.links.new(image, hs.inputs["Image"])
+    hs.inputs["Saturation"].default_value = STRENGTHS["grade_saturation"]
+    image = hs.outputs["Image"]
+    bw = tree.nodes.new("CompositorNodeRGBToBW")
+    tree.links.new(image, bw.inputs[0])
+    shown = _math(tree, "MULTIPLY", bw.outputs[0], 2 ** scene.view_settings.exposure)
+    (a0, a1), (b0, b1) = STRENGTHS["grade_warm_rise"], STRENGTHS["grade_warm_fall"]
+    rise = _math(tree, "MULTIPLY", _math(tree, "SUBTRACT", shown, a0), 1 / (a1 - a0), clamp=True)
+    fall = _math(tree, "MULTIPLY", _math(tree, "SUBTRACT", b1, shown), 1 / (b1 - b0), clamp=True)
+    warm = _mix(tree, "MULTIPLY", 1.0, image, (*STRENGTHS["grade_warm"], 1.0))
+    return _mix(tree, "MIX", _math(tree, "MULTIPLY", rise, fall), image, warm)
+
+
 def _compositor(scene, mode):
     modern = hasattr(scene, "compositing_node_group")
     if modern:
@@ -224,8 +263,12 @@ def _compositor(scene, mode):
     sky = next((n for n in scene.world.node_tree.nodes if n.type == "TEX_SKY"), None)
     low_sun = sky is not None and sky.sun_elevation < math.radians(20)
     tint = (0.018, 0.027, 0.055, 1) if mode == "night" else (0.55, 0.62, 0.72, 1) if low_sun else (0.46, 0.62, 0.82, 1)
-    haze = _math(tree, "MULTIPLY", render.outputs["Mist"], STRENGTHS["haze_" + mode])
-    image = _mix(tree, "MIX", haze, source, tint)
+    aerial = mode == "day" and scene.get("talanta_haze_rgb") is not None
+    if aerial:
+        image = _aerial_grade(scene, tree, render, source, layer)
+    else:
+        haze = _math(tree, "MULTIPLY", render.outputs["Mist"], STRENGTHS["haze_" + mode])
+        image = _mix(tree, "MIX", haze, source, tint)
     glare = tree.nodes.new("CompositorNodeGlare")
     if "Type" in glare.inputs:
         glare.inputs["Type"].default_value = "Fog Glow"
@@ -284,7 +327,7 @@ def apply_lookdev(scene, mode):
     if scene.get("talanta_lookdev"):
         return
     scene.view_settings.view_transform = "AgX"
-    scene.view_settings.look = "AgX - Medium High Contrast"
+    scene.view_settings.look = STRENGTHS["grade_look"] if scene.get("talanta_haze_rgb") is not None else "AgX - Medium High Contrast"
     _cameras(scene)
     _materials(scene)
     for ob in scene.objects:
