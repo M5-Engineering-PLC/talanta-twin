@@ -11,7 +11,8 @@ export function initLanding({ views, focus, state, stopTour, setTime, setEvent, 
   view.value = views.some((v) => v.id === 'lead06') ? 'lead06' : 'overview';
   view.onchange = () => { stopTour(); focus(view.value); };
   time.onchange = () => setTime(Number(time.value));
-  event.onchange = () => { stopTour(); setEvent(event.value); };
+  // The weather card lives in the full interface, so Weather opens it there.
+  event.onchange = () => { stopTour(); setEvent(event.value); if (event.value === 'weather') apply('full'); };
   $('landing-tour').onclick = startTour;
   let mode = 'landing';
   try { if (localStorage.getItem(storageKey) === 'full') mode = 'full'; } catch { /* Storage can be disabled. */ }
@@ -26,9 +27,9 @@ export function initLanding({ views, focus, state, stopTour, setTime, setEvent, 
     if (landing) {
       const selected = document.querySelector('#modes button.on');
       event.value = selected?.dataset.mode ?? 'venue';
-      time.value = String(state.minutes);
       // Keep the actual scene time visible when the full timeline uses another minute.
       for (const option of [...time.options]) if (option.dataset.custom) option.remove();
+      time.value = String(state.minutes);
       if (!time.value) {
         const minutes = Math.floor(state.minutes);
         const label = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
