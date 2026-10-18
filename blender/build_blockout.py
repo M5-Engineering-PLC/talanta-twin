@@ -488,7 +488,11 @@ hs = VO("bowl.shield.centre_y", None)
 if hs is not None:  # fitted shield centre: move the whole shield (height kept), limited so the tip stays under the
     # fascia line and the foot above the plinth; a clamp on the tip alone would shrink the shield and move its centre
     d_ = hs - (sy0 + sy1) / 2
-    d_ = max(min(d_, yF - 0.5 - sy1), plinthH + 0.2 - sy0)
+    lo_, hi_ = plinthH + 0.2 - sy0, yF - 0.5 - sy1
+    if lo_ > hi_:
+        raise ValueError(f"shield ({sy1 - sy0:.2f} m) does not fit between the plinth ({plinthH + 0.2:.2f} m) and the fascia "
+                         f"line ({yF - 0.5:.2f} m): no translation satisfies both bounds")
+    d_ = max(min(d_, hi_), lo_)
     sy0, sy1 = sy0 + d_, sy1 + d_
 bulge, soff = V("bowl.shield.bulge"), V("bowl.shield.offset")
 span, bl, br, srad = V("bowl.spear.span_shields"), V("bowl.spear.blade_len"), V("bowl.spear.blade_r"), V("bowl.spear.radius")
