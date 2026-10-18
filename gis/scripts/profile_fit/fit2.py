@@ -227,8 +227,17 @@ def solve_camera(fr, p, f0, free_f=True, seeds=None, top=8, f_fixed=None, preali
     fr.k = best[2]; return best[1]
 
 
+F_SCALE = 10.0  # px, robust scale of the image residuals (soft_l1)
+
+
+def soft_l1_cost(res, f=F_SCALE):
+    """least_squares soft_l1 cost of residuals res (px): sum f^2 (sqrt(1 + (r/f)^2) - 1)."""
+    return float(np.sum(f * f * (np.sqrt(1 + (np.asarray(res) / f) ** 2) - 1)))
+
+
 def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60):
-    """Profile + one focal length per lens + pose per frame."""
+    """Profile + one focal length per lens + pose per frame. The result carries r.cost_image (image residuals only,
+    soft_l1)."""
     lens_ids = sorted(set(lens[f.f] for f in frames))
     fvals = {L: np.mean([cams[f.f][6] for f in frames if lens[f.f] == L]) for L in lens_ids}
     kvals = {L: np.mean([cams[f.f][8] if len(cams[f.f]) > 8 else 0.0 for f in frames if lens[f.f] == L]) for L in lens_ids}
@@ -249,15 +258,20 @@ def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60):
             out.append(np.r_[np.insert(c, 6, v[n_p + lens_index[i]]), v[n_p + n_l + lens_index[i]]])
         return p, out
 
-    def fun(v):
+    def image_res(v):
         if fixed_profile: v = np.r_[x0, v[n_p:]]
         p, cs = unpack(v)
         res = [pad(residuals(f, p, c), n) for f, c, n in zip(frames, cs, sizes)]
         top = p["yW"] + p["Rv"]
         res.append([5.0 * max(0.0, top - (PRESS_MAX + 2.0))])
-        return np.concatenate(res)
+        return np.concatenate(res), top
 
-    r = least_squares(fun, np.clip(v0, lo + 1e-6, hi - 1e-6), bounds=(lo, hi), loss="soft_l1", f_scale=10, max_nfev=nfev, x_scale="jac")
+    def fun(v): return image_res(v)[0]
+
+    x_0 = np.clip(v0, lo + 1e-6, hi - 1e-6)
+    r = least_squares(fun, x_0, bounds=(lo, hi), loss="soft_l1", f_scale=F_SCALE, max_nfev=nfev, x_scale="jac")
+    r_img, top = image_res(r.x)
+    r.cost_image = soft_l1_cost(r_img[:-1]); r.prior_penalty = 0.0
     p, cs = unpack(r.x)
     return r.x[:n_p], {f.f: c for f, c in zip(frames, cs)}, {L: [r.x[n_p + i], r.x[n_p + n_l + i]] for i, L in enumerate(lens_ids)}, r
 
@@ -338,6 +352,85 @@ if __name__ == "__main__":
         print("spread (max - min over leave-one-out)", {k: round(v, 2) for k, v in spread.items()}, flush=True)
 
 
+# ---- acceptance rule (geometry pass 2 review): a parameter is accepted only when max(basin spread, leave-one-out
+# spread) < ACCEPT_M. Basins are all multistart solutions whose image-only cost is within BASIN_TOL of the best.
+ACCEPT_M, BASIN_TOL = 2.0, 0.04
+EXCLUDED = ["001232.600"]  # no camera could be matched (geometry pass 1)
+SPREAD_KEYS = KEYS + ["crest"]
+
+
+def with_crest(p): p = dict(p); p["crest"] = p["yW"] + p["Rv"]; return p
+
+
+def basins(solutions, tol=BASIN_TOL):
+    """Indices of the solutions (dicts with "cost_image") within tol of the best image-only cost."""
+    best = min(s["cost_image"] for s in solutions)
+    return [i for i, s in enumerate(solutions) if s["cost_image"] <= best * (1 + tol)]
+
+
+def acceptance(basin_profiles, loo_profiles, keys=SPREAD_KEYS, limit=ACCEPT_M):
+    out = {}
+    for k in keys:
+        sb = float(np.ptp([p[k] for p in basin_profiles])); sl = float(np.ptp([p[k] for p in loo_profiles]))
+        out[k] = {"basin_spread": sb, "loo_spread": sl, "combined": max(sb, sl), "accepted": max(sb, sl) < limit,
+                  "median": float(np.median([p[k] for p in basin_profiles]))}
+    return out
+
+
+_G = {}
+
+
+def _init(work, state_path): _G["work"] = work; _G["st"] = json.load(open(state_path))
+
+
+def _frames(drop=None):
+    st = _G["st"]; fr_ = [Frame(_G["work"], f) for f in FRAMES if f not in EXCLUDED and f != drop]
+    for fr in fr_: fr.k = st["final"]["k"][fr.f] if "k" in st["final"] else st["k"][fr.f]
+    return fr_
+
+
+def _pack(x, c2, fl, r, frames):
+    return {"profile": with_crest(dict(zip(KEYS, map(float, x)))), "cams": {f: list(map(float, c)) for f, c in c2.items()},
+            "focal": {k: list(map(float, v)) for k, v in fl.items()}, "cost_total": float(r.cost), "cost_image": r.cost_image,
+            "prior_penalty": r.prior_penalty, "per_frame": report(frames, prof(x), c2), "k": {fr.f: fr.k for fr in frames}}
+
+
+def _ms_worker(a):
+    (yw, dri), prior = a; st = _G["st"]; B = st["final"]; frames = _frames()
+    x0 = np.array([B["profile"].get(k, 0.0) for k in KEYS]); x0[0] = yw; x0[KEYS.index("dRi")] = dri
+    x, c2, fl, r = joint(frames, {f: np.array(c) for f, c in B["cams"].items()}, st["lens"], x0, nfev=80)
+    d = _pack(x, c2, fl, r, frames); d["start"] = [yw, dri]; return d
+
+
+def _loo_worker(a):
+    drop, best, prior = a; frames = _frames(drop)
+    x0 = np.array([best["profile"][k] for k in KEYS])
+    x, c2, fl, r = joint(frames, {f: np.array(c) for f, c in best["cams"].items()}, _G["st"]["lens"], x0, nfev=60 if drop else 100)
+    d = _pack(x, c2, fl, r, frames); d["drop"] = drop; return d
+
+
+def robust(work, state_path, tag, starts, prior):
+    """Multistart, basins, leave-one-out from the best basin, acceptance; written to state[tag]."""
+    from multiprocessing import Pool
+    t0 = time.time()
+    with Pool(3, _init, (work, state_path)) as pool:
+        ms = pool.map(_ms_worker, [(s, prior) for s in starts])
+        for s in ms: print("start", s["start"], "image cost %.0f prior %.0f" % (s["cost_image"], s["prior_penalty"]),
+                           {k: round(v, 2) for k, v in s["profile"].items()}, flush=True)
+        bi = basins(ms); best = min((ms[i] for i in bi), key=lambda s: s["cost_image"] + s["prior_penalty"])
+        print("basins (image cost within %d %% of the best):" % (100 * BASIN_TOL), [ms[i]["start"] for i in bi], flush=True)
+        lo_ = pool.map(_loo_worker, [(d, best, prior) for d in [None] + [f for f in FRAMES if f not in EXCLUDED]])
+    final = lo_[0]; loo = {d["drop"]: d["profile"] for d in lo_[1:]}
+    for f, p in loo.items(): print("without", f, {k: round(v, 2) for k, v in p.items()}, flush=True)
+    acc = acceptance([ms[i]["profile"] for i in bi], list(loo.values()))
+    st = json.load(open(state_path))
+    st[tag] = {"prior": prior, "starts": starts, "multistart": ms, "basins": bi, "final": final, "loo": loo, "acceptance": acc,
+               "excluded": EXCLUDED, "seconds": round(time.time() - t0)}
+    json.dump(st, open(state_path, "w"), indent=1)
+    for k, v in acc.items(): print("%-6s basin %.2f loo %.2f -> %s (median %.2f)" % (k, v["basin_spread"], v["loo_spread"], "ACCEPT" if v["accepted"] else "reject", v["median"]), flush=True)
+    return st[tag]
+
+
 def overlay(work, frames, p, cams, tag):
     """Fitted outline (cyan), junction ring (magenta), crest (yellow), foot (orange), opening (green), model
     shields (red rings) and hand-read points (white dots) on every frame."""
@@ -362,6 +455,11 @@ def overlay(work, frames, p, cams, tag):
     for k, t in enumerate(tiles): sh.paste(t, ((k % 3) * 640, (k // 3) * 360))
     sh.save(f"{work}/overlay_{tag}.jpg", quality=85)
 
+
+if __name__ == "__main__" and "robust" in sys.argv:
+    # python3 fit2.py <work> robust <tag>: 3 starts (wall top 40, 46, 51 m; dRi 3, 5, 1 m as in pass 2)
+    tag = sys.argv[sys.argv.index("robust") + 1]
+    robust(WORK, f"{WORK}/fit2_state.json", tag, [[40.0, 3.0], [46.0, 5.0], [51.0, 1.0]], None)
 
 if __name__ == "__main__" and "overlay" in sys.argv:
     st = json.load(open(f"{WORK}/fit2_state.json")); key = sys.argv[sys.argv.index("overlay") + 1]
