@@ -44,6 +44,7 @@ def load_cameras(scene, path, collection_name="critic_cameras", extra=None):
             q = q @ Quaternion((0, 0, 1), math.radians(c["roll_deg"]))
         ob.rotation_euler = q.to_euler()
         ob["purpose"], ob["seed"], ob["sun"] = c["purpose"], c["seed"], json.dumps(c["sun"])
+        if "exposure_ev" in c: ob["exposure_ev"] = c["exposure_ev"]  # per-camera offset (hand-held auto exposure)
         out[c["id"]] = ob
     return m, out
 

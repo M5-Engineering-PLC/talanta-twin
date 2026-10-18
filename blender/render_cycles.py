@@ -94,6 +94,7 @@ if sun_key in sky_hdri.PRESETS:
     bpy.context.view_layer.update()  # camera matrices are stale until the view layer is evaluated
     fwd = s.camera.matrix_world.to_3x3() @ Vector((0, 0, -1))
     s["talanta_haze_rgb"] = sky_log["haze_rgb"] = sky_hdri.horizon_rgb(s, math.degrees(math.atan2(fwd.y, fwd.x)))
+s.view_settings.exposure += s.camera.get("exposure_ev", 0.0)
 c = s.cycles
 c.device = "CPU"; c.samples = m["cycles"]["hero" if quality == "hero" else "look_check"]["samples"]
 if quality == "preview": c.samples = 8; s.render.resolution_percentage = 25

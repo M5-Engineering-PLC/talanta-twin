@@ -1,0 +1,10 @@
+category,weight,score,note
+geometry,30,3,"tier order, seat mosaics, box band, glass balustrade and the roof lattice with the catwalk ring read in C30, C33, C34; C32 is wrong (a column fills the centre and a black slab the bottom: the camera sits outside the concourse ceiling); C35 is too close to the colonnade columns; the concourse ceiling services in 002144.300 are only simple ducts"
+materials,15,3,"seat tones close by eye (lower mint, middle red and salmon, upper maroon); grass is pale and flat against the striped turf in 000945.200 (b* -0.8 against +29 over the whole view); concrete floors too blue"
+lighting,15,2,"mean L* now within 5 of the frames in C30, C31, C34, C35 after the +1 EV offset; all views still cool (b* -6 to -12 against +2 to +10); roof underside reads bright white where the frames show a dark backlit membrane (C33 L* 58 against 21, top third of C32 and C34 26 to 52 L* high); no floodlights lit"
+atmosphere,5,3,"interior: little haze needed; no glare or bloom under the membrane"
+vegetation,10,2,"pitch grass only: no mowing stripes at this eye height, too pale"
+people,10,n/a,"not built; people in the frames are left out. Any added later are labelled Visualization"
+camera,5,2.5,"matched by eye (5 of 6 frames have no pitch lines); C30 sits too high (frame is near ground level, mostly grass); C31 and C34 close; C32 and C35 need new poses"
+process,10,4,"cameras scripted (make_interior_cameras.py), metrics and sheets scripted (interior_metrics.py), seeded check renders with timings in render_log.jsonl, ledger rows per IT item"
+total,,56.1,"weighted over the observed categories (90%): 252.5 / 450"

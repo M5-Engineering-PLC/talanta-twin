@@ -25,10 +25,12 @@
    "focal_length_mm": 26,
    "roll_deg": 0.0,
    "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
    "sun": {
     "date": "2026-01-15",
-    "time_eat": "11:00",
-    "kind": "overcast"
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
    },
    "variants": [],
    "seed": 30
@@ -57,10 +59,12 @@
    "focal_length_mm": 24,
    "roll_deg": 0.0,
    "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
    "sun": {
     "date": "2026-01-15",
-    "time_eat": "11:00",
-    "kind": "overcast"
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
    },
    "variants": [],
    "seed": 31
@@ -89,10 +93,12 @@
    "focal_length_mm": 24,
    "roll_deg": 0.0,
    "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
    "sun": {
     "date": "2026-01-15",
-    "time_eat": "11:00",
-    "kind": "overcast"
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
    },
    "variants": [],
    "seed": 32
@@ -121,10 +127,12 @@
    "focal_length_mm": 30,
    "roll_deg": -12.0,
    "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
    "sun": {
     "date": "2026-01-15",
-    "time_eat": "11:00",
-    "kind": "overcast"
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
    },
    "variants": [],
    "seed": 33
@@ -153,10 +161,12 @@
    "focal_length_mm": 22,
    "roll_deg": 0.0,
    "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
    "sun": {
     "date": "2026-01-15",
-    "time_eat": "11:00",
-    "kind": "overcast"
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
    },
    "variants": [],
    "seed": 34
@@ -185,10 +195,12 @@
    "focal_length_mm": 22,
    "roll_deg": 0.0,
    "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
    "sun": {
     "date": "2026-01-15",
-    "time_eat": "11:00",
-    "kind": "overcast"
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
    },
    "variants": [],
    "seed": 35

@@ -43,7 +43,8 @@ out = {"note": "Interior pass cameras (detail sheet 05). Render viewpoints for r
        "cameras": [{"id": c, "name": f"Interior {fr}", "purpose": f"match tour frame JWNowpO44rw {fr}: {pur}; internal only",
                     "frame": f"research/frames/JWNowpO44rw/JWNowpO44rw_{fr}.jpg", "position": pos, "target": tgt, "up": [0, 1, 0],
                     "projection": "perspective", "focal_length_mm": f, "roll_deg": roll, "dof": False,
-                    "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "variants": [], "seed": 30 + k}
+                    "exposure_ev": 1.0, "exposure_note": "the tour frames are hand-held with auto exposure",
+                    "sun": {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, "variants": [], "seed": 30 + k}
                    for k, (c, fr, pur, pos, tgt, f, roll) in enumerate(CAMS)]}
 (ROOT / "blender/data/interior_cameras.json").write_text(json.dumps(out, indent=1) + "\n")
 print("\n".join(f"{c['id']} {c['position']} -> {c['target']} {c['focal_length_mm']} mm" for c in out["cameras"]))

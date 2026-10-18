@@ -1,0 +1,37 @@
+camera,metric,render,frame,difference
+C30,band:all,L 59.0 a -8.0 b -0.8 sdL 22.3 edges 0.164,L 54.4 a -17.0 b 29.1 sdL 17.5 edges 0.348,dE76 31.6 dL 4.6 dEdges -0.184
+C30,band:top,L 50.6 a 7.4 b -9.2 sdL 20.9 edges 0.342,L 51.0 a 2.6 b -0.6 sdL 26.1 edges 0.518,dE76 9.9 dL -0.4 dEdges -0.176
+C30,band:middle,L 50.8 a -14.3 b -5.8 sdL 25.3 edges 0.145,L 59.7 a -27.5 b 45.6 sdL 9.8 edges 0.102,dE76 53.9 dL -8.9 dEdges +0.043
+C30,band:bottom,L 75.5 a -17.2 b 12.7 sdL 2.6 edges 0.004,L 52.5 a -26.0 b 42.4 sdL 10.3 edges 0.425,dE76 38.6 dL 23.1 dEdges -0.421
+C30,highlight clipping (share >= 250),0.0000,0.0080,-0.0080
+C30,render time (s),320,,
+C31,band:all,L 31.6 a -0.4 b -11.8 sdL 22.9 edges 0.145,L 32.9 a -3.5 b -1.9 sdL 22.9 edges 0.094,dE76 10.5 dL -1.3 dEdges +0.051
+C31,band:top,L 32.1 a 3.1 b -6.6 sdL 27.4 edges 0.236,L 20.1 a -5.9 b 0.7 sdL 14.2 edges 0.033,dE76 16.6 dL 12.0 dEdges +0.203
+C31,band:middle,L 27.0 a -2.0 b -11.8 sdL 20.9 edges 0.190,L 45.8 a -1.1 b -3.0 sdL 24.8 edges 0.191,dE76 20.8 dL -18.8 dEdges -0.001
+C31,band:bottom,L 35.7 a -2.1 b -17.1 sdL 18.4 edges 0.010,L 32.8 a -3.4 b -3.3 sdL 20.7 edges 0.057,dE76 14.1 dL 3.0 dEdges -0.048
+C31,highlight clipping (share >= 250),0.0000,0.0143,-0.0143
+C31,render time (s),214,,
+C32,band:all,L 46.6 a -1.4 b -6.5 sdL 34.0 edges 0.188,L 38.0 a -1.6 b 1.9 sdL 24.9 edges 0.076,dE76 12.0 dL 8.6 dEdges +0.113
+C32,band:top,L 79.4 a -1.4 b -6.6 sdL 20.5 edges 0.202,L 27.3 a -2.3 b 1.4 sdL 11.2 edges 0.023,dE76 52.7 dL 52.1 dEdges +0.179
+C32,band:middle,L 37.2 a 2.6 b -8.4 sdL 20.0 edges 0.315,L 51.6 a -1.6 b 4.6 sdL 31.7 edges 0.164,dE76 19.9 dL -14.4 dEdges +0.151
+C32,band:bottom,L 23.1 a -5.3 b -4.4 sdL 30.4 edges 0.048,L 35.1 a -0.9 b -0.4 sdL 20.6 edges 0.040,dE76 13.4 dL -12.0 dEdges +0.008
+C32,highlight clipping (share >= 250),0.1333,0.0216,+0.1117
+C32,render time (s),191,,
+C33,band:all,L 57.9 a 1.5 b -7.2 sdL 27.7 edges 0.296,L 21.1 a -2.5 b -2.1 sdL 14.9 edges 0.108,dE76 37.4 dL 36.9 dEdges +0.188
+C33,band:top,L 77.4 a -1.8 b -5.9 sdL 16.5 edges 0.186,L 23.2 a -2.1 b -4.1 sdL 16.5 edges 0.119,dE76 54.2 dL 54.2 dEdges +0.067
+C33,band:middle,L 60.6 a 2.7 b -6.8 sdL 27.1 edges 0.376,L 23.8 a -3.1 b -1.2 sdL 16.1 edges 0.100,dE76 37.7 dL 36.9 dEdges +0.275
+C33,band:bottom,L 35.8 a 3.7 b -8.8 sdL 20.5 edges 0.325,L 16.2 a -2.3 b -0.9 sdL 10.0 edges 0.104,dE76 21.9 dL 19.5 dEdges +0.222
+C33,highlight clipping (share >= 250),0.0293,0.0054,+0.0239
+C33,render time (s),230,,
+C34,band:all,L 54.2 a 1.0 b -5.6 sdL 29.8 edges 0.276,L 57.9 a -4.4 b 6.7 sdL 22.2 edges 0.138,dE76 14.0 dL -3.7 dEdges +0.138
+C34,band:top,L 80.2 a -1.5 b -5.8 sdL 19.0 edges 0.208,L 54.3 a 1.7 b 0.6 sdL 20.5 edges 0.216,dE76 26.9 dL 26.0 dEdges -0.008
+C34,band:middle,L 38.3 a 10.0 b -6.9 sdL 21.9 edges 0.425,L 60.2 a -5.2 b 7.5 sdL 21.5 edges 0.141,dE76 30.3 dL -21.9 dEdges +0.284
+C34,band:bottom,L 44.0 a -5.4 b -4.1 sdL 28.1 edges 0.195,L 59.0 a -9.8 b 12.1 sdL 24.0 edges 0.056,dE76 22.6 dL -15.0 dEdges +0.138
+C34,highlight clipping (share >= 250),0.1121,0.0052,+0.1069
+C34,render time (s),216,,
+C35,band:all,L 57.6 a 0.6 b -8.0 sdL 22.6 edges 0.179,L 54.5 a 0.5 b 10.2 sdL 23.9 edges 0.214,dE76 18.5 dL 3.1 dEdges -0.035
+C35,band:top,L 72.3 a -1.7 b -7.0 sdL 13.8 edges 0.193,L 69.6 a -1.6 b 4.1 sdL 18.9 edges 0.202,dE76 11.4 dL 2.7 dEdges -0.009
+C35,band:middle,L 48.5 a 4.1 b -7.8 sdL 22.3 edges 0.220,L 51.3 a 2.0 b 6.0 sdL 23.1 edges 0.289,dE76 14.2 dL -2.8 dEdges -0.069
+C35,band:bottom,L 52.1 a -0.7 b -9.3 sdL 22.8 edges 0.124,L 42.5 a 1.1 b 20.6 sdL 20.8 edges 0.149,dE76 31.4 dL 9.5 dEdges -0.025
+C35,highlight clipping (share >= 250),0.0000,0.0034,-0.0034
+C35,render time (s),246,,

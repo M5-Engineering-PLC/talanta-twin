@@ -19,7 +19,7 @@ def main(pdir):
     log = {json.loads(l)["camera"]: json.loads(l) for l in (pdir / "render_log.jsonl").read_text().splitlines()}
     rows = []
     for c in cams:
-        rp = pdir / f"{c['id']}_overcast_check.png"
+        rp = pdir / f"{c['id']}_neutral_check.png"
         if not rp.exists(): continue
         r, f = load(rp), load(ROOT / c["frame"]); rl, fl = lab(r), lab(f); re_, fe = edges(rl[..., 0]), edges(fl[..., 0])
         for n, b in BANDS.items():
