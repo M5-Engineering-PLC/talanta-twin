@@ -12,8 +12,13 @@ def to_blender(p):
     return Vector((p[0], -p[2], p[1]))
 
 
-def load_cameras(scene, path, collection_name="critic_cameras"):
+def load_cameras(scene, path, collection_name="critic_cameras", extra=None):
+    """extra: an optional JSON file with more cameras in the manifest format (interior pass C30-C35 in
+    blender/data/interior_cameras.json, kept out of the app manifest); an optional "roll_deg" turns the camera
+    about its view axis (hand-held frames)."""
     m = json.load(open(path))
+    if extra is not None and __import__("os").path.exists(extra):
+        m = dict(m); m["cameras"] = m["cameras"] + json.load(open(extra))["cameras"]
     col = bpy.data.collections.get(collection_name) or bpy.data.collections.new(collection_name)
     if col.name not in scene.collection.children:
         scene.collection.children.link(col)
@@ -33,7 +38,11 @@ def load_cameras(scene, path, collection_name="critic_cameras"):
         col.objects.link(ob)
         pos, tgt = to_blender(c["position"]), to_blender(c["target"])
         ob.location = pos
-        ob.rotation_euler = (tgt - pos).to_track_quat("-Z", "Y").to_euler()
+        q = (tgt - pos).to_track_quat("-Z", "Y")
+        if c.get("roll_deg"):
+            from mathutils import Quaternion
+            q = q @ Quaternion((0, 0, 1), math.radians(c["roll_deg"]))
+        ob.rotation_euler = q.to_euler()
         ob["purpose"], ob["seed"], ob["sun"] = c["purpose"], c["seed"], json.dumps(c["sun"])
         out[c["id"]] = ob
     return m, out

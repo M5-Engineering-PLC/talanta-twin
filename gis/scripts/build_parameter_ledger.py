@@ -373,6 +373,33 @@ add("bowl.roof.cushion_bays", 30, "count", "JWNowpO44rw 001221.500, 001224.500",
 add("bowl.roof.cushion_rows", 8, "count", "JWNowpO44rw 001232.600, 001235.934", "2026-10-18", "by eye: cushion rows from the rim to the opening in the front bays", "+-1", "estimated (frames 001232.600, 001235.934)", "blender/build_blockout.py roof")
 add("bowl.roof.cushion_bulge", 0.45, "m", "JWNowpO44rw 001232.600, 001235.934", "2026-10-18", "by eye: highlight and shadow per cushion", "+-0.2 m", "estimated (frames 001232.600, 001235.934)", "blender/build_blockout.py roof")
 
+
+# ---- interior pass (detail sheet 05_interior_tour.md, IT01-IT13; cloud session 2026-10-18). Sheet 05 wins over 02 (BS).
+IT = "blender/build_bowl_detail.py F. interior tour"
+def itr(n, v, u, frames, method, unc, status=None, note=""):
+    add(n, v, u, "JWNowpO44rw " + frames, "2026-10-18", method, unc, status or f"estimated (frames {frames})", IT, note)
+itr("bowl.seat.lower_tones", "#3EA98A;#5CBF9F;#2F8F74", "hex", "000945.200, 002144.300", "by eye with k-means of the seat colours, saturated for haze: mint turquoise", "", note="IT01, IT05")
+itr("bowl.seat.lower_tone_weights", "0.5;0.3;0.2", "share", "000945.200", "by eye", "+-0.1")
+itr("bowl.seat.middle_tones", "#C4283A;#D95C68;#E58A98", "hex", "000945.200, 002144.300", "by eye with k-means: red, salmon, pink mosaic", "", note="IT02; green flecks kept (bowl.seat.mix_middle_green), denser in the lower rows")
+itr("bowl.seat.middle_tone_weights", "0.5;0.3;0.2", "share", "000945.200", "by eye", "+-0.1")
+itr("bowl.seat.upper_tones", "#7A1F2C;#A8283A;#C98A92", "hex", "000945.200, 002320.200", "by eye with k-means: maroon and red with lighter seats", "", note="IT03")
+itr("bowl.seat.upper_tone_weights", "0.4;0.4;0.2", "share", "000945.200", "by eye", "+-0.1")
+itr("bowl.tier_middle.rows_blockout", 12, "count", "000945.200, 002144.300", "rows counted on both frames (12 and 12)", "+-1", "derived (2 frames)", "overrides bowl.tier_middle.rows (13) in the Blender build")
+itr("bowl.portals.upper_per_aisle", 1, "count", "000945.200, 002320.200", "one portal at the foot of every upper-tier aisle", "+-0", note="IT03 generic openings; no signage")
+itr("bowl.portals.middle_every", 2, "aisles", "000945.200, 002144.300", "dark openings at the top of the middle tier at every other aisle", "+-1")
+itr("bowl.portals.width", 2.4, "m", "000945.200", "by eye against the aisle width", "+-0.5 m")
+itr("bowl.portals.height", 2.4, "m", "000945.200", "by eye against the row height", "+-0.5 m")
+itr("bowl.portals.panel_hex", "#8C97A6", "hex", "000945.200", "by eye: pale blue-grey panel; text not copied", "")
+itr("bowl.boxband.bays_per_aisle", 2, "count", "000945.200", "two glazed bays per upper-tier aisle block", "+-1", note="IT04")
+itr("bowl.concourse.floor_hex", "#8A8C8E", "hex", "002144.300", "by eye: grey concrete floor", "", note="IT13")
+itr("bowl.concourse.back_hex", "#3A3D40", "hex", "002144.300", "by eye: dark back of the concourse", "", note="IT13")
+itr("bowl.concourse.depth", 10.0, "m", "002144.300, 000735.433", "by eye: open floor from the top row of the lower tier back to the column row under the middle tier", "+-3 m", note="IT13")
+itr("bowl.band.vip_glass_y0_blockout", 12.8, "m", "002144.300", "the concourse floor runs onto the top row: a low kerb, not a 2 m wall", "+-0.3 m", note="IT13; overrides bowl.band.vip_glass_y0 (14.5) in the Blender build")
+itr("bowl.balustrade.h", 1.1, "m", "002320.200", "by eye against the standing figure", "+-0.2 m", note="IT08")
+itr("bowl.led_ribbon.h", 0.9, "m", "001940.267", "by eye", "+-0.3 m", note="IT07, matchday only")
+itr("bowl.led_ribbon.strength", 2.5, "W/m2 (emission)", "001940.267", "look value", "", note="Visualization")
+itr("bowl.floodlights.per_bay", 4, "count", "000154.067", "LED heads between neighbouring primary trusses on the catwalk", "+-1", note="IT11")
+
 out = ROOT / "gis/parameter_ledger.csv"
 with open(out, "w", newline="") as f:
     w = csv.DictWriter(f, COLS, lineterminator="\n"); w.writeheader(); w.writerows(rows)

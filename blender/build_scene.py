@@ -109,7 +109,8 @@ PBR = {
 mm = PBR["membrane"]; mn, ml = mm.node_tree.nodes, mm.node_tree.links
 mco = mn.new("ShaderNodeTexCoord"); msx = mn.new("ShaderNodeSeparateXYZ"); ml.new(mco.outputs["Object"], msx.inputs[0])
 ang = mn.new("ShaderNodeMath"); ang.operation = "ARCTAN2"; ml.new(msx.outputs["Y"], ang.inputs[0]); ml.new(msx.outputs["X"], ang.inputs[1])
-NRIB = float([r for r in __import__("csv").DictReader(open(ROOT / "gis/parameter_ledger.csv")) if r["name"] == "bowl.roof.ribs"][0]["value"])
+_LR = {r["name"]: r["value"] for r in __import__("csv").DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
+NRIB = float(_LR.get("bowl.roof.cushion_bays", _LR["bowl.roof.ribs"]))  # seams at the topside ribs (cushion bays)
 pa = mn.new("ShaderNodeMath"); pa.operation = "MULTIPLY"; pa.inputs[1].default_value = NRIB / (2 * math.pi); ml.new(ang.outputs[0], pa.inputs[0])
 fr = mn.new("ShaderNodeMath"); fr.operation = "FRACT"; ml.new(pa.outputs[0], fr.inputs[0])
 sd = mn.new("ShaderNodeMath"); sd.operation = "SUBTRACT"; sd.inputs[1].default_value = 0.5; ml.new(fr.outputs[0], sd.inputs[0])

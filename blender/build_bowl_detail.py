@@ -10,7 +10,8 @@ Opens blender/out/talanta_blockout.blend and the rings it wrote (blender/out/bow
 Saves blender/out/talanta_detail.blend (build_scene.py opens it). The web glTF stays the light blockout.
 Sizes and colours: ledger rows bowl.seat.*, bowl.aisle.*, bowl.tread.*, pitch.* (estimated, by eye from the
 named JWNowpO44rw frames; markings from the Laws of the Game). Frames are references only (AGENTS.md rule 2).
-No exits, vomitories or other security detail (AGENTS.md rule 8).
+No exit signs, routing, control rooms, CCTV, access control or gate hardware (AGENTS.md rule 8). The interior pass (IT03)
+adds generic portal openings with blank panels as seen in the tour frames; they carry no signage or egress meaning.
 Run from the repo root: ~/.venvs/bpy/bin/python blender/build_bowl_detail.py
 """
 import csv, json, math
@@ -112,6 +113,11 @@ def angdist(a, b):
 pitch_s = V("bowl.seat_pitch")
 P, ROT, COL = [], [], []
 cols = {"g": srgb(L["bowl.seat.green_hex"]["value"]), "r": srgb(L["bowl.seat.red_hex"]["value"]), "d": srgb(L["bowl.seat.dark_hex"]["value"])}
+TONES, TONE_W = {}, {}
+for tn_ in ("lower", "middle", "upper"):
+    hx = L[f"bowl.seat.{tn_}_tones"]["value"].split(";"); TONES[tn_] = np.array([f"{tn_}{j}" for j in range(len(hx))])
+    TONE_W[tn_] = np.array([float(w) for w in L[f"bowl.seat.{tn_}_tone_weights"]["value"].split(";")])
+    for j, h in enumerate(hx): cols[f"{tn_}{j}"] = srgb(h)
 sv, sf, rails = [], [], []
 for tn in ("lower", "middle", "upper"):
     t0, t1, y0, y1, rows = (V(f"bowl.tier_{tn}.{k}") for k in ("t0", "t1", "y0", "y1", "rows")); rows = int(rows)
@@ -125,9 +131,12 @@ for tn in ("lower", "middle", "upper"):
         gap = np.min(angdist(th[idx][:, None], ais_th[None, :]), axis=1) * r_row
         idx = idx[gap > half_aisle + pitch_s / 2]
         f = k / max(rows - 1, 1); u = rng.random(len(idx))
-        if tn == "lower": c = np.where(u < V("bowl.seat.mix_lower_red_top") * np.clip((f - 0.6) / 0.4, 0, 1), "r", "g")
-        elif tn == "middle": c = np.where(u < V("bowl.seat.mix_middle_green"), "g", "r")
-        else: c = np.where(u < 0.12 + (V("bowl.seat.mix_upper_dark_top") - 0.12) * f * f, "d", "r")
+        # IT01-IT03, IT05 (detail sheet 05, frames 000945.200, 002144.300): three seeded tones per tier; the middle tier
+        # keeps the green flecks (002144.300 confirms them), denser in its lower rows
+        tone = TONES[tn][np.searchsorted(np.cumsum(TONE_W[tn]), rng.random(len(idx)) * 0.9999)]
+        if tn == "lower": c = np.where(u < V("bowl.seat.mix_lower_red_top") * np.clip((f - 0.6) / 0.4, 0, 1), "r", tone)
+        elif tn == "middle": c = np.where(u < V("bowl.seat.mix_middle_green") * 2 * (1 - f), "g", tone)
+        else: c = tone
         for q, cc in zip(idx, c):
             nx, nz = -x[q], -z[q]; n = math.hypot(nx, nz)  # face the bowl centre
             P.append(B(x[q], ya, z[q])); ROT.append((0.0, 0.0, math.atan2(-nz / n, nx / n) - math.pi / 2)); COL.append((*cols[cc], 1.0))
@@ -313,7 +322,7 @@ hang = [[surf(2 * math.pi * (k + 0.5) / KR, jc, cd), surf(2 * math.pi * (k + 0.5
 tube_obj("catwalk_hangers", "roof_detail", [[(x, y, z) for x, y, z in h] for h in hang], 0.05, STEEL, "estimated", SRC_ROOF)
 fv, ff = [], []
 length = sum(math.dist(ring_c[i], ring_c[(i + 1) % (2 * N)]) for i in range(2 * N))
-nfl = int(length / V("bowl.floodlights.spacing"))
+nfl = KR * int(V("bowl.floodlights.per_bay")) if "bowl.floodlights.per_bay" in L else int(length / V("bowl.floodlights.spacing"))
 for q in range(nfl):
     th = 2 * math.pi * q / nfl; x, y, z = surf(th, jc, cd + 0.4)
     ux, uy = math.cos(th), -math.sin(th); tx, ty = -uy, ux; cx, cy = x - ux * (cw + 0.3), y - uy * (cw + 0.3)
@@ -345,8 +354,15 @@ def columns(name, r_fn, y0, y1_fn, spacing, r, sources):
 
 
 tm0 = V("bowl.tier_middle.t0") - 0.012
-columns("vip_columns", lambda i: at(i, tm0), V("bowl.tier_lower.y1"), lambda i: V("bowl.band.vip_glass_y1"), V("bowl.vip.column_spacing"), V("bowl.vip.column_r"),
-        "ledger bowl.vip.*, bowl.band.* (estimated, by eye from JWNowpO44rw 09:12)")
+# IT13 (002144.300; sheet 05 wins over BS18): the concourse runs bowl.concourse.depth m back under the middle tier; its
+# white round columns stand near the back, from the concourse floor to the underside of the middle tier
+CD = V("bowl.concourse.depth")
+t0m_, t1m_, y0m_, y1m_ = (V(f"bowl.tier_middle.{k}") for k in ("t0", "t1", "y0", "y1"))
+def mid_under(i, r):
+    """Height (pad-relative) of the middle tier's surface over radius r (the concourse ceiling), less a 0.6 m slab."""
+    t = (r - rIn[i]) / (rBack[i] - rIn[i]); return y0m_ + (y1m_ - y0m_) * min(max((t - t0m_) / (t1m_ - t0m_), 0), 1) - 0.6
+columns("vip_columns", lambda i: at(i, tm0) + CD - 1.5, V("bowl.tier_lower.y1"), lambda i: mid_under(i, at(i, tm0) + CD - 1.5),
+        V("bowl.vip.column_spacing"), V("bowl.vip.column_r"), "ledger bowl.vip.*, bowl.concourse.depth (estimated, IT13, frame 002144.300)")
 
 
 def roof_under_at(i, r):
@@ -499,6 +515,125 @@ for sg in (-1, 1):
     box(dv_, df_, [B(*rot(xo + a_, zc + b_), y) for y in (YM, YM + DH) for a_, b_ in ((0, -DL / 2), (DW, -DL / 2), (DW, DL / 2), (0, DL / 2))])
 mesh_obj("dugouts", "pitch", dv_, df_, principled("dugout_shell", srgb("#B7B9B8"), 0.4, 0.2), "estimated", SRC_BS + "; ledger bowl.dugout.* (BS44, render only)")
 print("speakers:", nsp, "x", ne, "elements")
+
+
+# ---------------------------------------------------------------- F. interior tour (detail sheet 05, IT01-IT13)
+SRC_IT = "detail sheet 05_interior_tour.md (frames JWNowpO44rw 000945.200, 002144.300, 000735.433, 000154.067, 002320.200, 000131.700)"
+t0m, t1m, y0m, y1m = (V(f"bowl.tier_middle.{k}") for k in ("t0", "t1", "y0", "y1"))
+t0l, t1l, y1l = V("bowl.tier_lower.t0"), V("bowl.tier_lower.t1"), V("bowl.tier_lower.y1")
+t0u_, y0u_ = V("bowl.tier_upper.t0"), V("bowl.tier_upper.y0")
+
+
+def ring_strip(name, coll_name, r_fn, ya, yb, material, claim, src):
+    v, f = [], []
+    for i in range(N):
+        ux, uz = dirs[i]; r = r_fn(i); v += [B(ux * r, ya, uz * r), B(ux * r, yb, uz * r)]
+    for i in range(N):
+        a, b_ = 2 * i, 2 * ((i + 1) % N); f.append((a, b_, b_ + 1, a + 1))
+    return mesh_obj(name, coll_name, v, f, material, claim, src)
+
+
+# IT13 concourse at the top of the lower tier (002144.300): open, grey floor, the existing white columns at its front,
+# a dark back wall (the BS18 glazing reads as the open concourse in the tour frames; sheet 05 wins), dark ducts above
+CONC_FLOOR = principled("concourse_floor", srgb(L["bowl.concourse.floor_hex"]["value"]), 0.8)
+CONC_BACK = principled("concourse_back", srgb(L["bowl.concourse.back_hex"]["value"]), 0.9)
+vg = bpy.data.objects.get("vip_glass")
+if vg: vg.hide_render = True; vg["claim"] = "hidden: the tour frames show an open concourse here (IT13)"
+r_cb = lambda i: at(i, t0m) + CD  # concourse back wall, under the middle tier
+bw_v, bw_f = [], []
+for i in range(N):
+    ux, uz = dirs[i]; r = r_cb(i); bw_v += [B(ux * r, y1l, uz * r), B(ux * r, mid_under(i, r) + 0.6, uz * r)]
+for i in range(N):
+    a, b_ = 2 * i, 2 * ((i + 1) % N); bw_f.append((a, b_, b_ + 1, a + 1))
+mesh_obj("concourse_back_wall", "bowl_detail", bw_v, bw_f, CONC_BACK, "estimated (IT13)", SRC_IT)
+fl_v, fl_f = [], []
+for i in range(N):
+    ux, uz = dirs[i]; ra, rb = at(i, t1l), r_cb(i)
+    fl_v += [B(ux * ra, y1l + 0.02, uz * ra), B(ux * rb, y1l + 0.02, uz * rb)]
+for i in range(N):
+    a, b_ = 2 * i, 2 * ((i + 1) % N); fl_f.append((a, b_, b_ + 1, a + 1))
+mesh_obj("concourse_floor", "bowl_detail", fl_v, fl_f, CONC_FLOOR, "estimated (IT13)", SRC_IT)
+DUCT = principled("concourse_duct", srgb("#2E3133"), 0.5, 0.3)
+ducts = [[B(dirs[i % N][0] * at(i % N, t1l + (t0m - t1l) * fr_), y0m - dy, dirs[i % N][1] * at(i % N, t1l + (t0m - t1l) * fr_)) for i in range(N + 1)]
+         for fr_, dy in ((0.9, 1.6), (1.3, 3.0))]
+tube_obj("concourse_ducts", "bowl_detail", ducts, 0.35, DUCT, "estimated (IT13, services as simple dark ducts)", SRC_IT)
+
+# IT04 glazed box band between the middle and upper tiers (000945.200, 000735.433): dark glass on band_middle, white
+# columns, bowl.boxband.bays_per_aisle bays per upper-tier aisle block
+BOX_GLASS = principled("boxband_glass", srgb("#1C2328"), 0.08, 0.0)
+bm_o = bpy.data.objects.get("band_middle")
+if bm_o: bm_o.data.materials.clear(); bm_o.data.materials.append(BOX_GLASS); bm_o["claim"] = "estimated (IT04 glazed box band)"
+r_bm = lambda i: at(i, t1m) - 0.15
+ring_strip("boxband_sill", "bowl_detail", r_bm, y1m, y1m + 0.35, WHITE_P, "estimated (IT04)", SRC_IT)
+ring_strip("boxband_head", "bowl_detail", r_bm, V("bowl.band.upper_front_y1") - 0.45, V("bowl.band.upper_front_y1"), WHITE_P, "estimated (IT04)", SRC_IT)
+ring_bm = [(dirs[i][0] * r_bm(i), dirs[i][1] * r_bm(i)) for i in range(N)]
+circ_bm = sum(math.dist(ring_bm[i], ring_bm[(i + 1) % N]) for i in range(N))
+n_bays = int(V("bowl.boxband.bays_per_aisle")) * n_ais
+columns("boxband_columns", r_bm, y1m, lambda i: V("bowl.band.upper_front_y1"), circ_bm / n_bays, 0.22, SRC_IT + " (IT04)")
+
+# IT03 portals (upper tier: one per aisle; middle tier: every bowl.portals.middle_every aisles) with blank sign panels
+PORTAL = principled("portal_void", srgb("#141516"), 0.9); PANEL = principled("sign_panel_blank", srgb(L["bowl.portals.panel_hex"]["value"]), 0.5)
+pv, pf, sv_, sf_, rv, rf = [], [], [], [], [], []
+pw, ph = V("bowl.portals.width") / 2, V("bowl.portals.height")
+def portal(a, t_mouth, y_floor, panel_below):
+    i0 = int(round(a / (2 * math.pi) * N)) % N; ux, uz = dirs[i0]; tx, tz = -uz, ux; r = at(i0, t_mouth)
+    def bx(lst_v, lst_f, w, y0_, y1_, r0_, r1_):
+        cs = []
+        for yy in (y0_, y1_):
+            for rr_, ss in ((r0_, -w), (r0_, w), (r1_, w), (r1_, -w)): cs.append(B(ux * rr_ + tx * ss, yy, uz * rr_ + tz * ss))
+        box(lst_v, lst_f, cs)
+    bx(pv, pf, pw, y_floor, y_floor + ph, r - 0.05, r + 2.5)                         # dark mouth
+    bx(rv, rf, pw + 0.35, y_floor + ph, y_floor + ph + 0.35, r - 0.15, r + 0.2)      # white head
+    for sg in (-1, 1):                                                                # white jambs
+        cs = []
+        for yy in (y_floor, y_floor + ph):
+            for rr_, ss in ((r - 0.15, sg * pw), (r - 0.15, sg * (pw + 0.35)), (r + 0.2, sg * (pw + 0.35)), (r + 0.2, sg * pw)):
+                cs.append(B(ux * rr_ + tx * ss, yy, uz * rr_ + tz * ss))
+        box(rv, rf, cs)
+    if panel_below:  # blank sign panel on the tier front under the portal (no text)
+        bx(sv_, sf_, pw + 0.6, y_floor - 1.35, y_floor - 0.25, r - 0.25, r - 0.15)
+for a in ais_th:
+    portal(a, t0u_ + 0.015, y0u_ + 0.3, True)
+for k, a in enumerate(ais_th):
+    if k % int(V("bowl.portals.middle_every")) == 0: portal(a, t1m - 0.03, y1m - ph - 0.6, False)
+mesh_obj("portals", "bowl_detail", pv, pf, PORTAL, "estimated (IT03 portals, generic openings; no signage or egress meaning)", SRC_IT)
+mesh_obj("portal_frames", "bowl_detail", rv, rf, WHITE_P, "estimated (IT03)", SRC_IT)
+mesh_obj("portal_panels", "bowl_detail", sv_, sf_, PANEL, "estimated (IT03 blank panels; the frames' sign text is not copied)", SRC_IT)
+
+# IT06 tier-front rails (aisle rails exist above), IT08 glass balustrade on the upper tier front (002320.200)
+fr_rails = [[B(dirs[i % N][0] * (at(i % N, t0_) + 0.2), y0_ + 1.0, dirs[i % N][1] * (at(i % N, t0_) + 0.2)) for i in range(N + 1)]
+            for t0_, y0_ in ((t0m, y0m), (t0u_, y0u_))]
+tube_obj("tier_front_rails", "bowl_detail", fr_rails, 0.03, RAIL, "estimated (IT06)", SRC_IT)
+GLASS_B = bpy.data.materials.new("balustrade_glass")
+try: GLASS_B.use_nodes = True
+except Exception: pass
+pb = GLASS_B.node_tree.nodes["Principled BSDF"]; pb.inputs["Base Color"].default_value = (0.85, 0.92, 0.92, 1)
+pb.inputs["Roughness"].default_value = 0.05
+for nm_ in ("Transmission Weight", "Transmission"):
+    if nm_ in pb.inputs: pb.inputs[nm_].default_value = 0.9; break
+GLASS_B.diffuse_color = (0.8, 0.9, 0.9, 0.3)
+ring_strip("upper_balustrade", "bowl_detail", lambda i: at(i, t0u_) + 0.1, y0u_, y0u_ + V("bowl.balustrade.h"), GLASS_B, "estimated (IT08)", SRC_IT)
+
+# IT07 LED ribbon boards on the lower and middle tier fronts: emissive, off by day, matchday only (label "matchday:")
+LED = bpy.data.materials.new("led_ribbon")
+try: LED.use_nodes = True
+except Exception: pass
+lp = LED.node_tree.nodes["Principled BSDF"]; lp.inputs["Base Color"].default_value = (0.02, 0.02, 0.025, 1); lp.inputs["Roughness"].default_value = 0.3
+lp.inputs["Emission Color"].default_value = (*srgb("#1FA0E0"), 1); lp.inputs["Emission Strength"].default_value = 0.0
+lp.label = "matchday:%s" % L["bowl.led_ribbon.strength"]["value"]
+LED.diffuse_color = (0.02, 0.02, 0.025, 1)
+lh = V("bowl.led_ribbon.h")
+ring_strip("led_ribbon_lower", "bowl_detail", lambda i: at(i, t1l) - 0.12, y1l + 0.25, y1l + 0.25 + lh, LED, "Visualization (IT07, matchday only)", SRC_IT)
+ring_strip("led_ribbon_middle", "bowl_detail", lambda i: at(i, t0m) - 0.12, y0m - lh - 0.1, y0m - 0.1, LED, "Visualization (IT07, matchday only)", SRC_IT)
+
+# IT10 roof underside lattice: diagonal members between neighbouring primaries (000154.067); light grey steel
+diag = []
+for k in range(KR):
+    a_, b_ = prim[k], prim[(k + 1) % KR]
+    for q in range(0, len(a_) - 4, 4): diag += [[a_[q], b_[q + 2]], [b_[q + 2], a_[q + 4]]]
+tube_obj("roof_lattice_diagonals", "roof_detail", diag, 0.14, STEEL, "estimated (IT10)", SRC_IT)
+print("interior pass: aisles", n_ais, "upper portals", n_ais, "middle portals", len(range(0, n_ais, int(V("bowl.portals.middle_every")))),
+      "box bays", n_bays, "floodlights per bay", V("bowl.floodlights.per_bay"))
 
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "blender/out/talanta_detail.blend"))
 print("saved talanta_detail.blend")

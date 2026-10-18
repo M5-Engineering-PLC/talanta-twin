@@ -45,7 +45,7 @@ def sun_position(date, hhmm_eat, lat, lon):
 
 bpy.ops.wm.open_mainfile(filepath=str(ROOT / "blender/out/talanta_site.blend"))
 s = bpy.context.scene
-m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json")
+m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json", extra=ROOT / "blender/data/interior_cameras.json")
 apply_render_settings(s, m, look_check=(quality != "hero"))
 s.camera = cams[cid]
 # Objects a camera stands inside or right behind (blender/data/camera_hides.json, with a reason)

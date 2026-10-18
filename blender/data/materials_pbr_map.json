@@ -45,6 +45,13 @@
       ]
     },
     {
+      "material": "balustrade_glass",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "barrier_concrete",
       "claim": "estimated",
       "present": true,
@@ -82,6 +89,13 @@
     },
     {
       "material": "bollard_grey",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "boxband_glass",
       "claim": "estimated",
       "present": true,
       "action": "unchanged",
@@ -210,6 +224,27 @@
     },
     {
       "material": "colonnade_louvre",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "concourse_back",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "concourse_duct",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "concourse_floor",
       "claim": "estimated",
       "present": true,
       "action": "unchanged",
@@ -815,6 +850,13 @@
       ]
     },
     {
+      "material": "led_ribbon",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "line_paint",
       "claim": "estimated",
       "present": true,
@@ -1123,6 +1165,13 @@
       "reason": "Preserve existing surface or unknown material."
     },
     {
+      "material": "portal_void",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "rail_steel",
       "claim": "estimated",
       "present": true,
@@ -1309,6 +1358,13 @@
     },
     {
       "material": "sign_frame",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "sign_panel_blank",
       "claim": "estimated",
       "present": true,
       "action": "unchanged",

@@ -194,7 +194,10 @@ def _cameras(scene):
         layer.update()
     path = Path(__file__).resolve().parents[1] / "app/cameras/manifest.json"
     manifest = json.loads(path.read_text())
-    targets = {c["id"]: Vector((c["target"][0], -c["target"][2], c["target"][1])) for c in manifest["cameras"]}
+    extra = Path(__file__).resolve().parents[1] / "blender/data/interior_cameras.json"
+    cams_all = manifest["cameras"] + (json.loads(extra.read_text())["cameras"] if extra.exists() else [])
+    targets = {c["id"]: Vector((c["target"][0], -c["target"][2], c["target"][1])) for c in cams_all}
+    no_dof = {c["id"] for c in cams_all if c.get("dof") is False}  # hand-held frames: everything sharp
     for ob in scene.objects:
         if ob.type != "CAMERA":
             continue
@@ -209,7 +212,7 @@ def _cameras(scene):
         else:
             distance = (target - ob.matrix_world.translation).length
         camera.dof.focus_distance = distance
-        camera.dof.use_dof = camera.type == "PERSP" and 0 < distance <= STRENGTHS["aerial_distance"]
+        camera.dof.use_dof = camera.type == "PERSP" and 0 < distance <= STRENGTHS["aerial_distance"] and ob.name.split(".")[0] not in no_dof
         camera.dof.aperture_fstop = STRENGTHS["f_stop"]
 
 
