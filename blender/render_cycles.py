@@ -13,6 +13,8 @@ from mathutils import Euler
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "blender/scripts"))
 from cameras import load_cameras, apply_render_settings
+sys.path.insert(0, str(ROOT / "blender"))
+import sky_hdri
 
 out, cid = ROOT / sys.argv[-4], sys.argv[-3]
 sun_key, quality = sys.argv[-2], sys.argv[-1]
@@ -49,7 +51,8 @@ s.camera = cams[cid]
 # Objects a camera stands inside or right behind (blender/data/camera_hides.json, with a reason)
 for name in json.loads((ROOT / "blender/data/camera_hides.json").read_text()).get(cid, {}).get("hide", []):
     if name in bpy.data.objects: bpy.data.objects[name].hide_render = True
-st = m["suns"][sun_key]
+# golden-hour presets (sky_hdri.py: HDRI sky + matched sun lamp) take precedence over the manifest suns
+st = sky_hdri.PRESETS.get(sun_key) or m["suns"][sun_key]
 lon, lat = m["frame"]["origin_lonlat"]
 el, az = sun_position(st["date"], st["time_eat"], lat, lon)
 sun = bpy.data.objects["sun"]
@@ -84,6 +87,10 @@ if night:  # sun below the horizon: no sun lamp, a faint sky; night fixtures on 
                 elif nd.type == "EMISSION": nd.inputs["Strength"].default_value = v
     for ob in bpy.data.objects:
         if ob.type == "LIGHT" and "night_energy" in ob: ob.data.energy = ob["night_energy"]
+sky_log = None
+if sun_key in sky_hdri.PRESETS:
+    sky_log = sky_hdri.apply(s, sun_key, el, az, sun)
+    s.view_settings.exposure = sky_hdri.PRESETS[sun_key].get("exposure_ev", s.view_settings.exposure)
 c = s.cycles
 c.device = "CPU"; c.samples = m["cycles"]["hero" if quality == "hero" else "look_check"]["samples"]
 if quality == "preview": c.samples = 8; s.render.resolution_percentage = 25
@@ -101,7 +108,7 @@ if __import__("os").environ.get("TALANTA_LOOKDEV") == "1":
     from lookdev import apply_lookdev
     apply_lookdev(s, "night" if night else "day")
 t0 = time.time(); bpy.ops.render.render(write_still=True); sec = time.time() - t0
-rec = {"camera": cid, "sun": st, "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2), "quality": quality,
+rec = {"camera": cid, "sky": sky_log, "sun": st, "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2), "quality": quality,
        "resolution": [s.render.resolution_x * s.render.resolution_percentage // 100, s.render.resolution_y * s.render.resolution_percentage // 100],
        "samples": c.samples, "seconds": round(sec, 1)}
 print(json.dumps(rec))
