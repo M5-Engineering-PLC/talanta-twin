@@ -8,6 +8,7 @@ import { buildBowl } from './world/bowl.js';
 import { buildPitch, pitchFeatures, buildSport } from './world/pitch.js';
 import { ribbon, centroid, circlePts } from './world/geom.js';
 import { sunPosition, eatDate, sunEvents, openingMinutes } from './sun.js';
+import { initLanding } from './ui/landing.js';
 import { lineChart } from './ui/charts.js';
 import { buildSite } from './world/site.js';
 import { pass, mrt, output, normalView, vec4 } from 'three/tsl';
@@ -735,6 +736,12 @@ if (fpsMonitor.element) stage.appendChild(fpsMonitor.element);
 buildTimeline();
 applyBuild();
 focus('overview', 1);
+initLanding({
+  views: FOCUS, focus, state, stopTour,
+  setTime(minutes) { stopTour(); stopPlay(); stopLiveClock(); state.minutes = minutes; },
+  setEvent(mode) { document.querySelector(`#modes button[data-mode="${mode}"]`)?.click(); },
+  startTour() { tourBtn.click(); },
+});
 if (!quality.crowdFraction) site.crowd.visible = false;
 let lastT = performance.now(), hud = 0, lastTimeKey = '', lastBuildKey = '', cachedSun;
 let lastLiveMinute = '';
