@@ -388,7 +388,16 @@ itr("bowl.seat.middle_tones", "#C4283A;#D95C68;#E58A98", "hex", "000945.200, 002
 itr("bowl.seat.middle_tone_weights", "0.5;0.3;0.2", "share", "000945.200", "by eye", "+-0.1")
 itr("bowl.seat.upper_tones", "#7A1F2C;#A8283A;#C98A92", "hex", "000945.200, 002320.200", "by eye with k-means: maroon and red with lighter seats", "", note="IT03")
 itr("bowl.seat.upper_tone_weights", "0.4;0.4;0.2", "share", "000945.200", "by eye", "+-0.1")
-itr("bowl.tier_middle.rows_blockout", 12, "count", "000945.200, 002144.300", "rows counted on both frames (12 and 12)", "+-1", "derived (2 frames)", "overrides bowl.tier_middle.rows (13) in the Blender build")
+# ---- interior pass 2 (detail sheet 06_interior_inventory.md, IF rows win over 05; cloud session 2026-10-18)
+# Row counts: vertical luminance profile through the centre of one full block per tier, square on, row period from
+# the FFT peak, rows = block height / period (000945.200: lower 50 px / 3.16 px, middle 40 px / 3.73 px;
+# 000735.433: lower 38 px / 2.2-2.5 px, middle 28 px / 2.5 px). The upper tier is cut by the frame edge (000945.200)
+# and by the concourse ceiling (000735.433) in both, so it keeps its estimate.
+IF6 = "blender/build_bowl_detail.py F2. interior inventory"
+def ifr(n, v, u, src, method, unc, status="estimated", note=""):
+    add(n, v, u, src, "2026-10-18", method, unc, status, IF6, note)
+itr("bowl.tier_middle.rows_blockout", 11, "count", "000945.200, 000735.433", "row period by FFT of a vertical profile through one full block, square on: 10.7 and 11.1 rows", "+-1", "derived (2 frames)", "overrides bowl.tier_middle.rows (13) in the Blender build; pass 1 by eye gave 12")
+itr("bowl.tier_lower.rows_blockout", 16, "count", "000945.200, 000735.433", "row period by FFT of a vertical profile through one full block, square on: 15.8 and 14.9-17.2 rows", "+-1", "derived (2 frames)", "overrides bowl.tier_lower.rows (24). The rake depth is unchanged, so the treads read 1.36 m deep: the lower tier depth (bowl.tier_lower.t1) needs a frame check")
 itr("bowl.portals.upper_per_aisle", 1, "count", "000945.200, 002320.200", "one portal at the foot of every upper-tier aisle", "+-0", note="IT03 generic openings; no signage")
 itr("bowl.portals.middle_every", 2, "aisles", "000945.200, 002144.300", "dark openings at the top of the middle tier at every other aisle", "+-1")
 itr("bowl.portals.width", 2.4, "m", "000945.200", "by eye against the aisle width", "+-0.5 m")
@@ -403,6 +412,30 @@ itr("bowl.balustrade.h", 1.1, "m", "002320.200", "by eye against the standing fi
 itr("bowl.led_ribbon.h", 0.9, "m", "001940.267", "by eye", "+-0.3 m", note="IT07, matchday only")
 itr("bowl.led_ribbon.strength", 2.5, "W/m2 (emission)", "001940.267", "look value", "", note="Visualization")
 itr("bowl.floodlights.per_bay", 4, "count", "000154.067", "LED heads between neighbouring primary trusses on the catwalk", "+-1", note="IT11")
+F06 = "engineering/detail_sheets/06_interior_features.csv"
+ifr("bowl.vip.side", "west", "side", "JWNowpO44rw transcript 5:01, 22:47-24:30; " + F06 + " IF08", "VIP parking on the west side; VIP rows at the lounge level", "")
+ifr("bowl.vip.arc", 48, "m along the lower tier back row", "JWNowpO44rw 002400.000, 002402.700; IF40", "by eye: the lounge glazing runs about three aisle blocks", "+-15 m")
+ifr("bowl.vip.rows", 4, "count", "JWNowpO44rw 002421.000, 002433.000; IF08", "the top rows of the lower tier in front of the lounge glazing (3 to 4)", "+-1")
+ifr("bowl.vip.seat_pitch", 0.75, "m", "JWNowpO44rw 002427.667, 002433.000; IF07", "by eye: wider upholstered chairs with armrests and cup holders", "+-0.1 m", note="VIP seats only; bowl.seat_pitch is unchanged")
+ifr("bowl.vip.seat_hex", "#B3202E", "hex", "JWNowpO44rw 002433.000; IF07", "by eye: red upholstery", "")
+ifr("bowl.vip.balustrade_h", 1.1, "m", "JWNowpO44rw 002421.000, 002433.000; IF08", "by eye: glass with a steel top rail at the front of the VIP rows", "+-0.2 m")
+ifr("bowl.media.side", "east", "side", "JWNowpO44rw 000748.500, 000752.867; IF30", "side not confirmed in the video; east until a frame proves otherwise (sheet 06)", "", "estimated (placeholder side)")
+ifr("bowl.media.arc", 40, "m along the upper tier front", "JWNowpO44rw 000748.500, 000752.867; IF30", "by eye: a block of plain red seats", "+-15 m", "estimated (placeholder side)")
+ifr("bowl.media.rows", 8, "count", "JWNowpO44rw 000752.867; IF30", "by eye: plain red rows on the steep upper tier", "+-3", "estimated (placeholder side)", "no desks (lead: not seen)")
+ifr("bowl.media.seat_hex", "#A8283A", "hex", "JWNowpO44rw 000752.867", "by eye: plain red, no mosaic", "")
+ifr("bowl.media.office_bays", 2, "box-band bays", "JWNowpO44rw 000833.400; IF34", "placeholder: the media offices take the box-band bays behind and below the media block", "+-2", "estimated (placeholder side)", "54 bays - 2 = 52 sky boxes (transcript 23:55)")
+ifr("bowl.skybox.count", 52, "count", "JWNowpO44rw transcript 23:55", "narrated", "+-0", "measured (narration)")
+ifr("bowl.skybox.places_each", 12, "places", "06_interior_inventory.md seat section", "sheet 06: about 10 to 20 places per box", "10-20")
+ifr("bowl.tunnel.side", "west", "side", "JWNowpO44rw 002503.000, 002506.000; IF71", "placeholder: the side is not confirmed; west with the VIP stand", "", "estimated (placeholder side)")
+ifr("bowl.tunnel.width", 8.0, "m", "JWNowpO44rw 002503.000, 002506.000; IF44, IF71", "by eye: a wide dark opening about three seat blocks of rows high", "+-2 m")
+ifr("bowl.tunnel.height", 3.2, "m", "JWNowpO44rw 002503.000, 002506.000", "by eye against the standing figures", "+-0.6 m")
+ifr("bowl.dugout.from_touchline_blockout", 2.5, "m", "IF45; blender/out/bowl_rings.json", "the west tier front is about 5.3 m behind the touchline, so the 2.5 m deep shelter starts 2.5 m out", "+-1 m", note="overrides bowl.dugout.from_touchline (4, BS44)")
+ifr("bowl.aisle_sign.plate_hex", "#2D5DA8", "hex", "JWNowpO44rw 000735.433, 000752.867; IF73", "by eye: plain blue plates on white aisle-head bands; no text", "")
+ifr("bowl.tier_front_band.hex", "#2A2C2E", "hex", "JWNowpO44rw 000912.000, 000945.200; IF17", "by eye: dark fascia bands between tiers", "")
+ifr("bowl.led_ribbon.colours", "#2AA8F0;#2BE07A", "hex (middle front; upper front)", "JWNowpO44rw 002503.000, 002506.000; IF18", "by eye: blue under the middle tier, green under the upper tier", "", note="Visualization, matchday only")
+ifr("bowl.hung_screens.count", 8, "count", "JWNowpO44rw 000155.000, 000158.000, 001003.000, 001006.000; IF20", "by eye: small dark panels hung from the trusses at intervals", "+-4")
+ifr("bowl.hung_screens.size", "4.0;2.4", "m (w;h)", "JWNowpO44rw 000155.000", "by eye", "+-1 m")
+ifr("bowl.hung_screens.drop", 4.0, "m below the primaries", "JWNowpO44rw 000155.000, 001003.000; IF25", "by eye: on visible hanging cables", "+-2 m")
 
 out = ROOT / "gis/parameter_ledger.csv"
 with open(out, "w", newline="") as f:

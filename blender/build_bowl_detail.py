@@ -119,6 +119,16 @@ for tn_ in ("lower", "middle", "upper"):
     TONE_W[tn_] = np.array([float(w) for w in L[f"bowl.seat.{tn_}_tone_weights"]["value"].split(";")])
     for j, h in enumerate(hx): cols[f"{tn_}{j}"] = srgb(h)
 sv, sf, rails = [], [], []
+# Interior inventory (detail sheet 06, IF07, IF08, IF30, IF71): VIP rows at the top of the lower tier on the VIP side,
+# a plain red media block in the front rows of the upper tier on the media side (placeholder), and no seats where the
+# tunnel mouth cuts the front rows. Sides: angle 0 is east, pi is west (app x east, z south), turned by the pitch bearing.
+side_th = lambda s: (0.0 if s == "east" else math.pi) + math.radians(G["bearing"])
+TH_VIP, TH_MED, TH_TUN = (side_th(L[k]["value"]) for k in ("bowl.vip.side", "bowl.media.side", "bowl.tunnel.side"))
+VIP_ARC, VIP_ROWS, MED_ARC, MED_ROWS = V("bowl.vip.arc"), int(V("bowl.vip.rows")), V("bowl.media.arc"), int(V("bowl.media.rows"))
+TUN_W, TUN_H = V("bowl.tunnel.width"), V("bowl.tunnel.height")
+cols["media"] = srgb(L["bowl.media.seat_hex"]["value"])
+VP, VROT, vip_rows_geo = [], [], []
+n_media = 0
 for tn in ("lower", "middle", "upper"):
     t0, t1, y0, y1, rows = (V(f"bowl.tier_{tn}.{k}") for k in ("t0", "t1", "y0", "y1", "rows")); rows = int(rows)
     for k in range(rows):
@@ -130,6 +140,18 @@ for tn in ("lower", "middle", "upper"):
         r_row = np.hypot(x[idx], z[idx])
         gap = np.min(angdist(th[idx][:, None], ais_th[None, :]), axis=1) * r_row
         idx = idx[gap > half_aisle + pitch_s / 2]
+        vip_row = tn == "lower" and k >= rows - VIP_ROWS
+        if vip_row:  # VIP seats on their own wider pitch; the regular seats stop at the VIP block
+            in_v = angdist(th, TH_VIP) * np.hypot(x, z) < VIP_ARC / 2
+            iv = np.arange(0, len(th), int(round(V("bowl.vip.seat_pitch") / 0.25)))
+            gv = np.min(angdist(th[iv][:, None], ais_th[None, :]), axis=1) * np.hypot(x[iv], z[iv])
+            iv = iv[in_v[iv] & (gv > half_aisle + 0.4)]
+            for q in iv:
+                n = math.hypot(x[q], z[q]); VP.append(B(x[q], ya, z[q])); VROT.append((0.0, 0.0, math.atan2(z[q] / n, -x[q] / n) - math.pi / 2))
+            if k == rows - VIP_ROWS: vip_rows_geo.append((ta, ya))
+            idx = idx[~in_v[idx]]
+        if tn == "lower" and ya < y0 + TUN_H + 0.2:  # tunnel mouth (IF71) cuts the front rows
+            idx = idx[angdist(th[idx], TH_TUN) * np.hypot(x[idx], z[idx]) > TUN_W / 2 + 0.4]
         f = k / max(rows - 1, 1); u = rng.random(len(idx))
         # IT01-IT03, IT05 (detail sheet 05, frames 000945.200, 002144.300): three seeded tones per tier; the middle tier
         # keeps the green flecks (002144.300 confirms them), denser in its lower rows
@@ -137,6 +159,9 @@ for tn in ("lower", "middle", "upper"):
         if tn == "lower": c = np.where(u < V("bowl.seat.mix_lower_red_top") * np.clip((f - 0.6) / 0.4, 0, 1), "r", tone)
         elif tn == "middle": c = np.where(u < V("bowl.seat.mix_middle_green") * 2 * (1 - f), "g", tone)
         else: c = tone
+        if tn == "upper" and k < MED_ROWS:  # media block (IF30, placeholder side): plain red, no mosaic
+            in_m = angdist(th[idx], TH_MED) * np.hypot(x[idx], z[idx]) < MED_ARC / 2
+            c = np.where(in_m, "media", c); n_media += int(in_m.sum())
         for q, cc in zip(idx, c):
             nx, nz = -x[q], -z[q]; n = math.hypot(nx, nz)  # face the bowl centre
             P.append(B(x[q], ya, z[q])); ROT.append((0.0, 0.0, math.atan2(-nz / n, nx / n) - math.pi / 2)); COL.append((*cols[cc], 1.0))
@@ -193,7 +218,30 @@ iop = gn.nodes.new("GeometryNodeInstanceOnPoints")
 gn.links.new(gi.outputs[0], iop.inputs["Points"]); gn.links.new(oi.outputs["Geometry"], iop.inputs["Instance"])
 gn.links.new(ra.outputs["Attribute"], iop.inputs["Rotation"]); gn.links.new(iop.outputs["Instances"], go.inputs[0])
 so.modifiers.new("seats", "NODES").node_group = gn
-print("seats:", len(P), "aisles per ring:", n_ais)
+# VIP chairs (IF07): wider upholstered red seat with armrests and an armrest cup holder (shape by eye, 002433.000)
+bm = bmesh.new()
+for (cx, cy, cz, hx, hy, hz, tilt) in [(0, -0.02, 0.24, 0.30, 0.25, 0.07, 0.04), (0, -0.25, 0.68, 0.30, 0.06, 0.32, -0.16),
+                                        (-0.34, -0.05, 0.42, 0.04, 0.26, 0.06, 0), (0.34, -0.05, 0.42, 0.04, 0.26, 0.06, 0),
+                                        (-0.34, -0.05, 0.18, 0.04, 0.2, 0.18, 0), (0.34, -0.05, 0.18, 0.04, 0.2, 0.18, 0),
+                                        (0.34, 0.24, 0.45, 0.06, 0.06, 0.04, 0)]:
+    g = bmesh.ops.create_cube(bm, size=1.0)
+    for v in g["verts"]:
+        v.co.x *= 2 * hx; v.co.y *= 2 * hy; v.co.z *= 2 * hz
+        v.co = Matrix.Rotation(tilt, 3, "X") @ v.co; v.co.x += cx; v.co.y += cy; v.co.z += cz
+vip_me = bpy.data.meshes.new("vip_seat_proto"); bm.to_mesh(vip_me); bm.free()
+vip_me.materials.append(principled("vip_upholstery", srgb(L["bowl.vip.seat_hex"]["value"]), 0.85))
+vip_o = bpy.data.objects.new("vip_seat_proto", vip_me); protos.objects.link(vip_o)
+vpm = bpy.data.meshes.new("vip_seat_points"); vpm.from_pydata(VP, [], [])
+vpm.attributes.new("rot", "FLOAT_VECTOR", "POINT").data.foreach_set("vector", np.array(VROT, np.float32).ravel())
+vso = bpy.data.objects.new("vip_seats", vpm); coll("bowl_detail").objects.link(vso)
+vso["claim"], vso["sources"] = "estimated (IF07, IF08: VIP rows on the VIP side, wider chairs)", "detail sheet 06 (JWNowpO44rw 002421.000, 002427.667, 002433.000)"
+gnv = gn.copy(); gnv.name = "vip_seat_scatter"
+[n_ for n_ in gnv.nodes if n_.bl_idname == "GeometryNodeObjectInfo"][0].inputs["Object"].default_value = vip_o
+vso.modifiers.new("seats", "NODES").node_group = gnv
+n_box = int(V("bowl.boxband.bays_per_aisle")) * n_ais - int(V("bowl.media.office_bays"))
+box_places = n_box * int(V("bowl.skybox.places_each"))
+print("seats:", len(P), "of which media", n_media, "| VIP seats", len(VP), "| sky boxes", n_box, "x", int(V("bowl.skybox.places_each")),
+      "=", box_places, "places | total places", len(P) + len(VP) + box_places, "| aisles per ring:", n_ais)
 
 # ---------------------------------------------------------------- B. pitch
 b = math.radians(G["bearing"]); cb, sb = math.cos(b), math.sin(b)
@@ -508,18 +556,12 @@ for sx in (-1, 1):
         fl_v += [B(x, top_, z), B(x + 0.45, top_ - 0.05, z), B(x + 0.45, top_ - 0.4, z), B(x, top_ - 0.35, z)]; fl_f.append((b0, b0 + 1, b0 + 2, b0 + 3))
 tube_obj("corner_flag_poles", "pitch", poles_, 0.02, principled("flag_pole", srgb("#F4F3ED"), 0.4), "derived (Laws of the Game)", SRC_BS)
 mesh_obj("corner_flags", "pitch", fl_v, fl_f, principled("corner_flag_yellow", srgb("#F0D84A"), 0.7), "estimated", SRC_BS + " (BS40, render only)")
-# dugouts (BS44, render only, kept estimated): two generic shelters on the east touchline either side of halfway
-# (east, so they stay clear of the C12 camera on the west touchline)
-dv_, df_ = [], []
-DL, DW, DH = V("bowl.dugout.length"), V("bowl.dugout.depth"), V("bowl.dugout.h")
-for sg in (-1, 1):
-    zc = sg * (V("bowl.dugout.offset_halfway") + DL / 2); xo = hw + V("bowl.dugout.from_touchline")
-    box(dv_, df_, [B(*rot(xo + a_, zc + b_), y) for y in (YM, YM + DH) for a_, b_ in ((0, -DL / 2), (DW, -DL / 2), (DW, DL / 2), (0, DL / 2))])
-mesh_obj("dugouts", "pitch", dv_, df_, principled("dugout_shell", srgb("#B7B9B8"), 0.4, 0.2), "estimated", SRC_BS + "; ledger bowl.dugout.* (BS44, render only)")
+# dugouts: built in section F2 (IF45, sheet 06 wins over BS44); the BS44 rows bowl.dugout.* still give their size
 print("speakers:", nsp, "x", ne, "elements")
 
 
 # ---------------------------------------------------------------- F. interior tour (detail sheet 05, IT01-IT13)
+SRC_IF = "detail sheet 06_interior_inventory.md (IF rows; frames JWNowpO44rw cited per row in 06_interior_features.csv)"
 SRC_IT = "detail sheet 05_interior_tour.md (frames JWNowpO44rw 000945.200, 002144.300, 000735.433, 000154.067, 002320.200, 000131.700)"
 t0m, t1m, y0m, y1m = (V(f"bowl.tier_middle.{k}") for k in ("t0", "t1", "y0", "y1"))
 t0l, t1l, y1l = V("bowl.tier_lower.t0"), V("bowl.tier_lower.t1"), V("bowl.tier_lower.y1")
@@ -541,6 +583,8 @@ CONC_FLOOR = principled("concourse_floor", srgb(L["bowl.concourse.floor_hex"]["v
 CONC_BACK = principled("concourse_back", srgb(L["bowl.concourse.back_hex"]["value"]), 0.9)
 vg = bpy.data.objects.get("vip_glass")
 if vg: vg.hide_render = True; vg["claim"] = "hidden: the tour frames show an open concourse here (IT13)"
+vm = bpy.data.objects.get("vip_mullions")  # its mullions go with it (they stood in the open concourse front)
+if vm: vm.hide_render = True; vm["claim"] = "hidden with vip_glass (IT13)"
 r_cb = lambda i: at(i, t0m) + CD  # concourse back wall, under the middle tier
 bw_v, bw_f = [], []
 for i in range(N):
@@ -625,8 +669,17 @@ lp.inputs["Emission Color"].default_value = (*srgb("#1FA0E0"), 1); lp.inputs["Em
 lp.label = "matchday:%s" % L["bowl.led_ribbon.strength"]["value"]
 LED.diffuse_color = (0.02, 0.02, 0.025, 1)
 lh = V("bowl.led_ribbon.h")
-ring_strip("led_ribbon_lower", "bowl_detail", lambda i: at(i, t1l) - 0.12, y1l + 0.25, y1l + 0.25 + lh, LED, "Visualization (IT07, matchday only)", SRC_IT)
-ring_strip("led_ribbon_middle", "bowl_detail", lambda i: at(i, t0m) - 0.12, y0m - lh - 0.1, y0m - 0.1, LED, "Visualization (IT07, matchday only)", SRC_IT)
+# IT07 with IF17, IF18 (sheet 06 wins): dark tier front bands under the middle and upper tiers, each carrying one thin
+# LED ribbon, blue under the middle tier and green under the upper tier (002503.000, 002506.000). Ribbons emit only
+# in matchday mode (label "matchday:"). Visualization.
+BAND = principled("tier_front_band", srgb(L["bowl.tier_front_band.hex"]["value"]), 0.5)
+ring_strip("tier_band_middle", "bowl_detail", lambda i: at(i, t0m) - 0.1, y0m - lh - 0.1, y0m - 0.1, BAND, "estimated (IF17)", SRC_IF)
+ring_strip("tier_band_upper", "bowl_detail", lambda i: at(i, t0u_) - 0.1, y0u_ - 0.7, y0u_ - 0.02, BAND, "estimated (IF17)", SRC_IF)
+for nm_, hx_, r_fn, yc in (("led_ribbon_middle", 0, lambda i: at(i, t0m) - 0.16, y0m - 0.1 - lh / 2),
+                          ("led_ribbon_upper", 1, lambda i: at(i, t0u_) - 0.16, y0u_ - 0.36)):
+    m_ = LED.copy(); m_.name = nm_
+    m_.node_tree.nodes["Principled BSDF"].inputs["Emission Color"].default_value = (*srgb(L["bowl.led_ribbon.colours"]["value"].split(";")[hx_]), 1)
+    ring_strip(nm_, "bowl_detail", r_fn, yc - 0.14, yc + 0.14, m_, "Visualization (IF18, matchday only)", SRC_IF)
 
 # IT10 roof underside lattice: diagonal members between neighbouring primaries (000154.067); light grey steel
 diag = []
@@ -634,6 +687,123 @@ for k in range(KR):
     a_, b_ = prim[k], prim[(k + 1) % KR]
     for q in range(0, len(a_) - 4, 4): diag += [[a_[q], b_[q + 2]], [b_[q + 2], a_[q + 4]]]
 tube_obj("roof_lattice_diagonals", "roof_detail", diag, 0.14, STEEL, "estimated (IT10)", SRC_IT)
+# ---------------------------------------------------------------- F2. interior inventory (detail sheet 06, Priority 1)
+# No gates, turnstiles, exits, exit signs, CCTV, control rooms or access routes (IF62, IF69 and rule 8). No sign or
+# door text. Placeholder sides (media, tunnel) are marked in the ledger.
+def arc_idx(th_c, arc, r_fn):
+    """Ring indices whose direction lies within arc/2 m (along the ring r_fn) of angle th_c, in ring order."""
+    return [i for i in range(N) if angdist(2 * math.pi * i / N, th_c) * r_fn(i) < arc / 2]
+
+
+def arc_strip(name, coll_name, ids, r_fn, ya_fn, yb_fn, material, claim, src):
+    v, f = [], []
+    for i in ids:
+        ux, uz = dirs[i]; r = r_fn(i); v += [B(ux * r, ya_fn(i), uz * r), B(ux * r, yb_fn(i), uz * r)]
+    for k in range(len(ids) - 1): f.append((2 * k, 2 * k + 2, 2 * k + 3, 2 * k + 1))
+    return mesh_obj(name, coll_name, v, f, material, claim, src)
+
+
+def local_box(lst_v, lst_f, th_c, r0, r1, w0, w1, y0_, y1_):
+    """Box in the frame of direction th_c: radial r0..r1, tangential w0..w1, height y0_..y1_."""
+    ux, uz = math.cos(th_c), math.sin(th_c); tx, tz = -uz, ux; cs = []
+    for yy in (y0_, y1_):
+        for rr_, ss in ((r0, w0), (r0, w1), (r1, w1), (r1, w0)): cs.append(B(ux * rr_ + tx * ss, yy, uz * rr_ + tz * ss))
+    box(lst_v, lst_f, cs)
+
+
+iV = lambda th_c: int(round(th_c / (2 * math.pi) * N)) % N
+STEEL_RAIL = principled("vip_rail_steel", (0.7, 0.71, 0.72), 0.25, 0.9)
+# 1. VIP stand (IF07, IF08, IF39, IF40): glass balustrade with a steel top rail in front of the VIP rows, full-height
+#    lounge glazing at the concourse front behind them, a dark tiled lounge floor and beige sofa groups
+ta_v, ya_v = vip_rows_geo[0]
+ids_v = arc_idx(TH_VIP, VIP_ARC + 2, lambda i: at(i, t1l))
+hb = V("bowl.vip.balustrade_h")
+arc_strip("vip_balustrade", "bowl_detail", ids_v, lambda i: at(i, ta_v) - 0.15, lambda i: ya_v, lambda i: ya_v + hb, GLASS_B, "estimated (IF08)", SRC_IF)
+tube_obj("vip_balustrade_rail", "bowl_detail", [[B(dirs[i][0] * (at(i, ta_v) - 0.15), ya_v + hb, dirs[i][1] * (at(i, ta_v) - 0.15)) for i in ids_v]], 0.035, STEEL_RAIL, "estimated (IF08)", SRC_IF)
+r_lg = lambda i: at(i, t1l) + 0.4
+arc_strip("vip_lounge_glazing", "bowl_detail", ids_v, r_lg, lambda i: y1l + 0.05, lambda i: mid_under(i, r_lg(i)), GLASS_B, "estimated (IF40)", SRC_IF)
+mull = [[B(dirs[i][0] * r_lg(i), y1l, dirs[i][1] * r_lg(i)), B(dirs[i][0] * r_lg(i), mid_under(i, r_lg(i)), dirs[i][1] * r_lg(i))] for i in ids_v[::2]]
+tube_obj("vip_lounge_mullions", "bowl_detail", mull, 0.06, WHITE_P, "estimated (IF40)", SRC_IF)
+TILE = principled("vip_lounge_tile", srgb("#2B2A2A"), 0.25)
+fv_ = []
+for i in ids_v:  # lounge floor between the glazing and the concourse back
+    ux, uz = dirs[i]; fv_ += [B(ux * (r_lg(i) + 0.05), y1l + 0.04, uz * (r_lg(i) + 0.05)), B(ux * (r_cb(i) - 0.1), y1l + 0.04, uz * (r_cb(i) - 0.1))]
+mesh_obj("vip_lounge_floor", "bowl_detail", fv_, [(2 * k, 2 * k + 2, 2 * k + 3, 2 * k + 1) for k in range(len(ids_v) - 1)], TILE, "estimated (IF39)", SRC_IF)
+SOFA = principled("vip_sofa", srgb("#CDBB9C"), 0.9)
+sov, sof = [], []
+for i in ids_v[1:-1:2]:
+    th_i = 2 * math.pi * i / N; r_s = r_lg(i) + 3.0
+    local_box(sov, sof, th_i, r_s, r_s + 0.9, -1.1, 1.1, y1l + 0.04, y1l + 0.45)        # seat
+    local_box(sov, sof, th_i, r_s + 0.7, r_s + 0.95, -1.1, 1.1, y1l + 0.45, y1l + 0.85)  # back
+mesh_obj("vip_lounge_sofas", "bowl_detail", sov, sof, SOFA, "estimated (IF39)", SRC_IF)
+# 2. media offices (IF34, placeholder side): pale closed fronts on the box-band bays behind the media block
+OFFICE = principled("media_office_front", srgb("#C9CCCE"), 0.6); DOOR = principled("media_office_door", srgb("#5A5E62"), 0.5)
+yb0, yb1 = y1m + 0.35, V("bowl.band.upper_front_y1") - 0.45
+bay_w = circ_bm / n_bays; nof = int(V("bowl.media.office_bays"))
+ids_o = arc_idx(TH_MED, nof * bay_w, r_bm)
+arc_strip("media_office_fronts", "bowl_detail", ids_o, lambda i: r_bm(i) - 0.08, lambda i: yb0, lambda i: yb1, OFFICE, "estimated (IF34, placeholder side)", SRC_IF)
+dv_, df_ = [], []
+for sg in range(nof):
+    off = (sg - (nof - 1) / 2) * bay_w
+    local_box(dv_, df_, TH_MED, r_bm(iV(TH_MED)) - 0.14, r_bm(iV(TH_MED)) - 0.1, off - 0.5, off + 0.5, yb0, yb0 + 2.1)
+mesh_obj("media_office_doors", "bowl_detail", dv_, df_, DOOR, "estimated (IF34; no door text)", SRC_IF)
+# 3. tunnel mouth (IF44, IF71) at pitch level in the lower tier front, and two dugouts (IF45) on the same side
+i_t = iV(TH_TUN); r_t = rIn[i_t]; CONC_PALE = principled("tunnel_concrete", srgb("#D6D3CC"), 0.85)
+tv, tf_, jv, jf = [], [], [], []
+local_box(tv, tf_, TH_TUN, r_t - 0.12, r_t + 8.0, -TUN_W / 2, TUN_W / 2, -0.05, TUN_H)
+for sg in (-1, 1): local_box(jv, jf, TH_TUN, r_t - 1.6, r_t + 0.2, sg * TUN_W / 2, sg * (TUN_W / 2 + 0.45), -0.05, TUN_H + 0.45)
+local_box(jv, jf, TH_TUN, r_t - 0.4, r_t + 0.2, -TUN_W / 2 - 0.45, TUN_W / 2 + 0.45, TUN_H, TUN_H + 0.45)
+mesh_obj("tunnel_mouth", "bowl_detail", tv, tf_, PORTAL, "estimated (IF71, placeholder side)", SRC_IF)
+mesh_obj("tunnel_walls", "bowl_detail", jv, jf, CONC_PALE, "estimated (IF44)", SRC_IF)
+DUG_SHELL = GLASS_B.copy(); DUG_SHELL.name = "dugout_shell"
+DUG_SHELL.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.35, 0.38, 0.4, 1)
+dgv, dgf, dsv, dsf, dbv, dbf = [], [], [], [], [], []
+dl = V("bowl.dugout.length") / 2; sgn = -1 if L["bowl.tunnel.side"]["value"] == "west" else 1
+x_in = hw + V("bowl.dugout.from_touchline"); x_out = x_in + V("bowl.dugout.depth"); DH = V("bowl.dugout.h")
+for zc in (-(V("bowl.dugout.offset_halfway") + dl), V("bowl.dugout.offset_halfway") + dl):
+    def dbox(lv, lf, x0_, x1_, z0_, z1_, y0_, y1_):
+        cs = []
+        for yy in (y0_, y1_):
+            for xx, zz in ((x0_, z0_), (x0_, z1_), (x1_, z1_), (x1_, z0_)): ax_, az_ = rot(sgn * xx, zz); cs.append(B(ax_, yy, az_))
+        box(lv, lf, cs)
+    dbox(dbv, dbf, x_in + 0.6, x_out - 0.1, zc - dl, zc + dl, 0.0, 0.45)            # bench plinth with seats
+    dbox(dgv, dgf, x_out - 0.1, x_out, zc - dl, zc + dl, 0.0, DH)                  # back wall
+    dbox(dgv, dgf, x_in, x_out, zc - dl, zc + dl, DH, DH + 0.08)                   # roof
+    for ze in (zc - dl, zc + dl - 0.08): dbox(dgv, dgf, x_in, x_out, ze, ze + 0.08, 0.0, DH)  # end walls
+    dbox(dsv, dsf, x_in - 0.05, x_in + 0.05, zc - dl, zc + dl, DH - 0.2, DH + 0.1)  # white front edge
+mesh_obj("dugout_shells", "bowl_detail", dgv, dgf, DUG_SHELL, "estimated (IF45, placeholder side)", SRC_IF)
+mesh_obj("dugout_benches", "bowl_detail", dbv, dbf, principled("dugout_seat", srgb("#B3202E"), 0.7), "estimated (IF45)", SRC_IF)
+mesh_obj("dugout_edges", "bowl_detail", dsv, dsf, WHITE_P, "estimated (IF45)", SRC_IF)
+# 4. aisle sign columns (IF73): white aisle-head bands at the back of the middle tier with a plain blue plate, and a
+#    blue plate on every upper-tier portal head; no text
+PLATE = principled("aisle_plate_blue", srgb(L["bowl.aisle_sign.plate_hex"]["value"]), 0.45)
+wv, wf, pv2, pf2 = [], [], [], []
+for a in ais_th:
+    i0 = iV(a); r_h = r_bm(i0) - 0.1  # on the box-band face at the head of each middle-tier aisle
+    local_box(wv, wf, a, r_h - 0.12, r_h, -0.5, 0.5, y1m, yb1 + 0.45)
+    local_box(pv2, pf2, a, r_h - 0.17, r_h - 0.12, -0.35, 0.35, y1m + 1.2, y1m + 1.7)
+    r_u = at(i0, t0u_ + 0.015)
+    local_box(pv2, pf2, a, r_u - 0.2, r_u - 0.15, -0.45, 0.45, y0u_ + 0.3 + ph + 0.4, y0u_ + 0.3 + ph + 0.95)
+mesh_obj("aisle_sign_bands", "bowl_detail", wv, wf, WHITE_P, "estimated (IF73)", SRC_IF)
+mesh_obj("aisle_sign_plates", "bowl_detail", pv2, pf2, PLATE, "estimated (IF16, IF73; blank plates, no text)", SRC_IF)
+# 5. small screens hung from the primaries on cables (IF20, IF25), between the catwalk and the rim
+SCR = principled("hung_screen", (0.012, 0.012, 0.014), 0.2, 0.3)
+nsc = int(V("bowl.hung_screens.count")); sw_, sh_ = (float(s) for s in L["bowl.hung_screens.size"]["value"].split(";"))
+hs_v, hs_f, hcab = [], [], []
+for q in range(nsc):
+    kq = int(round(q * KR / nsc + KR / (2 * nsc))) % KR; pq = prim[kq][26]; th_q = 2 * math.pi * kq / KR
+    ux, uy = math.cos(th_q), -math.sin(th_q); tx, ty = -uy, ux; zc = pq[2] - V("bowl.hung_screens.drop")
+    cs = []
+    for zz in (zc - sh_, zc):
+        for s_, d_ in ((-1, -0.15), (1, -0.15), (1, 0.15), (-1, 0.15)):
+            cs.append((pq[0] + tx * s_ * sw_ / 2 + ux * d_, pq[1] + ty * s_ * sw_ / 2 + uy * d_, zz))
+    box(hs_v, hs_f, cs)
+    for s_ in (-1, 1): hcab.append([(pq[0] + tx * s_ * sw_ / 2.5, pq[1] + ty * s_ * sw_ / 2.5, zc), (pq[0] + tx * s_ * 0.3, pq[1] + ty * s_ * 0.3, pq[2])])
+mesh_obj("hung_screens", "roof_detail", hs_v, hs_f, SCR, "estimated (IF20)", SRC_IF)
+tube_obj("hung_screen_cables", "roof_detail", hcab, 0.02, CABLE, "estimated (IF25)", SRC_IF)
+print("interior inventory: VIP seats", len(VP), "media seats", n_media, "sky boxes", n_box, "tunnel 1, dugouts 2, aisle bands", len(ais_th),
+      "hung screens", nsc)
+# IF74: the concourse floor is at y1l + 0.02 (section F), level with the lower tier top tread
 print("interior pass: aisles", n_ais, "upper portals", n_ais, "middle portals", len(range(0, n_ais, int(V("bowl.portals.middle_every")))),
       "box bays", n_bays, "floodlights per bay", V("bowl.floodlights.per_bay"))
 

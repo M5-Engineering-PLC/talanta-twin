@@ -8,12 +8,12 @@
    "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_000945.200.jpg",
    "position": [
     -30.0,
-    7.62,
+    7.720000000000001,
     6.0
    ],
    "target": [
     80.0,
-    14.120000000000001,
+    -6.9571336177715235,
     6.0
    ],
    "up": [
@@ -41,14 +41,14 @@
    "purpose": "match tour frame JWNowpO44rw 002144.300: west concourse at the top of the lower tier, along the concourse, bowl on the left; internal only",
    "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_002144.300.jpg",
    "position": [
-    -61.14,
+    -61.67,
     20.22,
-    0.0
+    35.6
    ],
    "target": [
-    -60.13,
+    -37.16,
     19.62,
-    42.1
+    79.7
    ],
    "up": [
     0,
@@ -75,9 +75,9 @@
    "purpose": "match tour frame JWNowpO44rw 000735.433: east concourse by a column, across the bowl to the west stand; internal only",
    "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_000735.433.jpg",
    "position": [
-    61.73,
+    66.92,
     20.22,
-    5.4
+    5.85
    ],
    "target": [
     -68.21,
@@ -177,14 +177,14 @@
    "purpose": "match tour frame JWNowpO44rw 000131.700: east upper gallery behind the top row, along the gallery, bowl on the right; internal only",
    "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_000131.700.jpg",
    "position": [
-    93.02,
+    92.12,
     52.02,
     0.0
    ],
    "target": [
-    83.61,
-    46.12,
-    70.15
+    85.02,
+    47.12,
+    71.34
    ],
    "up": [
     0,

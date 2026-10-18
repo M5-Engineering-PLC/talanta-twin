@@ -16,6 +16,13 @@
   ],
   "materials": [
     {
+      "material": "aisle_plate_blue",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "apron_paving",
       "claim": "estimated",
       "present": true,
@@ -443,6 +450,13 @@
       ]
     },
     {
+      "material": "dugout_seat",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "dugout_shell",
       "claim": "estimated",
       "present": true,
@@ -807,6 +821,13 @@
       "reason": "Preserve existing surface or unknown material."
     },
     {
+      "material": "hung_screen",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "jacaranda_leaf",
       "claim": "estimated",
       "present": true,
@@ -850,7 +871,14 @@
       ]
     },
     {
-      "material": "led_ribbon",
+      "material": "led_ribbon_middle",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "led_ribbon_upper",
       "claim": "estimated",
       "present": true,
       "action": "unchanged",
@@ -872,6 +900,20 @@
     },
     {
       "material": "mast_white",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "media_office_door",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "media_office_front",
       "claim": "estimated",
       "present": true,
       "action": "unchanged",
@@ -1791,6 +1833,13 @@
       ]
     },
     {
+      "material": "tier_front_band",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "track",
       "claim": "estimated",
       "present": false,
@@ -1939,7 +1988,42 @@
       "reason": "Preserve existing surface or unknown material."
     },
     {
+      "material": "tunnel_concrete",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "vip_glass_lit",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "vip_lounge_tile",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "vip_rail_steel",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "vip_sofa",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "vip_upholstery",
       "claim": "estimated",
       "present": true,
       "action": "unchanged",

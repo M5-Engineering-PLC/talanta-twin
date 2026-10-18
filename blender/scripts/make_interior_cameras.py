@@ -26,18 +26,18 @@ def ring(theta_deg, t, h, dr=0.0):
 
 
 CAMS = [  # id, frame, purpose, position, target, focal mm, roll deg
-    ("C30", "000945.200", "pitch level near the west touchline, across to the east stand",
-     [-30.0, PAD + 1.5, 6.0], [80.0, PAD + 8.0, 6.0], 26, 0.0),
+    ("C30", "000945.200", "pitch level near the west touchline, across to the east stand",   # pass 2: 1.6 m eye height,
+     [-30.0, PAD + 1.6, 6.0], [80.0, PAD + 1.6 - 110.0 * math.tan(math.radians(7.6)), 6.0], 26, 0.0),  # horizon at y 237/720
     ("C31", "002144.300", "west concourse at the top of the lower tier, along the concourse, bowl on the left",
-     ring(180, 0.415, 12.5 + 1.6), ring(145, 0.40, 12.5 + 1.0), 24, 0.0),
+     ring(150, 0.415, 12.5 + 1.6), ring(115, 0.40, 12.5 + 1.0), 24, 0.0),   # pass 2: out of the VIP lounge arc (west centre)
     ("C32", "000735.433", "east concourse by a column, across the bowl to the west stand",
-     ring(5, 0.43, 12.5 + 1.6), ring(178, 0.55, 22.0), 24, 0.0),
+     ring(5, 0.53, 12.5 + 1.6), ring(178, 0.55, 22.0), 24, 0.0),   # pass 2: under the middle-tier soffit (t 0.45-0.62)
     ("C33", "000154.067", "east upper tier back, looking up at the catwalk ring and the roof lattice",
      ring(10, 0.9, 42.5 + 1.6), roof_ring(32, 4.0, 47.0), 30, -12.0),
     ("C34", "002320.200", "north end, upper tier front walkway behind the glass balustrade, across the bowl",
      ring(265, 0.715, 33.0 + 1.6), ring(195, 0.6, 33.0), 22, 0.0),
     ("C35", "000131.700", "east upper gallery behind the top row, along the gallery, bowl on the right",
-     ring(0, 1.0, 44.3 + 1.6, dr=1.4), ring(40, 0.95, 40.0), 22, 0.0),
+     ring(0, 1.0, 44.3 + 1.6, dr=0.5), ring(40, 0.98, 41.0), 22, 0.0),   # pass 2: near the rail, off the colonnade
 ]
 out = {"note": "Interior pass cameras (detail sheet 05). Render viewpoints for review only; not real camera locations (AGENTS.md rule 8).",
        "cameras": [{"id": c, "name": f"Interior {fr}", "purpose": f"match tour frame JWNowpO44rw {fr}: {pur}; internal only",
