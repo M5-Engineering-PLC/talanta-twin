@@ -7,7 +7,7 @@ import { makeBuildings, makeRoads, makeTrees } from './world/context.js';
 import { buildBowl } from './world/bowl.js';
 import { buildPitch, pitchFeatures, buildSport } from './world/pitch.js';
 import { ribbon, centroid, circlePts } from './world/geom.js';
-import { sunPosition, eatDate, sunEvents } from './sun.js';
+import { sunPosition, eatDate, sunEvents, openingMinutes } from './sun.js';
 import { lineChart } from './ui/charts.js';
 import { buildSite } from './world/site.js';
 import { pass, mrt, output, normalView, vec4 } from 'three/tsl';
@@ -15,13 +15,13 @@ import { ao } from 'three/addons/tsl/display/GTAONode.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { loadHero } from './hero/loadHero.js';
 import { loadEnvironment, limitEnvToSpecular, horizonFogColor } from './hero/environment.js';
-import { applyHeroToneMapping, heroGrade } from './hero/heroLook.js';
+import { applyHeroToneMapping, heroGrade, applyHeroHaze } from './hero/heroLook.js';
 import { initOverlay } from './hero/overlay.js';
 import CAMS from '../cameras/manifest.json';
 import { buildTraffic } from './hero/traffic.js';
 import { buildCrowd } from './hero/crowd.js';
 import { createTour, enableTouchUX } from './tour.js';
-import { detectTier, TIERS, createFpsMonitor } from './perf.js';
+import { detectTier, TIERS, createFpsMonitor, profileGeometry } from './perf.js';
 
 const $ = (s) => document.querySelector(s);
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -38,7 +38,8 @@ const F = M.features;
 const PAD = F.site_pad_y;
 
 const stage = $('#stage');
-const LITE = new URLSearchParams(location.search).has('lite'); // software-GPU test mode
+const params = new URLSearchParams(location.search);
+const LITE = params.has('lite'); // software-GPU test mode
 const renderer = new THREE.WebGPURenderer({ antialias: true, logarithmicDepthBuffer: true });
 await renderer.init();
 // Quality tier (app/src/perf.js): ?lite = low, ?tier=<high|medium|low>, ?fps shows the readout.
@@ -93,7 +94,7 @@ const trees = makeTrees(D.trees, quality.treeCount, tier === 'high' ? 2500 : tie
 scene.add(buildings, roads, trees);
 
 // ---------------------------------------------------------------- stadium
-const bowl = buildBowl(F);
+const bowl = buildBowl(F, { tier });
 bowl.group.position.y = PAD;
 scene.add(bowl.group);
 // Stage 01 round trip: ?blender shows the Blender blockout (glTF, built from gis/parameter_ledger.csv)
@@ -127,8 +128,15 @@ scene.add(siteLine);
 const hemi = new THREE.HemisphereLight(0xdfe6ee, 0x7a6a55, 1.0);
 const sun = new THREE.DirectionalLight(0xfff3e0, 2.5);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
-Object.assign(sun.shadow.camera, { left: -420, right: 420, top: 420, bottom: -420, near: 10, far: 4000 });
+function applyShadowQuality() {
+  const extent = quality.shadowExtent;
+  sun.shadow.mapSize.set(quality.shadowSize, quality.shadowSize);
+  Object.assign(sun.shadow.camera, { left: -extent, right: extent, top: extent, bottom: -extent, near: 10, far: quality.shadowFar });
+  sun.shadow.camera.updateProjectionMatrix();
+  sun.shadow.map?.dispose(); sun.shadow.map = null;
+  sun.shadow.needsUpdate = true;
+}
+applyShadowQuality();
 sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.6;
 scene.add(hemi, sun, sun.target);
 const flood = [];
@@ -144,16 +152,22 @@ for (let k = 0; k < 4; k++) {
 const today = new Date();
 const state = {
   day: new Date(today.getTime() + 3 * 3600000).toISOString().slice(0, 10),
-  minutes: 8 * 60 + 20,
+  minutes: openingMinutes(params.get('time')),
+  liveClock: false,
   mode: 'venue',
   build: Date.UTC(2026, 9, 1),
   playing: false,
   speed: 4,
 };
 $('#date').value = state.day;
-// Opening shot: morning golden hour. The sun is low in the east-south-east, so it lights the
-// north-east facade that faces the camera, with Ngong Hills behind the bowl.
-{ const se = sunEvents(state.day, LAT, LON); if (se.goldenEnd != null) state.minutes = se.goldenEnd + 4; }
+const liveClock = document.createElement('button');
+liveClock.type = 'button'; liveClock.textContent = 'Live clock'; liveClock.setAttribute('aria-pressed', 'false');
+$('#date').after(liveClock);
+function stopLiveClock() { state.liveClock = false; liveClock.setAttribute('aria-pressed', 'false'); }
+liveClock.onclick = () => {
+  state.liveClock = !state.liveClock; lastLiveMinute = ''; stopPlay();
+  liveClock.setAttribute('aria-pressed', String(state.liveClock));
+};
 
 // ---------------------------------------------------------------- time of day
 const zDay = new THREE.Color('#9dbad6'), zDusk = new THREE.Color('#4b5878'), zNight = new THREE.Color('#0c1222');
@@ -509,7 +523,7 @@ const pct = (x) => ((x - domain[0]) / (domain[1] - domain[0])) * 100;
 const curVal = () => (state.mode === 'construction' ? state.build : state.minutes);
 function setVal(x) {
   x = Math.min(domain[1], Math.max(domain[0], x));
-  if (state.mode === 'construction') state.build = x; else state.minutes = x;
+  if (state.mode === 'construction') state.build = x; else { stopLiveClock(); state.minutes = x; }
 }
 function trackFromEvent(e) { const r = $('#track').getBoundingClientRect(); setVal(domain[0] + ((e.clientX - r.left) / r.width) * (domain[1] - domain[0])); }
 $('#track').addEventListener('pointerdown', (e) => { stopPlay(); trackFromEvent(e); const mv = (ev2) => trackFromEvent(ev2); addEventListener('pointermove', mv); addEventListener('pointerup', () => removeEventListener('pointermove', mv), { once: true }); });
@@ -521,7 +535,7 @@ $('#events').addEventListener('click', (e) => {
   else focus(it.name.startsWith('Floodlights') ? 'bowl' : it.name.startsWith('Sunset') || it.name.startsWith('Golden hour') ? 'ngong' : 'overview');
 });
 function stopPlay() { state.playing = false; $('#play').textContent = '▶'; $('#play').classList.remove('on'); }
-$('#play').onclick = () => { state.playing = !state.playing; $('#play').textContent = state.playing ? '❚❚' : '▶'; $('#play').classList.toggle('on', state.playing); };
+$('#play').onclick = () => { stopLiveClock(); state.playing = !state.playing; $('#play').textContent = state.playing ? '❚❚' : '▶'; $('#play').classList.toggle('on', state.playing); };
 $('#step').onclick = () => { const n = ev.find((e) => e.v > curVal() + 1); setVal(n ? n.v : domain[0]); };
 $('#speed').onchange = (e) => { state.speed = parseInt(e.target.value, 10); };
 
@@ -555,7 +569,7 @@ document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   if (b.dataset.mode === 'construction') { state.build = Date.UTC(2023, 0, 8); focus('bowl'); }
   if (b.dataset.mode === 'weather') { $('#weather').scrollIntoView({ behavior: 'smooth' }); focus('overview'); }
 });
-$('#date').onchange = (e) => { if (e.target.value) { state.day = e.target.value; wxKey = ''; buildTimeline(); } };
+$('#date').onchange = (e) => { if (e.target.value) { stopLiveClock(); state.day = e.target.value; wxKey = ''; buildTimeline(); } };
 
 // ---------------------------------------------------------------- map controls
 const v2d = $('#v2d'), v3d = $('#v3d');
@@ -617,15 +631,27 @@ function updateHud() {
 
 // ---------------------------------------------------------------- web hero (?hero)
 // Baked Blender export (blender/web_hero, app/public/models + env). Lighting is baked for one moment
-// (manifest.time), so hero mode locks the clock there and lights the scene from the lightmaps and the panorama.
+// (manifest.time), so hero mode keeps that baked light while the UI clock remains independent.
 // It loads in the background: the procedural twin stays usable until the hero is ready, or if it never is.
 let hero = null, heroHidden = [], heroFog = null, heroGradeOn = null;
 const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} timed out after ${ms / 1000} s`)), ms))]);
-if (new URLSearchParams(location.search).has('hero')) {
+async function loadPreferredHero() {
+  for (const base of ['./models/', './models/test/']) {
+    try {
+      const response = await fetch(`${base}manifest.json`);
+      if (!response.ok) continue;
+      const manifest = await response.json();
+      if (!manifest.models || typeof manifest.models !== 'object') continue;
+      return await loadHero({ renderer, scene, base });
+    } catch (error) { console.warn('hero manifest unavailable:', base, error); }
+  }
+  return null;
+}
+if (params.has('hero')) {
   (async () => {
     // A load that times out is cancelled: if it completes later, its result is dropped, never shown.
     let late = false;
-    const h = await withTimeout(loadHero({ renderer, scene }), 180000, 'hero models').catch((e) => { late = true; console.warn(e); return null; });
+    const h = await withTimeout(loadPreferredHero(), 180000, 'hero models').catch((e) => { late = true; console.warn(e); return null; });
     if (!h) return;
     let envLate = false;
     const envP = loadEnvironment({ renderer, scene: new THREE.Scene(), manifest: h.manifest, preferSmall: quality.panoramaSize === '2048' }).then((e) => { if (envLate) { e?.dispose(); return null; } return e; });
@@ -636,17 +662,16 @@ if (new URLSearchParams(location.search).has('hero')) {
     limitEnvToSpecular(h.group, env?.texture);
     let hasGround = false; h.group.traverse((o) => { if (o.isMesh && /^ground/.test(o.name)) hasGround = true; });
     heroHidden = [bowl.group, pitch.group, sport.group, site.group, buildings, roads, trees, siteLine, blockout].filter(Boolean);
-    if (env) { heroHidden.push(sky, terrainHz, terrainFar); heroFog = horizonFogColor(env.texture); scene.fog = new THREE.Fog(heroFog, 1500, 9000); }
+    if (env) { heroHidden.push(sky, terrainHz, terrainFar); heroFog = horizonFogColor(env.texture); }
+    applyHeroHaze(scene, heroFog ?? scene.fog.color);
     if (hasGround) heroHidden.push(terrainSite);
     sun.castShadow = false; renderer.shadowMap.enabled = false;
-    const [hh, mm] = (h.manifest.time?.local ?? '07:35').split(/[: ]/).map(Number);
-    state.minutes = hh * 60 + mm; state.playing = false;
+    // The UI keeps 07:30 or the user's choice; the lightmap retains its baked time.
     hero = h; heroGradeOn?.();
     console.info('hero mode on:', h.manifest.time, env ? 'panorama loaded' : 'no panorama, procedural sky kept');
   })();
 }
-// In hero mode the baked light is the light. Runs every frame after applyTime() and applyBuild(), which
-// otherwise relight the scene and bring the procedural stadium back.
+// Keep procedural lights and geometry hidden when the time or layer controls change.
 function heroLock() {
   sun.intensity = 0; hemi.intensity = 0; for (const s of flood) s.intensity = 0;
   for (const o of heroHidden) o.visible = false;
@@ -679,12 +704,13 @@ if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost'
 let traffic = null;
 fetch('./data/traffic_lines.json').then((r) => r.json()).then((lines) => {
   traffic = buildTraffic({ lines, groundAt, camera, count: quality.trafficCount, proxyDistance: tier === 'high' ? 250 : 120 });
+  traffic.setLimit?.(quality.trafficCount);
   scene.add(traffic.group);
 }).catch((e) => console.warn('traffic off:', e));
 // The crowd is heavy (about 56 triangles per fan), so it is built only when Match day is first opened.
 let crowd = null;
 function ensureCrowd() {
-  if (crowd || !bowl.seats) return;
+  if (crowd || !bowl.seats || quality.crowdFraction === 0) return;
   crowd = buildCrowd({ seats: bowl.seats, pitch: { centre: [0, 0, 0], bearing: F.pitch_bearing_deg }, fraction: quality.crowdFraction });
   crowd.group.position.y = PAD; scene.add(crowd.group);
 }
@@ -692,32 +718,57 @@ const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   tier = next; quality = TIERS[tier];
   renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
   renderer.shadowMap.enabled = quality.shadows && !hero;
+  applyShadowQuality(); bowl.setTier(tier);
   // Apply the rest of the tier to what already exists: post-processing off, fewer trees, cheaper traffic.
   if (!quality.postProcessing) pipeline = null;
   { const keep = quality.treeCount / Math.max(1, trees.children.reduce((n, m) => n + m.count, 0)); if (keep < 1) for (const m of trees.children) if (m.isInstancedMesh) m.count = Math.floor(m.count * keep); }
   traffic?.setLimit(quality.trafficCount);
-  if (crowd && quality.crowdFraction < 1) { scene.remove(crowd.group); crowd = null; if (state.matchday) ensureCrowd(); }
+  if (crowd && quality.crowdFraction < 1) {
+    scene.remove(crowd.group);
+    crowd.group.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } });
+    crowd = null; if (state.matchday) ensureCrowd();
+  }
+  if (!quality.crowdFraction) site.crowd.visible = false;
 } });
 if (fpsMonitor.element) stage.appendChild(fpsMonitor.element);
 
 buildTimeline();
 applyBuild();
 focus('overview', 1);
-let lastT = performance.now(), hud = 0;
+if (!quality.crowdFraction) site.crowd.visible = false;
+let lastT = performance.now(), hud = 0, lastTimeKey = '', lastBuildKey = '', cachedSun;
+let lastLiveMinute = '';
+/** Return geometry counts before culling for the current scene parts. */
+function performanceProfile() {
+  return Object.fromEntries(Object.entries({ seats: bowl.seats, bowl: bowl.group, context: trees, buildings, roads, site: site.group, traffic: traffic?.group, crowd: crowd?.group }).map(([name, root]) => [name, profileGeometry(root)]));
+}
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  if (state.liveClock) {
+    const eatNow = new Date(Date.now() + 3 * 3600000), key = eatNow.toISOString().slice(0, 16);
+    if (key !== lastLiveMinute) {
+      const day = key.slice(0, 10), changed = day !== state.day;
+      state.day = day; state.minutes = eatNow.getUTCHours() * 60 + eatNow.getUTCMinutes();
+      $('#date').value = day; if (changed) { wxKey = ''; buildTimeline(); }
+      lastLiveMinute = key;
+    }
+  }
   if (state.playing) {
     if (state.mode === 'construction') { state.build += state.speed * DAY * dt * 8; if (state.build > C1) state.build = C0; }
     else { state.minutes += state.speed * dt * 15; if (state.minutes > 1440) state.minutes = 0; }
   }
   stepFly(now);
-  site.update(now / 1000, night);
+  if (!hero && site.group.visible) site.update(now / 1000, night);
   traffic?.update(dt);
-  if (crowd) { crowd.group.visible = state.matchday && bowl.seats.visible; if (crowd.group.visible) crowd.update(now / 1000, night); }
+  site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
+  if (crowd) { crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible; if (crowd.group.visible) crowd.update(now / 1000, night); }
   fpsMonitor.update(now);
   controls.update();
-  const sp = applyTime();
-  const b = applyBuild();
+  const timeKey = `${state.day}:${state.minutes}:${Boolean(hero)}`;
+  if (timeKey !== lastTimeKey) { cachedSun = applyTime(); lastTimeKey = timeKey; }
+  const buildKey = `${state.mode}:${state.build}:${Boolean(blockout)}:${JSON.stringify(layerState)}`;
+  if (buildKey !== lastBuildKey) { applyBuild(); lastBuildKey = buildKey; }
+  const sp = cachedSun;
   if (hero) heroLock();
   const cv = curVal();
   $('#thumb').style.left = `${pct(cv)}%`;
@@ -735,4 +786,4 @@ renderer.setAnimationLoop((now) => {
 });
 setTimeout(() => $('#splash').classList.add('done'), 250);
 $('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 seats · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.) · ${bowl.seatCount.toLocaleString()} seats modelled`;
-window.__twin = { scene, camera, controls, focus, state, FOCUS, get blockout() { return blockout; } };
+window.__twin = { performanceProfile, scene, camera, controls, focus, state, FOCUS, get blockout() { return blockout; } };
