@@ -8,7 +8,9 @@ import bpy
 
 CLAIM_RACECOURSE = "estimated outline: mapped location from gis/scripts/export_web.py and JWNowpO44rw frames"
 CLAIM_TERRAIN = "derived: Copernicus GLO-30 DSM, 2011-2015; limited to raster bounds"
-CLAIM_RIDGE = "estimated: Ngong Hills position about 20 km southwest, from environment notes"
+CLAIM_RIDGE = ("measured: terrain_horizon DEM (build_scene.py, 100 m grid over 40 km, Sentinel-2 colour); the Ngong Hills "
+               "crest reads 2,395 m at 17.7 km, bearing 224 deg (published summit about 2,460 m; the 100 m grid smooths it)")
+DATUM_M = 1809.6  # scene z = 0 (same datum as _height_sample)
 CLAIM_CITY = "CBD label from gis/scripts/export_web.py; Upper Hill placement and tower heights estimated"
 
 
@@ -96,7 +98,7 @@ def _terrain_band(scene, name, image, metadata, origin, radius_low, radius_high,
             east = bounds[0] + i * dx
             x = east - origin[0]
             radius = math.hypot(x, y)
-            if radius_low <= radius <= radius_high:
+            if radius_low - 150 <= radius <= radius_high + 150:  # rings overlap one cell so no sky shows between them
                 lookup[i, j] = len(verts)
                 verts.append((x, y, _height_sample(image, bounds, metadata["min_m"], metadata["max_m"], east, north)))
     for (i, j), a in lookup.items():
@@ -108,6 +110,55 @@ def _terrain_band(scene, name, image, metadata, origin, radius_low, radius_high,
     if not faces:
         return None
     return _mesh(scene, name, verts, faces, material, CLAIM_TERRAIN)
+
+
+# terrain_horizon split into distance layers (Blender name: inner radius m) so lookdev.py can haze each one.
+# The Ngong Hills crest and foothills fall in the middle layer (14.1 to 19.7 km for the land above z = 300 m).
+TOWER_TONES = [(0.78, 0.74, 0.64), (0.70, 0.69, 0.66), (0.62, 0.62, 0.61), (0.80, 0.70, 0.55), (0.55, 0.57, 0.60)]
+HORIZON_LAYERS = {"terrain_horizon": 0, "terrain_horizon_hills": 12500, "terrain_horizon_far": 20000}
+
+
+def _split_horizon(scene):
+    """Move terrain_horizon faces into the layer objects by face-centre radius. Same mesh data, no new geometry."""
+    import bmesh
+    src = bpy.data.objects.get("terrain_horizon")
+    if src is None: return {}
+    bounds = sorted(HORIZON_LAYERS.items(), key=lambda kv: kv[1]); out = {}
+    obs = {name: src if name == src.name else bpy.data.objects.new(name, src.data.copy()) for name, _ in bounds}  # copy first
+    for k, (name, r0) in enumerate(bounds):
+        r1 = bounds[k + 1][1] if k + 1 < len(bounds) else 1e12
+        ob = obs[name]
+        if ob is not src:
+            for c in src.users_collection: c.objects.link(ob)
+            ob.matrix_world = src.matrix_world; ob["claim"] = CLAIM_RIDGE
+        bm = bmesh.new(); bm.from_mesh(ob.data)
+        bmesh.ops.delete(bm, geom=[f for f in bm.faces if not r0 <= math.hypot(*f.calc_center_median().xy) < r1], context="FACES")
+        bm.to_mesh(ob.data); bm.free(); out[name] = len(ob.data.polygons) * 2
+    return out
+
+
+def _tower_material(name, tone):
+    """Facade tone with window rows: 3.4 m storeys, 1.8 m bays, dark glazing, from object-space position."""
+    mat = _material(name, tone, 0.6)
+    t = mat.node_tree; n = t.nodes; bsdf = n.get("Principled BSDF")
+    pos = n.new("ShaderNodeTexCoord")
+    sep = n.new("ShaderNodeSeparateXYZ"); t.links.new(pos.outputs["Object"], sep.inputs[0])
+    def m(op, a_, b_=0.0):
+        nd = n.new("ShaderNodeMath"); nd.operation = op
+        for sk, v in zip(nd.inputs, (a_, b_)):
+            if hasattr(v, "node"): t.links.new(v, sk)
+            else: sk.default_value = v
+        return nd.outputs[0]
+    floor = m("FRACT", m("DIVIDE", sep.outputs["Z"], 3.4))
+    row = m("MULTIPLY", m("GREATER_THAN", floor, 0.32), m("LESS_THAN", floor, 0.86))
+    bay = m("LESS_THAN", m("FRACT", m("DIVIDE", m("ADD", sep.outputs["X"], sep.outputs["Y"]), 1.8)), 0.72)
+    glass = m("MULTIPLY", m("MULTIPLY", row, bay), m("GREATER_THAN", sep.outputs["Z"], 4.0))
+    mix = n.new("ShaderNodeMixRGB"); t.links.new(glass, mix.inputs[0])
+    mix.inputs[1].default_value = (*tone, 1); mix.inputs[2].default_value = (0.09, 0.12, 0.14, 1)
+    t.links.new(mix.outputs[0], bsdf.inputs["Base Color"])
+    t.links.new(m("SUBTRACT", 0.65, m("MULTIPLY", glass, 0.5)), bsdf.inputs["Roughness"])
+    mat["claim"] = "Visualization: window rows and tones are generic, not surveyed"
+    return mat
 
 
 def _tower(scene, name, x, y, height, width, material):
@@ -166,17 +217,10 @@ def build(scene, root):
             made.append(obj)
     bpy.data.images.remove(image)
 
-    # The ridge is placed from the environment notes; its profile is a simple visualization.
-    ridge_mat = _material("horizon_ngong_ridge", (0.36, 0.43, 0.45))
-    ridge_verts = [(-17500, -13200, -5), (-15000, -14600, 0), (-13000, -14900, -8),
-                   (-10800, -14000, 0), (-8800, -12800, -12), (-8800, -12800, 450),
-                   (-10800, -14000, 720), (-13000, -14900, 1060), (-15000, -14600, 850),
-                   (-16800, -13700, 680), (-17500, -13200, 450)]
-    made.append(_mesh(scene, "ngong_hills_ridge", ridge_verts,
-                      [(0, 1, 9, 10), (1, 2, 8, 9), (2, 3, 7, 8), (3, 4, 5, 6, 7)],
-                      ridge_mat, CLAIM_RIDGE))
+    # The Ngong Hills come from the terrain_horizon DEM; split it into distance layers for the haze.
+    hills = _split_horizon(scene)
 
-    tower_mat = _material("horizon_city_pale", (0.63, 0.62, 0.56), 0.88)
+    tower_mats = [_tower_material(f"horizon_city_{i}", c) for i, c in enumerate(TOWER_TONES)]
     towers = []
     for district, cx, cy, n in (("CBD", 8020, 2180, 12), ("Upper_Hill", 6900, 650, 9)):
         for i in range(n):
@@ -185,7 +229,7 @@ def build(scene, root):
             y = cy + (row - 1) * 180
             height = 32 + ((i * 17 + 19) % 37)
             towers.append(_tower(scene, f"city_tower_{district}_{i + 1:02d}", x, y,
-                                  height, 45 + (i % 3) * 12, tower_mat))
+                                  height, 45 + (i % 3) * 12, tower_mats[(i * 7 + len(district)) % len(tower_mats)]))
     made.extend(towers)
 
     for obj in made:
@@ -195,10 +239,11 @@ def build(scene, root):
     counts = {
         "racecourse_triangles": sum(_triangles(o) for o in made if o.name.startswith("racecourse_") or o.name.startswith("tree_slot_")),
         "terrain_triangles": sum(_triangles(o) for o in made if o.name.startswith("horizon_band_")),
-        "ridge_triangles": _triangles(bpy.data.objects["ngong_hills_ridge"]),
         "city_triangles": sum(_triangles(o) for o in towers),
     }
-    counts["total_triangles"] = sum(counts.values())
+    counts["total_triangles"] = sum(counts.values())  # added geometry; the DEM layers are moved, not added
+    counts["ridge_triangles"] = hills.get("terrain_horizon_hills", 0)
+    counts["horizon_layer_triangles"] = hills
     counts["triangle_limit"] = 300000
     collection["claim"] = "Mixed: see each object's claim property"
     collection["triangle_report"] = json.dumps(counts, separators=(",", ":"))

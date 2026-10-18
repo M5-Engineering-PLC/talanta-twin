@@ -1,0 +1,10 @@
+category,weight,score,note
+geometry,30,3.5,"stadium unchanged and footage-true (keep frames 000641.633, 001244.833); context now has the forecourt layout, 8,968 suburb buildings, horizon racecourse and the DEM Ngong Hills, but Ngong Road traffic reads as a bumper-to-bumper car park of white blocks (495 vehicles), and near trees in C20 show 40-triangle far crowns"
+materials,15,3,"roof still 10 to 14 L* darker than the concepts; suburb walls and towers now have window rows and cream/grey tones (C20 suburbs dE 16.2 -> 12.0); open ground is textured murram and grass but reads as broad smooth peach areas; far land keeps the dry-season Sentinel-2 tone (beige-brown)"
+lighting,15,3,"approved light unchanged (07:30 at -1 EV, 17:30 at -1.7 EV, real sun direction); scored lower than pass 1 on review: no specular sparkle (clipping 0.1% and 0% vs 1.4% and 3.2%), roof flat"
+atmosphere,5,2.5,"haze cut by 35% and set per distance band; the Ngong Hills now read as a grey-blue ridge (DEM layer, haze 0.58) but paler and less layered than 06; horizon crops still 17 L* low; thin seams remain where the terrain layers meet"
+vegetation,10,2.5,"canopy.py crowns on 33,181 trees and palms on 36 forecourt slots; reads denser, but canopy edge density 0.11 to 0.28 against 0.49 to 0.51 and the C19 forest crop is 8 L* darker than 06"
+people,10,n/a,"not observed: no people at this distance"
+camera,5,4.5,"unchanged pass 1 framing: stadium box within 12 px and 5 px, sky band within 0.4%"
+process,10,4,"all builders run in one scripted site build (18 s), seeded, render times logged; several integration faults fixed during the pass (z-fighting bands, layer split order)"
+total,,65.6,"weighted over the observed categories (90%): 295 / 450. Same honest rubric as the lead and Luna used on pass 1 (65 to 68): pass 2 is level, not a jump; the gains (suburbs, towers, hills, forecourt) are offset by the traffic, the flat murram and the dark canopy"

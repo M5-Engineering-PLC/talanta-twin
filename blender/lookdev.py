@@ -23,11 +23,18 @@ STRENGTHS = {
     "mist_start": 150.0,  # Clear foreground distance in meters.
     "mist_depth": 6000.0,  # Distance to full aerial perspective in meters.
     # Pass 1 aerial haze and golden grade, used when an HDRI preset set scene["talanta_haze_rgb"] (sky_hdri.py)
-    "aerial_haze_max": 0.55,  # Haze blend at full mist depth; forest, racecourse and hills layer into it.
+    "aerial_haze_max": 0.36,  # Haze blend at full mist depth (pass 2: 0.55 -> 0.36, the far land read as a beige smear).
     "aerial_mist_start": 200.0,  # Clear foreground distance in meters.
     "aerial_mist_depth": 20000.0,  # Linear mist depth; the Ngong Hills ridge (about 18 km) reaches about 0.5.
     "aerial_gamma": 0.7,  # Haze = max x mist^gamma: faster build-up over the first few kilometres.
     "aerial_blue": 0.25,  # Pull of the haze colour toward a cool blue-grey (0.58, 0.66, 0.78), keeping its brightness.
+    # Pass 2: fixed haze per distance band (horizon.py terrain bands 3-8.5 km, then the terrain_horizon
+    # layers: 6-12.5 km, 12.5-20 km with the Ngong Hills, beyond 20 km),
+    # lightest near, strongest far, so the far land keeps its structure and tone variation.
+    "aerial_band_haze": {"horizon_band_1": 0.12, "horizon_band_2": 0.18, "horizon_band_3": 0.26, "horizon_band_4": 0.36,
+                         "terrain_horizon": 0.42, "terrain_horizon_hills": 0.58, "terrain_horizon_far": 0.70},
+    "aerial_far_tint": (0.85, 0.95),  # terrain_horizon layers: blue pull and brightness of their haze colour (hills read blue, as in 06)
+    "aerial_far_tint_weight": {"horizon_band_3": 0.35, "horizon_band_4": 0.7},  # the outer bands blend toward it (no seam)
     "grade_saturation": 1.12,  # Richer greens and warm earth; applied before the view transform.
     "grade_warm": (1.05, 1.0, 0.93),  # Warm gain on mid-tones and highlights.
     "grade_warm_rise": (0.03, 0.18),  # Display-equivalent luminance where the warm gain fades in.
@@ -206,9 +213,12 @@ def _cameras(scene):
         camera.dof.aperture_fstop = STRENGTHS["f_stop"]
 
 
+def _index_socket(render):
+    return next(o.name for o in render.outputs if o.name in ("IndexOB", "Object Index", "Index OB"))
+
+
 def _aerial_grade(scene, tree, render, source, layer):
     """Depth haze toward the HDRI horizon colour, then saturation and a warm mid-tone gain (Visualization)."""
-    layer.use_pass_z = True
     scene.world.mist_settings.start = STRENGTHS["aerial_mist_start"]
     scene.world.mist_settings.depth = STRENGTHS["aerial_mist_depth"]
     rgb = list(scene["talanta_haze_rgb"])
@@ -219,6 +229,22 @@ def _aerial_grade(scene, tree, render, source, layer):
     land = _math(tree, "LESS_THAN", render.outputs["Depth"], 1e8)  # the sky is not hazed twice
     haze = _math(tree, "POWER", render.outputs["Mist"], STRENGTHS["aerial_gamma"])
     haze = _math(tree, "MULTIPLY", _math(tree, "MULTIPLY", haze, STRENGTHS["aerial_haze_max"]), land)
+    bands = [(41 + i, bpy.data.objects[n], h) for i, (n, h) in enumerate(STRENGTHS["aerial_band_haze"].items()) if n in bpy.data.objects]
+    if bands:
+        inside, fixed, far = 0.0, 0.0, 0.0
+        for index, ob, h in bands:
+            ob.pass_index = index
+            mask = tree.nodes.new("CompositorNodeIDMask")
+            tree.links.new(render.outputs[_index_socket(render)], mask.inputs[0])
+            if "Index" in mask.inputs: mask.inputs["Index"].default_value = index
+            else: mask.index = index
+            inside = _math(tree, "ADD", inside, mask.outputs[0]); fixed = _math(tree, "ADD", fixed, _math(tree, "MULTIPLY", mask.outputs[0], h))
+            wt = 1.0 if ob.name.startswith("terrain_horizon") else STRENGTHS["aerial_far_tint_weight"].get(ob.name, 0.0)
+            if wt: far = _math(tree, "ADD", far, _math(tree, "MULTIPLY", mask.outputs[0], wt))
+        haze = _math(tree, "ADD", _math(tree, "MULTIPLY", haze, _math(tree, "SUBTRACT", 1.0, inside, clamp=True)), fixed)
+        kb, kl = STRENGTHS["aerial_far_tint"]
+        far_tint = [kl * ((1 - kb) * c + kb * b * lum / blue_l) for c, b in zip(rgb, blue)] + [1.0]
+        tint = _mix(tree, "MIX", far, tint, far_tint)
     image = _mix(tree, "MIX", haze, source, tint)
     hs = tree.nodes.new("CompositorNodeHueSat")
     tree.links.new(image, hs.inputs["Image"])
@@ -231,7 +257,8 @@ def _aerial_grade(scene, tree, render, source, layer):
     rise = _math(tree, "MULTIPLY", _math(tree, "SUBTRACT", shown, a0), 1 / (a1 - a0), clamp=True)
     fall = _math(tree, "MULTIPLY", _math(tree, "SUBTRACT", b1, shown), 1 / (b1 - b0), clamp=True)
     warm = _mix(tree, "MULTIPLY", 1.0, image, (*STRENGTHS["grade_warm"], 1.0))
-    return _mix(tree, "MIX", _math(tree, "MULTIPLY", rise, fall), image, warm)
+    keep_haze_cool = _math(tree, "SUBTRACT", 1.0, _math(tree, "MULTIPLY", haze, 1.5), clamp=True)
+    return _mix(tree, "MIX", _math(tree, "MULTIPLY", _math(tree, "MULTIPLY", rise, fall), keep_haze_cool), image, warm)
 
 
 def _compositor(scene, mode):
@@ -253,6 +280,8 @@ def _compositor(scene, mode):
             output = tree.nodes.new("CompositorNodeComposite")
     layer = scene.view_layers[0]
     layer.use_pass_mist = True
+    if mode == "day" and scene.get("talanta_haze_rgb") is not None:  # passes before the Render Layers node reads them
+        layer.use_pass_z = True; layer.use_pass_object_index = True
     scene.world.mist_settings.start = STRENGTHS["mist_start"]
     scene.world.mist_settings.depth = STRENGTHS["mist_depth"]
     scene.world.mist_settings.falloff = "LINEAR"

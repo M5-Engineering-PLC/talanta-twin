@@ -514,6 +514,56 @@ if mm:
     out = n_["Material Output"]; prev = out.inputs["Surface"].links[0].from_socket
     add = n_.new("ShaderNodeAddShader"); l_.new(prev, add.inputs[0]); l_.new(em.outputs[0], add.inputs[1]); l_.new(add.outputs[0], out.inputs["Surface"])
 
+# Pass 2 and 3 context modules (blender/context/, lead order 2026-10-18), then the CC0 surfaces last
+import sys, time as _time
+sys.path.insert(0, str(ROOT / "blender"))
+from context import forecourt, horizon, suburbs, canopy
+from context import traffic as traffic_context
+import materials_pbr
+context_reports = {}
+for _name, _build in (("forecourt", forecourt.build), ("horizon", horizon.build), ("suburbs", suburbs.build),
+                      ("traffic", traffic_context.build), ("canopy", canopy.build)):
+    _t = _time.time(); context_reports[_name] = _build(scene, ROOT); print(f"context {_name}: {_time.time() - _t:.1f} s", flush=True)
+
+
+def place_canopy_slots():
+    """canopy.py swaps scatter instances only. Put its palm variants on the forecourt palm_slot_* empties and its
+    broadleaf variants on the horizon tree_slot_* crown proxies (proxies hidden). Linked meshes, seeded choice."""
+    import random
+    lib = bpy.data.collections["canopy_variants"]; rng = random.Random(704)
+    coll_ = bpy.data.collections.new("canopy_slots"); scene.collection.children.link(coll_)
+    coll_["claim"] = canopy.CLAIM + "; slot positions from forecourt_layout.json and horizon.py"
+    def variant(name):
+        o = bpy.data.objects["canopy_" + name + "_high"]; zs = [v.co.z for v in o.data.vertices]
+        return o, max(zs) - min(zs), min(zs)
+    palms = [variant("palm_00"), variant("palm_01")]
+    broad = [variant("broadleaf_%02d" % i) for i in range(7)]
+    n_p = n_t = 0
+    for ob in sorted((o for o in scene.objects if o.name.startswith("palm_slot_")), key=lambda o: o.name):
+        src, h0, z0 = rng.choice(palms); k = ob["height_m"] / h0
+        o = bpy.data.objects.new("canopy_" + ob.name, src.data); coll_.objects.link(o)
+        o.location = ob.matrix_world.translation - Vector((0, 0, z0 * k)); o.scale = (k, k, k)
+        o.rotation_euler = (0, 0, rng.uniform(0, 2 * math.pi)); o["claim"] = ob["claim"]; o["web_lod"] = src["web_lod"]; n_p += 1
+    for ob in sorted((o for o in scene.objects if o.name.startswith("tree_slot_")), key=lambda o: o.name):
+        w = [ob.matrix_world @ v.co for v in ob.data.vertices]; base, top = w[0], w[1]
+        rad = max((v - top).xy.length for v in w[2:])
+        src, h0, z0 = rng.choice(broad); k = (top.z - base.z + 0.8) / h0
+        xs = [v.co.x for v in src.data.vertices]; kxy = max(k, rad / max(1e-3, (max(xs) - min(xs)) / 2))
+        o = bpy.data.objects.new("canopy_" + ob.name, src.data); coll_.objects.link(o)
+        o.location = (base.x, base.y, base.z - 0.8 - z0 * k); o.scale = (kxy, kxy, k)
+        o.rotation_euler = (0, 0, rng.uniform(0, 2 * math.pi)); o["claim"] = ob.get("claim", canopy.CLAIM); o["web_lod"] = src["web_lod"]
+        ob.hide_render = True; ob.hide_viewport = True; n_t += 1
+    return {"palm_slots": n_p, "tree_slots": n_t}
+
+
+context_reports["canopy_slots"] = place_canopy_slots()
+from context import far_land  # pass 2 lead review: far-land structure, murram car park, facade windows
+context_reports["far_land"] = far_land.build(scene, ROOT)
+_t = _time.time(); _pbr = materials_pbr.apply(scene, ROOT); print(f"materials_pbr: {_time.time() - _t:.1f} s", flush=True)
+context_reports["site_ground_detail"] = far_land.detail_site_ground(ROOT)
+context_reports["materials_pbr"] = {"textured": sum(r["action"] == "textured" for r in _pbr["materials"])}
+(ROOT / "blender/data/context_build_report.json").write_text(json.dumps(context_reports, indent=1, sort_keys=True, default=str) + "\n")
+
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "blender/out/talanta_site.blend"))
 print(json.dumps({"ngong_pts": len(mid), "palms": len(palms), "trees": len(tr), "shrubs": len(shr), "light_masts": len(P["lightmasts"]), "track_masts": len(mastpts),
                   "path_lights": len(P["pathlights"]), "wash_spots": k_, "pitch_line_quads": len(lines_f)}))
