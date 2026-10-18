@@ -343,7 +343,7 @@ def overlay(work, frames, p, cams, tag):
     shields (red rings) and hand-read points (white dots) on every frame."""
     from PIL import Image, ImageDraw
     tiles = []
-    for fr in frames:
+    for fr in [fr for fr in frames if fr.f in cams]:   # excluded frames have no camera
         c = cams[fr.f]
         im = Image.open(m.ROOT + f"research/frames/JWNowpO44rw/JWNowpO44rw_{fr.f}.jpg").convert("RGB"); d = ImageDraw.Draw(im)
         uv, z, C = project(shell_pts(p), c); h = uv[ConvexHull(uv).vertices]
@@ -352,7 +352,7 @@ def overlay(work, frames, p, cams, tag):
         for P, col in ((ring(RRO, p["yW"]), (255, 0, 255)), (crest, (255, 255, 0)), (ring(RRO - p["dF"], p["yFoot"]), (255, 140, 0))):
             u, _, C_ = project(P, c); vis = visible(P, C_)
             for r_ in runs(vis): d.line([tuple(q) for q in u[r_]], fill=col, width=2)
-        u, _, _ = project(ring(RRI, p["openY"]), c); d.line([tuple(q) for q in np.vstack([u, u[:1]])], fill=(0, 255, 0), width=2)
+        u, _, _ = project(ring(RRI - p.get("dRi", 0.0), p["openY"]), c); d.line([tuple(q) for q in np.vstack([u, u[:1]])], fill=(0, 255, 0), width=2)
         if fr.k is not None and len(fr.S):
             ks = [(fr.k + len(fr.S) - 1 - i) % 8 for i in range(len(fr.S))]
             for q in project(shield_P(p, ks), c)[0]: d.ellipse((q[0] - 12, q[1] - 12, q[0] + 12, q[1] + 12), outline=(255, 0, 0), width=4)

@@ -1,0 +1,22 @@
+parameter,basin_A_40_3,basin_B_46_5_best,basin_C_51_1,median_m,basin_spread_m,loo_spread_m,accepted,built_m
+wall top yW,44.32,47.01,49.16,47.01,4.84,0.01,no,51.0 (kept)
+shoulder Rh,10.18,8.27,13.65,10.18,5.37,0.40,no,3.0 (kept)
+shoulder Rv,6.52,1.18,4.23,4.23,5.34,0.00,no,3.0 (kept)
+opening height,50.22,48.71,51.28,50.22,2.57,0.20,no,50.0 (kept)
+opening ring inset dRi,2.77,4.05,0.41,2.77,3.64,0.03,no,0 (ring kept)
+roof sag,-2.66,-0.24,-2.73,-2.66,2.49,6.19,no (accepted in pass 1),1.5 (estimate read again)
+foot inset dF,0.66,-0.12,0.81,0.66,0.94,0.09,yes,0.66
+wall bulge,-3.09,-3.43,-3.01,-3.09,0.43,0.14,yes,-3.09
+shield centre hs,27.92,27.44,28.14,27.92,0.70,0.30,yes,27.92
+cost,442906,427107,435210,,,,,
+
+frame,mask_iou,outline_median_px,junction_rms_px,shield_k
+000641.633,0.895,3.9,15.1,2
+000659.633,0.958,3.3,7.3,4
+001221.500,0.945,6.7,15.3,0
+001224.500,0.950,7.4,13.4,4
+001235.934,0.787,9.4,45.8,2
+001239.267,0.926,6.1,18.9,1
+001244.833,0.929,5.0,7.9,4
+001247.833,0.872,12.5,57.5,1
+001232.600,,,,excluded: no camera could be matched (as pass 1)

@@ -1,9 +1,9 @@
 """Blender silhouette check of the rebuilt blockout from solved frame cameras (pinhole; the fit's k1 is ignored, so
 use frames where the stadium sits near the image centre). Renders shell + facade detail as a flat white mask with
 Workbench at 1280 x 720 and writes <out>/sil_<frame>.png plus the mask IoU against the seg2.py mask.
-Run: ~/.venvs/bpy/bin/python gis/scripts/profile_fit/blender_check.py <state.json> <mask dir> <out dir> <frame> [<frame> ...]
+Run (FIT_KEY=final2 for pass 2): ~/.venvs/bpy/bin/python gis/scripts/profile_fit/blender_check.py <state.json> <mask dir> <out dir> <frame> [<frame> ...]
 """
-import json, math, sys
+import json, math, os, sys
 from pathlib import Path
 import bpy, numpy as np
 from mathutils import Matrix, Vector
@@ -26,7 +26,7 @@ cam = bpy.data.objects.new("fitcam", bpy.data.cameras.new("fitcam")); s.collecti
 B = lambda v: Vector((v[0], -v[2], v[1]))
 res = {}
 for f in frames:
-    tx, ty, tz, az, el, d, fpx, roll = state["final"]["cams"][f][:8]
+    tx, ty, tz, az, el, d, fpx, roll = state[os.environ.get("FIT_KEY", "final")]["cams"][f][:8]
     az, el, roll = map(math.radians, (az, el, roll))
     fwd = -np.array([math.cos(el) * math.cos(az), math.sin(el), math.cos(el) * math.sin(az)])
     C = np.array([tx, ty, tz]) - fwd * d
