@@ -227,7 +227,8 @@ def solve_camera(fr, p, f0, free_f=True, seeds=None, top=8, f_fixed=None, preali
     fr.k = best[2]; return best[1]
 
 
-F_SCALE = 10.0  # px, robust scale of the image residuals (soft_l1)
+F_SCALE = 10.0  # px, robust scale of the image residuals (soft_l1); also their sigma when a prior is used
+CREST_PRIOR = (54.0, 2.0)  # m, mean and sd: narration 10:27 "roughly 54 m" plus press (06_interior_inventory.md)
 
 
 def soft_l1_cost(res, f=F_SCALE):
@@ -235,9 +236,11 @@ def soft_l1_cost(res, f=F_SCALE):
     return float(np.sum(f * f * (np.sqrt(1 + (np.asarray(res) / f) ** 2) - 1)))
 
 
-def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60):
-    """Profile + one focal length per lens + pose per frame. The result carries r.cost_image (image residuals only,
-    soft_l1)."""
+def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60, prior=None):
+    """Profile + one focal length per lens + pose per frame. prior=(mean, sd) adds a Gaussian crest prior
+    ((yW + Rv - mean) / sd)^2 in the units of the image term, whose residuals count in units of F_SCALE px:
+    total = image soft_l1 cost + 0.5 F_SCALE^2 ((crest - mean) / sd)^2. The result carries r.cost_image (image
+    residuals only, soft_l1) and r.prior_penalty (the prior term, same units)."""
     lens_ids = sorted(set(lens[f.f] for f in frames))
     fvals = {L: np.mean([cams[f.f][6] for f in frames if lens[f.f] == L]) for L in lens_ids}
     kvals = {L: np.mean([cams[f.f][8] if len(cams[f.f]) > 8 else 0.0 for f in frames if lens[f.f] == L]) for L in lens_ids}
@@ -268,10 +271,18 @@ def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60):
 
     def fun(v): return image_res(v)[0]
 
+    def fun_prior(v):  # soft_l1 applied by hand (r' with r'^2 = 2 f^2 (sqrt(1 + (r/f)^2) - 1)), prior outside the robust loss
+        r_, top = image_res(v)
+        rr = np.sign(r_) * np.sqrt(2 * F_SCALE ** 2 * (np.sqrt(1 + (r_ / F_SCALE) ** 2) - 1))
+        return np.r_[rr, F_SCALE * (top - prior[0]) / prior[1]]
+
     x_0 = np.clip(v0, lo + 1e-6, hi - 1e-6)
-    r = least_squares(fun, x_0, bounds=(lo, hi), loss="soft_l1", f_scale=F_SCALE, max_nfev=nfev, x_scale="jac")
+    if prior is None:
+        r = least_squares(fun, x_0, bounds=(lo, hi), loss="soft_l1", f_scale=F_SCALE, max_nfev=nfev, x_scale="jac")
+    else:
+        r = least_squares(fun_prior, x_0, bounds=(lo, hi), loss="linear", max_nfev=nfev, x_scale="jac")
     r_img, top = image_res(r.x)
-    r.cost_image = soft_l1_cost(r_img[:-1]); r.prior_penalty = 0.0
+    r.cost_image = soft_l1_cost(r_img[:-1]); r.prior_penalty = 0.0 if prior is None else float(0.5 * F_SCALE ** 2 * ((top - prior[0]) / prior[1]) ** 2)
     p, cs = unpack(r.x)
     return r.x[:n_p], {f.f: c for f, c in zip(frames, cs)}, {L: [r.x[n_p + i], r.x[n_p + n_l + i]] for i, L in enumerate(lens_ids)}, r
 
@@ -372,7 +383,10 @@ def acceptance(basin_profiles, loo_profiles, keys=SPREAD_KEYS, limit=ACCEPT_M):
     out = {}
     for k in keys:
         sb = float(np.ptp([p[k] for p in basin_profiles])); sl = float(np.ptp([p[k] for p in loo_profiles]))
-        out[k] = {"basin_spread": sb, "loo_spread": sl, "combined": max(sb, sl), "accepted": max(sb, sl) < limit,
+        vals = [p[k] for p in basin_profiles + loo_profiles]
+        at_bound = k in KEYS and any(min(v - LO[KEYS.index(k)], HI[KEYS.index(k)] - v) < 0.05 for v in vals)
+        out[k] = {"basin_spread": sb, "loo_spread": sl, "combined": max(sb, sl), "at_bound": bool(at_bound),
+                  "accepted": max(sb, sl) < limit and not at_bound,  # a value held by its bound has no spread but is not fitted
                   "median": float(np.median([p[k] for p in basin_profiles]))}
     return out
 
@@ -398,14 +412,14 @@ def _pack(x, c2, fl, r, frames):
 def _ms_worker(a):
     (yw, dri), prior = a; st = _G["st"]; B = st["final"]; frames = _frames()
     x0 = np.array([B["profile"].get(k, 0.0) for k in KEYS]); x0[0] = yw; x0[KEYS.index("dRi")] = dri
-    x, c2, fl, r = joint(frames, {f: np.array(c) for f, c in B["cams"].items()}, st["lens"], x0, nfev=80)
+    x, c2, fl, r = joint(frames, {f: np.array(c) for f, c in B["cams"].items()}, st["lens"], x0, nfev=80, prior=prior)
     d = _pack(x, c2, fl, r, frames); d["start"] = [yw, dri]; return d
 
 
 def _loo_worker(a):
     drop, best, prior = a; frames = _frames(drop)
     x0 = np.array([best["profile"][k] for k in KEYS])
-    x, c2, fl, r = joint(frames, {f: np.array(c) for f, c in best["cams"].items()}, _G["st"]["lens"], x0, nfev=60 if drop else 100)
+    x, c2, fl, r = joint(frames, {f: np.array(c) for f, c in best["cams"].items()}, _G["st"]["lens"], x0, nfev=60 if drop else 100, prior=prior)
     d = _pack(x, c2, fl, r, frames); d["drop"] = drop; return d
 
 
@@ -457,9 +471,9 @@ def overlay(work, frames, p, cams, tag):
 
 
 if __name__ == "__main__" and "robust" in sys.argv:
-    # python3 fit2.py <work> robust <tag>: 3 starts (wall top 40, 46, 51 m; dRi 3, 5, 1 m as in pass 2)
+    # python3 fit2.py <work> robust <tag> [prior]: 3 starts (wall top 40, 46, 51 m; dRi 3, 5, 1 m as in pass 2)
     tag = sys.argv[sys.argv.index("robust") + 1]
-    robust(WORK, f"{WORK}/fit2_state.json", tag, [[40.0, 3.0], [46.0, 5.0], [51.0, 1.0]], None)
+    robust(WORK, f"{WORK}/fit2_state.json", tag, [[40.0, 3.0], [46.0, 5.0], [51.0, 1.0]], list(CREST_PRIOR) if "prior" in sys.argv else None)
 
 if __name__ == "__main__" and "overlay" in sys.argv:
     st = json.load(open(f"{WORK}/fit2_state.json")); key = sys.argv[sys.argv.index("overlay") + 1]
