@@ -1,0 +1,1480 @@
+{
+  "date": "2026-10-18",
+  "source": "blender/materials_pbr.py",
+  "project": "Talanta Twin",
+  "status": "software",
+  "claim": "estimated",
+  "version": 1,
+  "handoff": "Apply after all builders and before save or bake.",
+  "assumptions": [
+    "Texture repeat widths and macro variation are artistic estimates.",
+    "Paving repeat assumes about six 0.4 m modules per image.",
+    "Warm suburb roofs use tiles. Gray and green roofs use corrugated sheet.",
+    "Existing red earth and service murram colors remain the Ground109 tint.",
+    "Grass005 excludes the striped pitch and training turf.",
+    "World projection assumes fixed geometry during the bake."
+  ],
+  "materials": [
+    {
+      "material": "Dots Stroke",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "Material",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "apron_paving",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "PavingStones146",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "PavingStones146": {
+          "repeat_m": 2.4,
+          "macro_m": 18.0,
+          "maps": {
+            "Color": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": 0.4
+    },
+    {
+      "material": "barrier_concrete",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "bay_paint",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "bollard_grey",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "buildings_mat",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "cable_dark",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "canopy_pale",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "canopy_roof",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "CorrugatedSteel005",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "CorrugatedSteel005": {
+          "repeat_m": 2.0,
+          "macro_m": 14.0,
+          "maps": {
+            "Color": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "catwalk_grating",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "colonnade_louvre",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "concrete",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "concrete_light",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "concrete_light_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "concrete_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "concrete_shade",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "concrete_shade_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "corner_flag_yellow",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "drain_channel",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "dugout_shell",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "earth",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Ground109",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Ground109": {
+          "repeat_m": 3.0,
+          "macro_m": 24.0,
+          "maps": {
+            "Color": "blender/assets/textures/Ground109/Ground109_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Ground109/Ground109_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Ground109/Ground109_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "earth_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Ground109",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Ground109": {
+          "repeat_m": 3.0,
+          "macro_m": 24.0,
+          "maps": {
+            "Color": "blender/assets/textures/Ground109/Ground109_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Ground109/Ground109_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Ground109/Ground109_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "facade_void",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "facade_void_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "fence_palisade",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "flag_plain",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "flag_pole",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "floodlight_head",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "footpath_paving",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "PavingStones146",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "PavingStones146": {
+          "repeat_m": 2.4,
+          "macro_m": 18.0,
+          "maps": {
+            "Color": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": 0.4
+    },
+    {
+      "material": "forecourt_paving",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "glass_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "goal_white",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "grass",
+      "claim": "estimated",
+      "present": true,
+      "action": "textured",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Grass005",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Grass005": {
+          "repeat_m": 3.0,
+          "macro_m": 22.0,
+          "maps": {
+            "Color": "blender/assets/textures/Grass005/Grass005_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Grass005/Grass005_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Grass005/Grass005_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null,
+      "tint_linear": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ]
+    },
+    {
+      "material": "grass_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Grass005",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Grass005": {
+          "repeat_m": 3.0,
+          "macro_m": 22.0,
+          "maps": {
+            "Color": "blender/assets/textures/Grass005/Grass005_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Grass005/Grass005_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Grass005/Grass005_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "haze",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "jacaranda_leaf",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "jet_spray",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "kerb_concrete",
+      "claim": "estimated",
+      "present": true,
+      "action": "textured",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null,
+      "tint_linear": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ]
+    },
+    {
+      "material": "line_paint",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "marking_paint",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "mast_white",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "median_concrete",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "membrane",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "membrane_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "murram",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "ngong_asphalt",
+      "claim": "estimated",
+      "present": true,
+      "action": "textured",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Asphalt031",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Asphalt031": {
+          "repeat_m": 2.0,
+          "macro_m": 30.0,
+          "maps": {
+            "Color": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null,
+      "tint_linear": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ]
+    },
+    {
+      "material": "night_fascia_cyan",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "night_fascia_violet",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "night_fascia_white",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "night_flood",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "night_floodlight_lens",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "night_lamp_warm",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "night_ring_white",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "opening_trim_dark",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "paint_white",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "palm_frond",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "palm_trunk",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "paving",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "PavingStones146",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "PavingStones146": {
+          "repeat_m": 2.4,
+          "macro_m": 18.0,
+          "maps": {
+            "Color": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": 0.4
+    },
+    {
+      "material": "paving_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "PavingStones146",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "PavingStones146": {
+          "repeat_m": 2.4,
+          "macro_m": 18.0,
+          "maps": {
+            "Color": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": 0.4
+    },
+    {
+      "material": "pitch_line",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "pitch_turf",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "planter_soil",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Ground109",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Ground109": {
+          "repeat_m": 3.0,
+          "macro_m": 24.0,
+          "maps": {
+            "Color": "blender/assets/textures/Ground109/Ground109_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Ground109/Ground109_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Ground109/Ground109_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "planter_wall",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "plinth_glass",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "pole_grey",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "rail_steel",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "road_paint",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "roads_mat",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Asphalt031",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Asphalt031": {
+          "repeat_m": 2.0,
+          "macro_m": 30.0,
+          "maps": {
+            "Color": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "roof_steel_white",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "runoff_grass",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Grass005",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Grass005": {
+          "repeat_m": 3.0,
+          "macro_m": 22.0,
+          "maps": {
+            "Color": "blender/assets/textures/Grass005/Grass005_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Grass005/Grass005_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Grass005/Grass005_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "screen_black",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "seat_green",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "seat_green_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "seat_plastic",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "seat_red",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "seat_red_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "service_murram",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Ground109",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Ground109": {
+          "repeat_m": 3.0,
+          "macro_m": 24.0,
+          "maps": {
+            "Color": "blender/assets/textures/Ground109/Ground109_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Ground109/Ground109_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Ground109/Ground109_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "sh_0_green_m",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "sh_1_red_m",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "sign_blank",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "sign_frame",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "speaker_grille",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "speaker_white",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "spear_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "spear_white",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "st_0_round_leaf",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "st_1_acacia_leaf",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_bark",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_concrete",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_leaf_334C2A",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_leaf_4B6234",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_leaf_627242",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_leaf_657466",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_leaf_756486",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_roof_3F5F4A",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "CorrugatedSteel005",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "CorrugatedSteel005": {
+          "repeat_m": 2.0,
+          "macro_m": 14.0,
+          "maps": {
+            "Color": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_roof_6E7680",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "CorrugatedSteel005",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "CorrugatedSteel005": {
+          "repeat_m": 2.0,
+          "macro_m": 14.0,
+          "maps": {
+            "Color": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/CorrugatedSteel005/CorrugatedSteel005_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_roof_7A4B33",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "RoofingTiles013A",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "RoofingTiles013A": {
+          "repeat_m": 2.4,
+          "macro_m": 12.0,
+          "maps": {
+            "Color": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_roof_8E3B2A",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "RoofingTiles013A",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "RoofingTiles013A": {
+          "repeat_m": 2.4,
+          "macro_m": 12.0,
+          "maps": {
+            "Color": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_roof_A2482F",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "RoofingTiles013A",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "RoofingTiles013A": {
+          "repeat_m": 2.4,
+          "macro_m": 12.0,
+          "maps": {
+            "Color": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_tank_dark",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_wall_DCC394",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_wall_E7D7B5",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_wall_E8E3D6",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "suburbs_window",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "terrain_far_mat",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "terrain_horizon_mat",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "terrain_site_mat",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "masked regions",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Grass005": {
+          "repeat_m": 3.0,
+          "macro_m": 22.0,
+          "maps": {
+            "Color": "blender/assets/textures/Grass005/Grass005_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Grass005/Grass005_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Grass005/Grass005_2K-JPG_NormalGL.jpg"
+          }
+        },
+        "PavingStones146": {
+          "repeat_m": 2.4,
+          "macro_m": 18.0,
+          "maps": {
+            "Color": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/PavingStones146/PavingStones146_2K-JPG_NormalGL.jpg"
+          }
+        },
+        "Asphalt031": {
+          "repeat_m": 2.0,
+          "macro_m": 30.0,
+          "maps": {
+            "Color": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Asphalt031/Asphalt031_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": 0.4
+    },
+    {
+      "material": "track",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "track_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "track_surface",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "training_grass",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "tread_concrete",
+      "claim": "estimated",
+      "present": false,
+      "action": "planned",
+      "reason": "Preserve palette and add CC0 surface detail.",
+      "texture_set": "Concrete034",
+      "projection": "world-space triplanar, metres",
+      "scale_claim": "estimated",
+      "meters_per_blender_unit": 1.0,
+      "textures": {
+        "Concrete034": {
+          "repeat_m": 3.0,
+          "macro_m": 20.0,
+          "maps": {
+            "Color": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Color.jpg",
+            "Roughness": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_Roughness.jpg",
+            "NormalGL": "blender/assets/textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg"
+          }
+        }
+      },
+      "paving_module_m": null
+    },
+    {
+      "material": "tree_0_round_leaf",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "tree_1_acacia_leaf",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "tree_2_eucalyptus_leaf",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "vip_glass_lit",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "white_shell",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "white_shell_pbr",
+      "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    }
+  ]
+}
