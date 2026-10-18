@@ -1,8 +1,10 @@
+// Bloom estimate: one bright pass, ten blur passes, and one composite pass at half resolution or smaller.
+// The 2 ms high-tier target needs device timing. Medium and low create no post passes.
 const TIER_ORDER = ['high', 'medium', 'low'];
 
 // These fields control renderer.setPixelRatio, shadowMap.enabled, the RenderPipeline, makeTrees count at the "trees" line, crowd and traffic counts, and loadEnvironment preferSmall.
 export const TIERS = {
-  high: { pixelRatio: 1.5, shadowSize: 2048, shadowExtent: 420, shadowFar: 2600, shadows: true, postProcessing: true, treeCount: 60000, crowdFraction: 1, trafficCount: 1200, panoramaSize: '4096' },
+  high: { pixelRatio: 1.5, shadowSize: 2048, shadowExtent: 420, shadowFar: 2600, shadows: true, postProcessing: true, bloomResolutionScale: 0.5, treeCount: 60000, crowdFraction: 1, trafficCount: 1200, panoramaSize: '4096' },
   medium: { pixelRatio: 1.25, shadowSize: 1024, shadowExtent: 300, shadowFar: 2300, shadows: true, postProcessing: false, treeCount: 18000, crowdFraction: 0.25, trafficCount: 180, panoramaSize: '2048' },
   low: { pixelRatio: 1, shadowSize: 512, shadowExtent: 240, shadowFar: 2100, shadows: false, postProcessing: false, treeCount: 4000, crowdFraction: 0, trafficCount: 40, panoramaSize: '2048' },
 };
