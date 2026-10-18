@@ -231,7 +231,8 @@ def save(gname, kind):
 
 
 BATCHES = [["stadium_shell", "stadium_fins"], ["stadium_ornament", "roof"], ["sport", "roads", "site_built", "forecourt"], ["suburbs", "traffic"],
-           [f"ground_{k:02d}" for k in range(12)], [f"ground_{k:02d}" for k in range(12, 24)]]
+           [f"ground_{k:02d}" for k in range(12)], [f"ground_{k:02d}" for k in range(12, 16)],  # inner tiles (+-700 m)
+           [f"ground_{k:02d}" for k in range(16, 24)]]  # outer tiles: their own batch, as baked with only= (stage tags match)
 BATCHES = [[n for n in b_ if n in groups] for b_ in BATCHES]
 BATCHES = [b_ for b_ in BATCHES if b_] + [[n for n in groups if not any(n in b_ for b_ in BATCHES)]]
 if "only" in ARG: BATCHES = [[n for n in b_ if n in ARG["only"]] for b_ in BATCHES]
