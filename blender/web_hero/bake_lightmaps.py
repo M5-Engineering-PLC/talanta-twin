@@ -199,8 +199,12 @@ if TEST: MAPS = OUT / "test/maps"
 MAPS.mkdir(parents=True, exist_ok=True)
 STAGES = MAPS / "stages.json"
 stages = json.loads(STAGES.read_text()) if STAGES.exists() and "fresh" not in sys.argv else {}
-key = {"samples": SAMPLES, "test": TEST, "light": g["sun_key"], "groups": {k: [v[0], [o.name for o in v[1]]] for k, v in groups.items()}}
+key = {"samples": SAMPLES, "test": TEST, "light": g["sun_key"]}
 if stages.get("key") != key: stages = {"key": key, "done": {}}
+# only=<g1,g2,...>: bake just these groups now (held groups wait for a later run); fresh=<g1,...>: rebake them
+ARG = {a.split("=")[0]: a.split("=")[1].split(",") for a in sys.argv if a.startswith(("only=", "fresh="))}
+for n in ARG.get("fresh", []):
+    for tag in [t for t in stages["done"] if ":" in t and n in t.split(":")[1].split("+")]: del stages["done"][tag]
 scales = {k: v["light_scale"] for k, v in stages["done"].items() if "light_scale" in v}
 
 
@@ -226,13 +230,16 @@ BATCHES = [["stadium_shell", "stadium_fins"], ["stadium_ornament", "roof"], ["sp
            [f"ground_{k:02d}" for k in range(12)], [f"ground_{k:02d}" for k in range(12, 24)]]
 BATCHES = [[n for n in b_ if n in groups] for b_ in BATCHES]
 BATCHES = [b_ for b_ in BATCHES if b_] + [[n for n in groups if not any(n in b_ for b_ in BATCHES)]]
+if "only" in ARG: BATCHES = [[n for n in b_ if n in ARG["only"]] for b_ in BATCHES]
+SIG = {n: [groups[n][0], sorted(o.name for o in groups[n][1])] for n in groups}  # a batch is reused only for the same objects
 times = {}
 for kind, btype, filt, spp in (("albedo", "DIFFUSE", {"COLOR"}, 4), ("ao", "AO", set(), 4 if TEST else 64), ("light", "DIFFUSE", {"DIRECT", "INDIRECT"}, 4 if TEST else SAMPLES)):
     target(kind); c.samples = spp; times[kind] = 0.0
     for batch in BATCHES:
         if not batch: continue
         tag = f"{kind}:{'+'.join(batch)}"
-        if tag in stages["done"] and all((MAPS / f"{n}_{kind}.png").exists() for n in batch):
+        if tag in stages["done"] and stages["done"][tag].get("sig") == [SIG[n] for n in batch] \
+                and all((MAPS / f"{n}_{kind}.png").exists() for n in batch):
             for n in batch: images[n, kind].filepath_raw = str(MAPS / f"{n}_{kind}.png")
             print(f"bake {tag}: on disk, skipped", flush=True); continue
         bpy.ops.object.select_all(action="DESELECT")
@@ -244,7 +251,7 @@ for kind, btype, filt, spp in (("albedo", "DIFFUSE", {"COLOR"}, 4), ("ao", "AO",
         else: bpy.ops.object.bake(type=btype, use_clear=True, margin=2)
         dt = round(time.time() - t0, 1); times[kind] += dt
         recs = {n: save(n, kind) for n in batch}
-        stages["done"][tag] = {"seconds": dt, "samples": spp, "at": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}
+        stages["done"][tag] = {"seconds": dt, "samples": spp, "at": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()), "sig": [SIG[n] for n in batch]}
         for n, r_ in recs.items():
             if r_: stages["done"].setdefault(n, {}).update(r_)
         STAGES.write_text(json.dumps(stages, indent=1) + "\n")
@@ -254,6 +261,8 @@ for kind, btype, filt, spp in (("albedo", "DIFFUSE", {"COLOR"}, 4), ("ao", "AO",
 
 print("light scales:", scales)
 
+if "only" in ARG:
+    print(json.dumps({"partial": ARG["only"], "bake_seconds": times})); sys.exit(0)
 # the export step reads these: which group each object and material belongs to
 for gname, (size, obs) in groups.items():
     for o in obs: o["bake_group"] = gname; o["bake_size"] = size

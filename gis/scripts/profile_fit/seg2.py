@@ -6,6 +6,12 @@ FR=os.path.abspath(os.path.join(os.path.dirname(__file__),'../../..'))+'/researc
 ROI={'000641.633':(420,150,1000,390),'000659.633':(150,0,1030,330),'001221.500':(100,40,1280,700),'001224.500':(90,40,1280,690),
      '001232.600':(40,200,1160,720),'001235.934':(140,210,1080,670),'001239.267':(120,150,1110,630),'001244.833':(180,240,850,550),'001247.833':(20,140,1070,540)}
 VT={'001244.833':0.34}
+# Base leaks (light murram and site ground joined to the wall): areas outside the visible wall edge, read by hand
+# on the frames (1280 x 720 px), removed from the mask before the largest-component step.
+EXCLUDE={'001221.500':[[(0,200),(117,227),(115,347),(133,453),(180,547),(220,613),(280,693),(0,720)],
+                       [(1280,520),(1233,587),(1173,640),(1133,673),(1280,720)]],
+         '001224.500':[[(0,213),(120,240),(117,347),(144,440),(197,533),(247,607),(313,667),(0,720)],
+                       [(1280,560),(1247,600),(1200,640),(1280,720)]]}
 def segment(name):
     im=np.asarray(Image.open(FR%name).convert('RGB')).astype(float)/255
     mx=im.max(2); mn=im.min(2); s=(mx-mn)/np.maximum(mx,1e-6); r,g,b=im[...,0],im[...,1],im[...,2]
@@ -13,6 +19,10 @@ def segment(name):
     white=(mx>VT.get(name,0.40))&(s<0.22)&((r-b)<0.045)
     red=(r>0.30)&(r>1.5*g)&(r>1.3*b)&(s>0.4)
     m=(white|red)&roi
+    if name in EXCLUDE:
+        ex=Image.new('1',(mx.shape[1],mx.shape[0]))
+        for poly in EXCLUDE[name]: ImageDraw.Draw(ex).polygon(poly,fill=1)
+        roi&=~np.asarray(ex); m&=roi
     m=nd.binary_opening(m,iterations=1)
     lab,n=nd.label(m); sizes=nd.sum(m,lab,range(1,n+1)); m=lab==(1+int(np.argmax(sizes)))
     m=nd.binary_closing(m,iterations=8); m=nd.binary_fill_holes(m); m&=roi
