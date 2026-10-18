@@ -22,11 +22,11 @@ function makeLane(raw, name) {
   const points = (raw.points || raw.pts || []).map((p) => Array.isArray(p) ? [p[0], p[1] ?? 0, p[2] ?? 0] : [p.x, p.y ?? 0, p.z]);
   const cumulative = [0];
   for (let i = 1; i < points.length; i++) cumulative.push(cumulative[i - 1] + Math.hypot(points[i][0] - points[i - 1][0], points[i][2] - points[i - 1][2]));
-  return { points, cumulative, length: cumulative.at(-1) || 0, name, vehicles: [] };
+  return { points, cumulative, length: cumulative.at(-1) || 0, name, leftLane: raw.leftLane, direction: raw.direction, vehicles: [] };
 }
 
 function pointAt(lane, distance) {
-  const d = ((distance % lane.length) + lane.length) % lane.length;
+  const d = Math.max(0, Math.min(lane.length, distance));
   let i = 1;
   while (i < lane.cumulative.length - 1 && lane.cumulative[i] < d) i++;
   const a = lane.points[i - 1], b = lane.points[i], span = lane.cumulative[i] - lane.cumulative[i - 1] || 1;
@@ -157,7 +157,7 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
   const random = rngOf(0x51a7a);
   const rawLanes = Array.isArray(lines) ? lines.map((lane) => [lane.name, lane]) : (lines?.roads || []).flatMap((road) => (road.lanes || []).map((lane) => [road.name, lane]));
   const lanes = rawLanes.map(([name, raw]) => makeLane(raw, name)).filter((lane) => lane.points.length > 1 && lane.length > 30);
-  if (!lanes.length || count <= 0) return { group, update() {} };
+  if (!lanes.length || count <= 0) return { group, update() {}, setLimit() {} };
   const laneTotal = lanes.reduce((sum, lane) => sum + lane.length, 0);
   const weightedLane = () => {
     let n = random() * laneTotal;
@@ -166,7 +166,7 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
   };
   const cars = new Map(CAR_SPECS.map((spec) => [spec, []])), buses = [], bodas = [], nganyas = [];
   const fleet = Array.from({ length: Math.floor(count) }, () => {
-    const lane = weightedLane(), v = { lane, distance: 0, target: 8.3 + random() * 8.4, speed: 8.3 + random() * 8.4, index: 0 };
+    const lane = weightedLane(), v = { lane, distance: 0, target: (30 + random() * 30) / 3.6, speed: 0, cooldown: 0, index: 0 };
     lane.vehicles.push(v); return v;
   });
   function assignMix(vehicles, mix) {
@@ -191,7 +191,36 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
   }
   assignMix(fleet.filter((v) => v.lane.name?.toLowerCase() === 'ngong road'), { car: 0.55, nganya: 0.25, bus: 0.12, boda: 0.08 });
   assignMix(fleet.filter((v) => v.lane.name?.toLowerCase() !== 'ngong road'), { car: 0.82, nganya: 0.10, boda: 0.08 });
-  for (const lane of lanes) lane.vehicles.forEach((v, i) => { v.distance = (i + 0.15 + random() * 0.7) / lane.vehicles.length * lane.length; });
+  for (const v of [...buses, ...nganyas]) {
+    if (v.lane.leftLane || random() > .85) continue;
+    const candidates = lanes.filter((l) => l.name === v.lane.name && l.direction === v.lane.direction && l.leftLane);
+    if (!candidates.length) continue;
+    v.lane.vehicles.splice(v.lane.vehicles.indexOf(v), 1);
+    v.lane = candidates[Math.floor(random() * candidates.length)]; v.lane.vehicles.push(v);
+  }
+  const vehicleLength = (v) => v.kind === 'bus' ? BUS.length : v.kind === 'nganya' ? 7 : v.kind === 'boda' ? BODA.length : v.spec.length;
+  for (const lane of lanes) {
+    let cursor = 16;
+    for (const v of lane.vehicles) {
+      v.distance = cursor; cursor += vehicleLength(v) + 8 + random() * 12;
+      if (cursor > lane.length - 16) { v.distance = -20; v.cooldown = 1 + random() * 8; }
+      else v.speed = v.target;
+    }
+    const active = lane.vehicles.filter((v) => v.distance >= 0);
+    const occupied = active.at(-1)?.distance || 1;
+    const stretch = Math.max(1, (lane.length - 24) / (occupied + 12));
+    for (const v of active) v.distance *= stretch;
+  }
+  // Mapped road endpoints provide estimated junction queue locations, not a signal plan.
+  for (const lane of lanes) {
+    lane.junctions = [];
+    if (lane.name?.toLowerCase() !== 'ngong road') continue;
+    for (const other of lanes.filter((l) => l.name !== lane.name)) for (const p of [other.points[0], other.points.at(-1)]) {
+      let best = 30, station = 0;
+      lane.points.forEach((q, i) => { const d = Math.hypot(p[0] - q[0], p[2] - q[2]); if (d < best) { best = d; station = lane.cumulative[i]; } });
+      if (best < 30 && station > 50 && station < lane.length - 50 && !lane.junctions.some((s) => Math.abs(s - station) < 40)) lane.junctions.push(station);
+    }
+  }
   const carMeshesBySpec = new Map([...cars].map(([spec, vehicles]) => [spec, carMeshes(group, spec, vehicles)]));
   const carMeshesAll = [...carMeshesBySpec.values()].flat();
   const busMeshesAll = busMeshes(group, buses), bodaMeshesAll = bodaMeshes(group, bodas);
@@ -238,7 +267,8 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
   }
   function vehicleMatrix(v) {
     const p = pointAt(v.lane, v.distance), terrainY = groundAt?.(p.x, p.z), y = (Number.isFinite(terrainY) ? terrainY : p.y) + 0.015;
-    position.set(p.x, y, p.z); rotation.setFromAxisAngle(up, Math.atan2(-p.dz, p.dx));
+    const edge = Math.max(0, Math.min(1, v.distance / 15, (v.lane.length - v.distance) / 15));
+    scale.setScalar(edge); position.set(p.x, y + (v.lane.name?.toLowerCase() === 'ngong road' ? .4 : .02), p.z); rotation.setFromAxisAngle(up, Math.atan2(-p.dz, p.dx));
     rootMatrix.compose(position, rotation, scale);
     return rootMatrix;
   }
@@ -246,18 +276,33 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
   let limit = fleet.length; const hidden = new THREE.Matrix4().makeScale(0, 0, 0);
   fleet.forEach((v, i) => { v.order = i; });
   function setLimit(n) { limit = Math.max(0, Math.min(fleet.length, Math.floor(n))); }
+  let elapsed = 0;
   function update(dt) {
-    const stepDt = Math.max(0, Math.min(0.25, dt || 0));
+    const stepDt = Math.max(0, Math.min(0.25, dt || 0)); elapsed += stepDt;
     for (const lane of lanes) {
-      const ordered = lane.vehicles.sort((a, b) => a.distance - b.distance);
-      for (let i = 0; i < ordered.length; i++) {
-        const v = ordered[i], leader = ordered[(i + 1) % ordered.length];
-        if (ordered.length > 1) { const gap = (leader.distance - v.distance + lane.length) % lane.length; v.speed = Math.min(v.target, leader.speed + Math.max(0, gap - (v.kind === 'bus' ? BUS.length : v.kind === 'nganya' ? 7 : 4) - 4) * 0.7); }
+      const ordered = lane.vehicles.filter((v) => v.distance >= 0).sort((a, b) => b.distance - a.distance);
+      let leader = null;
+      for (const v of ordered) {
+        let desired = v.target;
+        for (const station of lane.junctions || []) {
+          const approach = station - v.distance;
+          if (approach > 0 && approach < 65 && Math.sin(elapsed * .17 + station) > .2) desired = Math.min(desired, 3 + approach * .13);
+        }
+        const clearance = leader ? Math.max(0, leader.distance - v.distance - (vehicleLength(v) + vehicleLength(leader)) / 2 - 3) : Infinity;
+        desired = Math.min(desired, Math.sqrt(2 * 3 * clearance));
+        v.speed = Math.max(0, Math.min(desired, v.speed + 1.6 * stepDt));
+        v.distance += Math.min(v.speed * stepDt, clearance);
+        if (v.distance >= lane.length) { v.distance = -20; v.speed = 0; v.cooldown = 1 + random() * 3; }
+        else leader = v;
       }
-      for (const v of ordered) v.distance = (v.distance + v.speed * stepDt) % lane.length;
+      let first = lane.vehicles.filter((v) => v.distance >= 0).reduce((a, v) => Math.min(a, v.distance - vehicleLength(v) / 2), Infinity);
+      for (const v of lane.vehicles.filter((v) => v.distance < 0)) {
+        v.cooldown -= stepDt;
+        if (v.cooldown <= 0 && first > vehicleLength(v) / 2 + 12) { v.distance = 0; v.speed = 0; first = -vehicleLength(v) / 2; }
+      }
     }
     for (const v of [...fleet]) if (v.kind === 'car' || v.kind === 'bus' || v.kind === 'boda') {
-      const matrix = v.order < limit ? vehicleMatrix(v) : hidden;
+      const matrix = v.order < limit && v.distance >= 0 ? vehicleMatrix(v) : hidden;
       // Each car style has its own batch; v.index is the vehicle's slot in that batch.
       const meshes = v.kind === 'car' ? carMeshesBySpec.get(v.spec) : v.kind === 'bus' ? busMeshesAll : bodaMeshesAll;
       for (const mesh of meshes) mesh.setMatrixAt(v.index, matrix);
@@ -267,7 +312,7 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
     let near = 0, far = 0;
     const cameraPos = camera?.position;
     for (const v of nganyas) {
-      if (v.order >= limit) continue;
+      if (v.order >= limit || v.distance < 0) continue;
       const matrix = vehicleMatrix(v);
       const isFar = modelReady && cameraPos && cameraPos.distanceToSquared(position) > proxyDistance * proxyDistance;
       if (isFar || !modelReady) {
