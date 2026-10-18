@@ -230,7 +230,7 @@ export function buildBowl(features, opts = {}) {
       seatList.push({ x, z, y: S.y, ang: Math.atan2(z, x), g, tier: S.tier });
     }
   }
-  const seatGeo = seatGeometry();
+  const seatGeo = seatGeometry(opts.tier);
   const seats = new THREE.InstancedMesh(seatGeo, new THREE.MeshStandardMaterial({ roughness: 0.6 }), seatList.length);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1), v3 = new THREE.Vector3(), yAx = new THREE.Vector3(0, 1, 0);
   const cA = new THREE.Color(), cB = new THREE.Color();
@@ -268,7 +268,15 @@ export function buildBowl(features, opts = {}) {
   const rHole = rOpen;
   // Parts that follow the bowl layer toggle (the roof layer has its own).
   const base = [plinth, soffit, concourse, lights, led];
-  return { group, base, seating, seats, seatCount: seatList.length, facade, roof, truss, lattice, shields, shieldMat, lightsMat, ledMat, dirs, rIn, rOut, rHole, rBack, at, tierMeta: E.tiers, P, profLen: prof.length, topY };
+  /** Switch only seat detail, preserving placement, colors and crowd matrices. */
+  function setTier(tier) {
+    const geometry = seatGeometry(tier);
+    seats.geometry.dispose(); seats.geometry = geometry;
+    seats.boundingBox = null; seats.boundingSphere = null;
+    seats.userData.claim = 'estimated'; seats.userData.tier = tier;
+  }
+  seats.userData.claim = 'estimated'; seats.userData.tier = opts.tier ?? 'high';
+  return { group, base, seating, seats, setTier, seatCount: seatList.length, facade, roof, truss, lattice, shields, shieldMat, lightsMat, ledMat, dirs, rIn, rOut, rHole, rBack, at, tierMeta: E.tiers, P, profLen: prof.length, topY };
 }
 
 function profileIndexAtY(prof, y) {
@@ -297,9 +305,15 @@ function flatRing(dirs, rA, rB, y, N) {
 }
 
 // A stadium seat: pan and back, 0.45 m wide. Faces +z in local space (towards the pitch after rotation).
-function seatGeometry() {
+function seatGeometry(tier = 'high') {
+  if (tier === 'low') {
+    const surface = new THREE.PlaneGeometry(0.44, 0.48);
+    surface.rotateX(-Math.PI / 2); surface.translate(0, 0.44, 0.05);
+    return surface;
+  }
   const pan = new THREE.BoxGeometry(0.44, 0.06, 0.38); pan.translate(0, 0.42, 0.1);
   const back = new THREE.BoxGeometry(0.44, 0.38, 0.05); back.rotateX(-0.18); back.translate(0, 0.62, -0.1);
+  if (tier === 'medium') return mergeGeometries([pan, back]);
   const leg = new THREE.BoxGeometry(0.06, 0.4, 0.06); leg.translate(0, 0.2, 0.0);
   return mergeGeometries([pan, back, leg]);
 }

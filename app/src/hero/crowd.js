@@ -69,7 +69,7 @@ export function buildCrowd({ seats, occupancy = 0.9, seed = 1, players = true, p
   const rand = rng(seed >>> 0 || 1);
   const uT = uniform(0), uCheer = uniform(0), uNight = uniform(0);
   const noop = () => {};
-  if (!seats?.instanceMatrix) return { group, update: noop };
+  if (fraction <= 0 || occupancy <= 0 || !seats?.instanceMatrix) return { group, update: noop };
   // The crowd sits in the same frame as the seats: follow the bowl group offset (the lead may still set it).
   if (seats.parent) group.position.copy(seats.parent.position);
 

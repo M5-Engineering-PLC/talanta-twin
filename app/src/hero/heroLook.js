@@ -1,10 +1,11 @@
-import { AgXToneMapping } from 'three/webgpu';
+import { AgXToneMapping, Fog } from 'three/webgpu';
 import { float, screenCoordinate, screenUV, saturation, time, vec2, vec3, vec4 } from 'three/tsl';
 
 export const HERO_LOOK = {
-  warmth: 0.018,
-  saturation: 1.04,
+  warmth: 0.025,
+  saturation: 1.055,
   contrast: 1.035,
+  greenery: 0.035, // Small lift limited to green-dominant surfaces.
   vignette: 0.055, // Maximum smooth corner darkening.
   dispersion: 0.0005, // Small chromatic lens dispersion.
   grain: 0.03, // Fine, centered multiplicative film grain amplitude.
@@ -38,7 +39,9 @@ export function heroGrade(inputNode, opts = {}) {
   const edge = uv.sub(0.5).length().mul(Math.SQRT2).smoothstep(0.45, 1.0);
   const color = vec4(inputNode);
   let rgb = saturation(color.rgb, sat).sub(0.18).mul(contrast).add(0.18);
-  rgb = rgb.mul(vec3(1 + warmth, 1, 1 - warmth));
+  const highlights = rgb.dot(vec3(0.2126, 0.7152, 0.0722)).smoothstep(0.18, 1.2);
+  const green = rgb.g.sub(rgb.r.max(rgb.b)).max(0).mul(opts.greenery ?? HERO_LOOK.greenery);
+  rgb = rgb.add(vec3(0, green, 0)).mul(vec3(highlights.mul(warmth).add(1), 1, float(1).sub(highlights.mul(warmth))));
 
   // Approximate edge color fringing in the color node; the contract gives no source texture for offset sampling.
   const fringe = edge.mul(dispersion);
@@ -49,4 +52,10 @@ export function heroGrade(inputNode, opts = {}) {
   const noise = pixel.dot(vec2(12.9898, 78.233)).sin().mul(43758.5453).fract().sub(0.5).mul(2);
   rgb = rgb.mul(float(1).sub(corner).mul(noise.mul(grainStrength).add(1)));
   return vec4(rgb, color.a);
+}
+
+/** Add modest distance haze while keeping the foreground clear. */
+export function applyHeroHaze(scene, horizon) {
+  scene.fog = new Fog(horizon ?? 0xd9dfd5, 2200, 16000);
+  return scene.fog;
 }

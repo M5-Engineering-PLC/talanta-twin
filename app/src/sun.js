@@ -40,3 +40,12 @@ export function sunEvents(isoDay, lat, lon) {
   }
   return out;
 }
+
+/** Resolve the opening EAT time from a URL value, otherwise use 07:30. */
+export function openingMinutes(value) {
+  if (value == null || value.trim() === '') return 450;
+  const match = /^(\d{1,2}):(\d{2})$/.exec(value);
+  const minutes = match ? Number(match[1]) * 60 + Number(match[2]) : Number(value);
+  if (match && (Number(match[1]) > 23 || Number(match[2]) > 59)) return 450;
+  return Number.isFinite(minutes) && minutes >= 0 && minutes < 1440 ? minutes : 450;
+}
