@@ -37,6 +37,10 @@ GROUPS = {
     "sport": (1024, ["pitch_zone", "pitch", "pitch_apron", "warmup_track_ne", "warmup_track_ne_infield", "track_sw", "track_sw_infield", "training_pitch_se_turf"]),
     "roads": (2048, ["ngong_road", "ngong_barrier", "roads"]),
     "site_built": (1024, ["planters", "entrance_canopies", "sign_frames"]),
+    # environment pass (web_hero_v1): suburbs buildings (roof and wall colours per material, windows as their own
+    # faces) and the traffic Visualization; lightmaps only, the export keeps their material colours
+    "suburbs": (4096, ["suburbs_buildings"]),
+    "traffic": (2048, ["traffic_Visualization"]),
 }
 _fc = bpy.data.collections.get("forecourt_context")
 if _fc:  # forecourt.py meshes (paths, kerbs, beds, plaza); empties and instancers stay out
@@ -226,7 +230,7 @@ def save(gname, kind):
     return rec
 
 
-BATCHES = [["stadium_shell", "stadium_fins"], ["stadium_ornament", "roof"], ["sport", "roads", "site_built", "forecourt"],
+BATCHES = [["stadium_shell", "stadium_fins"], ["stadium_ornament", "roof"], ["sport", "roads", "site_built", "forecourt"], ["suburbs", "traffic"],
            [f"ground_{k:02d}" for k in range(12)], [f"ground_{k:02d}" for k in range(12, 24)]]
 BATCHES = [[n for n in b_ if n in groups] for b_ in BATCHES]
 BATCHES = [b_ for b_ in BATCHES if b_] + [[n for n in groups if not any(n in b_ for b_ in BATCHES)]]

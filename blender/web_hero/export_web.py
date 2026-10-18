@@ -36,23 +36,35 @@ CLIP = 1500.0
 THIN_TUBE = 0.35  # m bevel radius; unbaked curves thinner than this export as 4-sided tubes
 
 HERO_COLS = ["plinth", "shell", "facade_detail", "roof_detail", "bowl_detail", "tiers", "pitch", "sport"]
-SITE_COLS = ["context", "site"]
-SKIP = {"terrain_far", "terrain_horizon", "terrain_site", "haze_volume"}
+SITE_COLS = ["context", "site", "forecourt_context", "suburbs_context", "traffic_visualization"]
+# far land and horizon layers live in the panorama (render_panorama.py near=800); terrain_site is replaced by the
+# baked ground tiles
+SKIP = {"terrain_far", "terrain_horizon", "terrain_horizon_hills", "terrain_horizon_far", "terrain_site", "haze_volume"}
 DETAIL_COLS = {"bowl_detail", "roof_detail"}  # dropped beyond 1 km
 DETAIL_NAMES = {"goals", "corner_flags", "corner_flag_poles", "dugouts", "pitch_markings", "training_pitch_lines",
                 "parking_lines", "road_markings", "ngong_markings", "boundary_fence", "sign_frames"}
 # instanced sets: instancer object -> (glb, low-poly recipe per LOD); recipes are applied to each proto mesh
+# Recipes: a float is a decimation ratio (1.0 keeps the mesh), "web" is the canopy's own web_lod mesh (canopy.py, at
+# most 300 triangles), "impostor" is two crossed quads textured from the impostor atlas (side views rendered here).
 INSTANCERS = {
-    "seats": ("hero", {0: "seat4", 1: "seat2"}),
-    "trees": ("site", {0: "octa"}),
-    "site_trees": ("site", {0: 0.33, 1: "octa"}),
-    "palms": ("site", {0: 0.2, 1: "octa"}),
-    "shrubs": ("site", {0: 0.25}),
-    "light_masts": ("site", {0: 1.0}), "path_lights": ("site", {0: 1.0}), "bollards": ("site", {0: 1.0}),
-    "flag_masts": ("site", {0: 1.0}), "jets": ("site", {0: 1.0}), "track_masts": ("site", {0: 1.0}),
+    "seats": ("hero", {0: "seat4", 1: "seat2"}), "vip_seats": ("hero", {0: 1.0}),
+    "trees": ("site", {0: "web", 1: "impostor"}),
+    "site_trees": ("site", {0: 0.33, 1: "impostor"}), "palms": ("site", {0: 0.2, 1: "impostor"}),
+    "fc_retained_site_trees": ("site", {0: 0.33, 1: "impostor"}), "fc_retained_palms": ("site", {0: 0.2, 1: "impostor"}),
+    "shrubs": ("site", {0: 0.25}), "fc_retained_shrubs": ("site", {0: 0.25}),
+    "light_masts": ("site", {0: 1.0}), "path_lights": ("site", {0: 1.0}), "bollards": ("site", {0: 1.0}), "flag_masts": ("site", {0: 1.0}),
+    "fc_retained_light_masts": ("site", {0: 1.0}), "fc_retained_path_lights": ("site", {0: 1.0}),
+    "fc_retained_bollards": ("site", {0: 1.0}), "fc_retained_flag_masts": ("site", {0: 1.0}),
+    "jets": ("site", {0: 1.0}), "track_masts": ("site", {0: 1.0}),
+    "suburbs_trees": ("site", {0: 0.33, 1: "impostor"}), "suburbs_tanks": ("site", {0: 1.0}),
 }
-INST_SWITCH = {"seats": [0, 300], "site_trees": [0, 300], "palms": [0, 300]}  # LOD start distances (m)
-INST_MAX = {"seats": 1000, "shrubs": 1000, "path_lights": 1000, "bollards": 1000, "jets": 1000}
+GN_PROTO = {"seats": "seat_proto", "vip_seats": "vip_seat_proto"}  # GN geometry instances report the instancer itself
+PREFIX_SETS = {"suburbs_tree_": "suburbs_trees", "suburbs_tank_": "suburbs_tanks"}  # collection-instance empties
+TREE_SETS = ("trees", "site_trees", "palms", "fc_retained_site_trees", "fc_retained_palms", "suburbs_trees")
+INST_SWITCH = {"seats": [0, 300], **{k: [0, 300] for k in TREE_SETS}}  # LOD start distances (m)
+INST_MAX = {"seats": 1000, "vip_seats": 1000, "shrubs": 1000, "fc_retained_shrubs": 1000, "path_lights": 1000, "bollards": 1000,
+            "fc_retained_path_lights": 1000, "fc_retained_bollards": 1000, "jets": 1000}
+IMPOSTOR_CELL = 128
 
 
 def tris(me):
@@ -233,10 +245,77 @@ for glb, cols in (("hero", HERO_COLS), ("site", SITE_COLS)):
             lod_table.append(row)
 print("objects staged:", {k: len(v) for k, v in export.items()}, flush=True)
 
+# ---------------------------------------------------------------- impostors
+ATLAS = {}  # proto mesh name -> (u0, v0, u1, v1) in the atlas
+
+
+def impostor_atlas(mesh_names):
+    """Side views (orthographic, alpha) of each proto mesh into one atlas, IMPOSTOR_CELL px per cell; morning sun from
+    behind the camera, sky fill. Writes <stage>/impostor_atlas.png and fills ATLAS."""
+    if not mesh_names: return
+    n = len(mesh_names); cols = int(math.ceil(math.sqrt(n))); rows = int(math.ceil(n / cols)); C_ = IMPOSTOR_CELL
+    W_, H_ = cols * C_, rows * C_
+    sc = bpy.data.scenes.new("impostor"); sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = 16
+    sc.cycles.use_denoising = True; sc.render.film_transparent = True; sc.render.resolution_x = sc.render.resolution_y = C_
+    sc.render.image_settings.file_format = "PNG"; sc.render.image_settings.color_mode = "RGBA"
+    sc.view_settings.view_transform = s.view_settings.view_transform; sc.view_settings.exposure = s.view_settings.exposure
+    w = bpy.data.worlds.new("impostor_sky"); w.use_nodes = True; w.node_tree.nodes["Background"].inputs[0].default_value = (0.55, 0.65, 0.8, 1)
+    w.node_tree.nodes["Background"].inputs[1].default_value = 0.6; sc.world = w
+    sun = bpy.data.objects.new("imp_sun", bpy.data.lights.new("imp_sun", "SUN")); sun.data.energy = 3.0
+    sun.rotation_euler = (math.radians(55), 0, math.radians(20)); sc.collection.objects.link(sun)
+    cd = bpy.data.cameras.new("imp_cam"); cd.type = "ORTHO"; cam_ = bpy.data.objects.new("imp_cam", cd); sc.collection.objects.link(cam_); sc.camera = cam_
+    atlas = np.zeros((H_, W_, 4), np.float32); tmp = STAGE / "_impostor_cell.png"
+    for k, mn in enumerate(mesh_names):
+        me = bpy.data.meshes[mn]; o = bpy.data.objects.new("_imp", me); sc.collection.objects.link(o)
+        co = np.array([v.co[:] for v in me.vertices]); lo, hi = co.min(0), co.max(0); cx, cy = (lo[:2] + hi[:2]) / 2
+        size = max(hi[0] - lo[0], hi[2] - lo[2], 0.5) * 1.04
+        cd.ortho_scale = size; cam_.location = (cx, cy - 200.0, (lo[2] + hi[2]) / 2); cam_.rotation_euler = (math.radians(90), 0, 0)
+        cd.clip_end = 400.0; sc.render.filepath = str(tmp)
+        with bpy.context.temp_override(scene=sc): bpy.ops.render.render(write_still=True)
+        im = bpy.data.images.load(str(tmp)); px = np.array(im.pixels[:], np.float32).reshape(C_, C_, 4); bpy.data.images.remove(im)
+        r_, c_ = divmod(k, cols); atlas[(rows - 1 - r_) * C_:(rows - r_) * C_, c_ * C_:(c_ + 1) * C_] = px
+        # quad UVs: the cell, trimmed to the mesh's own width/height inside the square view
+        wv, hv = (hi[0] - lo[0]) * 1.0 / size, (hi[2] - lo[2]) / size
+        u0 = (c_ + 0.5 - wv / 2) / cols; u1 = (c_ + 0.5 + wv / 2) / cols; v0 = (rows - 1 - r_ + 0.5 - hv / 2) / rows; v1 = (rows - 1 - r_ + 0.5 + hv / 2) / rows
+        ATLAS[mn] = (u0, v0, u1, v1); sc.collection.objects.unlink(o); bpy.data.objects.remove(o)
+    img = bpy.data.images.new("impostor_atlas", W_, H_, alpha=True); img.pixels.foreach_set(atlas.ravel())
+    img.filepath_raw = str(STAGE / "impostor_atlas.png"); img.file_format = "PNG"; img.save()
+    img.pack()  # the glTF exporter embeds it; post_glb.mjs turns it into KTX2 (ETC1S, alpha)
+    mat = bpy.data.materials.new("impostor_atlas"); mat.use_nodes = True; b_ = mat.node_tree.nodes["Principled BSDF"]
+    tn = mat.node_tree.nodes.new("ShaderNodeTexImage"); tn.image = img
+    mat.node_tree.links.new(tn.outputs["Color"], b_.inputs["Base Color"]); mat.node_tree.links.new(tn.outputs["Alpha"], b_.inputs["Alpha"])
+    b_.inputs["Roughness"].default_value = 0.9; mat["talanta_alpha_mask"] = True; mat["talanta_impostor"] = True; mat.use_backface_culling = False
+    ATLAS["_material"] = mat; ATLAS["_size"] = [W_, H_]; ATLAS["_cells"] = n
+    print("impostor atlas", n, "cells", W_, "x", H_, flush=True)
+
+
+def impostor_mesh(me_src, name):
+    """Two crossed vertical quads over the proto's bounding box, UV-mapped to its atlas cell."""
+    co = np.array([v.co[:] for v in me_src.vertices]); lo, hi = co.min(0), co.max(0); c = (lo + hi) / 2
+    hw_ = (hi[0] - lo[0]) / 2; u0, v0, u1, v1 = ATLAS[me_src.name]
+    verts = [(c[0] - hw_, c[1], lo[2]), (c[0] + hw_, c[1], lo[2]), (c[0] + hw_, c[1], hi[2]), (c[0] - hw_, c[1], hi[2]),
+             (c[0], c[1] - hw_, lo[2]), (c[0], c[1] + hw_, lo[2]), (c[0], c[1] + hw_, hi[2]), (c[0], c[1] - hw_, hi[2])]
+    me = bpy.data.meshes.new(name); me.from_pydata(verts, [], [(0, 1, 2, 3), (4, 5, 6, 7)])
+    uv = me.uv_layers.new(name="UVMap")
+    for poly in me.polygons:
+        for li, (uu, vv) in zip(poly.loop_indices, ((u0, v0), (u1, v0), (u1, v1), (u0, v1))): uv.data[li].uv = (uu, vv)
+    me.materials.append(ATLAS["_material"]); me["talanta_impostor"] = True; me.update()
+    return me
+
+
 # ---------------------------------------------------------------- instance sets
 def lowpoly(me_src, recipe, name):
-    """Low-poly version of a proto mesh: a decimation ratio, an 8-triangle canopy, or 4/2-triangle seats."""
+    """Low-poly version of a proto mesh: a decimation ratio, the canopy's web mesh, crossed impostor quads, an
+    8-triangle canopy, or 4/2-triangle seats."""
     co = np.array([v.co[:] for v in me_src.vertices]); lo, hi = co.min(0), co.max(0)
+    if recipe == "web":
+        web = bpy.data.meshes.get(me_src.get("web_lod", ""))
+        if web is None: raise SystemExit(f"{me_src.name}: no web_lod mesh")
+        me = web.copy(); me.name = name
+        for l in list(me.uv_layers): me.uv_layers.remove(l)
+        return me
+    if recipe == "impostor":
+        return impostor_mesh(me_src, name)
     me = bpy.data.meshes.new(name)
     if isinstance(recipe, float):
         if recipe >= 1.0:
@@ -267,12 +346,14 @@ dg = bpy.context.evaluated_depsgraph_get()
 inst = {}  # (set, proto mesh name) -> list of 4x4
 for di in dg.object_instances:
     if not di.is_instance or di.parent is None: continue
-    pn = di.parent.original.name
+    par = di.parent.original; pn = par.name
+    if par.hide_render: continue  # the viewport depsgraph also lists the instances of render-hidden instancers
+    pn = next((v for k, v in PREFIX_SETS.items() if pn.startswith(k)), pn)
     if pn not in INSTANCERS or di.object.type != "MESH": continue
     ob = di.object.original
-    # GN geometry instances report the instancer itself; its proto is the seat_proto object
-    mn = bpy.data.objects["seat_proto"].data.name if ob.name == pn else ob.data.name
+    mn = bpy.data.objects[GN_PROTO.get(pn, "seat_proto")].data.name if ob.name == par.name else ob.data.name
     inst.setdefault((pn, mn), []).append(np.array(di.matrix_world))
+impostor_atlas(sorted({mn for (sn, mn) in inst if "impostor" in INSTANCERS[sn][1].values()}))
 seat_col = None
 sp = bpy.data.objects["seats"].data
 if "seatcol" in sp.attributes:

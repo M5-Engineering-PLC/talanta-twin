@@ -1,6 +1,8 @@
 // Web hero step 3b: finish the GLBs staged by blender/web_hero/export_web.py and write the manifest.
 //
-// Run from the repo root:  node blender/web_hero/node/post_glb.mjs [test]
+// Run from the repo root:  node blender/web_hero/node/post_glb.mjs [test] [bundle=<name>]
+//   bundle=<name>  write everything into blender/out/web_hero/<name>/ (models/, ground/, env/, manifest.json with the
+//                  size and sha256 of every file) instead of app/public/models; lightmaps UASTC, colour ETC1S
 // (npm install once in blender/web_hero/node; versions are pinned in package.json)
 //   instancing  proto nodes become EXT_mesh_gpu_instancing nodes (TRANSLATION, ROTATION, SCALE, seats _COLOR_0)
 //   lightmaps   each baked material gets its group's maps as KTX2 (Basis ETC1S, mipmapped):
@@ -10,6 +12,7 @@
 //   compression dedup, prune, meshopt (EXT_meshopt_compression, 16-bit positions)
 // Writes app/public/models/talanta_hero.glb, talanta_site.glb and manifest.json (test: blender/out/web_hero/test/export/final).
 import fs from "node:fs";
+import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
@@ -23,13 +26,15 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../.
 const TEST = process.argv.includes("test");
 const BASE = path.join(ROOT, "blender/out/web_hero", TEST ? "test" : "");
 const STAGE = path.join(BASE, "export");
-const DEST = TEST ? path.join(STAGE, "final") : path.join(ROOT, "app/public/models");
+const BUNDLE = (process.argv.find((a) => a.startsWith("bundle=")) || "").split("=")[1] || null;
+const BDIR = BUNDLE ? path.join(BASE, BUNDLE) : null;
+const DEST = BUNDLE ? path.join(BDIR, "models") : TEST ? path.join(STAGE, "final") : path.join(ROOT, "app/public/models");
 const ENV = path.join(ROOT, "app/public/env");
 fs.mkdirSync(DEST, { recursive: true });
 const stage = JSON.parse(fs.readFileSync(path.join(STAGE, "stage.json"), "utf8"));
 const blob = fs.readFileSync(path.join(STAGE, "instances.bin"));
 const bake = stage.bake;
-const AO_GROUPS = (g) => g.startsWith("stadium_") || g === "roof";
+const AO_GROUPS = (g) => g.startsWith("stadium_") || g === "roof" || g === "suburbs" || g === "traffic";
 const LOD_D = [0, 300, 1000];
 
 await MeshoptEncoder.ready; await MeshoptDecoder.ready;
@@ -52,10 +57,13 @@ async function ktx(doc, cache, group, kind) {
   if (cache.has(key)) return cache.get(key);
   const png = fs.readFileSync(path.join(BASE, "maps", `${key}.png`));
   const t0 = Date.now();
-  const data = await encodeToKTX2(new Uint8Array(png), {
-    isUASTC: false, qualityLevel: 200, compressionLevel: 2, generateMipmap: true,
-    isPerceptual: kind !== "ao", imageDecoder,
-  });
+  // bundle: lightmaps (light, ao) as UASTC with RDO and zstd, colour (albedo) as ETC1S; otherwise ETC1S throughout
+  const uastc = BUNDLE && kind !== "albedo";
+  const data = await encodeToKTX2(new Uint8Array(png), uastc
+    ? { isUASTC: true, uastcLDRQualityLevel: 2, enableRDO: true, rdoQualityLevel: 1.0, needSupercompression: true, generateMipmap: true,
+        isPerceptual: kind !== "ao", isSetKTX2SRGBTransferFunc: kind !== "ao", imageDecoder }
+    : { isUASTC: false, qualityLevel: 200, compressionLevel: 2, generateMipmap: true, isPerceptual: kind !== "ao",
+        isSetKTX2SRGBTransferFunc: kind !== "ao", imageDecoder });
   const tex = doc.createTexture(key).setImage(data).setMimeType("image/ktx2").setURI(`${key}.ktx2`);
   cache.set(key, tex);
   texLog.push({ map: key, png_bytes: png.length, ktx2_bytes: data.length, seconds: (Date.now() - t0) / 1000 });
@@ -103,6 +111,20 @@ for (const glb of ["hero", "site"]) {
     if (ex.talanta_albedo_map) { mat.setBaseColorTexture(await ktx(doc, cache, g, "albedo")); mat.getBaseColorTextureInfo().setTexCoord(0); mat.setBaseColorFactor([1, 1, 1, 1]); }
     mat.setExtras({ talanta_bake_group: g, talanta_lightmap: { source: "emissiveTexture", texCoord: tc, intensity: +(scale * Math.PI).toFixed(4), color_space: "sRGB" } });
   }
+  // ---------------------------------------------------------------- other colour images (painted shields, impostor atlas) -> KTX2 ETC1S
+  for (const tex of root.listTextures()) {
+    const mt = tex.getMimeType();
+    if (mt === "image/ktx2" || !tex.getImage()) continue;
+    const t0 = Date.now(); const src = tex.getImage();
+    const data = await encodeToKTX2(new Uint8Array(src), { isUASTC: false, qualityLevel: 200, compressionLevel: 2, generateMipmap: true,
+      isPerceptual: true, isSetKTX2SRGBTransferFunc: true, imageDecoder });
+    tex.setImage(data).setMimeType("image/ktx2").setURI((tex.getName() || "image") + ".ktx2");
+    texLog.push({ map: tex.getName() || "image", png_bytes: src.length, ktx2_bytes: data.length, seconds: (Date.now() - t0) / 1000, codec: "ETC1S" });
+  }
+  for (const mat of root.listMaterials()) {
+    const ex = mat.getExtras() || {};
+    if (ex.talanta_alpha_mask && mat.getAlphaMode() !== "MASK") mat.setAlphaMode("MASK").setAlphaCutoff(0.5);
+  }
   // ---------------------------------------------------------------- compression
   await doc.transform(dedup(), prune({ keepAttributes: true, keepLeaves: false }),
     meshopt({ encoder: MeshoptEncoder, level: "medium", quantizePosition: 16 }));
@@ -131,6 +153,45 @@ for (const glb of ["hero", "site"]) {
   console.log(glb, JSON.stringify({ bytes: result[glb].bytes, triangles: result[glb].triangles }));
 }
 
+// ---------------------------------------------------------------- bundle: ground tiles, panoramas, manifest with sha256
+if (BUNDLE) {
+  const gsrc = path.join(BASE, "ground_png"); const gdst = path.join(BDIR, "ground"); fs.mkdirSync(gdst, { recursive: true });
+  if (fs.existsSync(path.join(gsrc, "tiles_png.json"))) {
+    const tj = JSON.parse(fs.readFileSync(path.join(gsrc, "tiles_png.json"), "utf8")); const out = [];
+    for (const tl of tj.tiles) {
+      const png = fs.readFileSync(path.join(gsrc, tl.file)); const t0 = Date.now();
+      const data = await encodeToKTX2(new Uint8Array(png), { isUASTC: false, qualityLevel: 160, compressionLevel: 2, generateMipmap: true,
+        isPerceptual: true, isSetKTX2SRGBTransferFunc: true, imageDecoder });
+      const f = tl.file.replace(/\.png$/, ".ktx2"); fs.writeFileSync(path.join(gdst, f), data);
+      out.push({ file: f, x0: tl.x0, z0: tl.z0, size: tl.size, level: tl.level, m_per_px: tl.m_per_px });
+      texLog.push({ map: `ground/${f}`, png_bytes: png.length, ktx2_bytes: data.length, seconds: (Date.now() - t0) / 1000, codec: "ETC1S" });
+    }
+    fs.writeFileSync(path.join(gdst, "tiles.json"), JSON.stringify({ frame: tj.frame, sun: tj.sun, look: tj.look, codec: "KTX2 ETC1S, sRGB, mipmaps",
+      use: "unlit ground colour (light and shadow baked in); level 0 (0.25 m/px) within 640 m, level 1 (0.5 m/px) to 1536 m; draw level 0 over level 1",
+      tiles: out }, null, 1) + "\n");
+  }
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+  const files = walk(BDIR).filter((f) => !f.endsWith("manifest.json")).sort().map((f) => {
+    const buf = fs.readFileSync(f); return { file: path.relative(BDIR, f), bytes: buf.length, sha256: crypto.createHash("sha256").update(buf).digest("hex") };
+  });
+  const total = files.reduce((a, f) => a + f.bytes, 0);
+  const pano = ["0730", "1730"].map((h) => path.join(BDIR, "env", `panorama_log_${h}.json`)).filter((f) => fs.existsSync(f)).map((f) => JSON.parse(fs.readFileSync(f, "utf8")));
+  const man = {
+    bundle: BUNDLE, generated: new Date().toISOString(),
+    source: "blender/out/talanta_site.blend via blender/web_hero (bake_lightmaps.py, ground_tiles.py, render_panorama.py, export_web.py, node/post_glb.mjs)",
+    frame: "glTF y-up = app frame: x east, y up, z south, metres, origin at the pitch centre",
+    sun: { date: bake.date, local: `${bake.time_eat} EAT`, elevation_deg: bake.sun_elevation_deg, azimuth_deg: bake.sun_azimuth_deg, direction_to_sun: bake.sun_dir_app },
+    files, total_bytes: total, budget_bytes: 250e6, within_budget: total < 250e6,
+    models: result, textures: texLog, panoramas: pano,
+    codecs: { geometry: "EXT_meshopt_compression (16-bit positions)", lightmaps: "KTX2 UASTC + RDO + zstd (light: sRGB, ao: linear)",
+              colour: "KTX2 ETC1S (albedo maps, shield paint, impostor atlas, ground tiles)", panorama: "OpenEXR half float, DWAB (8K); Radiance HDR (2048)" },
+    lightmaps: "Baked materials carry extras.talanta_lightmap: move emissiveMap to lightMap (texture.channel = texCoord), emissive black, lightMapIntensity = intensity. KTX2Loader required.",
+    labels: "Estimated geometry and colours (parameter ledger). Traffic and any people are Visualization. No reference frame is used as a texture.",
+  };
+  fs.writeFileSync(path.join(BDIR, "manifest.json"), JSON.stringify(man, null, 1) + "\n");
+  console.log(JSON.stringify({ bundle: BUNDLE, files: files.length, total_bytes: total, within_budget: man.within_budget }));
+  process.exit(0);
+}
 // ---------------------------------------------------------------- manifest
 const envFiles = ["talanta_0735.hdr", "talanta_0735_2048.hdr"].filter((f) => fs.existsSync(path.join(ENV, f)))
   .map((f) => ({ file: `app/public/env/${f}`, bytes: fs.statSync(path.join(ENV, f)).size }));

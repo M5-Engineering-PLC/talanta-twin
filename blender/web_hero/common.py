@@ -14,12 +14,13 @@ MAPS = OUT / "maps"
 MARK = "# ---- end of scene setup"
 
 
-def setup_morning(out_dir="blender/out/web_hero/_unused"):
-    """Open talanta_site.blend and set the approved 07:30 golden sun and HDRI sky. Returns the render_cycles globals."""
+def setup_morning(out_dir="blender/out/web_hero/_unused", preset="morning_golden"):
+    """Open talanta_site.blend and set the approved golden sun and HDRI sky (morning_golden 07:30 by default,
+    evening_golden 17:30). Returns the render_cycles globals."""
     src = (ROOT / "blender/render_cycles.py").read_text()
     head = src.split(MARK)[0]
     argv = sys.argv
-    sys.argv = [argv[0], out_dir, "C19", "morning_golden", "check"]
+    sys.argv = [argv[0], out_dir, "C19", preset, "check"]
     g = {"__file__": str(ROOT / "blender/render_cycles.py"), "__name__": "render_cycles_setup"}
     try:
         exec(compile(head, "render_cycles.py (setup)", "exec"), g)
