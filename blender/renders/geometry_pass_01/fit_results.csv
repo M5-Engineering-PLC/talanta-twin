@@ -1,0 +1,21 @@
+parameter,fit_8_frames_m,loo_spread_m,accepted,built_m
+wall top yW,46.37,2.86,no,51.0 (kept)
+shoulder Rh,10.16,5.12,no,3.0 (kept)
+shoulder Rv,4.65,3.46,no,3.0 (kept)
+crest (yW + Rv),51.01,4.4,no,54.0 (kept)
+opening height,51.09,4.07,no,50.0 (kept)
+roof sag,-2.74,1.6,yes,-2.74
+foot inset dF,0.74,0.99,yes,0.74
+wall bulge,-2.89,1.62,yes,-2.89
+shield centre hs,27.47,4.91,no,28.75 (kept)
+
+frame,mask_iou,outline_median_px,junction_rms_px,shield_k
+000641.633,0.892,4.4,15.6,2
+000659.633,0.963,1.9,6.2,4
+001221.500,0.946,5.8,28.9,0
+001224.500,0.953,7.6,23.6,4
+001235.934,0.782,9.7,39.7,2
+001239.267,0.928,6.1,22.5,1
+001244.833,0.934,4.2,9.5,4
+001247.833,0.872,10.9,43.4,1
+001232.600,0.81 (best camera),,150-180,excluded: no camera could be matched

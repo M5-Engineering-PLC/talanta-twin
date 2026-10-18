@@ -351,6 +351,28 @@ fs("bowl.dugout.offset_halfway", 4, "m", "BS44", "detail sheet BS44 (render only
 fs("bowl.dugout.from_touchline", 4, "m", "BS44", "detail sheet BS44 (render only)", "generic estimate", "+-2 m", BDS)
 add("site.people.count", 300, "count", "Visualization", "", "illustrative only", "", "estimated", f"{SF} people", "Visualization, not a crowd model (AGENTS.md rule 7)")
 
+# ---- side profile fitted to the drone frames (gis/scripts/profile_fit/fit2.py, cloud session 2026-10-18).
+# Accepted rows: leave-one-frame-out spread under 2 m (max - min over 8 runs). 001232.600 is left out: its camera
+# could not be matched (junction error 150-180 px in every start). Rejected fits are kept as *.fit_* rows (not read).
+PF = "JWNowpO44rw 000641.633, 000659.633, 001221.500, 001224.500, 001235.934, 001239.267, 001244.833, 001247.833"
+PFU = "blender/build_blockout.py profile()"
+def pf(n, v, u, spread, method, note=""):
+    add(n, v, u, PF, "2026-10-18", method, f"+-{spread / 2:.1f} m", f"derived (8 frames, spread {spread:.1f} m)", PFU, note)
+def pfr(n, v, u, spread, method):
+    add(n, v, u, PF, "2026-10-18", method, f"spread {spread:.1f} m", f"estimated (frame fit, spread {spread:.1f} m, not accepted)", "", "not read by the build; the earlier estimate stays")
+pf("bowl.profile.foot_inset", 0.74, "m", 0.99, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens", "wall foot inside the roof outer ring")
+pf("bowl.profile.wall_bulge", -2.89, "m", 1.62, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens", "negative: the wall bows inward at mid height")
+pf("bowl.profile.roof_sag", -2.74, "m", 1.60, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens", "negative: the roof rises between the crest and the opening")
+pfr("bowl.profile.fit_wall_top_y", 46.37, "m", 2.86, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens")
+pfr("bowl.profile.fit_shoulder_rh", 10.16, "m", 5.12, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens")
+pfr("bowl.profile.fit_shoulder_rv", 4.65, "m", 3.46, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens")
+pfr("bowl.profile.fit_opening_y", 51.09, "m", 4.07, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens")
+pfr("bowl.profile.fit_shield_centre_y", 27.47, "m", 4.91, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens")
+pfr("bowl.profile.fit_crest_y", 51.01, "m", 4.40, "least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens")
+add("bowl.roof.cushion_bays", 30, "count", "JWNowpO44rw 001221.500, 001224.500", "2026-10-18", "topside rib seams against projected rib lines (30, 40, 60) with the solved cameras; both frames match 30", "+-2", "derived (2 frames)", "blender/build_blockout.py roof, roof_ribs", "the 60 underside primaries (bowl.roofsteel.ribs) carry a top rib on every other one")
+add("bowl.roof.cushion_rows", 8, "count", "JWNowpO44rw 001232.600, 001235.934", "2026-10-18", "by eye: cushion rows from the rim to the opening in the front bays", "+-1", "estimated (frames 001232.600, 001235.934)", "blender/build_blockout.py roof")
+add("bowl.roof.cushion_bulge", 0.45, "m", "JWNowpO44rw 001232.600, 001235.934", "2026-10-18", "by eye: highlight and shadow per cushion", "+-0.2 m", "estimated (frames 001232.600, 001235.934)", "blender/build_blockout.py roof")
+
 out = ROOT / "gis/parameter_ledger.csv"
 with open(out, "w", newline="") as f:
     w = csv.DictWriter(f, COLS, lineterminator="\n"); w.writeheader(); w.writerows(rows)

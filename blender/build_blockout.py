@@ -277,7 +277,7 @@ for i in range(N):
 obj("soffit", "plinth", v, f, WHITE, "estimated", SRC_PL)
 # backing: the wall line and shoulder pushed in by BACK, from the plinth top to the fascia line, closed by a cap
 v, f = [], []
-BY = [plinthH] + [PROF[0][j][1] for j in range(J_WALL, J_F + 1)]
+BY = [PROF[0][j][1] for j in range(1, J_F + 1)]  # every wall row, so the backing follows the fitted bulge
 nb = len(BY) + 1
 for i in range(N):
     ux, uz = dirs[i]
