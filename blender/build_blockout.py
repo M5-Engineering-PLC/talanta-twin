@@ -485,8 +485,11 @@ SPEAR = mat("spear_white", (0.92, 0.92, 0.9), 0.35)
 axisA = math.radians(-bearing); sw = V("bowl.shield.width")
 sy0, sy1 = V("bowl.shield.blockout_y0"), V("bowl.shield.blockout_y1")
 hs = VO("bowl.shield.centre_y", None)
-if hs is not None:  # fitted shield centre: keep the shield height, move it, and keep the tip under the fascia line
-    d_ = hs - (sy0 + sy1) / 2; sy0, sy1 = sy0 + d_, min(sy1 + d_, yF - 0.5)
+if hs is not None:  # fitted shield centre: move the whole shield (height kept), limited so the tip stays under the
+    # fascia line and the foot above the plinth; a clamp on the tip alone would shrink the shield and move its centre
+    d_ = hs - (sy0 + sy1) / 2
+    d_ = max(min(d_, yF - 0.5 - sy1), plinthH + 0.2 - sy0)
+    sy0, sy1 = sy0 + d_, sy1 + d_
 bulge, soff = V("bowl.shield.bulge"), V("bowl.shield.offset")
 span, bl, br, srad = V("bowl.spear.span_shields"), V("bowl.spear.blade_len"), V("bowl.spear.blade_r"), V("bowl.spear.radius")
 tip_y = yF - V("bowl.spear.tip_below_fascia")

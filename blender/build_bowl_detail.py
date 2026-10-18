@@ -284,11 +284,13 @@ SRC_ROOF = "ledger bowl.roofsteel.*, bowl.catwalk.*, bowl.floodlights.* (estimat
 # Tension cable roof (10:38, 10:55): radial ribs from the rim to the opening ring, each with a dark tension cable
 # sagging below it and vertical struts between them; ring purlins between the ribs.
 KR, dr = int(V("bowl.roofsteel.ribs")), V("bowl.roofsteel.drop")
+if "bowl.roof.cushion_bays" in L and KR % int(V("bowl.roof.cushion_bays")) != 0:
+    raise ValueError("bowl.roofsteel.ribs must be a multiple of bowl.roof.cushion_bays (topside ribs sit on primaries)")
 J0, J1 = JF + 1.0, NP - 1.3
 prim, cables, struts = [], [], []
 sag = V("bowl.roofsteel.cable_sag")
 for k in range(KR):
-    th = 2 * math.pi * (k + 0.5) / KR
+    th = 2 * math.pi * k / KR  # every other primary lies under a topside rib (bowl.roof.cushion_bays = KR / 2)
     js = np.linspace(J0, J1, 40)
     prim.append([surf(th, j, dr) for j in js])
     cab = [surf(th, j, dr + sag * math.sin(math.pi * (j - J0) / (J1 - J0))) for j in js]
@@ -318,7 +320,7 @@ for off in (-cw, cw):
         th = 2 * math.pi * i / (2 * N); x, y, z = ring_c[i]; pts.append((x + math.cos(th) * off, y - math.sin(th) * off, z + 1.1))
     rails_c.append(pts)
 tube_obj("catwalk_rails", "roof_detail", rails_c, 0.04, STEEL, "estimated", SRC_ROOF, closed=True)
-hang = [[surf(2 * math.pi * (k + 0.5) / KR, jc, cd), surf(2 * math.pi * (k + 0.5) / KR, jc, dr)] for k in range(KR)]
+hang = [[surf(2 * math.pi * k / KR, jc, cd), surf(2 * math.pi * k / KR, jc, dr)] for k in range(KR)]
 tube_obj("catwalk_hangers", "roof_detail", [[(x, y, z) for x, y, z in h] for h in hang], 0.05, STEEL, "estimated", SRC_ROOF)
 fv, ff = [], []
 length = sum(math.dist(ring_c[i], ring_c[(i + 1) % (2 * N)]) for i in range(2 * N))

@@ -22,9 +22,9 @@ import model as m
 HERE = os.path.dirname(os.path.abspath(__file__))
 LINES = {k: v for k, v in json.load(open(os.path.join(HERE, "lines.json"))).items() if not k.startswith("_")}
 FRAMES = list(LINES)
-KEYS = ["yW", "Rh", "Rv", "openY", "sag", "dF", "bulge", "hs"]
-LO = np.array([30, 1, 1, 35, -3, -4, -4, 18.0]); HI = np.array([60, 40, 20, 60, 6, 15, 6, 36.0])
-START = np.array([51.0, 3.0, 3.0, 50.0, 1.5, 1.0, 0.0, 28.75])
+KEYS = ["yW", "Rh", "Rv", "openY", "sag", "dF", "bulge", "hs", "dRi"]  # dRi: visible opening edge = roof inner ring - dRi
+LO = np.array([30, 1, 1, 35, -4, -4, -4, 18.0, -4.0]); HI = np.array([60, 40, 20, 60, 6, 15, 6, 36.0, 14.0])
+START = np.array([51.0, 3.0, 3.0, 50.0, 1.5, 1.0, 0.0, 28.75, 0.0])
 PRESS_MAX = 56.0  # press: maximum height about 56 m (soft limit, +-2 m)
 W, H = m.W, m.H
 NS = 360  # ring sampling for the curve distances
@@ -104,8 +104,11 @@ class Frame:
             O = np.load(f"{work}/open_{f}.npy")
             oe = O ^ nd.binary_erosion(O, iterations=1); ys, xs = np.nonzero(oe)
             k = rng.choice(len(xs), min(90, len(xs)), replace=False); self.oedge = np.stack([xs[k], ys[k]], 1).astype(float)
-            if O.sum() < 6000: self.oedge = None
-        except FileNotFoundError: self.oedge = None
+            ys_o, xs_o = np.nonzero(O)
+            self.oext = np.array([[xs_o.min(), ys_o[xs_o == xs_o.min()].mean()], [xs_o.max(), ys_o[xs_o == xs_o.max()].mean()],
+                                  [xs_o[ys_o == ys_o.min()].mean(), ys_o.min()]], float)
+            if O.sum() < 6000: self.oedge = None; self.oext = None
+        except FileNotFoundError: self.oedge = None; self.oext = None
         L = LINES[f]; self.J = np.array(L["J"], float); self.F = np.array(L["F"], float).reshape(-1, 2); self.S = np.array(L["S"], float)
         self.k = None  # shield label of the rightmost annotated shield
 
@@ -118,7 +121,7 @@ def shield_P(p, ks):
     r = m.wall_r(p, th, y) + 2.6; return np.stack([np.cos(th) * r, np.full(len(ks), y), np.sin(th) * r], -1)
 
 
-def n_res(fr): return 220 + 220 + 90 + len(fr.J) + len(fr.F) + len(fr.S)
+def n_res(fr): return 220 + 220 + 90 + 3 + len(fr.J) + len(fr.F) + len(fr.S)
 
 
 def residuals(fr, p, cam, w_sil=1.0, w_line=3.0, w_sh=3.0):
@@ -138,7 +141,14 @@ def _residuals(fr, p, cam, w_sil, w_line, w_sh):
     inside = (dense[:, 0] > 3) & (dense[:, 0] < W - 4) & (dense[:, 1] > 3) & (dense[:, 1] < H - 4)
     dd = np.where(inside, fr.dt[np.clip(dense[:, 1].astype(int), 0, H - 1), np.clip(dense[:, 0].astype(int), 0, W - 1)], 0.0)
     out.append(w_sil * pad(dd[:: max(1, len(dd) // 220)][:220], 220))
-    out.append(pad(0.7 * curve_dist(fr.oedge, ring(RRI, p["openY"]), cam, need_visible=False), 90) if fr.oedge is not None else np.zeros(90))
+    op = ring(RRI - p.get("dRi", 0.0), p["openY"])
+    out.append(pad(0.7 * curve_dist(fr.oedge, op, cam, need_visible=False), 90) if fr.oedge is not None else np.zeros(90))
+    # landmarks: the left, right and far (top) extremes of the opening, mask against the projected ring
+    if fr.oext is not None:
+        u, _, _ = project(op, cam)
+        mod = np.array([u[np.argmin(u[:, 0])], u[np.argmax(u[:, 0])], u[np.argmin(u[:, 1])]])
+        out.append(2.0 * np.linalg.norm(mod - fr.oext, axis=1))
+    else: out.append(np.zeros(3))
     rF = RRO - p["dF"]
     out.append(w_line * curve_dist(fr.J, ring(RRO, p["yW"]), cam))
     if len(fr.F): out.append(w_line * curve_dist(fr.F, ring(rF, p["yFoot"]), cam))
