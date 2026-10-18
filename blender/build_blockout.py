@@ -26,7 +26,8 @@ N = 240
 # ---------------------------------------------------------------- inputs
 L = {r["name"]: r for r in csv.DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
 V = lambda k: float(L[k + "_blockout"]["value"]) if k + "_blockout" in L else float(L[k]["value"])  # Blender overrides
-VO = lambda k, d: V(k) if (k in L or k + "_blockout" in L) else d  # optional row (profile fit), else the old estimate
+WITHDRAWN = lambda k: k in L and L[k]["status"].startswith("withdrawn")  # kept in the ledger as evidence, not read
+VO = lambda k, d: V(k) if ((k in L and not WITHDRAWN(k)) or k + "_blockout" in L) else d  # optional row (profile fit), else the old estimate
 MAN = json.loads((ROOT / "app/public/data/manifest.json").read_text())
 PAD = MAN["features"]["site_pad_y"]
 

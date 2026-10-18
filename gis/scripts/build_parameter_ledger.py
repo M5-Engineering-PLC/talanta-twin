@@ -366,6 +366,7 @@ def pfr(n, v, u, spread, method, note="not read by the build; the earlier estima
 pf("bowl.profile.foot_inset", 0.66, "m", 0.94, PFM, "wall foot inside the roof outer ring; pass 1 gave 0.74")
 pf("bowl.profile.wall_bulge", -3.09, "m", 0.43, PFM, "negative: the wall bows inward at mid height; pass 1 gave -2.89")
 pf("bowl.shield.centre_y", 27.92, "m", 0.70, PFM, "shield moved whole to this centre, height kept; pass 1 spread 4.9 m", "blender/build_blockout.py shields")
+add("bowl.profile.roof_sag", -2.74, "m", PF, "2026-10-18", "geometry pass 1: least squares on silhouette, roof opening, junction, foot and labelled shields; one focal length and k1 per lens", "+-0.8 m", "withdrawn (pass 2, LOO spread 6.2 m)", "", "accepted in pass 1 (leave-one-out spread 1.6 m); kept as evidence, not read by the build (VO skips withdrawn rows)")
 pfr("bowl.profile.fit_roof_sag", -2.66, "m", 6.19, PFM, "was accepted in pass 1 (-2.74, spread 1.6 m); pass 2 leave-one-out without 001239.267 jumps to +5.95 and one basin gives -0.24, so bowl.roof_sag (1.5 m, estimated) is read again")
 pfr("bowl.profile.fit_wall_top_y", 47.01, "m", 4.84, PFM)
 pfr("bowl.profile.fit_shoulder_rh", 10.18, "m", 5.37, PFM)
