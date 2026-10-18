@@ -47,8 +47,11 @@ def ring(r, y): return np.stack([DXS * r, np.full(NS, y), DZS * r], -1)
 
 
 def project(P, cam):
-    R, C, f = m.cam_matrix(cam); q = (P - C) @ R.T
-    z = q[:, 2]; return np.stack([f * q[:, 0] / np.maximum(z, 1e-3) + W / 2, f * q[:, 1] / np.maximum(z, 1e-3) + H / 2], 1), z, C
+    """Pinhole plus one radial distortion term: cam[8] = k1 (per lens; 0 when absent)."""
+    R, C, f = m.cam_matrix(cam[:8]); q = (P - C) @ R.T
+    z = q[:, 2]; x, y = q[:, 0] / np.maximum(z, 1e-3), q[:, 1] / np.maximum(z, 1e-3)
+    s = 1 + (cam[8] if len(cam) > 8 else 0.0) * (x * x + y * y)
+    return np.stack([f * x * s + W / 2, f * y * s + H / 2], 1), z, C
 
 
 def visible(P, C):  # outward-facing points of a ring (normal = radial direction)
@@ -172,12 +175,12 @@ def cam_from(az, el, f, fr, p):
     else: c[5] = 3000 * (np.ptp(uv[:, 0]) + 1) / fr.w_px
     # centre the projected shell on the mask centre by shifting the look-at target (small-angle)
     uv, z, C = project(shell_pts(p), c)
-    du = fr.edge.mean(0) - uv.mean(0); R, C, f_ = m.cam_matrix(c)
+    du = fr.edge.mean(0) - uv.mean(0); R, C, f_ = m.cam_matrix(c[:8])
     shift = (R[0] * du[0] + R[1] * du[1]) * c[5] / f_
     c[0] += shift[0]; c[1] += shift[1]; c[2] += shift[2]; return c
 
 
-def solve_camera(fr, p, f0, free_f=True, seeds=None, top=8, f_fixed=None):
+def solve_camera(fr, p, f0, free_f=True, seeds=None, top=8, f_fixed=None, prealign=False, k1=0.0):
     """seeds: list of (az, el, f) to scan around instead of the full grid (re-solve of frames in wrong minima)."""
     cands = []
     if f_fixed: free_f = False
@@ -185,8 +188,17 @@ def solve_camera(fr, p, f0, free_f=True, seeds=None, top=8, f_fixed=None):
     grid = ([(az, el, f_) for az in range(0, 360, 10) for el in range(3, 75, 4) for f_ in fl]
             if seeds is None else [(a + da, max(3, e + de), f_ * sf) for a, e, f_ in seeds for da in range(-60, 61, 6)
                                    for de in (-8, -4, 0, 4, 8) for sf in ((1.0,) if f_fixed else (0.8, 1.0, 1.25))])
+    if prealign:  # coarser grid, each start aligned in target, distance and roll before ranking
+        grid = [(az, el, f_) for az in range(0, 360, 15) for el in (4, 10, 16, 22, 30, 40, 52) for f_ in fl]
     for az, el, f0 in grid:
-            c = cam_from(az, el, f0, fr, p)
+            c = np.r_[cam_from(az, el, f0, fr, p), k1]
+            if prealign:
+                fr.k = label_shields(fr, p, c); sub = [0, 1, 2, 5, 7]
+                lo_ = np.array([-150, -20, -150, 60, -20]); hi_ = np.array([150, 90, 150, 3000, 20])
+                def g_(v, c=c):
+                    cc = c.copy(); cc[sub] = v; return np.minimum(residuals(fr, p, cc), 150)
+                rr = least_squares(g_, np.clip(c[sub], lo_ + 1e-6, hi_ - 1e-6), bounds=(lo_, hi_), loss="soft_l1", f_scale=15, max_nfev=25)
+                c = c.copy(); c[sub] = rr.x
             fr.k = label_shields(fr, p, c)
             cost = np.sum(np.minimum(residuals(fr, p, c), 150) ** 2)
             cands.append((cost, c, fr.k))
@@ -197,6 +209,7 @@ def solve_camera(fr, p, f0, free_f=True, seeds=None, top=8, f_fixed=None):
         def fun(v):
             cc = c.copy(); cc[idx] = v; return residuals(fr, p, cc)
         lo = np.array([-150, -20, -150, -1e4, 2, 60, 300, -20])[idx]; hi = np.array([150, 90, 150, 1e4, 85, 3000, 4000, 20])[idx]
+        if len(c) < 9: c = np.r_[c, k1]
         r = least_squares(fun, np.clip(c[idx], lo + 1e-6, hi - 1e-6), bounds=(lo, hi), loss="soft_l1", f_scale=10, max_nfev=400)
         cc = c.copy(); cc[idx] = r.x; fr.k = label_shields(fr, p, cc)
         val = np.sum(np.minimum(residuals(fr, p, cc), 150) ** 2)
@@ -208,10 +221,12 @@ def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60):
     """Profile + one focal length per lens + pose per frame."""
     lens_ids = sorted(set(lens[f.f] for f in frames))
     fvals = {L: np.mean([cams[f.f][6] for f in frames if lens[f.f] == L]) for L in lens_ids}
-    v0 = list(x0) + [fvals[L] for L in lens_ids]
-    for f in frames: v0 += list(np.delete(cams[f.f], 6))
+    kvals = {L: np.mean([cams[f.f][8] if len(cams[f.f]) > 8 else 0.0 for f in frames if lens[f.f] == L]) for L in lens_ids}
+    v0 = list(x0) + [fvals[L] for L in lens_ids] + [kvals[L] for L in lens_ids]
+    for f in frames: v0 += list(np.delete(np.asarray(cams[f.f])[:8], 6))
     v0 = np.array(v0); n_p = len(KEYS); n_l = len(lens_ids)
-    lo = list(LO) + [300] * n_l; hi = list(HI) + [4000] * n_l
+    lo = list(LO) + [300] * n_l + [-0.5] * n_l; hi = list(HI) + [4000] * n_l + [0.3] * n_l
+    n_l2 = 2 * n_l
     for _ in frames: lo += [-150, -20, -150, -1e4, 2, 60, -20]; hi += [150, 90, 150, 1e4, 85, 3000, 20]
     lo, hi = np.array(lo), np.array(hi)
     lens_index = [lens_ids.index(lens[f.f]) for f in frames]
@@ -220,7 +235,8 @@ def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60):
     def unpack(v):
         p = prof(v[:n_p]); out = []
         for i, f in enumerate(frames):
-            c = v[n_p + n_l + 7 * i: n_p + n_l + 7 * i + 7]; out.append(np.insert(c, 6, v[n_p + lens_index[i]]))
+            c = v[n_p + n_l2 + 7 * i: n_p + n_l2 + 7 * i + 7]
+            out.append(np.r_[np.insert(c, 6, v[n_p + lens_index[i]]), v[n_p + n_l + lens_index[i]]])
         return p, out
 
     def fun(v):
@@ -233,7 +249,7 @@ def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60):
 
     r = least_squares(fun, np.clip(v0, lo + 1e-6, hi - 1e-6), bounds=(lo, hi), loss="soft_l1", f_scale=10, max_nfev=nfev, x_scale="jac")
     p, cs = unpack(r.x)
-    return r.x[:n_p], {f.f: c for f, c in zip(frames, cs)}, {L: r.x[n_p + i] for i, L in enumerate(lens_ids)}, r
+    return r.x[:n_p], {f.f: c for f, c in zip(frames, cs)}, {L: [r.x[n_p + i], r.x[n_p + n_l + i]] for i, L in enumerate(lens_ids)}, r
 
 
 def report(frames, p, cams):
@@ -247,7 +263,9 @@ def report(frames, p, cams):
 
 
 def iou(fr, p, cam):
-    s = m.sil(p, cam); M = np.load(f"{WORK}/mask_{fr.f}.npy")
+    uv, z, _ = project(shell_pts(p), cam)
+    s = None if (z < 1).any() else m.raster(uv[ConvexHull(uv).vertices])
+    M = np.load(f"{WORK}/mask_{fr.f}.npy")
     Md = M.reshape(H // m.SC, m.SC, W // m.SC, m.SC).mean((1, 3)) > 0.5
     if s is None: return 0.0
     return float((s & Md).sum() / max(1, (s | Md).sum()))
@@ -290,7 +308,7 @@ if __name__ == "__main__":
         t = time.time()
         x, cams2, fl, r = joint(frames, cams, lens, START, nfev=120)
         p = prof(x)
-        state["joint"] = {"profile": dict(zip(KEYS, map(float, x))), "focal": {k: float(v) for k, v in fl.items()},
+        state["joint"] = {"profile": dict(zip(KEYS, map(float, x))), "focal": {k: list(map(float, v)) for k, v in fl.items()},
                           "cams": {f: list(map(float, c)) for f, c in cams2.items()}, "per_frame": report(frames, p, cams2),
                           "cost": float(r.cost), "seconds": round(time.time() - t)}
         json.dump(state, open(state_path, "w"), indent=1)

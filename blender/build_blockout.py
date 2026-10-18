@@ -26,6 +26,7 @@ N = 240
 # ---------------------------------------------------------------- inputs
 L = {r["name"]: r for r in csv.DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
 V = lambda k: float(L[k + "_blockout"]["value"]) if k + "_blockout" in L else float(L[k]["value"])  # Blender overrides
+VO = lambda k, d: V(k) if (k in L or k + "_blockout" in L) else d  # optional row (profile fit), else the old estimate
 MAN = json.loads((ROOT / "app/public/data/manifest.json").read_text())
 PAD = MAN["features"]["site_pad_y"]
 
@@ -139,20 +140,32 @@ plinthH = V("bowl.plinth_h")
 topY, openY, sag = V("bowl.roof_top_y"), V("bowl.opening_y"), V("bowl.roof_sag")
 R = V("bowl.profile.shoulder_r")
 facadeInset = V("bowl.facade_inset")
+# Side profile fitted to the drone frames (gis/scripts/profile_fit/fit2.py; ledger rows "derived" where the
+# leave-one-frame-out spread passed). Rows that are absent keep the earlier estimates: wall top yW = topY - R,
+# a circular shoulder of radius R, no bulge, the foot from the plinth inset.
+yW = VO("bowl.profile.wall_top_y", topY - R)
+Rh, Rv = VO("bowl.profile.shoulder_rh", R), VO("bowl.profile.shoulder_rv", R)
+topY = yW + Rv
+openY, sag = VO("bowl.profile.opening_y", openY), VO("bowl.profile.roof_sag", sag)
+dF, wbulge = VO("bowl.profile.foot_inset", None), VO("bowl.profile.wall_bulge", 0.0)
+
+
+def foot_r(i):
+    return rRo[i] - dF if dF is not None else min(rPl[i] + V("bowl.plinth_inset") - facadeInset, rRo[i])
 
 # Profile (radius, height) at direction i, from the ground edge to the opening.
 def profile(i):
     p = [(rPl[i], 0.0), (rPl[i], plinthH)]
     # facade foot vs plinth face as in bowl.js (estimated), never outside the widest ring
-    r0 = min(rPl[i] + V("bowl.plinth_inset") - facadeInset, rRo[i])
-    # Wall: near-vertical, straight from the foot to the widest ring just below the rim, then a tight
-    # rounded shoulder (radius R) onto the rim (by eye against JWNowpO44rw 07:04; estimated).
-    yR = topY - R
+    r0 = foot_r(i)
+    # Wall: straight (plus the fitted bulge) from the foot to the widest ring at the wall top yW, then the
+    # shoulder, a quarter ellipse (Rh across, Rv up) onto the crest.
+    yR = yW
     for k in range(1, 13):
-        f = k / 12; p.append((r0 + (rRo[i] - r0) * f, plinthH + (yR - plinthH) * f))
-    for k in range(1, 13):  # shoulder: quarter circle inward to the crest
-        a = k / 12 * math.pi / 2; p.append((rRo[i] - R * (1 - math.cos(a)), yR + R * math.sin(a)))
-    rc = rRo[i] - R
+        f = k / 12; p.append((r0 + (rRo[i] - r0) * f + wbulge * math.sin(math.pi * f), plinthH + (yR - plinthH) * f))
+    for k in range(1, 13):  # shoulder: quarter ellipse inward to the crest
+        a = k / 12 * math.pi / 2; p.append((rRo[i] - Rh * (1 - math.cos(a)), yR + Rv * math.sin(a)))
+    rc = rRo[i] - Rh
     for k in range(1, 11):  # roof: crest to opening, with a sag
         t = k / 10; p.append((rc + (rRi[i] - rc) * t, topY + (openY - topY) * t - sag * math.sin(t * math.pi)))
     return p
@@ -238,19 +251,20 @@ obj("base_columns", "plinth", v, f, WHITE, "estimated", SRC_BASE)
 # Louvred wall (stage 02b, by eye from JWNowpO44rw 10:28 and 12:12-12:16): thin horizontal fins, sloping
 # down outward, over a dark recessed backing. The fins' outer edges lie on the wall line of profile();
 # above the wall the solid white shoulder (fascia) runs onto the roof. All fin values estimated.
-J_WALL = 13  # profile index of the wall top yR = topY - R
+J_WALL = 13  # profile index of the wall top yR = yW
 yR = PROF[0][J_WALL][1]
 # The fins carry on up the shoulder to a thin fascia line (12:12): the profile point on the shoulder
 # nearest to topY - fin.fascia_h. Above it the solid white fascia runs onto the roof.
 J_F = min(range(J_WALL, J_FACADE), key=lambda j: abs(PROF[0][j][1] - (topY - V("bowl.fin.fascia_h"))))
 yF = PROF[0][J_F][1]
-R0 = [min(rPl[i] + V("bowl.plinth_inset") - facadeInset, rRo[i]) for i in range(N)]
+R0 = [foot_r(i) for i in range(N)]
 
 
 def rw(i, y):
     """Outer face radius at height y: the straight wall, then the shoulder arc."""
-    if y <= yR: return R0[i] + (rRo[i] - R0[i]) * (y - plinthH) / (yR - plinthH)
-    return rRo[i] - R * (1 - math.cos(math.asin(min((y - yR) / R, 1.0))))
+    if y <= yR:
+        f = (y - plinthH) / (yR - plinthH); return R0[i] + (rRo[i] - R0[i]) * f + wbulge * math.sin(math.pi * f)
+    return rRo[i] - Rh * (1 - math.cos(math.asin(min((y - yR) / Rv, 1.0))))
 FIN_P, FIN_D, FIN_DROP, BACK = V("bowl.fin.pitch"), V("bowl.fin.depth"), V("bowl.fin.drop"), V("bowl.fin.backing_inset")
 VOID = mat("facade_void", (0.05, 0.05, 0.055), 0.8)
 SRC_FIN = "ledger bowl.fin.* (estimated, by eye from JWNowpO44rw 10:28, 12:12-12:16); wall line from W1b rings"
@@ -285,7 +299,7 @@ for k in range(nf):
 obj("louvre_fins", "shell", v, f, WHITE, "estimated", SRC_FIN)
 # facade object = the solid fascia from the fascia line over the shoulder to the crest; its widest ring is rRo (geometry gate)
 facade = loft("facade", "shell", J_F, J_FACADE, WHITE, "plan fitted to measured traces, heights estimated", SRC_SH)
-roof = loft("roof", "shell", J_FACADE, NP - 1, MEMB, "plan measured, heights estimated", SRC_SH)
+# the roof itself (cushions on the fitted roof surface) is built after surf(), below the roof ribs
 
 # ---------------------------------------------------------------- tiers (stepped rake)
 tiers = [("lower", GREEN), ("middle", RED), ("upper", RED)]
@@ -402,10 +416,35 @@ for k in range(K):
 sweep("lattice", "facade_detail", sp, LSEC, WHITE, "ledger bowl.lattice.section_*, bowl.profile.lattice_members_704 (estimated)")
 rings = [[surf(2 * math.pi * i / N, j, 0.3) for i in range(N)] for j in (J_LO, float(J_F))]
 curve_obj("lattice_rings", "facade_detail", rings, V("bowl.lattice.ring_r"), WHITE, closed=True, sources="ledger bowl.lattice.ring_r (estimated)")
-nrib = int(V("bowl.roof.ribs"))
+nrib = int(VO("bowl.roof.cushion_bays", V("bowl.roof.ribs")))  # topside ribs bound the cushion bays (001221.500, 001224.500)
 # ribs half sunk into the membrane (stage 02b: 12:40 shows a smooth membrane with faint seams, not raised tubes)
 ribs = [[surf(2 * math.pi * k / nrib, j, 0) + Vector((0, 0, 0.1 - V("bowl.roof.rib_r"))) for j in np.linspace(J_FACADE, NP - 1, 14)] for k in range(nrib)]
 curve_obj("roof_ribs", "facade_detail", ribs, V("bowl.roof.rib_r"), WHITE, sources="ledger bowl.roof.ribs (estimated)")
+# Cushion roof (JWNowpO44rw 001221.500 to 001239.267): between each pair of radial ribs, rows of inflated
+# cushions from the crest to the opening. Each cushion is a patch of the fitted roof surface lifted by
+# bowl.roof.cushion_bulge * sin(pi u) sin(pi v), so the seams at the ribs and between rows stay on the surface
+# and the bulges catch the light. Rows and bulge: ledger (estimated, by eye from the frames).
+NROW, HB = int(VO("bowl.roof.cushion_rows", 8)), VO("bowl.roof.cushion_bulge", 0.45)
+NU, NV = 6, 4
+cv, cf = [], []
+for k in range(nrib):
+    ta, tb = 2 * math.pi * k / nrib, 2 * math.pi * (k + 1) / nrib
+    for jr in range(NROW):
+        ja = J_FACADE + (NP - 1 - J_FACADE) * jr / NROW; jb = J_FACADE + (NP - 1 - J_FACADE) * (jr + 1) / NROW
+        base = len(cv)
+        for a in range(NU + 1):
+            for b in range(NV + 1):
+                q = surf(ta + (tb - ta) * a / NU, ja + (jb - ja) * b / NV, 0)
+                q.z += HB * math.sin(math.pi * a / NU) * math.sin(math.pi * b / NV)
+                cv.append(tuple(q))
+        for a in range(NU):
+            for b in range(NV):
+                i0 = base + a * (NV + 1) + b; cf.append((i0, i0 + NV + 1, i0 + NV + 2, i0 + 1))
+me = bpy.data.meshes.new("roof"); me.from_pydata(cv, [], cf); me.validate(); me.update()  # cv already in Blender coordinates
+for p_ in me.polygons: p_.use_smooth = True
+roof = bpy.data.objects.new("roof", me); coll("shell").objects.link(roof); me.materials.append(MEMB)
+roof["claim"] = "plan measured, profile derived from frames, cushions estimated"
+roof["sources"] = SRC_SH + "; cushions: ledger bowl.roof.ribs, bowl.roof.cushion_rows, bowl.roof.cushion_bulge (by eye from 001221.500-001239.267)"
 curve_obj("ring_beam", "facade_detail", [[surf(2 * math.pi * i / N, NP - 1, 0) for i in range(N)]], V("bowl.roof.ring_beam_r"), WHITE, closed=True, sources="ledger bowl.roof.ring_beam_r (estimated)")
 
 # Shield image painted here from simple shapes (our own drawing, not a frame), per the lead's description
@@ -445,6 +484,9 @@ pb.inputs["Roughness"].default_value = 0.45; sm.diffuse_color = (0.7, 0.1, 0.1, 
 SPEAR = mat("spear_white", (0.92, 0.92, 0.9), 0.35)
 axisA = math.radians(-bearing); sw = V("bowl.shield.width")
 sy0, sy1 = V("bowl.shield.blockout_y0"), V("bowl.shield.blockout_y1")
+hs = VO("bowl.shield.centre_y", None)
+if hs is not None:  # fitted shield centre: keep the shield height, move it, and keep the tip under the fascia line
+    d_ = hs - (sy0 + sy1) / 2; sy0, sy1 = sy0 + d_, min(sy1 + d_, yF - 0.5)
 bulge, soff = V("bowl.shield.bulge"), V("bowl.shield.offset")
 span, bl, br, srad = V("bowl.spear.span_shields"), V("bowl.spear.blade_len"), V("bowl.spear.blade_r"), V("bowl.spear.radius")
 tip_y = yF - V("bowl.spear.tip_below_fascia")
