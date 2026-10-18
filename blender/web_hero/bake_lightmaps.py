@@ -1,4 +1,4 @@
-"""Web hero step 1: bake the 07:35 morning light into lightmaps on a second UV set ("lightmap").
+"""Web hero step 1: bake the approved 07:30 golden light (common.py) into lightmaps on a second UV set ("lightmap").
 
 Run from the repo root:  ~/.venvs/bpy/bin/python blender/web_hero/bake_lightmaps.py [samples]
 CPU Cycles. Three passes over every bake group in one call each:
@@ -9,6 +9,11 @@ UV set from lightmap_uv.py (chart packing). Groups: stadium shell, louvre fins, 
 24 ground tiles (terrain_site cut into 16 inner tiles of 350 m over the site and 8 outer tiles) on 1024 px.
 Writes blender/out/web_hero/maps/<group>_{light,ao,albedo}.png, blender/out/web_hero/talanta_web_baked.blend
 and blender/out/web_hero/bake_log.json (times, light scales). Lightmaps are 8-bit sRGB of light / scale.
+Stage by stage: each pass bakes in batches of groups, and every batch is written to maps/ (plus the light scale
+and time to maps/stages.json) as soon as it finishes. A rerun with the same scene skips the batches already on
+disk (UV packing is deterministic), so a lost container costs one batch, not the bake. "fresh" ignores them.
+Pass 2 of the concept match: materials_pbr surfaces, suburbs, canopy and traffic are in the scene and shade the
+maps; the forecourt_context meshes (forecourt.py, which hides the old plaza and planters) are their own group.
 """
 import json, math, sys, time
 from pathlib import Path
@@ -33,6 +38,10 @@ GROUPS = {
     "roads": (2048, ["ngong_road", "ngong_barrier", "roads"]),
     "site_built": (1024, ["planters", "entrance_canopies", "sign_frames"]),
 }
+_fc = bpy.data.collections.get("forecourt_context")
+if _fc:  # forecourt.py meshes (paths, kerbs, beds, plaza); empties and instancers stay out
+    GROUPS["forecourt"] = (2048, sorted(o.name for o in _fc.all_objects if o.type == "MESH" and not o.hide_render
+                                        and not o.modifiers and len(o.data.polygons)))
 CLIP = 1500.0  # the site GLB stops here; the panorama carries everything beyond
 
 
@@ -181,14 +190,6 @@ bpy.context.view_layer.objects.active = all_obs[0]
 c = s.cycles; c.device = "CPU"; c.use_adaptive_sampling = False; c.use_denoising = False
 s.render.bake.margin = 2; s.render.bake.margin_type = "EXTEND"; s.render.bake.target = "IMAGE_TEXTURES"
 s.world.light_settings.distance = 2.0
-times = {}
-for kind, btype, filt, spp in (("albedo", "DIFFUSE", {"COLOR"}, 4), ("ao", "AO", set(), 4 if TEST else 64), ("light", "DIFFUSE", {"DIRECT", "INDIRECT"}, 4 if TEST else SAMPLES)):
-    target(kind); c.samples = spp
-    t0 = time.time()
-    if filt: bpy.ops.object.bake(type=btype, pass_filter=filt, use_clear=True, margin=2)
-    else: bpy.ops.object.bake(type=btype, use_clear=True, margin=2)
-    times[kind] = round(time.time() - t0, 1); print(f"bake {kind}: {times[kind]} s at {spp} samples", flush=True)
-
 # ---------------------------------------------------------------- encode and save (8-bit sRGB PNG)
 def srgb(x):
     x = np.clip(x, 0, 1); return np.where(x <= 0.0031308, 12.92 * x, 1.055 * np.power(x, 1 / 2.4) - 0.055)
@@ -196,12 +197,20 @@ def srgb(x):
 
 if TEST: MAPS = OUT / "test/maps"
 MAPS.mkdir(parents=True, exist_ok=True)
-scales = {}
-for (gname, kind), im in images.items():
+STAGES = MAPS / "stages.json"
+stages = json.loads(STAGES.read_text()) if STAGES.exists() and "fresh" not in sys.argv else {}
+key = {"samples": SAMPLES, "test": TEST, "light": g["sun_key"], "groups": {k: [v[0], [o.name for o in v[1]]] for k, v in groups.items()}}
+if stages.get("key") != key: stages = {"key": key, "done": {}}
+scales = {k: v["light_scale"] for k, v in stages["done"].items() if "light_scale" in v}
+
+
+def save(gname, kind):
+    im = images[gname, kind]
     w, h = im.size; px = np.empty(w * h * 4, np.float32); im.pixels.foreach_get(px); px = px.reshape(h, w, 4)[..., :3]
+    rec = {}
     if kind == "light":
         lum = px.max(-1); v = lum[lum > 1e-4]
-        sc = float(np.percentile(v, 99.7)) if v.size else 1.0; scales[gname] = round(sc, 4)
+        sc = float(np.percentile(v, 99.7)) if v.size else 1.0; scales[gname] = rec["light_scale"] = round(sc, 4)
         enc = srgb(px / sc)
     elif kind == "ao": enc = np.repeat(px[..., :1], 3, -1)
     else: enc = srgb(px)
@@ -210,15 +219,48 @@ for (gname, kind), im in images.items():
     out.colorspace_settings.name = "Non-Color"  # values written are already encoded
     out.pixels.foreach_set(rgba.ravel()); out.filepath_raw = str(MAPS / f"{gname}_{kind}.png"); out.file_format = "PNG"; out.save()
     im.filepath_raw = out.filepath_raw  # the baked blend references the saved maps, nothing packed
+    return rec
+
+
+BATCHES = [["stadium_shell", "stadium_fins"], ["stadium_ornament", "roof"], ["sport", "roads", "site_built", "forecourt"],
+           [f"ground_{k:02d}" for k in range(12)], [f"ground_{k:02d}" for k in range(12, 24)]]
+BATCHES = [[n for n in b_ if n in groups] for b_ in BATCHES]
+BATCHES = [b_ for b_ in BATCHES if b_] + [[n for n in groups if not any(n in b_ for b_ in BATCHES)]]
+times = {}
+for kind, btype, filt, spp in (("albedo", "DIFFUSE", {"COLOR"}, 4), ("ao", "AO", set(), 4 if TEST else 64), ("light", "DIFFUSE", {"DIRECT", "INDIRECT"}, 4 if TEST else SAMPLES)):
+    target(kind); c.samples = spp; times[kind] = 0.0
+    for batch in BATCHES:
+        if not batch: continue
+        tag = f"{kind}:{'+'.join(batch)}"
+        if tag in stages["done"] and all((MAPS / f"{n}_{kind}.png").exists() for n in batch):
+            for n in batch: images[n, kind].filepath_raw = str(MAPS / f"{n}_{kind}.png")
+            print(f"bake {tag}: on disk, skipped", flush=True); continue
+        bpy.ops.object.select_all(action="DESELECT")
+        sel = [o for n in batch for o in groups[n][1]]
+        for o in sel: o.select_set(True)
+        bpy.context.view_layer.objects.active = sel[0]
+        t0 = time.time()
+        if filt: bpy.ops.object.bake(type=btype, pass_filter=filt, use_clear=True, margin=2)
+        else: bpy.ops.object.bake(type=btype, use_clear=True, margin=2)
+        dt = round(time.time() - t0, 1); times[kind] += dt
+        recs = {n: save(n, kind) for n in batch}
+        stages["done"][tag] = {"seconds": dt, "samples": spp, "at": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}
+        for n, r_ in recs.items():
+            if r_: stages["done"].setdefault(n, {}).update(r_)
+        STAGES.write_text(json.dumps(stages, indent=1) + "\n")
+        print(f"bake {tag}: {dt} s at {spp} samples, saved", flush=True)
+    times[kind] = round(times[kind], 1)
+    print(f"bake {kind}: {times[kind]} s at {spp} samples", flush=True)
+
 print("light scales:", scales)
 
 # the export step reads these: which group each object and material belongs to
 for gname, (size, obs) in groups.items():
     for o in obs: o["bake_group"] = gname; o["bake_size"] = size
 el, az = g["el"], g["az"]
-log = {"date": "2026-01-15", "time_eat": "07:35", "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2),
+log = {"date": g["st"]["date"], "time_eat": g["st"]["time_eat"], "light_preset": g["sun_key"], "sky": g.get("sky_log"), "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2),
        "sun_dir_app": sun_vector_app(el, az), "sun_energy": g["sun"].data.energy, "sun_color": list(g["sun"].data.color),
-       "samples": {"light": SAMPLES, "ao": 64, "albedo": 4}, "bake_seconds": times, "total_seconds": round(time.time() - t_start, 1),
+       "samples": {"light": SAMPLES, "ao": 64, "albedo": 4}, "bake_seconds": times, "stages": stages["done"], "total_seconds": round(time.time() - t_start, 1),
        "groups": {gname: {"size": size, "objects": [o.name for o in obs], "light_scale": scales[gname], "uv": uv_stats.get(gname, "planar tile")} for gname, (size, obs) in groups.items()},
        "encoding": "light png = sRGB(light / light_scale); multiply by light_scale to get linear light on a white diffuse surface"}
 if TEST: OUT = OUT / "test"
