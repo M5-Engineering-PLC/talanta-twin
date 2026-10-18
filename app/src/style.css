@@ -173,3 +173,50 @@ dd { margin: 0; font-variant-numeric: tabular-nums; }
   .charts, .events, .brand-sub, .place, .date { display: none; }
   #bottom { grid-template-columns: 1fr; }
 }
+
+/* Landing interface: the existing renderer stays mounted in #view. */
+#landing-header, #landing-controls, #landing-claim { display: none; }
+#landing-toggle { position: fixed; right: 18px; bottom: 18px; z-index: 5; border: 1px solid var(--line); border-radius: 24px; padding: 10px 18px; background: var(--panel); box-shadow: 0 2px 12px #0002; }
+body.landing-mode { grid-template-columns: minmax(0, 1fr); grid-template-rows: 80px minmax(0, 1fr); grid-template-areas: "top" "stage"; }
+.landing-mode #topbar, .landing-mode #side, .landing-mode #bottom, .landing-mode #focusbar, .landing-mode #mapctl { display: none; }
+.landing-mode #landing-header { grid-area: top; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 12px 30px; background: #f5f1e8; }
+.landing-brand { display: flex; align-items: center; gap: 18px; }
+.landing-brand .shield { width: 30px; height: 42px; }
+.landing-brand .brand-name { font-size: 24px; font-weight: 500; }
+.landing-sub { color: var(--ink-2); margin-top: 3px; font-size: 12px; text-align: center; }
+.landing-venue { text-align: center; font-size: 20px; }
+.landing-venue span { display: block; font-size: 13px; color: var(--ink-2); margin-top: 3px; }
+.landing-pill { justify-self: end; border-radius: 28px; background: #292927; color: #fff; padding: 14px 25px; white-space: nowrap; }
+.landing-mode #landing-controls { display: flex; position: absolute; z-index: 4; top: 28px; right: 26px; gap: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 16px; background: #f5f1e8f5; box-shadow: 0 4px 18px #302b2520; max-width: calc(100% - 110px); }
+#landing-controls label { display: grid; gap: 4px; min-width: 0; font-size: 11px; color: var(--ink-2); }
+#landing-controls label + label { border-left: 1px solid var(--line); padding-left: 16px; }
+#landing-controls select { width: 135px; max-width: 100%; min-width: 0; background: #faf7f0; border: 1px solid #d3cabb; border-radius: 9px; padding: 7px 9px; color: var(--ink); font-size: 13px; }
+.landing-mode #compass { top: 32px; left: 26px; }
+.landing-mode #landing-claim { display: block; position: absolute; bottom: 18px; left: 18px; border-radius: 20px; padding: 7px 14px; background: #f5f1e8ed; font-size: 11px; }
+.landing-mode #claim { bottom: 58px; max-width: calc(100% - 36px); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--ke-green); outline-offset: 3px; }
+@media (max-width: 1000px) {
+  .landing-mode #landing-header { grid-template-columns: 1fr 1fr; padding: 12px 18px; gap: 8px; }
+  .landing-venue { display: none; }
+}
+@media (max-width: 600px) {
+  body.landing-mode { grid-template-rows: 112px minmax(0, 1fr); }
+  .landing-mode #landing-header { grid-template-columns: minmax(0, 1fr) auto; padding: 10px 14px; }
+  .landing-brand { gap: 9px; }
+  .landing-brand .brand-name { font-size: 18px; }
+  .landing-brand .shield { width: 23px; height: 32px; }
+  .landing-sub { font-size: 10px; }
+  .landing-pill { font-size: 12px; padding: 11px 14px; }
+  .landing-mode .landing-venue { display: block; grid-column: 1 / -1; grid-row: 2; font-size: 13px; }
+  .landing-venue span { display: inline; margin-left: 8px; font-size: 11px; }
+  .landing-mode #landing-controls { top: 12px; left: 12px; right: 12px; max-width: none; gap: 8px; padding: 10px; }
+  #landing-controls label { flex: 1; }
+  #landing-controls label + label { padding-left: 8px; }
+  #landing-controls select { width: 100%; padding: 7px 3px; font-size: 12px; }
+  .landing-mode #compass { top: 113px; left: 16px; }
+  .landing-mode #claim { font-size: 10px; }
+  #landing-toggle { right: 12px; bottom: 16px; padding: 9px 13px; font-size: 12px; }
+  body:not(.landing-mode) { grid-template-columns: minmax(0, 1fr); }
+}
+/* Full interface: keep the toggle in the top bar, clear of the layers panel. */
+body:not(.landing-mode) #landing-toggle { top: 7px; bottom: auto; right: 96px; padding: 6px 14px; box-shadow: none; }
