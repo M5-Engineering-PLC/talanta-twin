@@ -1,0 +1,20 @@
+{
+ "_note": "Hand row counts at native resolution (1280 x 720), cloud session 2026-10-18, JWNowpO44rw frames (internal reference only). Counts: dark seat-back minima down a block-centre column, checked by eye at 4-10x. Two overlapping frames within +-1 mark a count derived. Windows: x0..x1 column, y_top = back row, y_front = front row of one full block.",
+ "rows": {
+  "upper": {"n": 32, "counts": {"000745.000": "32 (31-33 over three columns)", "000747.000": "32 (three columns, after merging one split and filling one gap)", "002348.000": "29-31 (other stand; top rows about 3 px apart)"}, "status": "derived (2 frames: 000745.000, 000747.000)"},
+  "middle": {"n": 12, "counts": {"000745.000": "11-12", "000747.000": "12-13", "002348.000": "12-14"}, "status": "derived (2 frames: 000745.000, 000747.000)"},
+  "lower": {"n": 15, "counts": {"000745.000": "14-15 (by eye at 10x)", "000747.000": "15-16", "000945.200": "15 (by hand; pass 2 FFT gave 16)", "002500.000-002506.000": "not countable: shallow depth of field, the stand is blurred"}, "status": "derived (2 frames: 000745.000, 000747.000)"}
+ },
+ "views": [
+  {"frame": "000747.000", "side": "camera on the east upper tier, looking at the west stand",
+   "tiers": {"upper": {"x0": 900, "x1": 930, "y_top": 63, "y_front": 167},
+             "middle": {"x0": 900, "x1": 930, "y_top": 201, "y_front": 245},
+             "lower": {"x0": 900, "x1": 930, "y_top": 259, "y_front": 305}},
+   "start": [30, 35, 950, -0.15], "lo": [15, 18, 600, -0.7], "hi": [52, 55, 1600, 0.3]},
+  {"frame": "002348.000", "side": "camera at the west VIP rows, looking at the east stand",
+   "tiers": {"upper": {"x0": 830, "x1": 860, "y_top": 107, "y_front": 202},
+             "middle": {"x0": 830, "x1": 860, "y_top": 240, "y_front": 285},
+             "lower": {"x0": 830, "x1": 860, "y_top": 309, "y_front": 358}},
+   "start": [12, 9, 950, 0.05], "lo": [2, 2, 600, -0.4], "hi": [25, 20, 1600, 0.5]}
+ ]
+}

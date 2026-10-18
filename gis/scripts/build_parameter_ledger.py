@@ -412,8 +412,16 @@ itr("bowl.seat.upper_tone_weights", "0.4;0.4;0.2", "share", "000945.200", "by ey
 IF6 = "blender/build_bowl_detail.py F2. interior inventory"
 def ifr(n, v, u, src, method, unc, status="estimated", note=""):
     add(n, v, u, src, "2026-10-18", method, unc, status, IF6, note)
-itr("bowl.tier_middle.rows_blockout", 11, "count", "000945.200, 000735.433", "row period by FFT of a vertical profile through one full block, square on: 10.7 and 11.1 rows", "+-1", "derived (2 frames)", "overrides bowl.tier_middle.rows (13) in the Blender build; pass 1 by eye gave 12")
-itr("bowl.tier_lower.rows_blockout", 16, "count", "000945.200, 000735.433", "row period by FFT of a vertical profile through one full block, square on: 15.8 and 14.9-17.2 rows", "+-1", "derived (2 frames)", "overrides bowl.tier_lower.rows (24). The rake depth is unchanged, so the treads read 1.36 m deep: the lower tier depth (bowl.tier_lower.t1) needs a frame check")
+# Tier-section pass (2026-10-18): hand counts at native resolution, one full block per tier, square on
+# (gis/scripts/tier_section/rows.json). Two overlapping frames within +-1 mark a count derived. The pass 2 FFT counts
+# stay as estimated evidence rows. The two-view tread/riser fit (tier_fit.py) was rejected (README in
+# blender/renders/tier_section_01/), so the tier extents (t0, t1, y0, y1) keep their estimates.
+TS = "gis/scripts/tier_section/rows.json"
+itr("bowl.tier_lower.rows_fft_pass2", 16, "count", "000945.200, 000735.433", "pass 2: row period by FFT of a vertical profile", "+-1", "estimated (FFT, superseded by the hand count)", "not read by the build")
+itr("bowl.tier_middle.rows_fft_pass2", 11, "count", "000945.200, 000735.433", "pass 2: row period by FFT of a vertical profile", "+-1", "estimated (FFT, superseded by the hand count)", "not read by the build")
+itr("bowl.tier_lower.rows_blockout", 15, "count", "000745.000, 000747.000 (and 000945.200)", "hand count at native resolution, one full block square on: 14-15, 15-16 (000945.200: 15); 002500-002506 are too blurred to count", "+-1", "derived (2 frames)", "overrides bowl.tier_lower.rows (24); " + TS)
+itr("bowl.tier_middle.rows_blockout", 12, "count", "000745.000, 000747.000 (and 002348.000)", "hand count at native resolution, one full block square on: 11-12, 12-13 (002348.000: 12-14)", "+-1", "derived (2 frames)", "overrides bowl.tier_middle.rows (13); " + TS)
+itr("bowl.tier_upper.rows_blockout", 32, "count", "000745.000, 000747.000 (and 002348.000)", "hand count at native resolution, one full block square on: 32, 32 (002348.000, other stand: 29-31)", "+-1", "derived (2 frames)", "overrides bowl.tier_upper.rows (21); " + TS)
 itr("bowl.portals.upper_per_aisle", 1, "count", "000945.200, 002320.200", "one portal at the foot of every upper-tier aisle", "+-0", note="IT03 generic openings; no signage")
 itr("bowl.portals.middle_every", 2, "aisles", "000945.200, 002144.300", "dark openings at the top of the middle tier at every other aisle", "+-1")
 itr("bowl.portals.width", 2.4, "m", "000945.200", "by eye against the aisle width", "+-0.5 m")
