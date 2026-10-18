@@ -16,6 +16,7 @@ import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { loadHero } from './hero/loadHero.js';
 import { loadEnvironment, limitEnvToSpecular, horizonFogColor } from './hero/environment.js';
 import { applyHeroToneMapping, heroGrade, applyHeroHaze } from './hero/heroLook.js';
+import { getGradePreset } from './hero/grade.js';
 import { initOverlay } from './hero/overlay.js';
 import CAMS from '../cameras/manifest.json';
 import { buildTraffic } from './hero/traffic.js';
@@ -191,7 +192,7 @@ function applyTime() {
   bowl.lightsMat.emissiveIntensity = night * 4;
   bowl.ledMat.emissiveIntensity = night * 3.5;
   bowl.shieldMat.emissiveIntensity = 0.22 + night * 0.25;
-  if (bloomPass) bloomPass.strength.value = 0.06 + night * 0.55;
+  if (bloomPass) bloomPass.strength.value = getGradePreset().bloom.strength + night * 0.55;
   for (const s of flood) s.intensity = night * 9000;
   renderer.toneMappingExposure = 1.0 + night * 0.25;
   return sp;
@@ -675,7 +676,7 @@ if (params.has('hero')) {
 function heroLock() {
   sun.intensity = 0; hemi.intensity = 0; for (const s of flood) s.intensity = 0;
   for (const o of heroHidden) o.visible = false;
-  if (heroFog) scene.fog.color.copy(heroFog);
+  applyHeroHaze(scene, heroFog);
   applyHeroToneMapping(renderer, hero.manifest);
 }
 initOverlay({ stage, camera, controls });
@@ -692,8 +693,10 @@ if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost'
     aoPass.resolutionScale = 0.5;
     aoPass.radius.value = 1.2;
     const shaded = vec4(color.rgb.mul(aoPass.getTextureNode().r.mul(0.85).add(0.15)), color.a);
-    bloomPass = bloom(shaded, 0.08, 0.35, 0.82);
-    pipeline.outputNode = shaded.add(bloomPass);
+    const look = getGradePreset();
+    bloomPass = bloom(shaded, look.bloom.strength + night * 0.55, look.bloom.radius, look.bloom.threshold);
+    bloomPass.setResolutionScale(TIERS.high.bloomResolutionScale);
+    pipeline.outputNode = heroGrade(shaded).add(bloomPass);
     heroGradeOn = () => { pipeline.outputNode = heroGrade(shaded).add(bloomPass); pipeline.needsUpdate = true; };
   } catch (e) { console.warn('post-processing off:', e); pipeline = null; bloomPass = null; }
 }
