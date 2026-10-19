@@ -52,10 +52,20 @@ function primTris(prim) {
 const meshTris = (mesh) => mesh.listPrimitives().reduce((a, p) => a + primTris(p), 0);
 
 const texLog = [];
+// The Basis encoder takes at most ~12.58 Mpix per image; larger maps (the 4096 suburbs lightmaps) are resampled to
+// 3072 px. Their UVs are in [0, 1], so only texel density changes; texLog records the original size.
+const MAX_TEXELS = 12582912;
+async function fitTexels(buf) {
+  const m = await sharp(buf).metadata();
+  if (m.width * m.height <= MAX_TEXELS) return { buf, from: null };
+  const s = Math.sqrt(MAX_TEXELS / (m.width * m.height)); const w = Math.floor(m.width * s / 1024) * 1024 || Math.floor(m.width * s / 4) * 4;
+  const h = Math.round(m.height * w / m.width / 4) * 4;
+  return { buf: await sharp(buf).resize(w, h, { kernel: "lanczos3" }).png().toBuffer(), from: [m.width, m.height], to: [w, h] };
+}
 async function ktx(doc, cache, group, kind) {
   const key = `${group}_${kind}`;
   if (cache.has(key)) return cache.get(key);
-  const png = fs.readFileSync(path.join(BASE, "maps", `${key}.png`));
+  const fit = await fitTexels(fs.readFileSync(path.join(BASE, "maps", `${key}.png`))); const png = fit.buf;
   const t0 = Date.now();
   // bundle: lightmaps (light, ao) as UASTC with RDO and zstd, colour (albedo) as ETC1S; otherwise ETC1S throughout
   const uastc = BUNDLE && kind !== "albedo";
@@ -66,12 +76,23 @@ async function ktx(doc, cache, group, kind) {
         isSetKTX2SRGBTransferFunc: kind !== "ao", imageDecoder });
   const tex = doc.createTexture(key).setImage(data).setMimeType("image/ktx2").setURI(`${key}.ktx2`);
   cache.set(key, tex);
-  texLog.push({ map: key, png_bytes: png.length, ktx2_bytes: data.length, seconds: (Date.now() - t0) / 1000 });
+  texLog.push({ map: key, png_bytes: png.length, ktx2_bytes: data.length, seconds: (Date.now() - t0) / 1000, codec: uastc ? "UASTC+zstd" : "ETC1S",
+                ...(fit.from ? { resized_from: fit.from, resized_to: fit.to } : {}) });
   return tex;
 }
 
 const result = {};
-for (const glb of ["hero", "site"]) {
+// skip_models (bundle reruns): keep the GLBs already in the bundle; only the tiles, panoramas and manifest are redone
+const SKIP_MODELS = process.argv.includes("skip_models");
+if (SKIP_MODELS) {
+  for (const glb of ["hero", "site"]) {
+    const file = path.join(DEST, `talanta_${glb}.glb`);
+    result[glb] = { file: path.relative(ROOT, file), bytes: fs.statSync(file).size, note: "kept from the previous post_glb run" };
+  }
+  const prev = BDIR && fs.existsSync(path.join(BDIR, "manifest.json")) ? JSON.parse(fs.readFileSync(path.join(BDIR, "manifest.json"), "utf8")) : null;
+  if (prev) { Object.assign(result, prev.models); texLog.push(...prev.textures.filter((x) => !String(x.map).startsWith("ground/"))); }
+}
+for (const glb of SKIP_MODELS ? [] : ["hero", "site"]) {
   const doc = await io.read(path.join(STAGE, `${glb}_stage.glb`));
   const root = doc.getRoot(); const scene = root.getDefaultScene() || root.listScenes()[0];
   const buffer = root.listBuffers()[0];
@@ -115,7 +136,7 @@ for (const glb of ["hero", "site"]) {
   for (const tex of root.listTextures()) {
     const mt = tex.getMimeType();
     if (mt === "image/ktx2" || !tex.getImage()) continue;
-    const t0 = Date.now(); const src = tex.getImage();
+    const t0 = Date.now(); const src = (await fitTexels(Buffer.from(tex.getImage()))).buf;
     const data = await encodeToKTX2(new Uint8Array(src), { isUASTC: false, qualityLevel: 200, compressionLevel: 2, generateMipmap: true,
       isPerceptual: true, isSetKTX2SRGBTransferFunc: true, imageDecoder });
     tex.setImage(data).setMimeType("image/ktx2").setURI((tex.getName() || "image") + ".ktx2");
@@ -155,7 +176,7 @@ for (const glb of ["hero", "site"]) {
 
 // ---------------------------------------------------------------- bundle: ground tiles, panoramas, manifest with sha256
 if (BUNDLE) {
-  const gsrc = path.join(BASE, "ground_png"); const gdst = path.join(BDIR, "ground"); fs.mkdirSync(gdst, { recursive: true });
+  const gsrc = path.join(BASE, "ground_png", "ground"); const gdst = path.join(BDIR, "ground"); fs.mkdirSync(gdst, { recursive: true });
   if (fs.existsSync(path.join(gsrc, "tiles_png.json"))) {
     const tj = JSON.parse(fs.readFileSync(path.join(gsrc, "tiles_png.json"), "utf8")); const out = [];
     for (const tl of tj.tiles) {

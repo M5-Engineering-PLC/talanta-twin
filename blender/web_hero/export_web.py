@@ -266,9 +266,14 @@ def impostor_atlas(mesh_names):
     cd = bpy.data.cameras.new("imp_cam"); cd.type = "ORTHO"; cam_ = bpy.data.objects.new("imp_cam", cd); sc.collection.objects.link(cam_); sc.camera = cam_
     atlas = np.zeros((H_, W_, 4), np.float32); tmp = STAGE / "_impostor_cell.png"
     for k, mn in enumerate(mesh_names):
-        me = bpy.data.meshes[mn]; o = bpy.data.objects.new("_imp", me); sc.collection.objects.link(o)
-        co = np.array([v.co[:] for v in me.vertices]); lo, hi = co.min(0), co.max(0); cx, cy = (lo[:2] + hi[:2]) / 2
-        size = max(hi[0] - lo[0], hi[2] - lo[2], 0.5) * 1.04
+        me = bpy.data.meshes[mn]
+        # canopy banks hold the low "far" variant where the budget ran out; draw the impostor from the "high" variant
+        # of the same tree (same shape and proportions; the quads keep the bank mesh's size)
+        base = mn.split("_far")[0].split("_high")[0].split(".")[0]; hi_o = bpy.data.objects.get(base + "_high")
+        draw = hi_o.data if (base.startswith("canopy_") and hi_o is not None) else me
+        o = bpy.data.objects.new("_imp", draw); sc.collection.objects.link(o)
+        co = np.array([v.co[:] for v in draw.vertices]); lo, hi = co.min(0), co.max(0); cx, cy = (lo[:2] + hi[:2]) / 2
+        size = max(hi[0] - lo[0], hi[2] - lo[2], 0.05) * 1.04
         cd.ortho_scale = size; cam_.location = (cx, cy - 200.0, (lo[2] + hi[2]) / 2); cam_.rotation_euler = (math.radians(90), 0, 0)
         cd.clip_end = 400.0; sc.render.filepath = str(tmp)
         with bpy.context.temp_override(scene=sc): bpy.ops.render.render(write_still=True)

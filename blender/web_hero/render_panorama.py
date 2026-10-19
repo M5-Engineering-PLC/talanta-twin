@@ -35,45 +35,39 @@ for c in bpy.data.collections:
 
 
 def near_cut(radius):
-    """Hide objects within radius (plan) of the origin; cut the points and instances inside it from the rest."""
+    """Hide objects within radius (plan) of the origin. Meshes that cross the circle get their own copy of the mesh
+    with every vertex inside it deleted (bmesh; faces go with their vertices). That also cuts geometry-nodes point
+    scatters (their instances sit on mesh points, attributes kept). A geometry-nodes cut evaluated right in the
+    viewport but removed the whole mesh at render time, so the cut is made on the data. Curves are left whole."""
+    import bmesh
+    import numpy as np
     from mathutils import Vector
-    ng = bpy.data.node_groups.new("near_cut", "GeometryNodeTree")
-    ng.interface.new_socket("Geometry", in_out="INPUT", socket_type="NodeSocketGeometry")
-    ng.interface.new_socket("Geometry", in_out="OUTPUT", socket_type="NodeSocketGeometry")
-    N_ = ng.nodes; L_ = ng.links; gi, go = N_.new("NodeGroupInput"), N_.new("NodeGroupOutput")
-    pos = N_.new("GeometryNodeInputPosition")  # local; moved to world space with the object's own transform
-    me_ = N_.new("GeometryNodeSelfObject"); oi = N_.new("GeometryNodeObjectInfo"); oi.transform_space = "ORIGINAL"
-    L_.new(me_.outputs[0], oi.inputs["Object"])
-    tp = N_.new("FunctionNodeTransformPoint"); L_.new(pos.outputs[0], tp.inputs["Vector"]); L_.new(oi.outputs["Transform"], tp.inputs["Transform"])
-    sep = N_.new("ShaderNodeSeparateXYZ"); L_.new(tp.outputs[0], sep.inputs[0])
-    comb = N_.new("ShaderNodeCombineXYZ"); L_.new(sep.outputs[0], comb.inputs[0]); L_.new(sep.outputs[1], comb.inputs[1])
-    ln = N_.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"; L_.new(comb.outputs[0], ln.inputs[0])
-    lt = N_.new("FunctionNodeCompare"); lt.data_type = "FLOAT"; lt.operation = "LESS_THAN"; lt.inputs[1].default_value = radius
-    L_.new(ln.outputs["Value"], lt.inputs[0])
-    prev = gi.outputs[0]
-    for dom in ("INSTANCE", "POINT"):
-        dg_ = N_.new("GeometryNodeDeleteGeometry"); dg_.domain = dom
-        L_.new(prev, dg_.inputs["Geometry"]); L_.new(lt.outputs[0], dg_.inputs["Selection"]); prev = dg_.outputs[0]
-    L_.new(prev, go.inputs[0])
     n_hide = n_cut = 0
     for o in s.objects:
-        if o.hide_render or o.type not in ("MESH", "CURVE", "EMPTY", "POINTCLOUD", "CURVES"): continue
+        if o.hide_render or o.type not in ("MESH", "CURVE", "EMPTY"): continue
         if o.type == "EMPTY":
             if o.instance_type == "COLLECTION" and Vector(o.matrix_world.translation[:2]).length < radius: o.hide_render = True; n_hide += 1
             continue
         bb = [o.matrix_world @ Vector(c) for c in o.bound_box]
-        far = max(Vector(v[:2]).length for v in bb)
-        if far < radius:
+        if max(Vector(v[:2]).length for v in bb) < radius:
             o.hide_render = True; n_hide += 1; continue
+        if o.type != "MESH": continue
         xs, ys = [v.x for v in bb], [v.y for v in bb]
-        nearest = Vector((min(max(0.0, min(xs)), max(xs)), min(max(0.0, min(ys)), max(ys)))).length
-        if nearest < radius:
-            m = o.modifiers.new("near_cut", "NODES"); m.node_group = ng; n_cut += 1
+        if Vector((min(max(0.0, min(xs)), max(xs)), min(max(0.0, min(ys)), max(ys)))).length >= radius: continue
+        o.data = o.data.copy()
+        co = np.empty(len(o.data.vertices) * 3); o.data.vertices.foreach_get("co", co); co = co.reshape(-1, 3)
+        M = np.array(o.matrix_world); w = co @ M[:3, :3].T + M[:3, 3]
+        inside = np.hypot(w[:, 0], w[:, 1]) < radius
+        if not inside.any(): continue
+        bm = bmesh.new(); bm.from_mesh(o.data); bm.verts.ensure_lookup_table()
+        bmesh.ops.delete(bm, geom=[bm.verts[i] for i in np.nonzero(inside)[0]], context="VERTS")
+        bm.to_mesh(o.data); bm.free(); o.data.update(); n_cut += 1
     return n_hide, n_cut
 
 
 cut = near_cut(NEAR) if NEAR else None
 cam_d = bpy.data.cameras.new("pano"); cam_d.type = "PANO"
+cam_d.clip_start, cam_d.clip_end = 1.0, 100000.0  # a new camera clips at 1 km, which cut the far land out of the panorama
 try: cam_d.panorama_type = "EQUIRECTANGULAR"
 except AttributeError: cam_d.cycles.panorama_type = "EQUIRECTANGULAR"
 cam = bpy.data.objects.new("pano", cam_d); s.collection.objects.link(cam)

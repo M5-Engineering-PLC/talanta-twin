@@ -53,6 +53,9 @@ cam.rotation_euler = (0.0, 0.0, 0.0)  # looking straight down (-Z), image up = +
 RES = 256 if TEST else 1024
 s.render.resolution_x = s.render.resolution_y = RES; s.render.resolution_percentage = 100
 c = s.cycles; c.samples = SAMPLES; c.use_adaptive_sampling = True; c.use_denoising = True; c.denoiser = "OPENIMAGEDENOISE"
+# top-down ground colour: two diffuse bounces carry the sky and bounce light; deeper paths only cost time
+c.max_bounces, c.diffuse_bounces, c.glossy_bounces, c.transmission_bounces, c.transparent_max_bounces = 4, 2, 1, 1, 4
+c.caustics_reflective = c.caustics_refractive = False
 s.render.film_transparent = False
 s.render.image_settings.file_format = "PNG"; s.render.image_settings.color_mode = "RGB"
 OUTD.mkdir(parents=True, exist_ok=True)
