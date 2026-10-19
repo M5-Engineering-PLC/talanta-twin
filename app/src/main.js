@@ -278,8 +278,8 @@ function camPose(id) { const c = CAMS.cameras.find((k) => k.id === id); return {
 const fitted = (az, el, k = 1) => () => poseFrom({ target: CENTRE, az, el, d: fitD(BOWL_R) * k });
 const FOCUS = [
   { id: 'overview', name: 'Overview', k: 'Whole bowl, centred, Ngong Hills behind', poseFn: fitted(40, 22), label: null, rings: [] },
-  { id: 'lead06', name: 'Lead view NE', k: 'Camera C19, matched to lead render 06: Ngong Road, looking SW to the Ngong Hills', pose: camPose('C19'), label: null, rings: [] },
-  { id: 'lead07', name: 'Lead view SSW', k: 'Camera C20, matched to lead render 07: over the forest, looking NNE to Lavington', pose: camPose('C20'), label: null, rings: [] },
+  { id: 'lead06', name: 'Lead view NE', k: 'Camera L06, framed as landing mockup 06: Ngong Road, looking SW to the Ngong Hills', pose: camPose('L06'), label: null, rings: [] },
+  { id: 'lead07', name: 'Lead view SSW', k: 'Camera L07, framed as landing mockup 07: over the forest, looking NNE to Lavington', pose: camPose('L07'), label: null, rings: [] },
   { id: 'top', name: 'Top down', k: 'Plan view of the bowl and roof opening', poseFn: () => poseFrom({ target: [0, PAD, 0.01], az: 0, el: 89.5, d: fitD(BOWL_R, 1.25) }), label: null, rings: [] },
   { id: 'entrance', name: 'Main forecourt', k: 'Shield facade, plaza · positions estimated', pose: { pos: new THREE.Vector3(site.plaza.x + 60, PAD + 22, site.plaza.z - 70), target: new THREE.Vector3(0, PAD + 24, -40) }, label: null, rings: [] },
   { id: 'fountain', name: 'Fountain', k: 'Dry-deck jets · position estimated', pose: { pos: new THREE.Vector3(site.pool.x + 30, PAD + 17, site.pool.z - 44), target: new THREE.Vector3(site.pool.x, PAD + 2, site.pool.z + 6) }, label: [site.pool.x, PAD + 10, site.pool.z], rings: [] },

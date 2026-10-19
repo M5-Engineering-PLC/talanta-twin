@@ -50,10 +50,11 @@
   <button id="landing-toggle" type="button" aria-pressed="false">Explore the twin</button>
   <main id="stage">
     <div id="view"></div>
+    <img id="landing-still" alt="" hidden>
     <form id="landing-controls" aria-label="Scene controls" onsubmit="return false">
       <label>View<select id="landing-view"></select></label>
       <label>Time of day<select id="landing-time">
-        <option value="390">Sunrise</option><option value="450" selected>Morning</option><option value="750">Midday</option><option value="1050">Golden</option><option value="1200">Night</option>
+        <option value="390">Sunrise</option><option value="450" selected>Morning</option><option value="630">Daylight</option><option value="750">Midday</option><option value="1050">Golden</option><option value="1085">Sunset</option><option value="1200">Night</option>
       </select></label>
       <label>Event<select id="landing-event">
         <option value="venue">Venue tour</option><option value="matchday">Match day</option><option value="construction">Construction</option><option value="weather">Weather</option>
