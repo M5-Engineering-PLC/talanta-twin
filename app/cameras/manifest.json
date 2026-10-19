@@ -682,6 +682,39 @@
    "note": "solved to the landing mockup stadium box and sky band (blender/concept_match/solve_cameras.py landing, residuals in blender/data/landing_cameras.json)"
   },
   {
+   "id": "D01",
+   "name": "Drone 000645.000",
+   "purpose": "environment check against drone frame 000645.000 (north of the site over Ngong Road, looking SSW); internal only",
+   "position": [
+    45.75,
+    78.28,
+    -397.11
+   ],
+   "target": [
+    52.4,
+    -29.97,
+    2.57
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "10:30",
+    "kind": "daylight"
+   },
+   "variants": [
+    "golden"
+   ],
+   "seed": 31,
+   "note": "solved to the stadium box and sky band of JWNowpO44rw_000645.000.jpg (blender/concept_match/solve_cameras.py drone, residuals in blender/data/drone_cameras.json)"
+  },
+  {
    "id": "C20",
    "name": "Lead view 07 match",
    "purpose": "score against lead render 07: SSW aerial over the forest looking NNE to Lavington; internal only",
@@ -746,6 +779,72 @@
    ],
    "seed": 7,
    "note": "solved to the landing mockup stadium box and sky band (blender/concept_match/solve_cameras.py landing, residuals in blender/data/landing_cameras.json)"
+  },
+  {
+   "id": "D02",
+   "name": "Drone 000714.767",
+   "purpose": "environment check against drone frame 000714.767 (south of the bowl over the forest, looking N to the city); internal only",
+   "position": [
+    -94.22,
+    91.42,
+    377.59
+   ],
+   "target": [
+    -6.11,
+    6.57,
+    -2.02
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "10:30",
+    "kind": "daylight"
+   },
+   "variants": [
+    "golden"
+   ],
+   "seed": 32,
+   "note": "solved to the stadium box and sky band of JWNowpO44rw_000714.767.jpg (blender/concept_match/solve_cameras.py drone, residuals in blender/data/drone_cameras.json)"
+  },
+  {
+   "id": "D03",
+   "name": "Drone 000617.567",
+   "purpose": "environment check against overview frame 000617.567 (east of the bowl, looking W); internal only",
+   "position": [
+    432.08,
+    173.05,
+    -16.62
+   ],
+   "target": [
+    -0.31,
+    -96.34,
+    -13.16
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "10:30",
+    "kind": "daylight"
+   },
+   "variants": [
+    "golden"
+   ],
+   "seed": 33,
+   "note": "solved to the stadium box and sky band of JWNowpO44rw_000617.567.jpg (blender/concept_match/solve_cameras.py drone, residuals in blender/data/drone_cameras.json)"
   },
   {
     "id": "C30",

@@ -8,10 +8,11 @@ The stadium box is the projection of the plinth, shell and facade_detail meshes.
 land elevation angle against azimuth, ray cast once from the start position (haze box hidden); the sky band of
 each trial pose follows from it in closed form, and the final pose is checked with direct ray casts. Writes the poses to app/cameras/manifest.json (C19 and C20 only)
 and the residuals to blender/data/concept_cameras.json.
-Run: ~/.venvs/bpy/bin/python blender/concept_match/solve_cameras.py [dry] [landing]
+Run: ~/.venvs/bpy/bin/python blender/concept_match/solve_cameras.py [dry] [landing|drone]
 "landing" solves the landing cameras L06 and L07 to the 2026-10-18 landing mockups 06 and 07 instead (Munene,
 2026-10-19: the landing frame mirrors the mockups). They start from the C19 and C20 poses, are added to the manifest
 as new cameras, and leave C19 and C20 unchanged. Residuals go to blender/data/landing_cameras.json.
+"drone" solves D01 and D02 to two as-built drone frames the same way, for the environment pass (internal only).
 """
 import json, math, sys
 from pathlib import Path
@@ -39,8 +40,52 @@ LANDING_TARGETS = {
             "bbox": [500 / 1672, 360 / 941, 1370 / 1672, 705 / 941], "sky": 0.25,
             "position": [-170.06, 144.41, 617.95], "target": [23.05, 22.01, 5.95], "focal": 38},
 }
-LANDING = "landing" in sys.argv
-if LANDING: TARGETS = LANDING_TARGETS
+for t, (name, sun, seed) in zip(LANDING_TARGETS.values(), (
+        ("Landing Hillside", {"date": "2026-01-15", "time_eat": "17:30", "kind": "evening golden"}, 6),     # mockup 06 Sunset
+        ("Landing Cityside", {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, 7))):  # mockup 07 Daylight
+    t.update(name=name, sun=sun, seed=seed, purpose=f"landing view and backdrop still, framed as {Path(t['concept']).stem}; the mockup is internal only")
+# Environment pass (2026-10-19): as-built drone frames of JWNowpO44rw (January 2026), DJI 24 mm equivalent, measured by
+# hand on a 40 px grid. Internal only: the cameras exist to compare the environment with the footage.
+DRONE_TARGETS = {
+    "D01": {"concept": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg", "from": "C19",
+            "bbox": [455 / 1280, 172 / 720, 982 / 1280, 362 / 720], "sky": 0.18,
+            "position": [170, 110, -430], "target": [0, 10, 0], "focal": 24,  # north plaza and Ngong Road in front
+            "landmarks": [[[2.2, 205.3], [860 / 1280, 437 / 720]], [[2.2, 182.0], [818 / 1280, 404 / 720]], [[2.2, 229.0], [905 / 1280, 480 / 720]]],
+            "name": "Drone 000645.000", "seed": 31, "sun": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight"},
+            "purpose": "environment check against drone frame 000645.000 (north of the site over Ngong Road, looking SSW); internal only"},
+    "D02": {"concept": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg", "from": "C20",
+            "bbox": [405 / 1280, 230 / 720, 946 / 1280, 440 / 720], "sky": 0.25,
+            "position": [-170.06, 144.41, 617.95], "target": [23.05, 22.01, 5.95], "focal": 24,
+            # south of the bowl over the forest, the city behind: the plaza in front is the south plaza, not yet in the
+            # model, so no landmarks; the stadium box alone fixes this pose
+            "name": "Drone 000714.767", "seed": 32, "sun": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight"},
+            "purpose": "environment check against drone frame 000714.767 (south of the bowl over the forest, looking N to the city); internal only"},
+    # overview frame: east of the bowl looking W, Ngong Road running away at the top right. Landmarks: the W1b north plaza
+    # (its round bed, right of the bowl) and the W1b warm-up track (right foreground). The eye-shaped paving in the
+    # foreground is an east approach, not the W1b plaza.
+    "D03": {"concept": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg", "from": "C20",
+            "bbox": [345 / 1280, 40 / 720, 880 / 1280, 280 / 720], "sky": 0.0,
+            "position": [520, 330, -20], "target": [0, 0, 0], "focal": 24,
+            "landmarks": [[[-15, 205], [985 / 1280, 195 / 720]], [[171, 123], [940 / 1280, 370 / 720]]],
+            "name": "Drone 000617.567", "seed": 33, "sun": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight"},
+            "purpose": "environment check against overview frame 000617.567 (east of the bowl, looking W); internal only"},
+}
+# Orientation test (dry only): the overview frame 000617.567 against W1b-measured landmarks (blender x east, y north):
+# the eye-shaped plaza (centroid 15 m W, 205 m N) and the warm-up track (171 m E, 123 m N). "B" mirrors east and west.
+_ov = {"concept": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg", "from": "C19",
+       "bbox": [345 / 1280, 40 / 720, 880 / 1280, 280 / 720], "sky": 0.0,
+       "position": [0, 330, -420], "target": [0, 0, -60], "focal": 24}
+ORIENT_TARGETS = {
+    "O_A": {**_ov, "landmarks": [[[-15, 205], [600 / 1280, 400 / 720]], [[171, 123], [940 / 1280, 370 / 720]]]},
+    "O_B": {**_ov, "landmarks": [[[15, 205], [600 / 1280, 400 / 720]], [[-171, 123], [940 / 1280, 370 / 720]]]},
+    "O_C": {**_ov, "landmarks": [[[-15, -205], [600 / 1280, 400 / 720]], [[171, -123], [940 / 1280, 370 / 720]]]},  # north-south flip
+    "O_D": {**_ov, "landmarks": [[[15, -205], [600 / 1280, 400 / 720]], [[-171, -123], [940 / 1280, 370 / 720]]]},  # 180 deg turn
+}
+if __import__("os").environ.get("ORIENT_ONLY"):
+    ORIENT_TARGETS = {k: v for k, v in ORIENT_TARGETS.items() if k in __import__("os").environ["ORIENT_ONLY"].split(",")}
+MODE = next((m for m in ("landing", "drone", "orient") if m in sys.argv), None)
+LANDING = MODE is not None
+if MODE: TARGETS = {"landing": LANDING_TARGETS, "drone": DRONE_TARGETS, "orient": ORIENT_TARGETS}[MODE]
 STADIUM_COLS = ("plinth", "shell", "facade_detail")
 
 
@@ -62,6 +107,7 @@ for cn in STADIUM_COLS:
         M = np.array(o.matrix_world); pts.append(co.reshape(-1, 3) @ M[:3, :3].T + M[:3, 3])
         o.evaluated_get(dg).to_mesh_clear()
 PTS = np.concatenate(pts)
+if "orient" in sys.argv or "drone" in sys.argv: PTS = PTS[::50]  # a bounding box needs far fewer points; keeps the 48-start test quick
 print("stadium points", len(PTS))
 
 
@@ -147,9 +193,26 @@ def evaluate(P, T, lens, prof=None):
             "height": b[3] - b[1], "sky": sky_fast(P, T, lens, prof) if prof else sky_band(P, T, lens)}
 
 
+def ground(xy):
+    """Blender ground point under (x, y): the first hit of a ray down from 2 km."""
+    from mathutils import Vector
+    hit = scene.ray_cast(dg, Vector((xy[0], xy[1], 2000.0)), Vector((0, 0, -1)), distance=1e5)
+    return np.array([xy[0], xy[1], hit[1].z if hit[0] else 0.0])
+
+
+def landmark_cost(P, T, base):
+    if not base.get("landmarks"): return 0.0
+    f, r, u = basis(P, T); k = base["focal"] / (SENSOR / 2); out = 0.0
+    for pt, (ux, uy) in base["_lm"]:
+        d = pt - P; z = d @ f
+        x = 0.5 + 0.5 * (d @ r) / z * k; y = 0.5 - 0.5 * (d @ u) / z * k * W / H
+        out += ((x - ux) / 0.01) ** 2 + ((y - uy) / 0.01) ** 2
+    return out
+
+
 def cost(q, base, prof):
     tb = np.array(base["bbox"]); P, T = pose(q, base); e = evaluate(P, T, base["focal"], prof)
-    return (((e["width"] - (tb[2] - tb[0])) / 0.01) ** 2 + ((e["cx"] - (tb[0] + tb[2]) / 2) / 0.01) ** 2
+    return (landmark_cost(P, T, base) + ((e["width"] - (tb[2] - tb[0])) / 0.01) ** 2 + ((e["cx"] - (tb[0] + tb[2]) / 2) / 0.01) ** 2
             + ((e["cy"] - (tb[1] + tb[3]) / 2) / 0.01) ** 2 + ((e["sky"] - base["sky"]) / 0.01) ** 2
             + 0.25 * ((e["height"] - (tb[3] - tb[1])) / 0.01) ** 2), e
 
@@ -172,8 +235,25 @@ def nelder_mead(fn, x0, step, iters=90):
     i = int(np.argmin(val)); return pts[i], val[i]
 
 
+def best_start(cid, base):
+    """With landmarks, try 24 start bearings round the target (same distance and height) and keep the best solve."""
+    if not base.get("landmarks"): return base
+    base["_lm"] = [(ground(xy), uv) for xy, uv in base["landmarks"]]
+    P0, T0 = app_to_bl(base["position"]), app_to_bl(base["target"]); hor = P0[:2] - T0[:2]; best = None
+    for i in range(24):
+        a = math.radians(15 * i); c_, s_ = math.cos(a), math.sin(a)
+        trial = {**base, "position": bl_to_app(np.array([T0[0] + c_ * hor[0] - s_ * hor[1], T0[1] + s_ * hor[0] + c_ * hor[1], P0[2]]))}
+        Ps, Ts = pose([0, 0, 0, 0], trial)
+        prof = horizon_profile(Ps, math.degrees(math.atan2(*(Ts - Ps)[1::-1])))
+        q, c = nelder_mead(lambda q: cost(q, trial, prof), [0, 0, 0, 0], [0.08, 15, 8, 1.5], iters=120)
+        print(cid, "bearing start", 15 * i, "cost %.2f" % c, flush=True)
+        if best is None or c < best[0]: best = (c, trial)
+    return best[1]
+
+
 report = {}
 for cid, base in TARGETS.items():
+    base = best_start(cid, base)
     P0, T0 = pose([0, 0, 0, 0], base)
     prof = horizon_profile(P0, math.degrees(math.atan2(*(T0 - P0)[1::-1])))
     e0 = evaluate(P0, T0, base["focal"])
@@ -188,21 +268,19 @@ for cid, base in TARGETS.items():
                    "concept_bbox": np.round(tb, 4).tolist(), "concept_sky": base["sky"], "cost": round(float(c), 3), "q": np.round(q, 4).tolist()}
     print(cid, json.dumps(report[cid]))
 
-(ROOT / "blender/data" / ("landing_cameras.json" if LANDING else "concept_cameras.json")).write_text(json.dumps(report, indent=1) + "\n")
+(ROOT / "blender/data" / (f"{MODE}_cameras.json" if MODE else "concept_cameras.json")).write_text(json.dumps(report, indent=1) + "\n")
 if LANDING and "dry" not in sys.argv:
     txt = MANIFEST.read_text(); m = json.loads(txt)
     m["cameras"] = [c for c in m["cameras"] if c["id"] not in report]
     for cid, r in report.items():
         src = next(c for c in m["cameras"] if c["id"] == TARGETS[cid]["from"])
-        c = {**src, "id": cid, "name": f"Landing {'Hillside' if cid == 'L06' else 'Cityside'}",
-             "purpose": f"landing view and backdrop still, framed as landing mockup {cid[1:]}; the mockup is internal only",
+        t = TARGETS[cid]
+        c = {**src, "id": cid, "name": t["name"], "purpose": t["purpose"],
              "position": r["solved"]["position"], "target": r["solved"]["target"], "focal_length_mm": r["focal_length_mm"],
              "vfov_deg": round(math.degrees(2 * math.atan(SENSOR / 2 * 9 / 16 / r["focal_length_mm"])), 3),
-             "seed": 6 if cid == "L06" else 7,
-             "note": "solved to the landing mockup stadium box and sky band (blender/concept_match/solve_cameras.py landing, "
-                     "residuals in blender/data/landing_cameras.json)"}
-        c["sun"] = ({"date": "2026-01-15", "time_eat": "17:30", "kind": "evening golden"} if cid == "L06"
-                    else {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"})  # mockup 06 Sunset, 07 Daylight
+             "sun": t["sun"], "seed": t["seed"],
+             "note": f"solved to the stadium box and sky band of {Path(t['concept']).name} "
+                     f"(blender/concept_match/solve_cameras.py {MODE}, residuals in blender/data/{MODE}_cameras.json)"}
         m["cameras"].insert(m["cameras"].index(src) + 1, c)
     MANIFEST.write_text(json.dumps(m, indent=1) + ("\n" if txt.endswith("\n") else ""))
 if not LANDING and "dry" not in sys.argv:
