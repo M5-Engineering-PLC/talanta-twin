@@ -109,8 +109,9 @@ function walk(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(path.join(dir, d.name)) : [path.join(dir, d.name)]));
 }
-const unpackedFiles = walk(unpacked);
-// Find a file by its bundle path: flat by basename first, then inside an unpacked archive (path suffix match).
+// A --from folder can also hold the bundle tree itself (models/, env/, ground/), e.g. an archive unpacked by hand.
+const unpackedFiles = [...walk(unpacked), ...(FROM ? walk(source) : [])];
+// Find a file by its bundle path: flat by basename first, then in an unpacked archive or a --from tree (path suffix match).
 function locate(file) {
   const flat = path.join(source, base(file));
   if (fs.existsSync(flat)) return flat;

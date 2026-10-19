@@ -155,6 +155,14 @@ test('--from a local folder with flat files and split parts, no gh call', () => 
   assert.equal(fs.readFileSync(t.log, 'utf8'), '');
 });
 
+test('--from a folder that holds the bundle tree', () => {
+  const t = setup();
+  const r = run(t, '--from', t.tree);
+  assert.equal(r.code, 0, r.out);
+  for (const [file, buf] of Object.entries(t.content)) assert.deepEqual(fs.readFileSync(path.join(t.pub, file)), buf, file);
+  assert.equal(fs.readFileSync(t.log, 'utf8'), '');
+});
+
 test('a manifest path outside models/, env/ or ground/ is refused', () => {
   const t = setup();
   t.manifest.files.push({ file: '../../etc/x', bytes: 1, sha256: 'a'.repeat(64) });
