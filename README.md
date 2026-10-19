@@ -4,7 +4,9 @@ Created: 2026-10-15
 Status: idea and reference collection
 Track: to decide. This is a candidate M5 3D showcase. M5 scope today is Sawa, BomaHealth and Biodesign, so this folder stays separate until Munene decides the track.
 
-## Objective
+Start here on a new device or with a new agent: HANDOFF.md.
+
+
 
 Build a detailed three.js digital twin of Talanta Stadium (Raila Odinga Talanta Stadium, Nairobi). Use it as a showcase of M5 3D work and pitch it to the Ministry of Sports, Sports Kenya and the AFCON 2027 organizers.
 
