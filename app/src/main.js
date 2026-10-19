@@ -795,5 +795,5 @@ renderer.setAnimationLoop((now) => {
   } else renderer.render(scene, camera);
 });
 setTimeout(() => $('#splash').classList.add('done'), 250);
-$('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 seats · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.) · ${bowl.seatCount.toLocaleString()} seats modelled`;
+$('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 design capacity · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.)`;
 window.__twin = { performanceProfile, scene, camera, controls, focus, state, FOCUS, get blockout() { return blockout; } };
