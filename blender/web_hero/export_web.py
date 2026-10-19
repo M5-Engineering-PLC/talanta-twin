@@ -135,7 +135,10 @@ def export_material(m, o, slot_index):
     else:
         key = (m.name,)
     if key in new_mats: return new_mats[key]
-    img = own_image(m)
+    # Ground tiles always ship their baked albedo map. terrain_site_mat is procedural (site region masks, murram,
+    # grass and paving); its first image node, ground_site.jpg, is only one input, and shipping it as a painted
+    # image gave the web hero pale, blotchy 600 px ground (found 2026-10-19).
+    img = None if gname and gname.startswith("ground_") else own_image(m)
     col, rough, metal, em, es, alpha = principled_values(m)
     if img is not None: col = [1.0, 1.0, 1.0]
     elif gname and ALBEDO_GROUPS(gname): col = [1.0, 1.0, 1.0]
