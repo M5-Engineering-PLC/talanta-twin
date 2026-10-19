@@ -1,2 +1,7 @@
 node_modules/
 dist/
+# Baked web hero bundle (npm run fetch-assets). Binaries, never commit them.
+public/models/
+public/env/
+public/ground/
+.fetch-cache/

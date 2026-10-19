@@ -11,7 +11,7 @@ Updated: 2026-10-19. Read this file first on a new device or with a new coding a
 | Bundle manifest (size and sha256 per file) | blender/web_hero/web_hero_v1_manifest.json, and the release asset `web_hero_v1_manifest.json` |
 | Bundle as a git branch (backup copy) | `assets/web_hero_v1` (orphan branch, no shared history) |
 | Baked blend and bake maps (backup copy) | `assets/web_hero_v1_bake` (orphan branch) |
-| Draft fetch script, not tested or reviewed | `claude/web-hero-app-cf2056`, app/tools/fetch_assets.mjs |
+| Fetch script for the bundle | app/tools/fetch_assets.mjs (`npm run fetch-assets`), tests in app/tools/fetch_assets.test.mjs |
 | Landing concept images (internal only, frame-derived) | `munene/CAM-01-landing-option` |
 | Cloud handoff for blender/ and gis/ | blender/STATUS.md |
 
@@ -25,14 +25,14 @@ Raw videos and the dense frame sets exist only on the lead machine. They are not
 3. Install the app: `cd app && npm install`.
 4. Get the bundle: `gh release download web_hero_v1 -R M5-Engineering-PLC/talanta-twin -D /tmp/web_hero_v1`.
 5. Check the archive: `cd /tmp/web_hero_v1 && sha256sum -c web_hero_v1.tar.sha256`.
-6. Extract the archive outside the repository. Copy the files into app/public with blender/web_hero/stage_app_preview.py, or with the fetch script when it is finished.
+6. Extract the archive outside the repository. Or skip steps 4 to 6: run `npm run fetch-assets` in app/. It downloads the release with gh, checks each file against the manifest and installs it into app/public.
 7. Run `npm run dev` in app/. Use Chrome or another browser with WebGPU or WebGL. Open `/?hero` for the baked scene.
 
 Do not commit anything from app/public/models, app/public/env or app/public/ground. They are binaries.
 
 ## Next tasks, in order
 
-1. App: finish `npm run fetch-assets` (start from the draft branch). It must download web_hero_v1.tar, check every file against the manifest, and install into app/public. Test it with a fake bundle first.
+1. App: run `npm run fetch-assets` once against the real web_hero_v1 release on a laptop with gh logged in, then open `/?hero`. The script is finished and passes `npm test` (fake bundle and fake gh, 7 cases), but it has not yet downloaded the real release. Until the app reads EXR (task 3), it points both panorama sizes at the 2048 HDR and lists the 8K EXR as `file_exr`.
 2. App: load the 61 ground tiles near the camera first. Fall back to the current ground_site.jpg when the tiles are missing.
 3. App: load the 8K EXR panorama when the device can take it. Else load the 2048 HDR.
 4. App: replace the landing caption "56,972 seats modelled" with "60,000 design capacity".
