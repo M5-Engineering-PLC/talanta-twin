@@ -1,0 +1,74 @@
+# main-guard: main only takes changes that nenemwaniki pushed or approved.
+# Any other push to main is moved to a new branch and main is reset.
+# The pusher then opens a PR from that branch for nenemwaniki to review.
+name: main-guard
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: main-guard
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check how the change reached main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER: nenemwaniki
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+          SERVER: ${{ github.server_url }}
+        run: |
+          set -euo pipefail
+
+          if [ "$ACTOR" = "$OWNER" ]; then
+            echo "Push by $OWNER. Allowed."
+            exit 0
+          fi
+
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "main was created by this push. Nothing to reset."
+            exit 0
+          fi
+
+          pr=$(gh api "repos/$REPO/commits/$AFTER/pulls" \
+            --jq '[.[] | select(.merged_at != null and .base.ref == "main")][0].number // empty')
+          if [ -n "$pr" ]; then
+            approved=$(gh api "repos/$REPO/pulls/$pr/reviews" \
+              --jq "[.[] | select(.user.login == \"$OWNER\" and .state == \"APPROVED\")] | length")
+            if [ "$approved" -gt 0 ]; then
+              echo "PR #$pr has approval from $OWNER. Allowed."
+              exit 0
+            fi
+          fi
+
+          branch="guard/${ACTOR}-${AFTER:0:7}"
+          gh api "repos/$REPO/git/refs" -f ref="refs/heads/$branch" -f sha="$AFTER" > /dev/null
+          gh api -X PATCH "repos/$REPO/git/refs/heads/main" -f sha="$BEFORE" -F force=true > /dev/null
+
+          compare="$SERVER/$REPO/compare/main...$branch?expand=1"
+          msg="Direct changes to main are not allowed. Your commits are safe on branch \`$branch\`. Open a PR and ask @$OWNER to approve it: $compare"
+          gh api "repos/$REPO/commits/$AFTER/comments" -f body="$msg" > /dev/null
+
+          {
+            echo "## Push to main refused"
+            echo ""
+            echo "- Pushed by: @$ACTOR"
+            echo "- Commits moved to branch: \`$branch\`"
+            echo "- main reset to: \`$BEFORE\`"
+            echo ""
+            echo "Open a PR for @$OWNER to approve: $compare"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "::error::Direct changes to main are not allowed. Your commits are on branch $branch. Open a PR: $compare"
+          exit 1
