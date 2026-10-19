@@ -28,7 +28,7 @@ PRESETS = {
     # sun stands about 8 deg up, inside the top of the L06 frame as in the mockup; site lamps and facade lights are on.
     "sunset_landing": {"date": "2026-01-15", "time_eat": "18:05", "kind": "evening golden",
                        "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0,
-                       "sun_kelvin": 3300, "sun_to_sky": 5.0, "exposure_ev": -1.4, "fixtures": True},
+                       "sun_kelvin": 3300, "sun_to_sky": 5.0, "exposure_ev": -1.8, "fixtures": True},
     "daylight_landing": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight",
                          "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0,
                          "sun_kelvin": 5600, "sun_to_sky": 5.0, "exposure_ev": -1.2},
