@@ -278,7 +278,7 @@ The current execution plan, with the Codex-first split and the phase 0 work orde
 4. Clip licenses: which channel owners to contact.
 5. Paid satellite scene: buy one or not, after the free sources are tested.
 6. Landing light: keep the morning bake as the web default, or add an evening bake for the sunset landing (section 12, L5).
-7. Landing framing: keep the solved C19 and C20 framing, or move closer as in landing mockups 06 and 07 (section 12, L2).
+7. Landing framing: decided 2026-10-19 (Munene): the landing mirrors mockups 06 and 07. Cameras L06 and L07 (section 12, L2).
 8. Download budget for hero mode: raise the section 8 budget, or build a light bundle (section 12, L8).
 
 ## 12. Path to the landing concept (added 2026-10-19)
@@ -312,6 +312,14 @@ Compared on 2026-10-19: the live landing (`/?hero`, web_hero_v1 bundle) against 
 | L6 | Forecourt visitors and lit lamps in hero mode. Commit the crowd work from the web-crowd worktree first | M | crowd.js committed | Visitors stand only on walkable surfaces. Label "Visualization" on screen |
 | L7 | Release as `web_hero_v2`. Never replace the files in web_hero_v1 | S | L3, and L5 if approved | A prerelease with a manifest; `npm run fetch-assets -- --bundle web_hero_v2` passes |
 | L8 | Download budget. Measure the hero first view on the test laptop (Intel UHD 620) and a mid-range phone. Then raise the budget for hero mode, or split a light bundle | M | L1 | The section 8 table holds the decided numbers and the measured ones |
+
+### 12.2a Status (2026-10-19)
+
+| ID | Status |
+|---|---|
+| L1 | Code done (1622f12). Stills from cameras L06 (18:05, sunset) and L07 (10:30, daylight) in blender/renders/landing_pass_01/ |
+| L2 | Done. L06 and L07 solved to the mockups (004d5f2); C19 and C20 unchanged |
+| L3 | Cause found and fixed in export_web.py (dd2f05f): the export shipped ground_site.jpg (600 px raw imagery) as the ground colour instead of the baked albedo. L3b: bake_ground_albedo.py and node/patch_ground_albedo.mjs re-bake the 24 ground albedo maps and patch the site GLB into web_hero_v2 without the 11 h light bake |
 
 ### 12.3 Order
 
