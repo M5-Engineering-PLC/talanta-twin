@@ -78,6 +78,7 @@ if night:  # sun below the horizon: no sun lamp, a faint sky; night fixtures on 
     sun.data.energy = 0.0; bg.inputs["Strength"].default_value = 1.0
     for lk in list(bg.inputs["Color"].links): s.world.node_tree.links.remove(lk)
     bg.inputs["Color"].default_value = (0.0015, 0.002, 0.0045, 1)  # moonless sky; no sunset band
+if night or st.get("fixtures"):  # night fixtures on; a preset may switch them on at dusk (sky_hdri "fixtures")
     for mt in bpy.data.materials:
         if not mt.node_tree: continue
         for nd in mt.node_tree.nodes:
