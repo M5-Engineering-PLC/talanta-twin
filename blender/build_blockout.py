@@ -149,10 +149,15 @@ Rh, Rv = VO("bowl.profile.shoulder_rh", R), VO("bowl.profile.shoulder_rv", R)
 topY = yW + Rv
 openY, sag = VO("bowl.profile.opening_y", openY), VO("bowl.profile.roof_sag", sag)
 dF, wbulge = VO("bowl.profile.foot_inset", None), VO("bowl.profile.wall_bulge", 0.0)
+# Barrel anchor (geometry pass 4, gis/scripts/profile_fit/fit4_convex.py): "top" puts the wall top on the measured
+# roof outer ring rRo with the bulge outside it; "widest" puts the widest ring of a convex barrel on rRo, so the
+# junction and the foot sit wbulge inside it.
+ANCHOR = L["bowl.profile.bulge_anchor_blockout"]["value"] if "bowl.profile.bulge_anchor_blockout" in L else "top"
+rT = [r - max(wbulge, 0.0) for r in rRo] if ANCHOR == "widest" else list(rRo)
 
 
 def foot_r(i):
-    return rRo[i] - dF if dF is not None else min(rPl[i] + V("bowl.plinth_inset") - facadeInset, rRo[i])
+    return rT[i] - dF if dF is not None else min(rPl[i] + V("bowl.plinth_inset") - facadeInset, rT[i])
 
 # Profile (radius, height) at direction i, from the ground edge to the opening.
 def profile(i):
@@ -163,10 +168,10 @@ def profile(i):
     # shoulder, a quarter ellipse (Rh across, Rv up) onto the crest.
     yR = yW
     for k in range(1, 13):
-        f = k / 12; p.append((r0 + (rRo[i] - r0) * f + wbulge * math.sin(math.pi * f), plinthH + (yR - plinthH) * f))
+        f = k / 12; p.append((r0 + (rT[i] - r0) * f + wbulge * math.sin(math.pi * f), plinthH + (yR - plinthH) * f))
     for k in range(1, 13):  # shoulder: quarter ellipse inward to the crest
-        a = k / 12 * math.pi / 2; p.append((rRo[i] - Rh * (1 - math.cos(a)), yR + Rv * math.sin(a)))
-    rc = rRo[i] - Rh
+        a = k / 12 * math.pi / 2; p.append((rT[i] - Rh * (1 - math.cos(a)), yR + Rv * math.sin(a)))
+    rc = rT[i] - Rh
     for k in range(1, 11):  # roof: crest to opening, with a sag
         t = k / 10; p.append((rc + (rRi[i] - rc) * t, topY + (openY - topY) * t - sag * math.sin(t * math.pi)))
     return p
@@ -264,8 +269,8 @@ R0 = [foot_r(i) for i in range(N)]
 def rw(i, y):
     """Outer face radius at height y: the straight wall, then the shoulder arc."""
     if y <= yR:
-        f = (y - plinthH) / (yR - plinthH); return R0[i] + (rRo[i] - R0[i]) * f + wbulge * math.sin(math.pi * f)
-    return rRo[i] - Rh * (1 - math.cos(math.asin(min((y - yR) / Rv, 1.0))))
+        f = (y - plinthH) / (yR - plinthH); return R0[i] + (rT[i] - R0[i]) * f + wbulge * math.sin(math.pi * f)
+    return rT[i] - Rh * (1 - math.cos(math.asin(min((y - yR) / Rv, 1.0))))
 FIN_P, FIN_D, FIN_DROP, BACK = V("bowl.fin.pitch"), V("bowl.fin.depth"), V("bowl.fin.drop"), V("bowl.fin.backing_inset")
 VOID = mat("facade_void", (0.05, 0.05, 0.055), 0.8)
 SRC_FIN = "ledger bowl.fin.* (estimated, by eye from JWNowpO44rw 10:28, 12:12-12:16); wall line from W1b rings"
@@ -426,7 +431,9 @@ curve_obj("roof_ribs", "facade_detail", ribs, V("bowl.roof.rib_r"), WHITE, sourc
 # bowl.roof.cushion_bulge * sin(pi u) sin(pi v), so the seams at the ribs and between rows stay on the surface
 # and the bulges catch the light. Rows and bulge: ledger (estimated, by eye from the frames).
 NROW, HB = int(VO("bowl.roof.cushion_rows", 8)), VO("bowl.roof.cushion_bulge", 0.45)
-NU, NV = 6, 4
+NU, NV = 8, 6
+# pillow shape: an exponent under 1 flattens the top and steepens the seams (inflated cushions, 001033.567, 001232.600)
+PILLOW = VO("bowl.roof.cushion_pillow", 1.0)
 cv, cf = [], []
 for k in range(nrib):
     ta, tb = 2 * math.pi * k / nrib, 2 * math.pi * (k + 1) / nrib
@@ -436,7 +443,7 @@ for k in range(nrib):
         for a in range(NU + 1):
             for b in range(NV + 1):
                 q = surf(ta + (tb - ta) * a / NU, ja + (jb - ja) * b / NV, 0)
-                q.z += HB * math.sin(math.pi * a / NU) * math.sin(math.pi * b / NV)
+                q.z += HB * (math.sin(math.pi * a / NU) * math.sin(math.pi * b / NV)) ** PILLOW
                 cv.append(tuple(q))
         for a in range(NU):
             for b in range(NV):

@@ -8,7 +8,7 @@ The stadium box is the projection of the plinth, shell and facade_detail meshes.
 land elevation angle against azimuth, ray cast once from the start position (haze box hidden); the sky band of
 each trial pose follows from it in closed form, and the final pose is checked with direct ray casts. Writes the poses to app/cameras/manifest.json (C19 and C20 only)
 and the residuals to blender/data/concept_cameras.json.
-Run: ~/.venvs/bpy/bin/python blender/concept_match/solve_cameras.py [dry] [landing|drone]
+Run: ~/.venvs/bpy/bin/python blender/concept_match/solve_cameras.py [dry|check] [landing|drone]
 "landing" solves the landing cameras L06 and L07 to the 2026-10-18 landing mockups 06 and 07 instead (Munene,
 2026-10-19: the landing frame mirrors the mockups). They start from the C19 and C20 poses, are added to the manifest
 as new cameras, and leave C19 and C20 unchanged. Residuals go to blender/data/landing_cameras.json.
@@ -250,6 +250,22 @@ def best_start(cid, base):
         if best is None or c < best[0]: best = (c, trial)
     return best[1]
 
+
+if "check" in sys.argv:
+    # python ... solve_cameras.py check drone: score each target at its fixed manifest camera, no solve, no writes
+    # (geometry pass 4: the drone checks before and after a shape change). Same cost as the solve.
+    man = {c["id"]: c for c in json.loads(MANIFEST.read_text())["cameras"]}
+    out = {}
+    for cid, base in TARGETS.items():
+        cam = man[cid]; base = {**base, "position": cam["position"], "target": cam["target"]}
+        if base.get("landmarks"): base["_lm"] = [(ground(xy), uv) for xy, uv in base["landmarks"]]
+        P0, T0 = pose([0, 0, 0, 0], base)
+        prof = horizon_profile(P0, math.degrees(math.atan2(*(T0 - P0)[1::-1])))
+        c, e = cost([0, 0, 0, 0], base, prof)
+        out[cid] = {"cost": round(float(c), 3), "bbox": np.round(e["bbox"], 4).tolist(), "target_bbox": np.round(base["bbox"], 4).tolist(),
+                    "sky": round(e["sky"], 4), "landmarks": round(float(landmark_cost(P0, T0, base)), 3)}
+        print("CHECK", cid, json.dumps(out[cid]), flush=True)
+    sys.exit(0)
 
 report = {}
 for cid, base in TARGETS.items():

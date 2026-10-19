@@ -393,6 +393,21 @@ add("bowl.roof.cushion_bays", 30, "count", "JWNowpO44rw 001221.500, 001224.500",
 add("bowl.roof.cushion_rows", 8, "count", "JWNowpO44rw 001232.600, 001235.934", "2026-10-18", "by eye: cushion rows from the rim to the opening in the front bays", "+-1", "estimated (frames 001232.600, 001235.934)", "blender/build_blockout.py roof")
 add("bowl.roof.cushion_bulge", 0.45, "m", "JWNowpO44rw 001232.600, 001235.934", "2026-10-18", "by eye: highlight and shadow per cushion", "+-0.2 m", "estimated (frames 001232.600, 001235.934)", "blender/build_blockout.py roof")
 
+# Geometry pass 4 (2026-10-19, convex locked by Munene): gis/scripts/profile_fit/fit4_convex.py top. Wall bulge >= 0;
+# crest kept at roof_top_y 54 m (yW = 54 - Rv); other profile values at the build values; free: bulge, Rh, Rv. Frames:
+# the 8 of passes 2 and 3 plus 3 edge-on frames with hand-read limbs (lines_edge.json). Rule as before (fit2.acceptance).
+# The _blockout rows override the build; the earlier rows above stay as they were.
+PF4 = PF + ", 001212.500, 001227.500, 001230.050 (edge-on)"
+PF4M = "geometry pass 4: least squares on silhouette (edge-on frames: hand-read limb), opening, junction, foot and labelled shields; one focal length and k1 per lens; bulge >= 0, crest 54 m; 3-start multistart and leave-one-out (11 drops)"
+add("bowl.profile.wall_bulge_blockout", 2.02, "m", PF4, "2026-10-19", PF4M, "+-0.5 m", "derived (11 frames, spread 1.0 m; convex locked by Munene)", "blender/build_blockout.py profile()", "positive: the wall bulges outward at mid height; replaces -3.09 (pass 2) in the build")
+add("bowl.profile.shoulder_rv_blockout", 4.74, "m", PF4, "2026-10-19", PF4M, "+-0.9 m", "derived (11 frames, spread 1.9 m; convex locked by Munene)", "blender/build_blockout.py profile()", "vertical radius of the rolled shoulder")
+add("bowl.profile.wall_top_y_blockout", 49.26, "m", PF4, "2026-10-19", "roof_top_y 54 minus shoulder_rv 4.74", "+-0.9 m", "derived (from roof_top_y and shoulder_rv)", "blender/build_blockout.py profile()", "keeps the crest at 54 m")
+add("bowl.profile.shoulder_rh_blockout", 8.5, "m", "JWNowpO44rw 001227.500, 001230.050 (edge-on limbs); landing mockups 06 and 07 (look only)", "2026-10-19", "by eye: the rolled edge from the louvres into the roof; the pass 4 fit gave 8.49 m but failed the rule (leave-one-out spread 2.75 m)", "+-3 m", "estimated (by eye, convex locked by Munene)", "blender/build_blockout.py profile()", "horizontal radius of the rolled shoulder")
+add("bowl.profile.bulge_anchor_blockout", "top", "", PF4, "2026-10-19", "pass 4 run with both anchors; top (wall top on the W1b roof outer ring) had the lower image cost (476,926 against 492,995 for widest)", "", "derived (pass 4 comparison)", "blender/build_blockout.py ANCHOR", "widest would put the barrel's widest ring on the W1b ring")
+add("bowl.profile.fit4_shoulder_rh", 8.49, "m", PF4, "2026-10-19", PF4M, "spread 2.8 m", "estimated (frame fit, spread 2.8 m, not accepted)", "", "not read by the build; basin spread 1.5 m, leave-one-out 2.75 m (without 001239.267: 12.0 m)")
+add("bowl.roof.cushion_bulge_blockout", 1.2, "m", "JWNowpO44rw 001232.600, 001235.934, 001033.567", "2026-10-19", "by eye: deep inflated cushions, rise about a fifth of the cushion width; the 0.45 m row read too flat against the frames and mockup 06", "+-0.4 m", "estimated (by eye, frames 001232.600, 001235.934, 001033.567)", "blender/build_blockout.py roof", "replaces 0.45 in the build")
+add("bowl.roof.cushion_pillow_blockout", 0.6, "exponent", "JWNowpO44rw 001033.567, 001232.600", "2026-10-19", "by eye: flat-topped pillows with steep seams; bulge * (sin pi u sin pi v)^0.6", "+-0.2", "estimated (by eye)", "blender/build_blockout.py roof", "")
+
 
 # ---- interior pass (detail sheet 05_interior_tour.md, IT01-IT13; cloud session 2026-10-18). Sheet 05 wins over 02 (BS).
 IT = "blender/build_bowl_detail.py F. interior tour"
