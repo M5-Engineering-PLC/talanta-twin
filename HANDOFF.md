@@ -32,6 +32,8 @@ Do not commit anything from app/public/models, app/public/env or app/public/grou
 
 ## Next tasks, in order
 
+The path to the landing mockups 06 and 07 (work items L1 to L8 and three open decisions) is in PLAN.md section 12. Tasks 2, 3 and 5 below are L4 and L3 there.
+
 1. App: run `npm run fetch-assets` once against the real web_hero_v1 release on a laptop with gh logged in, then open `/?hero`. The script is finished and passes `npm test` (fake bundle and fake gh, 7 cases), but it has not yet downloaded the real release. Until the app reads EXR (task 3), it points both panorama sizes at the 2048 HDR and lists the 8K EXR as `file_exr`.
 2. App: load the 61 ground tiles near the camera first. Fall back to the current ground_site.jpg when the tiles are missing.
 3. App: load the 8K EXR panorama when the device can take it. Else load the 2048 HDR.
