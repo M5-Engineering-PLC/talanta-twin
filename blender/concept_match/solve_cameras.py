@@ -8,7 +8,10 @@ The stadium box is the projection of the plinth, shell and facade_detail meshes.
 land elevation angle against azimuth, ray cast once from the start position (haze box hidden); the sky band of
 each trial pose follows from it in closed form, and the final pose is checked with direct ray casts. Writes the poses to app/cameras/manifest.json (C19 and C20 only)
 and the residuals to blender/data/concept_cameras.json.
-Run: ~/.venvs/bpy/bin/python blender/concept_match/solve_cameras.py [dry]
+Run: ~/.venvs/bpy/bin/python blender/concept_match/solve_cameras.py [dry] [landing]
+"landing" solves the landing cameras L06 and L07 to the 2026-10-18 landing mockups 06 and 07 instead (Munene,
+2026-10-19: the landing frame mirrors the mockups). They start from the C19 and C20 poses, are added to the manifest
+as new cameras, and leave C19 and C20 unchanged. Residuals go to blender/data/landing_cameras.json.
 """
 import json, math, sys
 from pathlib import Path
@@ -26,6 +29,18 @@ TARGETS = {  # concept frame measurements and Sol's starting poses (app frame: x
             "bbox": [447 / 1600, 312 / 900, 1063 / 1600, 582 / 900], "sky": 0.16,
             "position": [-180, 165, 650], "target": [20, 30, 5], "focal": 38},
 }
+# Landing mockups (branch munene/CAM-01-landing-option, product/landing-concepts/2026-10-18/, 1672 x 941, by hand on a
+# 50 px grid, 2026-10-19). The images include the header bar, as the app draws it over the full-window canvas.
+LANDING_TARGETS = {
+    "L06": {"concept": "product/landing-concepts/2026-10-18/06-hillside-landing-mockup.png", "from": "C19",
+            "bbox": [343 / 1672, 388 / 941, 1337 / 1672, 708 / 941], "sky": 0.33,
+            "position": [511.17, 146.14, -470.13], "target": [11.49, 9.91, 12.55], "focal": 35},
+    "L07": {"concept": "product/landing-concepts/2026-10-18/07-cityside-landing-mockup.png", "from": "C20",
+            "bbox": [500 / 1672, 360 / 941, 1370 / 1672, 705 / 941], "sky": 0.25,
+            "position": [-170.06, 144.41, 617.95], "target": [23.05, 22.01, 5.95], "focal": 38},
+}
+LANDING = "landing" in sys.argv
+if LANDING: TARGETS = LANDING_TARGETS
 STADIUM_COLS = ("plinth", "shell", "facade_detail")
 
 
@@ -173,8 +188,24 @@ for cid, base in TARGETS.items():
                    "concept_bbox": np.round(tb, 4).tolist(), "concept_sky": base["sky"], "cost": round(float(c), 3), "q": np.round(q, 4).tolist()}
     print(cid, json.dumps(report[cid]))
 
-(ROOT / "blender/data/concept_cameras.json").write_text(json.dumps(report, indent=1) + "\n")
-if "dry" not in sys.argv:
+(ROOT / "blender/data" / ("landing_cameras.json" if LANDING else "concept_cameras.json")).write_text(json.dumps(report, indent=1) + "\n")
+if LANDING and "dry" not in sys.argv:
+    txt = MANIFEST.read_text(); m = json.loads(txt)
+    m["cameras"] = [c for c in m["cameras"] if c["id"] not in report]
+    for cid, r in report.items():
+        src = next(c for c in m["cameras"] if c["id"] == TARGETS[cid]["from"])
+        c = {**src, "id": cid, "name": f"Landing {'Hillside' if cid == 'L06' else 'Cityside'}",
+             "purpose": f"landing view and backdrop still, framed as landing mockup {cid[1:]}; the mockup is internal only",
+             "position": r["solved"]["position"], "target": r["solved"]["target"], "focal_length_mm": r["focal_length_mm"],
+             "vfov_deg": round(math.degrees(2 * math.atan(SENSOR / 2 * 9 / 16 / r["focal_length_mm"])), 3),
+             "seed": 6 if cid == "L06" else 7,
+             "note": "solved to the landing mockup stadium box and sky band (blender/concept_match/solve_cameras.py landing, "
+                     "residuals in blender/data/landing_cameras.json)"}
+        c["sun"] = ({"date": "2026-01-15", "time_eat": "17:30", "kind": "evening golden"} if cid == "L06"
+                    else {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"})  # mockup 06 Sunset, 07 Daylight
+        m["cameras"].insert(m["cameras"].index(src) + 1, c)
+    MANIFEST.write_text(json.dumps(m, indent=1) + ("\n" if txt.endswith("\n") else ""))
+if not LANDING and "dry" not in sys.argv:
     txt = MANIFEST.read_text(); m = json.loads(txt)
     for c in m["cameras"]:
         if c["id"] in report:

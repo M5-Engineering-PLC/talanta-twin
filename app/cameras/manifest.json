@@ -649,6 +649,39 @@
    "note": "pass 1: Sol's start pose, solved to the concept stadium box and sky band (blender/concept_match/solve_cameras.py, residuals in blender/data/concept_cameras.json)"
   },
   {
+   "id": "L06",
+   "name": "Landing Hillside",
+   "purpose": "landing view and backdrop still, framed as landing mockup 06; the mockup is internal only",
+   "position": [
+    328.05,
+    80.62,
+    -293.24
+   ],
+   "target": [
+    -1.24,
+    41.25,
+    -1.2
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 35,
+   "vfov_deg": 32.269,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "17:30",
+    "kind": "evening golden"
+   },
+   "variants": [
+    "golden"
+   ],
+   "seed": 6,
+   "note": "solved to the landing mockup stadium box and sky band (blender/concept_match/solve_cameras.py landing, residuals in blender/data/landing_cameras.json)"
+  },
+  {
    "id": "C20",
    "name": "Lead view 07 match",
    "purpose": "score against lead render 07: SSW aerial over the forest looking NNE to Lavington; internal only",
@@ -680,6 +713,39 @@
    ],
    "seed": 20,
    "note": "pass 1: Sol's start pose, solved to the concept stadium box and sky band (blender/concept_match/solve_cameras.py, residuals in blender/data/concept_cameras.json)"
+  },
+  {
+   "id": "L07",
+   "name": "Landing Cityside",
+   "purpose": "landing view and backdrop still, framed as landing mockup 07; the mockup is internal only",
+   "position": [
+    -124.22,
+    105.93,
+    472.69
+   ],
+   "target": [
+    -17.39,
+    37.96,
+    -4.93
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 38,
+   "vfov_deg": 29.839,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [
+    "golden"
+   ],
+   "seed": 7,
+   "note": "solved to the landing mockup stadium box and sky band (blender/concept_match/solve_cameras.py landing, residuals in blender/data/landing_cameras.json)"
   },
   {
     "id": "C30",
