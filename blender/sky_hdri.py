@@ -32,6 +32,13 @@ PRESETS = {
     "daylight_landing": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight",
                          "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0,
                          "sun_kelvin": 5600, "sun_to_sky": 5.0, "exposure_ev": -1.2},
+    # step H (Munene, 2026-10-19): hero_artistic stills, sunset and cumulus skies (CC0; blender/assets/fetch_hdri_h.sh)
+    "sunset_artistic": {"date": "2026-01-15", "time_eat": "18:05", "kind": "evening golden",
+                        "hdri": "blender/assets/hdri/belfast_sunset_puresky_4k.hdr", "sky_strength": 1.0,
+                        "sun_kelvin": 3000, "sun_to_sky": 5.0, "exposure_ev": -1.6, "fixtures": True},
+    "daylight_artistic": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight",
+                          "hdri": "blender/assets/hdri/kloofendal_48d_partly_cloudy_puresky_4k.hdr", "sky_strength": 1.0,
+                          "sun_kelvin": 5600, "sun_to_sky": 5.0, "exposure_ev": -1.1},
 }
 
 

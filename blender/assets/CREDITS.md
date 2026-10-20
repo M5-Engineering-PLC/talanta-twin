@@ -18,3 +18,5 @@ All assets in this folder are CC0 (public domain). No attribution is required; i
 
 Textures are 2K JPG (recompressed to quality 80): Color, Roughness, NormalGL and AmbientOcclusion where available. The tree models themselves were not downloaded (46 to 215 MB each); build light crowns in geometry nodes with these textures instead.
 No asset here is derived from a reference frame or a concept image.
+| hdri/belfast_sunset_puresky_4k.hdr | Belfast Sunset (Pure Sky) | https://polyhaven.com/a/belfast_sunset_puresky | CC0 | Step H sunset sky (hero_artistic L06). Not committed: `blender/assets/fetch_hdri_h.sh` |
+| hdri/kloofendal_48d_partly_cloudy_puresky_4k.hdr | Kloofendal 48d Partly Cloudy (Pure Sky) | https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky | CC0 | Step H cumulus sky (hero_artistic L07). Not committed: `blender/assets/fetch_hdri_h.sh` |

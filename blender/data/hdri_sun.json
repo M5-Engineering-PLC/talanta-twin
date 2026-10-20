@@ -32,5 +32,22 @@
    0.4475,
    0.0344
   ]
+ },
+ "belfast_sunset_puresky_4k.hdr:17420114": {
+  "file": "blender/assets/hdri/belfast_sunset_puresky_4k.hdr",
+  "size": [
+   4096,
+   2048
+  ],
+  "sun_alpha_deg": -37.661,
+  "sun_elevation_deg": 2.065,
+  "clip": 19.565,
+  "sun_irradiance": 0.097,
+  "sky_horizontal_irradiance": 3.3983,
+  "sun_color": [
+   1.0,
+   0.0701,
+   0.0
+  ]
  }
 }

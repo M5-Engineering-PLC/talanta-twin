@@ -46,7 +46,7 @@ def sun_position(date, hhmm_eat, lat, lon):
 bpy.ops.wm.open_mainfile(filepath=__import__("os").environ.get("TALANTA_SITE_BLEND", str(ROOT / "blender/out/talanta_site.blend")))  # a frozen copy per step
 s = bpy.context.scene
 m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json", extra=ROOT / "blender/data/interior_cameras.json")
-apply_render_settings(s, m, look_check=(quality != "hero"))
+apply_render_settings(s, m, look_check=(quality not in ("hero", "hero_artistic")))
 s.camera = cams[cid]
 # Objects a camera stands inside or right behind (blender/data/camera_hides.json, with a reason)
 for name in json.loads((ROOT / "blender/data/camera_hides.json").read_text()).get(cid, {}).get("hide", []):
@@ -97,7 +97,7 @@ if sun_key in sky_hdri.PRESETS:
     s["talanta_haze_rgb"] = sky_log["haze_rgb"] = sky_hdri.horizon_rgb(s, math.degrees(math.atan2(fwd.y, fwd.x)))
 s.view_settings.exposure += s.camera.get("exposure_ev", 0.0)
 c = s.cycles
-c.device = "CPU"; c.samples = m["cycles"]["hero" if quality == "hero" else "look_check"]["samples"]
+c.device = "CPU"; c.samples = m["cycles"]["hero" if quality in ("hero", "hero_artistic") else "look_check"]["samples"]
 if quality == "preview": c.samples = 8; s.render.resolution_percentage = 25
 if quality == "check": c.samples = 32
 c.use_adaptive_sampling = True; c.use_denoising = True; c.denoiser = "OPENIMAGEDENOISE"
@@ -107,15 +107,21 @@ c.seed = cams[cid]["seed"]
 s.render.image_settings.file_format = "PNG"
 s.render.filepath = str(out / f"{cid}_{sun_key}_{quality}.png")
 # ---- end of scene setup: blender/web_hero/*.py run this file up to this line for the same sun and sky
+artistic = quality == "hero_artistic"  # step H: 4K artistic set (hero_artistic.py); always with the look layer
+if artistic:
+    import hero_artistic
+    art_log = hero_artistic.prepare(s, bool(st.get("fixtures")))
 # Opt-in photographic layer. Existing cloud commands retain the original path.
-if __import__("os").environ.get("TALANTA_LOOKDEV") == "1":
+if __import__("os").environ.get("TALANTA_LOOKDEV") == "1" or artistic:
     sys.path.insert(0, str(ROOT / "blender"))
     from lookdev import apply_lookdev
     apply_lookdev(s, "night" if night else "day")
+if artistic: hero_artistic.finish(s)
 t0 = time.time(); bpy.ops.render.render(write_still=True); sec = time.time() - t0
 rec = {"camera": cid, "sky": sky_log, "sun": st, "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2), "quality": quality,
        "resolution": [s.render.resolution_x * s.render.resolution_percentage // 100, s.render.resolution_y * s.render.resolution_percentage // 100],
        "samples": c.samples, "seconds": round(sec, 1)}
+if artistic: rec["hero_artistic"] = art_log; rec["labelled_copy"] = hero_artistic.stamp(s.render.filepath).name
 # image direction of cast shadows: a 100 m ground step away from the sun at the pitch centre (0 = right, ccw)
 from bpy_extras.object_utils import world_to_camera_view
 g0 = Vector((0, 0, m["frame"]["site_pad_y"])); g1 = g0 + 100 * Vector((-math.sin(math.radians(az)), -math.cos(math.radians(az)), 0))

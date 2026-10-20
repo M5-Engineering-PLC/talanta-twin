@@ -78,7 +78,7 @@ for o in scene.objects:
         p = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
         if p is None or not p.inputs["Base Color"].links: continue
         src_sock = p.inputs["Base Color"].links[0].from_socket
-        mix = m.node_tree.nodes.new("ShaderNodeMixRGB"); mix.blend_type = "MIX"; mix.inputs[0].default_value = 0.45
+        mix = m.node_tree.nodes.new("ShaderNodeMixRGB"); mix.blend_type = "MIX"; mix.inputs[0].default_value = 0.7
         mix.inputs[2].default_value = GREEN_GREY; mix.label = "step B: far land green-grey"
         m.node_tree.links.new(src_sock, mix.inputs[1]); m.node_tree.links.new(mix.outputs[0], p.inputs["Base Color"])
         m["step_b_tint"] = True; done.append(m.name)
@@ -92,7 +92,7 @@ def ground_hit(x, y):
     if not hit: return 0.0, False
     return loc.z, ob.name.startswith(("terrain", "horizon_band"))
 
-WALLS = [mat("bg_wall_%d" % i, h) for i, h in enumerate(("#D8D2C4", "#CFC8B8", "#BDB8AE", "#E2DCCF", "#A9A59C"))]
+WALLS = [mat("bg_wall_%d" % i, h) for i, h in enumerate(("#B8B0A0", "#A89F8E", "#9C978D", "#C4BBA8", "#8E8A82", "#B59A80"))]  # pass 2: darker, warmer
 ROOFS = [mat("bg_roof_%d" % i, h, 0.7) for i, h in enumerate(("#8E8A84", "#6F6C68", "#9C4A32", "#A2573C", "#7B3A2A", "#5E6266"))]
 WIN = mat("bg_window_band", "#3B4148", 0.25)
 
@@ -137,8 +137,9 @@ def scatter_blocks(name, n, centre, radius, hmin, hmax, wmin, wmax, sector=None,
 
 # Blender frame: x east, y north. Ngong Road runs about 280 m north of the pitch; the city is north of it.
 north_of_road = lambda x, y: y > 330 + 0.36 * x   # the road runs ENE (bearing about 70 deg)
-report["midrise_near"] = scatter_blocks("bg_midrise_near", 260, (300, 1400), 1300, 24, 64, 16, 34, north_of_road, 250)
-report["midrise_far"] = scatter_blocks("bg_midrise_far", 420, (1200, 3000), 2600, 20, 70, 16, 38, north_of_road, 900)
+# pass 2 (L07 sheet): 4 to 12 storeys near Ngong Road, fewer and spread wider, so roofs and tree cover read between them
+report["midrise_near"] = scatter_blocks("bg_midrise_near", 170, (300, 1500), 1500, 12, 38, 14, 28, north_of_road, 350)
+report["midrise_far"] = scatter_blocks("bg_midrise_far", 360, (1200, 3200), 2800, 15, 48, 16, 34, north_of_road, 1100)
 for nm, c, n, rad, hmin, hmax in (("bg_cbd", (8020, 2180), 70, 900, 50, 190), ("bg_upper_hill", (6900, 650), 34, 700, 40, 130),
                                    ("bg_kilimani", (4300, 1700), 60, 1100, 30, 95), ("bg_westlands", (6400, 5200), 45, 1000, 35, 140)):
     report[nm] = scatter_blocks(nm, n, c, rad, hmin, hmax, 22, 48)
@@ -147,7 +148,7 @@ for nm, c, n, rad, hmin, hmax in (("bg_cbd", (8020, 2180), 70, 900, 50, 190), ("
 LIGHT = bpy.data.materials.get("bg_town_light") or bpy.data.materials.new("bg_town_light")
 LIGHT.use_nodes = True; nt = LIGHT.node_tree; nt.nodes.clear()
 em = nt.nodes.new("ShaderNodeEmission"); em.inputs["Color"].default_value = (*srgb("#FFC27A"), 1); em.inputs["Strength"].default_value = 0.0
-em.label = "night:40"; out = nt.nodes.new("ShaderNodeOutputMaterial"); nt.links.new(em.outputs[0], out.inputs[0]); LIGHT["claim"] = CLAIM
+em.label = "night:14"; out = nt.nodes.new("ShaderNodeOutputMaterial"); nt.links.new(em.outputs[0], out.inputs[0]); LIGHT["claim"] = CLAIM
 v, f, nl = [], [], 0
 for _ in range(9000):
     r = rng.uniform(1500, 16000); a = rng.uniform(0, 2 * math.pi)
