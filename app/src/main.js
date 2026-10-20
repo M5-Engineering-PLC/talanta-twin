@@ -661,6 +661,8 @@ if (params.has('hero')) {
     if (late) return;
     if (env) { scene.background = scene.environment = env.texture; scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation); }
     scene.add(h.group);
+    const { loadGroundTiles } = await import('./hero/groundTiles.js');
+    void loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768 });
     limitEnvToSpecular(h.group, env?.texture);
     let hasGround = false; h.group.traverse((o) => { if (o.isMesh && /^ground/.test(o.name)) hasGround = true; });
     heroHidden = [bowl.group, pitch.group, sport.group, site.group, buildings, roads, trees, siteLine, blockout].filter(Boolean);
