@@ -13,3 +13,6 @@ gis/scripts/profile_fit/work/seg.jpg
 blender/out/*.blend
 blender/assets/hdri/belfast_sunset_puresky_4k.hdr
 blender/assets/hdri/kloofendal_48d_partly_cloudy_puresky_4k.hdr
+
+# internal review sheets (frames inside)
+review_out/
