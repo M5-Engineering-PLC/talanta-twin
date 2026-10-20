@@ -19,6 +19,14 @@ Written 2026-10-19 for the next coding agent. Last code commit before this file:
   with `setsid`. Do not use `pkill -f`/`pgrep -f` with a pattern in the same command line (it matches its own shell);
   kill by pid.
 
+## Scene files are not tracked (2026-10-20)
+
+`blender/out/*.blend` are build outputs and are git-ignored (Munene, 2026-10-20). A fresh clone has none: build them
+first (about 25 s), then run any render or export:
+`for s in build_blockout build_bowl_detail build_scene build_site_detail; do ~/.venvs/bpy/bin/python blender/$s.py; done`
+then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `background_b.py`), then
+`git checkout -- app/public/data/blockout.glb`.
+
 ## Where things stand
 
 | pass | state | record |
