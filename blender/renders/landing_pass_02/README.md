@@ -83,3 +83,24 @@ Gaps after T:
   - Needs a closer GE capture of the forecourt (about 500 m eye altitude).
 - Crown types: eucalyptus rows (step L) and broadleaf are in. Jacaranda is a sparse lilac tint. Palms only stay where the site plan has them, not checked against the mockups one by one.
 - The off-site context trees still use the umbrella crown far out; they read as lollipops in L07's middle distance.
+
+## R: Rubis petrol station (north-west, chosen by Munene on 2026-10-20)
+
+Time: OSM lookup 10 min, script 25 min, build 20 s, check stills 8 min.
+
+- Location: OpenStreetMap node 30092080, `amenity=fuel`, `brand=Rubis`, Ngong Road.
+  - Coordinates: -1.3041947, 36.7461493, which is app x -384, z -204: north side of Ngong Road at Dagoretti Corner, opposite the north-west corner of the site.
+  - The OSM forecourt loop (way 654718658) and the shop (way 1242664906) fix the layout.
+  - Data in `blender/data/rubis_station.json`; built by `blender/context/rubis_station.py`.
+- Modelled to typical size (estimated):
+  - Canopy 22 x 10 m, 5.2 m clear, along the road. Soffit lights come on at dusk.
+  - 3 pump islands with dispensers, the forecourt slab, and a pylon sign.
+  - The shop is already a context building on the OSM footprint; not duplicated.
+- Brand: the red and yellow fascia band and the pylon panel are tagged `internal_only`. No text and no logo artwork, only the brand colours.
+  - The public export skips them, which leaves a plain white canopy and a bare post. Step W must honour the tag.
+  - See `R/rubis_closeup_internal.png` and `R/rubis_closeup_public_plain.png` (Workbench check views).
+
+Gaps after R:
+- The station is outside both landing frames (just right of L06, just left of L07), so the L06 and L07 stills for R are the same as B's and were not re-rendered.
+- Canopy size, height and pump count are typical values, not measured. A GE trace of the canopy would fix them.
+- The brief put the station near the Jamhuri entrance, on the east side. The only Rubis in OSM near the site is this north-west one, and Munene chose it.
