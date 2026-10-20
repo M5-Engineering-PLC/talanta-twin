@@ -5,3 +5,8 @@ __pycache__/
 blender/out/*.blend1
 blender/out/web_hero/
 blender/web_hero/node/node_modules/
+blender/out/*.log
+blender/out/step_*.blend
+gis/scripts/profile_fit/work/*.npy
+gis/scripts/profile_fit/work/*.log
+gis/scripts/profile_fit/work/seg.jpg
