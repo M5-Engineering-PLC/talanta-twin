@@ -9,11 +9,37 @@ export function isTreeGroup(name) {
   return /^(trees|suburbs_trees|fc_retained_site_trees|fc_retained_palms)__/.test(name);
 }
 
+// The v1 canopy LOD0 keeps texture maps but drops UVs (texCoord:-1 in the GLB).
+// Supply a planar fallback only for those meshes, without changing shared geometry.
+function nearTreeUVs(mesh, cache) {
+  const source = mesh.geometry;
+  if (source.hasAttribute('uv')) return;
+  const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  if (!materials.some(material => material.map)) return;
+  if (!cache.has(source)) {
+    const geometry = source.clone();
+    geometry.computeBoundingBox();
+    const { min, max } = geometry.boundingBox;
+    const spans = ['x', 'y', 'z'].sort((a, b) => (max[b] - min[b]) - (max[a] - min[a]));
+    const [uAxis, vAxis] = spans;
+    const position = geometry.attributes.position, point = new THREE.Vector3();
+    const coords = new Float32Array(position.count * 2);
+    for (let i = 0; i < position.count; i++) {
+      point.fromBufferAttribute(position, i);
+      coords[i * 2] = (point[uAxis] - min[uAxis]) / (max[uAxis] - min[uAxis] || 1);
+      coords[i * 2 + 1] = (point[vAxis] - min[vAxis]) / (max[vAxis] - min[vAxis] || 1);
+    }
+    geometry.setAttribute('uv', new THREE.BufferAttribute(coords, 2));
+    cache.set(source, geometry);
+  }
+  mesh.geometry = cache.get(source);
+}
+
 // Reuse the exported far LOD atlas. One quad replaces two crossed quads.
 // Sources stay immutable so compacting near instances never loses tree transforms.
 export function installTreeImpostors(root, camera) {
   root.updateWorldMatrix(true, true);
-  const sources = [], batches = new Map();
+  const sources = [], batches = new Map(), uvFallbacks = new WeakMap();
   root.traverse(lod => {
     if (!lod.isLOD || !isTreeGroup(lod.name)) return;
     const levels = lod.levels.filter(l => l.object.isMesh || l.object.children.length);
@@ -41,6 +67,7 @@ export function installTreeImpostors(root, camera) {
     const key = `${mat.map.uuid}:${mat.color.getHex()}:${mat.alphaTest}`;
     if (!batches.has(key)) batches.set(key, { material: mat, capacity: 0, count: 0 });
     const batch = batches.get(key); batch.capacity += far.count;
+    for (const mesh of nearMeshes) nearTreeUVs(mesh, uvFallbacks);
     const originals = nearMeshes.map(mesh => ({ mesh, matrices: mesh.instanceMatrix.array.slice(), colors: mesh.instanceColor?.array.slice() }));
     const world = new THREE.Matrix4(), instance = new THREE.Matrix4();
     const parentInverse = root.matrixWorld.clone().invert();

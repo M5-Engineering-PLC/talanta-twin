@@ -49,3 +49,22 @@ test('multi-material near LOD groups keep all primitives and compact colours',()
   }
  }
 });
+
+test('UV-less textured near trees get finite coordinates without changing the source geometry',()=>{
+ const root=fixture(), map=new THREE.Texture();
+ const original=[];
+ for(const lod of root.children){
+  const mesh=lod.levels[0].object;
+  mesh.geometry.deleteAttribute('uv'); mesh.material.map=map;original.push(mesh.geometry);
+ }
+ const camera=new THREE.PerspectiveCamera();camera.position.set(0,10,0);
+ installTreeImpostors(root,camera);
+ root.children.filter(o=>o.isLOD).forEach((lod,i)=>{
+  const mesh=lod.levels[0].object,uv=mesh.geometry.getAttribute('uv');
+  assert.ok(uv);assert.equal(uv.count,mesh.geometry.attributes.position.count);
+  assert.notEqual(mesh.geometry,original[i]); assert.equal(original[i].getAttribute('uv'),undefined);
+  assert.ok([...uv.array].every(v=>Number.isFinite(v)&&v>=0&&v<=1));
+ });
+ const batch=root.getObjectByName('hero-tree-impostors');
+ assert.equal(batch.geometry.attributes.uv.count,batch.geometry.attributes.position.count);
+});
