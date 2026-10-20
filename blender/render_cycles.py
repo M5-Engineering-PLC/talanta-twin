@@ -43,7 +43,7 @@ def sun_position(date, hhmm_eat, lat, lon):
     return 90 - zen, az
 
 
-bpy.ops.wm.open_mainfile(filepath=str(ROOT / "blender/out/talanta_site.blend"))
+bpy.ops.wm.open_mainfile(filepath=__import__("os").environ.get("TALANTA_SITE_BLEND", str(ROOT / "blender/out/talanta_site.blend")))  # a frozen copy per step
 s = bpy.context.scene
 m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json", extra=ROOT / "blender/data/interior_cameras.json")
 apply_render_settings(s, m, look_check=(quality != "hero"))

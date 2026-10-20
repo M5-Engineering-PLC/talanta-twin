@@ -1,0 +1,17 @@
+{
+ "_note": "Step L (2026-10-19). Site layout traced by eye from Munene's Google Earth Pro screenshot (image 26 Dec 2025, Airbus; eye altitude 2.89 km, north up), which Munene set as the single source of truth for the site layout. The screenshot shows the W1b outlines in red; they fix the scale: x_east = (px - 1054) / 1.39, z_south = (py - 599) / 1.39 (px on the 1920 x 1080 screenshot). Check: pitch zone, warm-up track, north plaza and the four site boundary corners land within about 5 m of their W1b vertices. Traced features are about +-10 m. Status of every feature: estimated (by eye from the GE screenshot). The mockups set the look only; nothing here comes from them. No gate, turnstile or access detail (AGENTS.md rule 8).",
+ "transform": {"px0": 1054, "py0": 599, "px_per_m": 1.39},
+ "apron_ring": {"offset_m": 18, "note": "light paved band round the bowl in the screenshot, about 25 px wide outside the roof outline"},
+ "roads": [
+  {"name": "ge_road_north_east", "width_m": 9, "px": [[1130, 252], [1200, 226], [1290, 232], [1370, 275], [1400, 330], [1402, 450], [1405, 580], [1415, 700]],
+   "note": "curved road from the north plaza round the north end of the warm-up track, then south along the east side"}
+ ],
+ "buildings": [
+  {"name": "ge_east_building_a", "px_axis": [[1425, 410], [1455, 540]], "width_m": 16, "height_m": 7, "roof_hex": "#3E4650", "note": "long dark-roofed building east of the service road"},
+  {"name": "ge_east_building_b", "px_axis": [[1485, 590], [1515, 690]], "width_m": 22, "height_m": 7, "roof_hex": "#3E4650", "note": "second long dark-roofed building"}
+ ],
+ "car_parks": [
+  {"name": "ge_east_hardstanding", "px": [[1465, 345], [1600, 560], [1688, 697], [1545, 705], [1540, 600], [1475, 560], [1462, 420]],
+   "row_spacing_m": 18, "row_bearing_deg": 32, "note": "light paved hardstanding inside the east boundary, used as a car park; bay rows and tree islands estimated"}
+ ]
+}
