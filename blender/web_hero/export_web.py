@@ -36,10 +36,11 @@ CLIP = 1500.0
 THIN_TUBE = 0.35  # m bevel radius; unbaked curves thinner than this export as 4-sided tubes
 
 HERO_COLS = ["plinth", "shell", "facade_detail", "roof_detail", "bowl_detail", "tiers", "pitch", "sport"]
-SITE_COLS = ["context", "site", "forecourt_context", "suburbs_context", "traffic_visualization"]
+SITE_COLS = ["context", "site", "forecourt_context", "suburbs_context", "traffic_visualization",
+             "site_layout_ge", "finish_plaza", "rubis_station", "background_b"]  # v2: steps L, F, R, B
 # far land and horizon layers live in the panorama (render_panorama.py near=800); terrain_site is replaced by the
 # baked ground tiles
-SKIP = {"terrain_far", "terrain_horizon", "terrain_horizon_hills", "terrain_horizon_far", "terrain_site", "haze_volume"}
+SKIP = {"terrain_far", "terrain_horizon", "terrain_horizon_hills", "terrain_horizon_far", "terrain_site", "haze_volume", "bg_town_lights"}  # town lights: dusk stills only
 DETAIL_COLS = {"bowl_detail", "roof_detail"}  # dropped beyond 1 km
 DETAIL_NAMES = {"goals", "corner_flags", "corner_flag_poles", "dugouts", "pitch_markings", "training_pitch_lines",
                 "parking_lines", "road_markings", "ngong_markings", "boundary_fence", "sign_frames"}
@@ -214,6 +215,7 @@ for glb, cols in (("hero", HERO_COLS), ("site", SITE_COLS)):
         if col is None: continue
         for o in list(col.all_objects):
             if o.hide_render or o.name in SKIP or o.name in INSTANCERS or o.type not in ("MESH", "CURVE"): continue
+            if "internal_only" in o.keys(): continue  # brand marks: internal stills only (step R)
             if any(m.type == "NODES" for m in o.modifiers) and o.type == "MESH" and not o.data.polygons: continue
             baked = "bake_group" in o.keys()
             if o.type == "CURVE" and o.data.bevel_depth < THIN_TUBE:

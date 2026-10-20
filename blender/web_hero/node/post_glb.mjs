@@ -180,6 +180,11 @@ if (BUNDLE) {
   if (fs.existsSync(path.join(gsrc, "tiles_png.json"))) {
     const tj = JSON.parse(fs.readFileSync(path.join(gsrc, "tiles_png.json"), "utf8")); const out = [];
     for (const tl of tj.tiles) {
+      if (tl.ktx2) {  // reused from an earlier bundle (ground_tiles.py reuse=)
+        fs.copyFileSync(tl.ktx2, path.join(gdst, tl.file));
+        out.push({ file: tl.file, x0: tl.x0, z0: tl.z0, size: tl.size, level: tl.level, m_per_px: tl.m_per_px });
+        texLog.push({ map: `ground/${tl.file}`, ktx2_bytes: fs.statSync(tl.ktx2).size, reused_from: tl.reused_from, codec: "ETC1S" }); continue;
+      }
       const png = fs.readFileSync(path.join(gsrc, tl.file)); const t0 = Date.now();
       const data = await encodeToKTX2(new Uint8Array(png), { isUASTC: false, qualityLevel: 160, compressionLevel: 2, generateMipmap: true,
         isPerceptual: true, isSetKTX2SRGBTransferFunc: true, imageDecoder });
