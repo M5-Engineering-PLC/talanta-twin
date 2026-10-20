@@ -636,6 +636,7 @@ function updateHud() {
 // (manifest.time), so hero mode keeps that baked light while the UI clock remains independent.
 // It loads in the background: the procedural twin stays usable until the hero is ready, or if it never is.
 let hero = null, heroHidden = [], heroFog = null, heroGradeOn = null;
+let heroImpostors = null, heroTreesUpdated = -Infinity;
 const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} timed out after ${ms / 1000} s`)), ms))]);
 async function loadPreferredHero() {
   for (const base of ['./models/', './models/test/']) {
@@ -661,6 +662,8 @@ if (params.has('hero')) {
     if (late) return;
     if (env) { scene.background = scene.environment = env.texture; scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation); }
     scene.add(h.group);
+    const { installTreeImpostors } = await import('./hero/impostors.js');
+    heroImpostors = installTreeImpostors(h.group, camera);
     const { loadGroundTiles } = await import('./hero/groundTiles.js');
     void loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768 });
     limitEnvToSpecular(h.group, env?.texture);
@@ -677,6 +680,12 @@ if (params.has('hero')) {
 }
 // Keep procedural lights and geometry hidden when the time or layer controls change.
 function heroLock() {
+  if (performance.now() - heroTreesUpdated > 100) {
+    heroImpostors?.update(); heroTreesUpdated = performance.now();
+  }
+  const contactShadows = params.get('contactShadows') !== '0' && quality.shadows;
+  traffic?.setContactShadows?.(contactShadows);
+  crowd?.setContactShadows?.(contactShadows);
   sun.intensity = 0; hemi.intensity = 0; for (const s of flood) s.intensity = 0;
   for (const o of heroHidden) o.visible = false;
   applyHeroHaze(scene, heroFog);
@@ -690,6 +699,7 @@ if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost'
   try {
     pipeline = new THREE.RenderPipeline(renderer);
     const scenePass = pass(scene, camera);
+    // PassNode inherits renderer.samples (4 with antialias:true). No extra AA pass is needed.
     scenePass.setMRT(mrt({ output, normal: normalView }));
     const color = scenePass.getTextureNode('output');
     const aoPass = ao(scenePass.getTextureNode('depth'), scenePass.getTextureNode('normal'), camera);

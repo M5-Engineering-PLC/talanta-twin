@@ -30,6 +30,8 @@ export async function loadHero({ renderer, scene, base = './models/' }) {
 
       modelRoot.traverse((node) => {
         if (!node.isMesh) return;
+        node.castShadow = false;
+        node.receiveShadow = false;
         meshCount++;
         const instances = node.isInstancedMesh ? node.count : 1;
         const index = node.geometry.index;

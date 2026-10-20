@@ -1,3 +1,4 @@
+import { contactShadowBatch } from './contactShadows.js';
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -277,6 +278,11 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
   fleet.forEach((v, i) => { v.order = i; });
   function setLimit(n) { limit = Math.max(0, Math.min(fleet.length, Math.floor(n))); }
   let elapsed = 0;
+  let contact = null;
+  function setContactShadows(enabled) {
+    if (enabled && !contact) { contact = contactShadowBatch(fleet.length); group.add(contact.mesh); }
+    contact?.setEnabled(enabled);
+  }
   function update(dt) {
     const stepDt = Math.max(0, Math.min(0.25, dt || 0)); elapsed += stepDt;
     for (const lane of lanes) {
@@ -308,6 +314,13 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
       for (const mesh of meshes) mesh.setMatrixAt(v.index, matrix);
     }
     for (const mesh of [...carMeshesAll, ...busMeshesAll, ...bodaMeshesAll]) mesh.instanceMatrix.needsUpdate = true;
+    if (contact?.enabled) {
+      let n = 0;
+      for (const v of fleet) if (v.order < limit && v.distance >= 0) {
+        contact.set(n++, vehicleMatrix(v), vehicleLength(v) * 1.08, v.kind === 'boda' ? 1 : 2.5);
+      }
+      contact.finish(n);
+    }
     if (!nganyas.length) { updateStats(); return; }
     let near = 0, far = 0;
     const cameraPos = camera?.position;
@@ -339,5 +352,5 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
     ngong: countRoadTypes(fleet.filter((v) => v.lane.name?.toLowerCase() === 'ngong road')),
     other: countRoadTypes(fleet.filter((v) => v.lane.name?.toLowerCase() !== 'ngong road')),
   };
-  return { group, update, setLimit };
+  return { group, update, setLimit, setContactShadows };
 }

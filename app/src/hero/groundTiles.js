@@ -7,6 +7,18 @@ export function orderTiles(tiles, camera, coarseOnly = false) {
     .sort((a, b) => b.level - a.level || distance(a) - distance(b));
 }
 
+export function tileGeometry(tile, groundAt) {
+  const geometry = new THREE.PlaneGeometry(tile.size, tile.size, 16, 16);
+  geometry.rotateX(-Math.PI / 2);
+  geometry.translate(tile.x0 + tile.size / 2, 0, tile.z0 + tile.size / 2);
+  const positions = geometry.attributes.position;
+  for (let i = 0; i < positions.count; i++) positions.setY(i, groundAt(positions.getX(i), positions.getZ(i)) + (tile.level === 0 ? 0.06 : 0.03));
+  const uv = geometry.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setY(i, 1 - uv.getY(i));
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
 // The exporter defines x0/z0 as west/north, image top as north, and L0 over L1.
 export async function loadGroundTiles({ renderer, manifest, parent, camera, groundAt, coarseOnly = false }) {
   const index = manifest.ground?.index;
@@ -29,12 +41,7 @@ export async function loadGroundTiles({ renderer, manifest, parent, camera, grou
       try {
         const texture = await loader.loadAsync('./' + (directory + tile.file).replace(/^app\/public\//, ''));
         texture.colorSpace = THREE.SRGBColorSpace;
-        const geometry = new THREE.PlaneGeometry(tile.size, tile.size, 16, 16);
-        geometry.rotateX(-Math.PI / 2);
-        geometry.translate(tile.x0 + tile.size / 2, 0, tile.z0 + tile.size / 2);
-        const positions = geometry.attributes.position;
-        for (let i = 0; i < positions.count; i++) positions.setY(i, groundAt(positions.getX(i), positions.getZ(i)) + (tile.level === 0 ? 0.06 : 0.03));
-        geometry.computeBoundingSphere();
+        const geometry = tileGeometry(tile, groundAt);
         const material = new THREE.MeshBasicMaterial({ map: texture, polygonOffset: true, polygonOffsetFactor: tile.level === 0 ? -4 : -2, polygonOffsetUnits: -2 });
         const mesh = new THREE.Mesh(geometry, material);
         mesh.name = `hero-ground-${tile.file}`;
