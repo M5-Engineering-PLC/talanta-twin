@@ -7,7 +7,7 @@ import bpy
 from mathutils import Vector
 
 CLAIM = 'estimated: species mix and crown form from historian frames and concept 06; positions unchanged'
-LIMIT = 1500000
+LIMIT = 6000000  # stills (step T): nearest trees get the irregular high crowns; the web bundle uses the web LOD
 SEED = 704
 TINTS = ('#284A2D', '#3B6034', '#52703C', '#687951', '#796195')
 VARIANTS = [('broadleaf_%02d' % i, 'broadleaf', i % 4) for i in range(7)] + [
