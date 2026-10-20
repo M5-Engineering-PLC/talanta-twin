@@ -1,8 +1,9 @@
 """Facade fix 2026-10-20: cameras matched to JWNowpO44rw 001216.000 (close, sunlit) and 001232.600 (aerial, shade).
 
 Landmarks are read by eye from the frames (internal, about +-6 px at 1920 wide, +-4 px at 1280 wide): the top V points
-of the lattice under the fascia and the bottom points on the ring beam. (Points read on the roof-opening trim in
-001232.600 disagreed with the V points by more than 20 px and are left out.) Their 3D positions come from the built model (blender/out/bowl_rings.json, the lattice bays of
+of the lattice under the fascia and the bottom points on the ring beam. For 001232.600 the six V points lie on one curve and leave
+the camera height free (a V-point-only fit put the roof opening far too low), so points on the outer edge of the
+roof-opening trim are fitted too (nearest-point distance); the output gives the residual of each set. Their 3D positions come from the built model (blender/out/bowl_rings.json, the lattice bays of
 build_blockout.py: equal arc length round the fascia line, the first on the shield 0 axis). For each frame the solver
 tries every shield as the centre one and both directions round the bowl, and fits a pinhole camera (position, yaw,
 pitch, roll, focal length) by least squares. The stadium is close to symmetric under a half turn, so two shields fit
@@ -63,7 +64,8 @@ FRAMES = {
     "F32": {"frame": "001232.600", "size": (1280, 720), "near": (-143.0, 21.2 + PAD, -75.8), "near_from": "001230.050",
             "pts": [("top", -3, 172, 462), ("top", -2, 290, 498), ("top", -1, 470, 545), ("top", 0, 718, 553),
                     ("top", 1, 932, 518), ("top", 2, 1040, 476)],
-            "open": [], "pick": (1, -1, "the frame looks across the bowl into the Ngong Road forest (south-west of the site), so the "
+            "open": [(358, 285), (420, 262), (520, 240), (620, 224), (760, 228), (880, 240), (915, 258), (870, 290),
+                     (760, 325), (650, 347), (520, 330), (420, 305)], "pick": (1, -1, "the frame looks across the bowl into the Ngong Road forest (south-west of the site), so the "
                                    "camera is on the north-east side; the half-turn twin (shield 5) would look at the city")},
 }
 
@@ -92,7 +94,7 @@ def solve(spec, shield, sgn):
         p, z = project(P, x, spec["size"]); r = list((p - uv).ravel())
         if len(op):
             q, zq = project(OPEN, x, spec["size"]); dd = np.linalg.norm(op[:, None] - q[None], axis=2).min(1); r += list(dd * 0.7)
-        r += list(np.minimum(z - 5, 0) * 100)
+        r += list(np.minimum(z - 5, 0) * 100) + [min(x[1] - PAD - 5, 0) * 100]  # in front of the camera; camera above ground
         return np.array(r)
     best = None
     for dist in (60, 150, 250, 400):
@@ -101,11 +103,13 @@ def solve(spec, shield, sgn):
                 C0 = np.array([centre[0] + nrm[0] * dist * math.cos(el), centre[1] + dist * math.sin(el), centre[2] + nrm[1] * dist * math.cos(el)])
                 d = np.array([0, 25 + PAD, 0]) - C0; yaw = math.atan2(d[2], d[0]); pitch = math.atan2(d[1], math.hypot(d[0], d[2]))
                 x0 = np.array([*C0, yaw, pitch, 0.0, f0 * W])
-                try: r = least_squares(res, x0, max_nfev=800)
+                try: r = least_squares(res, x0, max_nfev=800, loss="soft_l1" if len(op) else "linear", f_scale=10)
                 except Exception: continue
                 if best is None or r.cost < best.cost: best = r
     p, _ = project(P, best.x, spec["size"])
     rms = float(np.sqrt(((p - uv) ** 2).sum(1).mean()))
+    if len(op):
+        q, _ = project(OPEN, best.x, spec["size"]); spec.setdefault("_open_med", {})[(shield, sgn)] = float(np.median(np.linalg.norm(op[:, None] - q[None], axis=2).min(1)))
     return best, rms
 
 
@@ -123,7 +127,7 @@ for cid, spec in FRAMES.items():
     fwd, right, up = basis(*x[3:6]); W, H = spec["size"]
     out[cid] = {"frame": spec["frame"], "shield": k, "direction": sgn, "rms_px": round(rms, 2), "position": [round(float(v), 2) for v in x[:3]],
                 "target": [round(float(v), 2) for v in x[:3] + fwd * 100], "roll_deg": round(math.degrees(x[5]), 3),
-                "focal_px": round(float(x[6]), 1), "focal_length_mm": round(float(x[6]) * 36 / W, 2),
+                "focal_px": round(float(x[6]), 1), "opening_median_px": round(spec.get("_open_med", {}).get((k, sgn), float("nan")), 1), "focal_length_mm": round(float(x[6]) * 36 / W, 2),
                 "candidates": [{"shield": c[1], "dir": c[2], "rms_px": round(c[0], 2), "position": [round(float(v), 1) for v in c[3][:3]]} for c in cands[:6]],
                 "picked_by": spec["pick"][2] if "pick" in spec else f"nearest to the solved drone position of {spec['near_from']} among fits within 1.5x of the best"}
     print(cid, json.dumps({k_: v for k_, v in out[cid].items() if k_ != "candidates"}), flush=True)

@@ -230,20 +230,20 @@
   },
   {
    "id": "F32",
-   "purpose": "facade fix check against frame JWNowpO44rw 001232.600 (camera solved from lattice landmarks, rms 3.3 px); internal only",
+   "purpose": "facade fix check against frame JWNowpO44rw 001232.600 (camera solved from lattice landmarks, rms 25.54 px); internal only",
    "projection": "perspective",
-   "focal_length_mm": 25.34,
+   "focal_length_mm": 29.33,
    "position": [
-    175.63,
-    103.75,
-    -147.98
+    170.73,
+    133.74,
+    -162.37
    ],
    "target": [
-    95.58,
-    84.33,
-    -91.28
+    101.62,
+    93.95,
+    -102.04
    ],
-   "roll_deg": 0.138,
+   "roll_deg": -4.312,
    "seed": 1,
    "sun": {
     "date": "2026-01-15",
