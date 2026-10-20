@@ -155,7 +155,7 @@
   "triangle_limit": 300000
  },
  "materials_pbr": {
-  "textured": 31
+  "textured": 30
  },
  "site_ground_detail": 1,
  "suburbs": {

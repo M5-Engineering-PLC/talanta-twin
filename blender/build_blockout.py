@@ -210,12 +210,15 @@ GREEN, RED = mat("seat_green", (0.09, 0.3, 0.15), 0.6), mat("seat_red", (0.45, 0
 
 SRC_PL = "design plan bowl_plinth_design_2026-10-17.csv (superellipse fit to the W1b trace); plinth_h, facade_inset (estimated)"
 SRC_SH = "design plan: superellipse fits to the W1b plinth, roof_outer, roof_inner traces (relief-corrected; ledger bowl.plan.*); heights roof_top_y, opening_y, profile.shoulder_r and the near-vertical wall (estimated, by eye against JWNowpO44rw 07:04)"
-# Base (stage 02b, by eye from JWNowpO44rw 12:12, 12:16, 12:40; estimated): a light concrete step on the measured
-# plinth outline, a shaded wall set back behind white columns, and a light band under the louvres.
-STEP, REC, BAND = V("bowl.base.step_h"), V("bowl.base.recess"), V("bowl.base.band_h")
+# Base (facade spec 2026-10-20, engineering/facade_spec_2026-10-20.md, rules 5 and 10; estimated): a light concrete
+# step on the measured plinth outline, a white ring beam (bowl.base.ring_beam_h) under the lowest louvre, and under it
+# a set-back ground floor in shadow with white piers, one per lattice bay (placed after the lattice bays are known,
+# below). Not a continuous colonnade; no gates, exits or signs.
+STEP, REC, BAND = V("bowl.base.step_h"), V("bowl.base.recess_depth"), V("bowl.base.ring_beam_h")
 LIGHT = mat("concrete_light", (0.78, 0.77, 0.74), 0.85)
-SHADE = mat("concrete_shade", (0.42, 0.41, 0.39), 0.9)
-SRC_BASE = "design plan bowl_plinth_design_2026-10-17.csv (outline, fitted to W1b); ledger bowl.base.*, plinth_h (estimated, by eye from 12:12, 12:16, 12:40)"
+RECESS = mat("concrete_recess_dark", (0.16, 0.16, 0.155), 0.9)
+SRC_BASE = ("design plan bowl_plinth_design_2026-10-17.csv (outline, fitted to W1b); ledger bowl.base.* (estimated, by eye "
+            "from 001216.000, 001221.500, 000714.767), plinth_h")
 
 
 def ring_band(name, collection, rings, material, status, sources):
@@ -232,28 +235,7 @@ def ring_band(name, collection, rings, material, status, sources):
 
 rRec = [r - REC for r in rPl]
 plinth_o = ring_band("plinth", "plinth", [(rPl, 0.0), (rPl, STEP), (rRec, STEP)], LIGHT, "plan measured, height estimated", SRC_BASE)
-ring_band("base_recess", "plinth", [(rRec, STEP), (rRec, plinthH - BAND)], SHADE, "estimated", SRC_BASE)
-ring_band("base_band", "plinth", [(rRec, plinthH - BAND), (rPl, plinthH - BAND), (rPl, plinthH)], LIGHT, "estimated", SRC_BASE)
-# white columns at an even spacing along the plinth outline, just behind the band face
-cw, csp = V("bowl.base.column_w") / 2, V("bowl.base.column_spacing")
-ring = [(dirs[i][0] * rPl[i], dirs[i][1] * rPl[i]) for i in range(N)]
-seg = [math.dist(ring[i], ring[(i + 1) % N]) for i in range(N)]
-v, f = [], []; acc, nxt = 0.0, 0.0
-for i in range(N):
-    while nxt <= acc + seg[i]:
-        t = (nxt - acc) / seg[i]; a, b = ring[i], ring[(i + 1) % N]
-        px, pz = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
-        tx, tz = (b[0] - a[0]) / seg[i], (b[1] - a[1]) / seg[i]; nx_, nz_ = tz, -tx  # outward for an anticlockwise ring
-        if nx_ * px + nz_ * pz < 0: nx_, nz_ = -nx_, -nz_
-        cx, cz = px - nx_ * (cw + 0.3), pz - nz_ * (cw + 0.3)
-        base = len(v)
-        for y in (STEP, plinthH - BAND):
-            for su, so in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
-                v.append((cx + tx * su * cw + nx_ * so * cw, Y(y), cz + tz * su * cw + nz_ * so * cw))
-        for k in range(4): f.append((base + k, base + (k + 1) % 4, base + 4 + (k + 1) % 4, base + 4 + k))
-        nxt += csp
-    acc += seg[i]
-obj("base_columns", "plinth", v, f, WHITE, "estimated", SRC_BASE)
+ring_band("base_recess", "plinth", [(rRec, STEP), (rRec, plinthH - BAND)], RECESS, "estimated", SRC_BASE)
 # Louvred wall (stage 02b, by eye from JWNowpO44rw 10:28 and 12:12-12:16): thin horizontal fins, sloping
 # down outward, over a dark recessed backing. The fins' outer edges lie on the wall line of profile();
 # above the wall the solid white shoulder (fascia) runs onto the roof. All fin values estimated.
@@ -294,9 +276,10 @@ for i in range(N):
     a, b = nb * i, nb * ((i + 1) % N); f += [(a + k, b + k, b + k + 1, a + k + 1) for k in range(nb - 1)]
 obj("facade_backing", "shell", v, f, VOID, "estimated", SRC_FIN)
 v, f = [], []
-nf = int((yF - FIN_DROP - plinthH - 0.4) / FIN_P) + 1
+FIN0 = 0.05  # lowest fin sits on the ring beam (facade spec 2026-10-20 rule 5; was 0.4 m, which left a dark band)
+nf = int((yF - FIN_DROP - plinthH - FIN0) / FIN_P) + 1
 for k in range(nf):
-    y = plinthH + 0.4 + k * FIN_P; base = len(v)
+    y = plinthH + FIN0 + k * FIN_P; base = len(v)
     for i in range(N):
         ux, uz = dirs[i]; ro = rw(i, y); ri = ro - FIN_D
         v += [(ux * ri, Y(y + FIN_DROP), uz * ri), (ux * ro, Y(y), uz * ro)]
@@ -408,20 +391,115 @@ def sweep(name, collection, paths, section, material, sources, status="estimated
     return o
 
 
-# Diamond lattice: flat-faced members of trapezoid section standing proud of the fins, from the bottom of the
-# louvred band to the fascia (by eye from 12:12-12:16; one diamond spans the band height, 07:04 count).
+# Diamond lattice (facade spec 2026-10-20, rules 1-5): K slim flat ribs per direction, square edges, standing
+# bowl.lattice.section_d proud of the louvre faces. The top V points sit under the fascia line at equal arc length
+# round the fascia (bay = perimeter / K), the first on the shield 0 axis; the bottom points sit directly below them
+# on the ring beam. Each rib runs from a top V point to the bottom point one bay along, so two ribs cross in an X
+# at mid-height between two V points. Joints are sharp mitres: each rib is clipped to its own bay by the vertical
+# line through the V points at its ends and by the horizontal lines of the fascia and the ring beam, so the two
+# ribs of a V meet on one line and never overlap in a round fork.
 K = int(V("bowl.profile.lattice_members_704"))
 lw, ld = V("bowl.lattice.section_w") / 2, V("bowl.lattice.section_d")
-LSEC = [(-lw, -0.1), (lw, -0.1), (lw * 0.3, ld), (-lw * 0.3, ld)]
-J_LO = j_at_height(plinthH + 0.2)
-sp = []
+LAT = mat("white_shell_lattice", (0.85, 0.85, 0.83), 0.5)  # own material: hero_artistic.py keeps its bevel <= 0.03 m
+Y_LO, Y_TOP = plinthH, yF
+TH0 = math.radians(-bearing) - math.pi / 2  # shield 0 (shields loop below)
+_th = TH0 + np.linspace(0, 2 * math.pi, 4801)
+
+
+def _ring_len(y, th=_th):
+    q = np.array([tuple(surf(t, j_at_height(y))) for t in th]); return np.concatenate([[0], np.cumsum(np.linalg.norm(np.diff(q, axis=0), axis=1))])
+
+
+_cum = _ring_len(Y_TOP); _ucum = K * _cum / _cum[-1]
+BAY = _cum[-1] / K
+
+
+def th_u(u):
+    """Angle of lattice coordinate u (bays from shield 0 along the fascia, equal arc length)."""
+    return TH0 + float(np.interp(u % K, _ucum, _th - TH0))
+
+
+_yy = np.linspace(Y_LO, Y_TOP, 24)
+_mm = [_ring_len(y, TH0 + np.linspace(0, 2 * math.pi, 721))[-1] / K for y in _yy]
+m_y = lambda y: float(np.interp(y, _yy, _mm))  # metres per bay unit at height y
+
+
+def rib(ua, ub, off, n=40):
+    """Mesh pieces (verts, faces) of one rib from the bottom point ua to the top V point ub (ub = ua +- 1)."""
+    H = Y_TOP - Y_LO; du = ub - ua
+    u_lo, u_hi = min(ua, ub), max(ua, ub)
+
+    def pt(t, s):
+        y = Y_LO + H * t; m = m_y(y); tx, ty = m * du, H; L_ = math.hypot(tx, ty); tx, ty = tx / L_, ty / L_
+        return ua + du * t + s * lw * (-ty) / m, y + s * lw * tx
+
+    def inside(t, s):
+        u, y = pt(t, s); e = 1e-9
+        return u_lo - e <= u <= u_hi + e and Y_LO - e <= y <= Y_TOP + e
+
+    def span(s):
+        if s == 0: return 0.0, 1.0
+        ts = np.linspace(0, 1, 2001); ok = [inside(t, s) for t in ts]; i0 = ok.index(True); i1 = len(ok) - 1 - ok[::-1].index(True)
+        def edge(a, b):  # a inside, b outside
+            for _ in range(40):
+                c = (a + b) / 2
+                if inside(c, s): a = c
+                else: b = c
+            return a
+        t0 = edge(ts[i0], ts[i0 - 1]) if i0 > 0 else 0.0
+        t1 = edge(ts[i1], ts[i1 + 1]) if i1 < len(ts) - 1 else 1.0
+        return t0, t1
+
+    lines = []
+    for s in (-1, 0, 1):
+        t0, t1 = span(s); row = []
+        for t in np.linspace(t0, t1, n):
+            u, y = pt(t, s); th = th_u(u); j = j_at_height(y)
+            row.append((tuple(surf(th, j, off)), tuple(surf(th, j, -0.3))))
+        lines.append(row)
+    v = [p for row in lines for pair in row for p in pair]  # index: ((line * n) + k) * 2 + (0 front, 1 back)
+    I = lambda l, k, b: (l * n + k) * 2 + b
+    f = []
+    for k in range(n - 1):
+        for l in (0, 1):
+            f.append((I(l, k, 0), I(l + 1, k, 0), I(l + 1, k + 1, 0), I(l, k + 1, 0)))
+            f.append((I(l, k + 1, 1), I(l + 1, k + 1, 1), I(l + 1, k, 1), I(l, k, 1)))
+        f.append((I(0, k, 1), I(0, k, 0), I(0, k + 1, 0), I(0, k + 1, 1)))
+        f.append((I(2, k + 1, 1), I(2, k + 1, 0), I(2, k, 0), I(2, k, 1)))
+    for k in (0, n - 1):
+        for l in (0, 1):
+            f.append((I(l, k, 0), I(l + 1, k, 0), I(l + 1, k, 1), I(l, k, 1)))
+    return v, f
+
+
+lv, lf = [], []
 for k in range(K):
-    for sg in (1, -1):
-        th0 = 2 * math.pi * k / K; d = sg * 2 * math.pi / K
-        sp.append([(surf(th0 + d * (j - J_LO) / (J_F - J_LO), j, 0), th0 + d * (j - J_LO) / (J_F - J_LO)) for j in np.linspace(J_LO, J_F, 48)])
-sweep("lattice", "facade_detail", sp, LSEC, WHITE, "ledger bowl.lattice.section_*, bowl.profile.lattice_members_704 (estimated)")
-rings = [[surf(2 * math.pi * i / N, j, 0.3) for i in range(N)] for j in (J_LO, float(J_F))]
-curve_obj("lattice_rings", "facade_detail", rings, V("bowl.lattice.ring_r"), WHITE, closed=True, sources="ledger bowl.lattice.ring_r (estimated)")
+    for sg, off in ((1, ld), (-1, ld - 0.008)):  # falling ribs 8 mm behind the rising ones, so the X crossings never z-fight
+        v, f = rib(k, k + sg, off); b0 = len(lv); lv += v; lf += [tuple(b0 + q for q in face) for face in f]
+me = bpy.data.meshes.new("lattice"); me.from_pydata(lv, [], lf); me.validate(); me.update()
+bm = bmesh.new(); bm.from_mesh(me); bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(me); bm.free()
+lo = bpy.data.objects.new("lattice", me); coll("facade_detail").objects.link(lo); me.materials.append(LAT)
+lo["claim"] = "estimated"; lo["sources"] = ("ledger bowl.profile.lattice_members_704, bowl.lattice.section_w, bowl.lattice.section_d "
+                                            "(2026-10-20 rows, engineering/facade_spec_2026-10-20.md)")
+# Ring beam (spec rule 5): white band bowl.base.ring_beam_h high under the lowest louvre, its face on the wall line
+# at the foot (never inside the plinth face), from the recess wall out
+rBeam = [max(rPl[i], rw(i, plinthH)) for i in range(N)]
+ring_band("base_band", "plinth", [(rRec, plinthH - BAND), (rBeam, plinthH - BAND), (rBeam, plinthH), (rRec, plinthH)], WHITE, "estimated", SRC_BASE)
+# White piers under the ring beam, one per bay under the bottom points (spec rule 10); kept as "base_columns" for
+# the web_hero bake groups
+cw = V("bowl.base.column_w") / 2
+v, f = [], []
+for k in range(K):
+    th = th_u(k); ux, uz = math.cos(th), math.sin(th)
+    i = int(round(th / (2 * math.pi) * N)) % N; r0 = rBeam[i] - cw - 0.3
+    tx, tz = -uz, ux; base = len(v)
+    for y in (0.0, plinthH - BAND):  # from the ground: where the wall overhangs, the pier stands outside the plinth step
+        for su, so in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+            v.append((ux * r0 + tx * su * cw + ux * so * cw, Y(y), uz * r0 + tz * su * cw + uz * so * cw))
+    f += [(base + q, base + (q + 1) % 4, base + 4 + (q + 1) % 4, base + 4 + q) for q in range(4)]
+obj("base_columns", "plinth", v, f, WHITE, "estimated", SRC_BASE)
+print("LATTICE " + json.dumps({"K": K, "bay_m": round(BAY, 2), "fascia_perimeter_m": round(_cum[-1], 1), "y_lo": round(Y_LO, 2),
+                                "y_top": round(Y_TOP, 2), "beam_out_of_plinth_m": round(max(a - b for a, b in zip(rBeam, rPl)), 2)}), flush=True)
 nrib = int(VO("bowl.roof.cushion_bays", V("bowl.roof.ribs")))  # topside ribs bound the cushion bays (001221.500, 001224.500)
 # ribs half sunk into the membrane (stage 02b: 12:40 shows a smooth membrane with faint seams, not raised tubes)
 ribs = [[surf(2 * math.pi * k / nrib, j, 0) + Vector((0, 0, 0.1 - V("bowl.roof.rib_r"))) for j in np.linspace(J_FACADE, NP - 1, 14)] for k in range(nrib)]
@@ -466,16 +544,14 @@ def shield_png(path, w=512, h=1024):
     white = [0.95, 0.95, 0.93, 1]
     img = np.zeros((h, w, 4)); img[outline] = [*red, 1]
     crescent = outline & (au >= 1 - 0.4 * np.sqrt(np.clip(1 - (v / 0.56) ** 2, 0, 1)))
-    img[crescent] = [0.04, 0.04, 0.04, 1]
+    hexb = L["bowl.shield.black"]["value"].lstrip("#")
+    img[crescent] = [*[int(hexb[i:i + 2], 16) / 255 for i in (0, 2, 4)], 1]
     img[outline & (au < 0.014) & (av < 0.97)] = white  # spine
     t = np.clip((av - 0.16) / 0.78, 0, 1)  # leaves above and below the boss, pointed at both ends
     lw = 0.085 * np.sin(np.pi * t) ** 0.7
     img[outline & (av > 0.16) & (av < 0.94) & (np.abs(au - 0.115) < lw)] = white
     img[(u / 0.18) ** 2 + (v / 0.13) ** 2 <= 1] = white  # boss
-    # RF13 (12:12): a narrow pale rim follows the outline; width from the ledger, as a fraction of the half-width
-    f = float(L["bowl.shield.rim"]["value"]) / (float(L["bowl.shield.width"]["value"]) / 2)
-    edge = np.clip(1 - av ** 2, 0, 1) ** 0.62
-    img[outline & (au > edge - f)] = [0.906, 0.902, 0.878, 1]
+    # facade spec 2026-10-20 rule 8: no pale rim; the edge has the face colour (the RF13 rim row is superseded)
     im = bpy.data.images.new("shield", w, h, alpha=True); im.pixels.foreach_set(img[::-1].ravel().astype(np.float32))
     im.filepath_raw = str(path); im.file_format = "PNG"; im.save()
     return im
@@ -488,26 +564,20 @@ try: sm.use_nodes = True
 except Exception: pass
 nt = sm.node_tree; pb = nt.nodes["Principled BSDF"]; tx = nt.nodes.new("ShaderNodeTexImage"); tx.image = sh_img
 nt.links.new(tx.outputs["Color"], pb.inputs["Base Color"]); nt.links.new(tx.outputs["Alpha"], pb.inputs["Alpha"])
-pb.inputs["Roughness"].default_value = 0.45; sm.diffuse_color = (0.7, 0.1, 0.1, 1)
+pb.inputs["Roughness"].default_value = V("bowl.shield.roughness"); pb.inputs["Metallic"].default_value = 0.0  # matte paint
+sm.diffuse_color = (0.42, 0.06, 0.12, 1)
 SPEAR = mat("spear_white", (0.92, 0.92, 0.9), 0.35)
 axisA = math.radians(-bearing); sw = V("bowl.shield.width")
-sy0, sy1 = V("bowl.shield.blockout_y0"), V("bowl.shield.blockout_y1")
-hs = VO("bowl.shield.centre_y", None)
-if hs is not None:  # fitted shield centre: move the whole shield (height kept), limited so the tip stays under the
-    # fascia line and the foot above the plinth; a clamp on the tip alone would shrink the shield and move its centre
-    d_ = hs - (sy0 + sy1) / 2
-    lo_, hi_ = plinthH + 0.2 - sy0, yF - 0.5 - sy1
-    if lo_ > hi_:
-        raise ValueError(f"shield ({sy1 - sy0:.2f} m) does not fit between the plinth ({plinthH + 0.2:.2f} m) and the fascia "
-                         f"line ({yF - 0.5:.2f} m): no translation satisfies both bounds")
-    d_ = max(min(d_, hi_), lo_)
-    sy0, sy1 = sy0 + d_, sy1 + d_
+# facade spec 2026-10-20 rule 6: each shield is centred on a V line (every third bay), its top at the top V point
+# under the fascia and its foot at the bottom point on the ring beam (supersedes blockout_y0/y1 and centre_y)
+sy0, sy1 = Y_LO, Y_TOP
+NSH = int(V("bowl.shields.count")); SH_EVERY = K // NSH
 bulge, soff = V("bowl.shield.bulge"), V("bowl.shield.offset")
 span, bl, br, srad = V("bowl.spear.span_shields"), V("bowl.spear.blade_len"), V("bowl.spear.blade_r"), V("bowl.spear.radius")
 tip_y = yF - V("bowl.spear.tip_below_fascia")
 verts, faces, uvs, spear_paths = [], [], [], []
-for k in range(int(V("bowl.shields.count"))):
-    th = axisA - math.pi / 2 + k * 2 * math.pi / int(V("bowl.shields.count"))
+for k in range(NSH):
+    th = th_u(k * SH_EVERY)
     rc = surf(th, j_at_height((sy0 + sy1) / 2)).xy.length; half = sw / 2 / rc
     nu, nv = 16, 32; base = len(verts)
     for a in range(nu + 1):

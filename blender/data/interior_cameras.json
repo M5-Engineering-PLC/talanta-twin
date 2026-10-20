@@ -204,6 +204,52 @@
    },
    "variants": [],
    "seed": 35
+  },
+  {
+   "id": "F16",
+   "purpose": "facade fix check against frame JWNowpO44rw 001216.000 (camera solved from lattice landmarks, rms 12.67 px); internal only",
+   "projection": "perspective",
+   "focal_length_mm": 18.99,
+   "position": [
+    133.66,
+    43.09,
+    108.37
+   ],
+   "target": [
+    51.68,
+    28.75,
+    52.94
+   ],
+   "roll_deg": 0.33,
+   "seed": 1,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "10:30",
+    "kind": "daylight"
+   }
+  },
+  {
+   "id": "F32",
+   "purpose": "facade fix check against frame JWNowpO44rw 001232.600 (camera solved from lattice landmarks, rms 3.3 px); internal only",
+   "projection": "perspective",
+   "focal_length_mm": 25.34,
+   "position": [
+    175.63,
+    103.75,
+    -147.98
+   ],
+   "target": [
+    95.58,
+    84.33,
+    -91.28
+   ],
+   "roll_deg": 0.138,
+   "seed": 1,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "10:30",
+    "kind": "daylight"
+   }
   }
  ]
 }

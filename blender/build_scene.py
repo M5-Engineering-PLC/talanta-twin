@@ -103,6 +103,10 @@ PBR = {
     "seat_green": principled("seat_green_pbr", (0.04, 0.22, 0.10), 0.4, spec=0.6),
     "seat_red": principled("seat_red_pbr", (0.38, 0.03, 0.04), 0.4, spec=0.6),
     "spear_white": principled("spear_pbr", (0.82, 0.82, 0.80), 0.3, 0.0, coat=0.2),
+    # facade spec 2026-10-20: the lattice has its own copy of the shell white (bevel cap in hero_artistic.py); the
+    # set-back ground floor under the ring beam reads dark
+    "white_shell_lattice": principled("white_shell_lattice_pbr", (0.80, 0.80, 0.78), 0.32, 0.0, coat=0.2, noise_rough=0.06, noise_scale=0.08),
+    "concrete_recess_dark": principled("concrete_recess_dark_pbr", (0.12, 0.12, 0.115), 0.9),
 }
 # Membrane (stage 02b fix 6, by eye from 12:40): faint radial seams at the rib spacing and slight
 # panel-to-panel brightness variation, from the angle round the bowl centre (object coordinates).

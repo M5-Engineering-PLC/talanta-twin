@@ -23,7 +23,7 @@ SET = {
     "base_glow": 5.0, "base_glow_k": 3000,
     "haze_density": 1.6e-5, "haze_anisotropy": 0.72,
     "glare_mix": 0.09, "glare_threshold": 1.1, "streak_mix": 0.05,
-    "bevel_m": 0.04, "fin_depth_scale": 1.35,
+    "bevel_m": 0.04, "lattice_bevel_max_m": 0.03, "fin_depth_scale": 1.35,  # lattice cap: facade spec 2026-10-20 (square rib edges)
     "cars": 0.62, "people": 1400,
 }
 
@@ -103,7 +103,7 @@ def _bevels_and_fins():
         if not m.node_tree or not any(k in m.name.lower() for k in ("white", "shell", "fascia", "roof", "lattice", "membrane", "rubis_canopy")): continue
         p = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
         if p is None or p.inputs["Normal"].is_linked: continue
-        b = m.node_tree.nodes.new("ShaderNodeBevel"); b.inputs["Radius"].default_value = SET["bevel_m"]; b.samples = 6
+        b = m.node_tree.nodes.new("ShaderNodeBevel"); b.inputs["Radius"].default_value = min(SET["bevel_m"], SET["lattice_bevel_max_m"]) if "lattice" in m.name.lower() else SET["bevel_m"]; b.samples = 6
         m.node_tree.links.new(b.outputs["Normal"], p.inputs["Normal"]); done.append(m.name)
     fins = bpy.data.objects.get("louvre_fins"); fin_note = None
     if fins is not None:

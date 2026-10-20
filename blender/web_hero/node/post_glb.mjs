@@ -24,7 +24,9 @@ import sharp from "sharp";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const TEST = process.argv.includes("test");
-const BASE = path.join(ROOT, "blender/out/web_hero", TEST ? "test" : "");
+// base=<dir>: read the staging of blender/out/web_hero/<dir> (the unbaked preview, stage_unbaked.py)
+const BASE_DIR = (process.argv.find((a) => a.startsWith("base=")) || "").split("=")[1] || null;
+const BASE = path.join(ROOT, "blender/out/web_hero", BASE_DIR || (TEST ? "test" : ""));
 const STAGE = path.join(BASE, "export");
 const BUNDLE = (process.argv.find((a) => a.startsWith("bundle=")) || "").split("=")[1] || null;
 const BDIR = BUNDLE ? path.join(BASE, BUNDLE) : null;
@@ -214,6 +216,12 @@ if (BUNDLE) {
     lightmaps: "Baked materials carry extras.talanta_lightmap: move emissiveMap to lightMap (texture.channel = texCoord), emissive black, lightMapIntensity = intensity. KTX2Loader required.",
     labels: "Estimated geometry and colours (parameter ledger). Traffic and any people are Visualization. No reference frame is used as a texture.",
   };
+  if (stage.unbaked) {
+    Object.assign(man, { unbaked: true, source: `${bake.source} via blender/web_hero (stage_unbaked.py, export_web.py unbaked, node/post_glb.mjs); no bake`,
+      purpose: "app testing only: not a release, not web_hero_v2",
+      lightmaps: "none: plain materials (base colour, roughness, metallic); light the scene in the app", panoramas: [] });
+    delete man.codecs.lightmaps; delete man.codecs.panorama;
+  }
   fs.writeFileSync(path.join(BDIR, "manifest.json"), JSON.stringify(man, null, 1) + "\n");
   console.log(JSON.stringify({ bundle: BUNDLE, files: files.length, total_bytes: total, within_budget: man.within_budget }));
   process.exit(0);

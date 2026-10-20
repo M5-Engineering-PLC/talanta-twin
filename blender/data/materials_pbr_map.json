@@ -362,6 +362,13 @@
       ]
     },
     {
+      "material": "concrete_recess_dark_pbr",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
       "material": "concrete_shade",
       "claim": "estimated",
       "present": false,
@@ -387,8 +394,8 @@
     {
       "material": "concrete_shade_pbr",
       "claim": "estimated",
-      "present": true,
-      "action": "textured",
+      "present": false,
+      "action": "planned",
       "reason": "Preserve palette and add CC0 surface detail.",
       "texture_set": "Concrete034",
       "projection": "world-space triplanar, metres",
@@ -405,13 +412,7 @@
           }
         }
       },
-      "paving_module_m": null,
-      "tint_linear": [
-        0.36000001430511475,
-        0.3499999940395355,
-        0.33000001311302185,
-        1.0
-      ]
+      "paving_module_m": null
     },
     {
       "material": "corner_flag_yellow",
@@ -2031,6 +2032,13 @@
     },
     {
       "material": "white_shell",
+      "claim": "estimated",
+      "present": true,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "white_shell_lattice_pbr",
       "claim": "estimated",
       "present": true,
       "action": "unchanged",
