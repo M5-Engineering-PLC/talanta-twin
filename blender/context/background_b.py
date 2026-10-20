@@ -69,7 +69,7 @@ if tr is not None:
     me.update(); report["forest_belt"] = {"belt_points": int(len(belt)), "added": int(len(src)), "total": int(n0 + len(src))}
 
 # ---- 2. far land: pull the beige toward a hazy green-grey
-GREEN_GREY = (0.115, 0.15, 0.095, 1)
+GREEN_GREY = (0.085, 0.125, 0.065, 1)  # pass 3: greener, so the far land reads as canopy (mockup 06)
 done = []
 for o in scene.objects:
     if o.type != "MESH" or not (o.name.startswith(("terrain_horizon", "horizon_band", "terrain_far"))): continue
@@ -78,7 +78,7 @@ for o in scene.objects:
         p = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
         if p is None or not p.inputs["Base Color"].links: continue
         src_sock = p.inputs["Base Color"].links[0].from_socket
-        mix = m.node_tree.nodes.new("ShaderNodeMixRGB"); mix.blend_type = "MIX"; mix.inputs[0].default_value = 0.7
+        mix = m.node_tree.nodes.new("ShaderNodeMixRGB"); mix.blend_type = "MIX"; mix.inputs[0].default_value = 0.88
         mix.inputs[2].default_value = GREEN_GREY; mix.label = "step B: far land green-grey"
         m.node_tree.links.new(src_sock, mix.inputs[1]); m.node_tree.links.new(mix.outputs[0], p.inputs["Base Color"])
         m["step_b_tint"] = True; done.append(m.name)
