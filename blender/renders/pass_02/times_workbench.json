@@ -1,0 +1,32 @@
+[
+ {
+  "camera": "C01",
+  "engine": "workbench",
+  "seconds": 3.6
+ },
+ {
+  "camera": "C02",
+  "engine": "workbench",
+  "seconds": 3.2
+ },
+ {
+  "camera": "C03",
+  "engine": "workbench",
+  "seconds": 3.1
+ },
+ {
+  "camera": "C04",
+  "engine": "workbench",
+  "seconds": 3.7
+ },
+ {
+  "camera": "C05",
+  "engine": "workbench",
+  "seconds": 3.8
+ },
+ {
+  "camera": "C06",
+  "engine": "workbench",
+  "seconds": 3.8
+ }
+]

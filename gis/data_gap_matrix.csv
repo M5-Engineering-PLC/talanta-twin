@@ -1,0 +1,19 @@
+item,ring,tolerance,have_now,current_error,best_free_source,best_paid_source,who,status
+bowl centre,hero,2 m,OSM r20072298 + Sentinel-2 fit,1.5 m between sources,done,none,lead,done
+bowl outer outline,hero,1 m,OSM 256x204 m; Sentinel-2 274x234 m,18-30 m disagreement,W1b Google Earth Pro ruler after Feb 2026,30-50 cm stereo scene (Maxar/Airbus) after Feb 2026,Munene,open
+long-axis bearing,hero,1 deg,OSM 178-180; Sentinel-2 177,about 3 deg,W1b,stereo scene,Munene,open
+roof inner edge,hero,1 m,Sentinel-2 opening area only,unknown,W1b,stereo scene,Munene,open
+pitch and run-off,hero,0.2 m,OSM grass 134x85 m; assumed pitch 105x68 m,unknown,W1b with fixed-marking checks,CAF venue report,Munene,open
+roof edge height,hero,1 m,press 56 m max height (unverified),unknown,W1b shadow method; W3 SfM,stereo scene DSM; drawings,Munene + Luna,open
+tiers rows and rake,hero,0.25 m per tier,3 tiers (press); frames,unknown,frames + W3 + seat-count check,drawings,Luna + lead,open
+facade modules,hero,0.5 m,frames,no scale,frames scaled by outline,drawings,Luna,open
+gates (8),hero (internal),2 m,none,n/a,W1b,drawings,Munene,open
+plazas parking landscaping,hero,2 m,OSM land use,unknown,W1b,stereo scene,Munene,open
+training pitches and mini-stadium,hero,2 m,OSM pitch polygons,unknown,W1b check,none,Munene,open
+near-ring footprints,near,3 m,Overture (OSM/Google/Microsoft),typ. 1-3 m,done; W1b spot-check 10,none,lead,done pending spot-check
+near-ring heights,near,3 m,Open Buildings 2.5D 2023 for 7567 of 14261,about 2-3 m where present,done; defaults for rest,none,lead,partly done
+road centrelines,near,3 m,Overture segments,typ. 2-5 m,done,none,lead,done
+road widths,near,1 m,none,n/a,W1b 5 samples + class defaults,none,Munene,open
+terrain,far,30 m plan / 5 m vertical,GLO-30 DSM,about 4 m vertical,done,none,lead,done
+construction timeline,context,1 month,58 clear Sentinel-2 scenes,about 1 revisit (5-10 days) where clear,done,none,lead,done
+official site plan,hero,n/a,none found online,n/a,Access to Information request: NEMA EIA register; Gazette protected-area notice (June 2026); Auditor-General special audit,none,Munene,open

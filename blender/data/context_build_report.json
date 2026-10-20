@@ -1,0 +1,190 @@
+{
+ "canopy": {
+  "claim": "estimated: species mix and crown form from historian frames and concept 06; positions unchanged",
+  "evidence": "software",
+  "instance_triangles": 5999668,
+  "instances": 33181,
+  "scatter_counts": {
+   "palms": 321,
+   "site_trees": 884,
+   "trees": 31976
+  },
+  "triangle_limit": 6000000,
+  "usage": {
+   "broadleaf_00:far": 2577,
+   "broadleaf_00:high": 1416,
+   "broadleaf_01:far": 2672,
+   "broadleaf_01:high": 1380,
+   "broadleaf_02:far": 2676,
+   "broadleaf_02:high": 1406,
+   "broadleaf_03:far": 2529,
+   "broadleaf_03:high": 1444,
+   "broadleaf_04:far": 2618,
+   "broadleaf_04:high": 1430,
+   "broadleaf_05:far": 2730,
+   "broadleaf_05:high": 1416,
+   "broadleaf_06:far": 2688,
+   "broadleaf_06:high": 1452,
+   "eucalyptus_00:far": 1463,
+   "eucalyptus_00:high": 681,
+   "eucalyptus_01:far": 1456,
+   "eucalyptus_01:high": 784,
+   "jacaranda:high": 42,
+   "palm_00:high": 152,
+   "palm_01:high": 169
+  },
+  "variant_triangles": {
+   "broadleaf_00": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "broadleaf_01": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "broadleaf_02": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "broadleaf_03": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "broadleaf_04": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "broadleaf_05": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "broadleaf_06": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "eucalyptus_00": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "eucalyptus_01": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "jacaranda": {
+    "far": 40,
+    "high": 444,
+    "web": 112
+   },
+   "palm_00": {
+    "far": 40,
+    "high": 184,
+    "web": 88
+   },
+   "palm_01": {
+    "far": 40,
+    "high": 184,
+    "web": 88
+   }
+  }
+ },
+ "canopy_slots": {
+  "palm_slots": 36,
+  "tree_slots": 6
+ },
+ "far_land": {
+  "bands_retextured": 4,
+  "car_park_mix_nodes_to_murram": 1,
+  "claim": "Visualization: far-land structure from Sentinel-2 tone classes; roof, yard and canopy mosaic generic",
+  "facade_materials": [
+   "buildings_mat",
+   "suburbs_wall_DCC394",
+   "suburbs_wall_E7D7B5",
+   "suburbs_wall_E8E3D6"
+  ],
+  "terrain_far_faces_trimmed": 120692
+ },
+ "forecourt": {
+  "added_triangles": 52382,
+  "elements": 73,
+  "evidence": "software / Visualization",
+  "hidden": [
+   "north_plaza",
+   "palms",
+   "site_trees",
+   "shrubs",
+   "planters",
+   "flag_masts",
+   "path_lights",
+   "light_masts",
+   "bollards"
+  ],
+  "palm_slots": 36,
+  "retained": [
+   "fc_retained_palms",
+   "fc_retained_site_trees",
+   "fc_retained_shrubs",
+   "fc_retained_planters",
+   "fc_retained_flag_masts",
+   "fc_retained_path_lights",
+   "fc_retained_light_masts",
+   "fc_retained_bollards"
+  ],
+  "terrain_mode": "raycast",
+  "triangle_limit": 70000
+ },
+ "horizon": {
+  "city_triangles": 252,
+  "horizon_layer_triangles": {
+   "terrain_horizon": 69828,
+   "terrain_horizon_far": 67146,
+   "terrain_horizon_hills": 153106
+  },
+  "racecourse_triangles": 674,
+  "ridge_triangles": 153106,
+  "terrain_triangles": 26408,
+  "total_triangles": 27334,
+  "triangle_limit": 300000
+ },
+ "materials_pbr": {
+  "textured": 31
+ },
+ "site_ground_detail": 1,
+ "suburbs": {
+  "added_triangles": 399951,
+  "evidence": "software / artistic visualization",
+  "low_buildings": 8797,
+  "midrise_buildings": 171,
+  "removed_flat_roof_triangles": 23361,
+  "roof_detail_triangles": 189495,
+  "seed": 704,
+  "species": [
+   1767,
+   377,
+   280
+  ],
+  "tank_triangles": 6840,
+  "trees": 2424,
+  "triangle_limit": 400000
+ },
+ "traffic": {
+  "counts": {
+   "bus": 19,
+   "car": 421,
+   "nganya": 55
+  },
+  "evidence": "software; Visualization",
+  "minimum_bumper_gap_m": 7.25,
+  "seed": 704,
+  "triangles": 35868,
+  "vehicles": 495
+ }
+}

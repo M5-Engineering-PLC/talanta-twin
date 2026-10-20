@@ -1,0 +1,53 @@
+{
+ "kloppenheim_06_puresky_4k.hdr:17385661": {
+  "file": "blender/assets/hdri/kloppenheim_06_puresky_4k.hdr",
+  "size": [
+   4096,
+   2048
+  ],
+  "sun_alpha_deg": -40.298,
+  "sun_elevation_deg": 4.614,
+  "clip": 6.5122,
+  "sun_irradiance": 0.0192,
+  "sky_horizontal_irradiance": 2.5424,
+  "sun_color": [
+   1.0,
+   0.3378,
+   0.0112
+  ]
+ },
+ "wasteland_clouds_puresky_4k.hdr:17626631": {
+  "file": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr",
+  "size": [
+   4096,
+   2048
+  ],
+  "sun_alpha_deg": -35.903,
+  "sun_elevation_deg": 7.69,
+  "clip": 8.9831,
+  "sun_irradiance": 0.5662,
+  "sky_horizontal_irradiance": 3.3907,
+  "sun_color": [
+   1.0,
+   0.4475,
+   0.0344
+  ]
+ },
+ "belfast_sunset_puresky_4k.hdr:17420114": {
+  "file": "blender/assets/hdri/belfast_sunset_puresky_4k.hdr",
+  "size": [
+   4096,
+   2048
+  ],
+  "sun_alpha_deg": -37.661,
+  "sun_elevation_deg": 2.065,
+  "clip": 19.565,
+  "sun_irradiance": 0.097,
+  "sky_horizontal_irradiance": 3.3983,
+  "sun_color": [
+   1.0,
+   0.0701,
+   0.0
+  ]
+ }
+}

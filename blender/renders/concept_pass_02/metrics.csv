@@ -1,0 +1,27 @@
+camera,metric,render,concept,difference
+C19,crop:roof,L 56.8 a 4.0 b 6.0 sdL 23.8 edges 0.275,L 66.3 a 2.1 b 0.6 sdL 26.4 edges 0.250,dE76 11.1 dL -9.6 dEdges +0.026
+C19,crop:facade,L 56.0 a 8.5 b 9.9 sdL 21.5 edges 0.251,L 49.3 a 4.9 b 0.9 sdL 17.1 edges 0.289,dE76 11.7 dL 6.6 dEdges -0.038
+C19,crop:bowl,L 49.6 a 9.0 b 6.3 sdL 29.0 edges 0.309,L 34.2 a 2.9 b 0.8 sdL 17.6 edges 0.491,dE76 17.4 dL 15.4 dEdges -0.181
+C19,crop:forecourt,L 27.4 a -7.4 b 17.8 sdL 9.0 edges 0.118,L 51.2 a 6.0 b 20.6 sdL 21.5 edges 0.468,dE76 27.5 dL -23.9 dEdges -0.350
+C19,crop:road,L 26.0 a -2.2 b 14.4 sdL 10.9 edges 0.155,L 38.5 a 5.8 b 11.2 sdL 13.0 edges 0.418,dE76 15.2 dL -12.5 dEdges -0.263
+C19,crop:canopy,L 19.3 a -5.5 b 8.4 sdL 10.2 edges 0.279,L 27.0 a -1.7 b 7.8 sdL 13.8 edges 0.491,dE76 8.7 dL -7.8 dEdges -0.212
+C19,crop:suburbs,L 29.8 a -2.3 b 9.5 sdL 13.7 edges 0.172,L 29.2 a 2.4 b 12.8 sdL 19.8 edges 0.507,dE76 5.8 dL 0.6 dEdges -0.335
+C19,crop:horizon,L 47.7 a 1.3 b 2.0 sdL 7.6 edges 0.043,L 64.9 a 2.6 b 1.2 sdL 15.6 edges 0.057,dE76 17.3 dL -17.2 dEdges -0.014
+C19,"stadium_bbox (x0 y0 x1 y1, frame fractions)",0.342 0.345 0.711 0.586,0.344 0.333 0.709 0.594,"mean abs 0.006, max 0.012 (12 px at 960)"
+C19,"horizon (sky band, share of height)",0.146,0.150,-0.004
+C19,"shadow direction (image deg, 0 = right, ccw)",5,205 (by eye),+160
+C19,highlight clipping (share >= 250),0.0009,0.0135,-0.0126
+C19,render time (s),82,,
+C20,crop:roof,L 58.2 a 4.7 b 9.1 sdL 21.6 edges 0.227,L 71.8 a 2.8 b 5.2 sdL 27.5 edges 0.257,dE76 14.2 dL -13.6 dEdges -0.030
+C20,crop:facade,L 56.7 a 10.1 b 16.6 sdL 18.4 edges 0.233,L 49.1 a 6.6 b 4.5 sdL 18.5 edges 0.281,dE76 14.7 dL 7.6 dEdges -0.048
+C20,crop:bowl,L 38.4 a 7.9 b 7.9 sdL 29.5 edges 0.283,L 38.0 a 3.9 b 1.7 sdL 23.6 edges 0.529,dE76 7.4 dL 0.4 dEdges -0.247
+C20,crop:forecourt,L 49.2 a 4.8 b 19.8 sdL 20.1 edges 0.248,L 51.2 a 9.0 b 17.9 sdL 19.7 edges 0.443,dE76 4.9 dL -1.9 dEdges -0.195
+C20,crop:road,L 30.7 a 1.5 b 14.4 sdL 14.3 edges 0.442,L 40.1 a 4.4 b 13.0 sdL 15.9 edges 0.637,dE76 10.0 dL -9.5 dEdges -0.195
+C20,crop:canopy,L 22.5 a -3.3 b 16.8 sdL 10.3 edges 0.113,L 24.6 a -2.2 b 21.9 sdL 18.4 edges 0.510,dE76 5.6 dL -2.1 dEdges -0.398
+C20,crop:suburbs,L 41.7 a 3.1 b 15.2 sdL 14.3 edges 0.305,L 44.4 a 3.8 b 3.6 sdL 15.1 edges 0.420,dE76 12.0 dL -2.7 dEdges -0.115
+C20,crop:horizon,L 55.4 a -2.2 b 1.4 sdL 7.7 edges 0.011,L 72.8 a 5.7 b 9.1 sdL 10.8 edges 0.037,dE76 20.6 dL -17.4 dEdges -0.025
+C20,"stadium_bbox (x0 y0 x1 y1, frame fractions)",0.279 0.352 0.665 0.643,0.279 0.347 0.664 0.647,"mean abs 0.002, max 0.005 (5 px at 960)"
+C20,"horizon (sky band, share of height)",0.157,0.160,-0.003
+C20,"shadow direction (image deg, 0 = right, ccw)",10,340 (by eye),+30
+C20,highlight clipping (share >= 250),0.0000,0.0319,-0.0319
+C20,render time (s),80,,

@@ -1,0 +1,209 @@
+{
+ "note": "Interior pass cameras (detail sheet 05). Render viewpoints for review only; not real camera locations (AGENTS.md rule 8).",
+ "cameras": [
+  {
+   "id": "C30",
+   "name": "Interior 000945.200",
+   "purpose": "match tour frame JWNowpO44rw 000945.200: pitch level near the west touchline, across to the east stand; internal only",
+   "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_000945.200.jpg",
+   "position": [
+    -30.0,
+    7.720000000000001,
+    6.0
+   ],
+   "target": [
+    80.0,
+    -6.9571336177715235,
+    6.0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 26,
+   "roll_deg": 0.0,
+   "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 30
+  },
+  {
+   "id": "C31",
+   "name": "Interior 002144.300",
+   "purpose": "match tour frame JWNowpO44rw 002144.300: west concourse at the top of the lower tier, along the concourse, bowl on the left; internal only",
+   "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_002144.300.jpg",
+   "position": [
+    -61.67,
+    20.22,
+    35.6
+   ],
+   "target": [
+    -37.16,
+    19.62,
+    79.7
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "roll_deg": 0.0,
+   "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 31
+  },
+  {
+   "id": "C32",
+   "name": "Interior 000735.433",
+   "purpose": "match tour frame JWNowpO44rw 000735.433: east concourse by a column, across the bowl to the west stand; internal only",
+   "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_000735.433.jpg",
+   "position": [
+    66.92,
+    20.22,
+    5.85
+   ],
+   "target": [
+    -68.21,
+    28.12,
+    2.38
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "roll_deg": 0.0,
+   "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 32
+  },
+  {
+   "id": "C33",
+   "name": "Interior 000154.067",
+   "purpose": "match tour frame JWNowpO44rw 000154.067: east upper tier back, looking up at the catwalk ring and the roof lattice; internal only",
+   "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_000154.067.jpg",
+   "position": [
+    86.12,
+    50.22,
+    15.18
+   ],
+   "target": [
+    45.87,
+    53.12,
+    28.66
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 30,
+   "roll_deg": -12.0,
+   "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 33
+  },
+  {
+   "id": "C34",
+   "name": "Interior 002320.200",
+   "purpose": "match tour frame JWNowpO44rw 002320.200: north end, upper tier front walkway behind the glass balustrade, across the bowl; internal only",
+   "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_002320.200.jpg",
+   "position": [
+    -8.75,
+    40.72,
+    -100.03
+   ],
+   "target": [
+    -70.27,
+    39.12,
+    -18.83
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 22,
+   "roll_deg": 0.0,
+   "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 34
+  },
+  {
+   "id": "C35",
+   "name": "Interior 000131.700",
+   "purpose": "match tour frame JWNowpO44rw 000131.700: east upper gallery behind the top row, along the gallery, bowl on the right; internal only",
+   "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_000131.700.jpg",
+   "position": [
+    92.12,
+    52.02,
+    0.0
+   ],
+   "target": [
+    85.02,
+    47.12,
+    71.34
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 22,
+   "roll_deg": 0.0,
+   "dof": false,
+   "exposure_ev": 1.0,
+   "exposure_note": "the tour frames are hand-held with auto exposure",
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 35
+  }
+ ]
+}

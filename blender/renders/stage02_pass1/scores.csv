@@ -1,0 +1,9 @@
+category,score,note
+geometry,2,"shell, plinth, tiers only; no lattice, shields, louvres or roof ribs; dark plinth slab reads as a skirt"
+materials,2,"white shell flat and overexposed; ground round the stadium washed out"
+lighting,2,"sun 13.9 deg at 249 deg backlights the camera side, but the exposure is too high and there is no golden warmth"
+atmosphere,3,"haze reads on the Ngong Hills; sky flat"
+vegetation,2,"uniform blob carpet, one tree shape"
+people,n/a,"C06 has no people by spec"
+camera,3,"stadium dominant; Ngong Hills cut by the top edge"
+process,4,"scripted from the ledger, seeded, logged render time"

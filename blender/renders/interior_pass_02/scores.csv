@@ -1,0 +1,10 @@
+category,weight,score,note
+geometry,30,3,"Priority 1 items in place: VIP rows, balustrade and lounge glazing (seen across the bowl in C32), tunnel mouth and dugouts, aisle bands and plates, dark tier bands, hung screens (C33); the BS44 dugout bug (a 28 m white box, pass 1's pillar) is fixed. Still wrong: the concourse ceiling sits about 9 m above the floor where the frames show a low ceiling (C31, C32), and the lower tier reads too tall (C30); both point at the lower-tier and concourse heights (README, open geometry issue)"
+materials,15,3,"unchanged from pass 1: seat tones close; turf pale; floors cool"
+lighting,15,2,"unchanged from pass 1 (out of scope for this pass): bright membrane underside against the dark backlit roof in 000154.067; views cool"
+atmosphere,5,3,"unchanged"
+vegetation,10,2,"pitch turf only, pale"
+people,10,n/a,"not built; any added later are labelled Visualization"
+camera,5,3,"was 2.5: C30 at 1.6 m with the horizon at the frame's height; C32 under the soffit with the far west stand framed as in 000735.433; C31 moved out of the VIP lounge arc; C35 near the rail, but the louvred screen still fills its left third"
+process,10,4,"row counts scripted (FFT), seat and place counts printed by the build, ledger rows per IF item, ray-cast probe found the stray objects"
+total,,56.7,"weighted over the observed categories (90%): 255 / 450; pass 1 56.1"

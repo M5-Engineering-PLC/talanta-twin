@@ -1,0 +1,15 @@
+item,built,ledger,ledger_key,status,tolerance,diff,pass,note
+plinth length,252.69,253.0,bowl_plinth.length,measured,2.0,-0.31,True,
+plinth width,202.73,202.8,bowl_plinth.width,measured,2.0,-0.07,True,
+plinth area,45285.5,45297.0,bowl_plinth.area,measured,905.94,-11.5,True,2% of area
+roof outer length (widest facade ring),250.46,250.1,roof_outer.length,measured,3.0,0.36,True,corners clamped to the plinth where the 12-point trace falls inside it
+roof outer width (widest facade ring),214.67,214.5,roof_outer.width,measured,3.0,0.17,True,
+roof opening length,129.68,130.0,roof_inner.length,measured,2.0,-0.32,True,
+roof opening width,88.12,88.1,roof_inner.width,measured,2.0,0.02,True,
+roof opening area,10439.62,10443.0,roof_inner.area,measured,313.28999999999996,-3.38,True,3% of area
+pitch length,105.05,105.0,pitch.length,estimated,0.1,0.05,True,
+pitch width,68.07,68.0,pitch.width,estimated,0.1,0.07,True,
+roof top height,52.84,54.0,bowl.roof_top_y,estimated,6.0,-1.16,True,estimated; press says 56 m
+opening edge height,47.0,47.0,bowl.opening_y,estimated,1.0,-0.0,True,estimated; mean of the opening ring
+plinth centre offset from origin,1.59,2.91,bowl_plinth.centroid_x/z,measured,2,,True,vertex mean vs area centroid
+objects with a claim label,20,20,,,0,0,True,16 carry 'estimated'

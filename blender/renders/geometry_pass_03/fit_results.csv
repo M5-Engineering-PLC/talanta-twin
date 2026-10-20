@@ -1,0 +1,25 @@
+parameter,start_40,start_46_best,start_51,median_basins,basin_spread_m,loo_spread_m,at_bound,accepted,built_m
+yW,45.05,45.34,48.81,45.19,0.29,5.61,no,no,51.0 (kept)
+Rh,25.91,2.38,16.21,14.14,23.53,1.30,no,no,3.0 (kept)
+Rv,1.87,1.73,3.34,1.80,0.14,3.05,no,no,3.0 (kept)
+openY,47.31,48.50,50.46,47.91,1.19,4.67,no,no,50.0 (kept)
+sag,1.66,-0.15,1.64,0.75,1.81,5.97,no,no,1.5 (kept)
+dF,0.34,0.28,2.22,0.31,0.06,3.39,no,no,0.66 (pass 2, kept)
+bulge,-4.00,-4.00,-3.90,-4.00,0.00,0.00,yes,no,-3.09 (pass 2, kept)
+hs,24.63,24.99,27.75,24.81,0.36,3.65,no,no,27.92 (pass 2, kept)
+dRi,6.52,6.48,1.15,6.50,0.04,2.39,no,no,0 (ring kept)
+crest,46.91,47.07,52.15,46.99,0.15,2.66,no,no,54.0 (kept)
+image_only_cost,405789,400674,421657,,,,,,
+prior_penalty,627,600,43,,,,,,
+in_basin,yes,yes,no (+5.2 %),,,,,,
+
+frame,mask_iou,outline_median_px,junction_rms_px,shield_k
+000641.633,0.884,4.5,16.5,2
+000659.633,0.948,5.1,6.6,4
+001221.500,0.951,7.3,4.0,0
+001224.500,0.960,6.8,11.0,4
+001235.934,0.781,10.7,41.6,2
+001239.267,0.931,5.8,17.7,1
+001244.833,0.930,4.5,9.8,4
+001247.833,0.872,10.8,54.1,1
+001232.600,,,,excluded: no camera could be matched (as passes 1 and 2)

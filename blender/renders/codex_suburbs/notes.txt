@@ -1,0 +1,64 @@
+Talanta Twin suburbs, 2026-10-17
+Project: Talanta Twin, private internal reference.
+Status: software test and artistic visualization. No physical measurements.
+Source scene: blender/out/talanta_site.blend.
+Sources: gis/derived/near_ring_buildings.gpkg and the existing buildings mesh.
+Visual references: lead renders 06 and 07, and JWNowpO44rw at 07:04.
+The references inform geometry and colors. No reference image becomes a texture.
+The source scene stays intact. This test saves no Blender scene.
+
+The module preserves source wall heights and assigns a height source to each detail face.
+The building_sources property maps building_fid values to source IDs, heights, and height sources.
+The source height defines the eave. Roof rise and parapets are additional estimates.
+Floor counts use source heights divided by 3.2 m, rounded to the nearest floor.
+Low buildings receive gable roofs clipped to their original roof triangles.
+Mid-rise blocks receive parapets, window rows, and shared rooftop tanks.
+The roof palette favors red-brown tile and rust iron sheet.
+Mature trees use three shared collections north of Ngong Road.
+Tree locations exclude building footprints and existing road surfaces.
+Every added object carries the required claim property.
+Triangle totals include every visible instance, including tanks and trees.
+
+Camera: frozen C06, morning, 480x270, 8 samples, CPU Cycles, two threads.
+The test remaps existing cloud texture paths in memory to local assets.
+Command: /snap/blender/current/blender -b --factory-startup -t 2 -P blender/context/run_test.py
+
+Integration before the save in blender/build_site_detail.py:
+    import sys
+    sys.path.insert(0, str(ROOT / "blender"))
+    from context.suburbs import build as build_suburbs
+    suburbs_report = build_suburbs(scene, ROOT)
+No main.js integration is required. The cloud build owns the scene integration.
+The build function accepts the repository root path and must run once per loaded scene.
+
+Observed software results:
+{
+  "evidence": "software / artistic visualization",
+  "seed": 704,
+  "low_buildings": 8797,
+  "midrise_buildings": 171,
+  "trees": 2424,
+  "species": [
+    1767,
+    377,
+    280
+  ],
+  "added_triangles": 399951,
+  "roof_detail_triangles": 189495,
+  "tank_triangles": 6840,
+  "removed_flat_roof_triangles": 23361,
+  "triangle_limit": 400000,
+  "build_seconds": 19.314,
+  "render_seconds": 57.688,
+  "source_sha256": "e14a3fd0451227377a8788a716cdf02bcd8c41dabb33af885e2ce38d2ca6f491",
+  "blend_unchanged": true
+}
+
+Visual review: the C06 image shows colored roofs and dense canopy around the site.
+The stadium fills most of this frozen view. Individual roofs occupy few pixels at 480x270.
+This image limits review of roof slopes, window rows, and rooftop tanks.
+Only one render ran. C07, larger images, and the cloud bake remain untested.
+The CPU render completed despite a CUEW library warning at startup.
+Software assertions count 399951 triangles, including every shared collection instance.
+The source scene SHA-256 and modification time match their values before the test.
+No main.js file or scene builder changed. The lead must add the documented Blender integration.

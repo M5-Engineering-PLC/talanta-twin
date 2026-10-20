@@ -52,6 +52,8 @@ Luna (GPT-6 Luna, Codex) does most of the execution. Sol (GPT-6.1 Sol, Codex) ta
 | W5 | Luna | App scaffold: Vite, three.js with WebGPU and a WebGL fallback, module registry, performance overlay, one test scene | `npm run build` passes and the test scene opens |
 | W6 | Luna | Blender blockout of the bowl, roof and facade from the scale and the frames, with a render-and-compare loop against reference frames | Renders from 6 fixed views match the reference frames in shape |
 
+Status 2026-10-16 (lead, cloud session): W1 done from free sources. W2 and W4 have first passes from satellite data only. W1b has a form ready. See `gis/coverage_report.md`. The site is at Jamhuri Park, 36.74965 E, 1.30602 S.
+
 After phase 0, phase 1 (the hero slice) splits as follows: Luna for the environment modules and cameras, Sol for the crowd, rain and match, and the lead for the final review.
 
 ## Setup for Munene

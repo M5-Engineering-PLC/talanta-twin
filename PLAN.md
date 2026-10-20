@@ -2,7 +2,7 @@
 
 Date: 2026-10-16
 Owner: Munene (CEO, M5 Engineering)
-Status: plan. No product code exists yet.
+Status: plan, updated 2026-10-19. The app and the Blender model exist on branch claude/hopeful-archimedes-lo15is. Section 12 holds the current path to the landing concept. HANDOFF.md and engineering/START_HERE.md hold the build status.
 Repository: M5-Engineering-PLC/talanta-twin (private)
 
 ## 1. Goal
@@ -277,3 +277,55 @@ The current execution plan, with the Codex-first split and the phase 0 work orde
 3. First buyer contact: Ministry of Sports, Sports Kenya, or the AFCON 2027 organizers.
 4. Clip licenses: which channel owners to contact.
 5. Paid satellite scene: buy one or not, after the free sources are tested.
+6. Landing light: keep the morning bake as the web default, or add an evening bake for the sunset landing (section 12, L5).
+7. Landing framing: decided 2026-10-19 (Munene): the landing mirrors mockups 06 and 07. Cameras L06 and L07 (section 12, L2).
+8. Download budget for hero mode: raise the section 8 budget, or build a light bundle (section 12, L8).
+
+## 12. Path to the landing concept (added 2026-10-19)
+
+Target: the landing mockups 06 (Hillside) and 07 (Cityside) on branch `munene/CAM-01-landing-option`, folder `product/landing-concepts/2026-10-18/`. They are generated images. They set the interface, light and composition only. The footage and `gis/parameter_ledger.csv` still decide geometry and layout (engineering/plan_concept_match_2026-10-17.md, "Decisions"). The mockups never go into a build, texture, pitch or public page.
+
+### 12.1 Gap list against the existing plans
+
+Compared on 2026-10-19: the live landing (`/?hero`, web_hero_v1 bundle) against mockups 06 and 07.
+
+| Gap | Mockup | Live landing today | Already planned in | New in this section |
+|---|---|---|---|---|
+| Interface | Ivory header, View, Time of day and Event card, Take a tour, compass | Matches. Caption fixed to "60,000 design capacity" (e82b775) | CAM-01 landing mode (fd12fa7) | Real-phone test only |
+| Light and sky | Golden or sunset light, cloud sky, warm facade, lamps lit | 07:30 morning bake. In hero mode the Time of day control does not relight the baked model | Roadmap P8 (day, dusk and night presets, procedural scene only). The concept-match decision keeps one morning bake for the web and 17:30 for the C20 still only | L5: an evening bake for hero mode, if Munene approves (open decision 6) |
+| Ground and forecourt | Paving, lawns, planted beds, lit paths | Pale, blotchy ground in the bake. The Cycles stills (C19, C20) show the forecourt correctly | Forecourt layout (engineering/forecourt_layout_2026-10-18.md) is built in Blender with claim labels. Roadmap P2 and P4. HANDOFF task 5 (blotches) | L3: the fault is in the bake or the ground tile export, not in the model |
+| Framing | Stadium large, camera low and close | C19 and C20 framing: stadium about 37% of the frame width | Concept-match gap 1 (C19 and C20 solved to concepts 05 to 07) | L2: the landing mockups are closer than the lead renders. Choose one (open decision 7) |
+| Life | Visitors on the forecourt, cars, lit streetlights | Ngong Road traffic only | Roadmap P9 (seated crowd). The newer `app/src/hero/crowd.js` is uncommitted in the old web-crowd worktree (HANDOFF) | L6: forecourt visitors in hero mode, labelled Visualization |
+| Model detail | Quilted roof, full trees, a city skyline from Cityside | Smooth roof, simple tree crowns, box buildings | Stage 03 specialist builds, roadmap P3, concept-match gaps 3, 4 and 6 | none |
+| Download size | n/a | About 107 MB of models before the first view | Section 8 sets 30 MB (laptop) and 15 MB (phone). Roadmap P7 sets quality levels | L8: the hero bundle is over budget. Decide (open decision 8) |
+| First impression | A finished, photographic picture | About 34 s to the first full view in software GL | Concept-match "stills first" | L1: a Cycles still as the landing backdrop |
+
+### 12.2 New work items
+
+| ID | Work | Size | Depends on | Done when |
+|---|---|---|---|---|
+| L1 | Landing backdrop. Render C19 (07:30) and C20 (17:30) in CPU Cycles at 1920 x 1080 from our own model. Show the still behind the landing interface at once. Load the live scene behind it and cross-fade when it is ready or when the viewer presses Explore the twin. A small on-screen label says "Rendered from the twin model" | M | none | The landing shows a finished picture in under 5 s on a 20 Mbit/s link. The stills hold no frame, concept or Google Earth pixels |
+| L2 | Landing framing. Keep C19 and C20, or add closer landing cameras after open decision 7 | S | decision 7 | Both views match the chosen framing in the app and in Cycles |
+| L3 | Ground fault. Find the cause of the pale blotches (terrain colour noise or the light bake), fix it and re-export the ground tiles only | M | none | The ground in the hero view matches the C19 still in colour within the bake limits |
+| L4 | Ground tiles and panorama in the app (HANDOFF tasks 2 and 3) | M | none | 61 tiles load near the camera first. The 8K panorama loads on capable devices |
+| L5 | Evening bake for hero mode, if approved. About 11 h CPU. Time of day switches the lightmap set and the panorama. Lamps and facade lights on at dusk | L | decision 6 | Sunset in hero mode shows evening light, not the morning bake |
+| L6 | Forecourt visitors and lit lamps in hero mode. Commit the crowd work from the web-crowd worktree first | M | crowd.js committed | Visitors stand only on walkable surfaces. Label "Visualization" on screen |
+| L7 | Release as `web_hero_v2`. Never replace the files in web_hero_v1 | S | L3, and L5 if approved | A prerelease with a manifest; `npm run fetch-assets -- --bundle web_hero_v2` passes |
+| L8 | Download budget. Measure the hero first view on the test laptop (Intel UHD 620) and a mid-range phone. Then raise the budget for hero mode, or split a light bundle | M | L1 | The section 8 table holds the decided numbers and the measured ones |
+
+### 12.2a Status (2026-10-19)
+
+| ID | Status |
+|---|---|
+| L1 | Code done (1622f12). Stills from cameras L06 (18:05, sunset) and L07 (10:30, daylight) in blender/renders/landing_pass_01/ |
+| L2 | Done. L06 and L07 solved to the mockups (004d5f2); C19 and C20 unchanged |
+| L3 | Cause found and fixed in export_web.py (dd2f05f): the export shipped ground_site.jpg (600 px raw imagery) as the ground colour instead of the baked albedo. L3b: bake_ground_albedo.py and node/patch_ground_albedo.mjs re-bake the 24 ground albedo maps and patch the site GLB into web_hero_v2 without the 11 h light bake |
+
+### 12.3 Order
+
+1. L1 and L3 first. L1 gives the mockup look on the first screen. L3 removes the most visible fault in the live scene.
+2. L4 and L8 next. They make the live scene behind the backdrop fast enough to matter.
+3. L2, L5 and L6 after Munene's decisions 6 and 7.
+4. L7 last, as one new bundle.
+
+Rules for every item: AGENTS.md applies. The backdrop stills are renders of our own model, so they may appear in the product once Munene approves them. The mockups and the lead concept renders may not. Crowd views carry the Visualization label. No gates, exits, camera positions or control rooms.

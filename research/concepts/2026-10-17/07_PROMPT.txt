@@ -1,0 +1,24 @@
+07 SSW view to Lavington. LEAD RENDER.
+
+Status: one of the two lead renders, chosen by Munene on 2026-10-17. Use it as the look target for the C06-family hero shots and the Stage 03 builds. Measured facts in gis/parameter_ledger.csv outrank this image.
+
+Internal design help only. Derived from Kenyan Historian frames (JWNowpO44rw) and a Google Earth Pro screenshot used as a layout reference. Not measured output. Never use in a product build, texture, pitch or public page (AGENTS.md rule 2).
+
+View: drone from the south-south-west above the forest sanctuary, looking north-north-east across the stadium and Ngong Road to Lavington. Late-afternoon light.
+Made by: GPT-6 Astra image generation, Codex session 01a148da-208e-7e21-bc54-933994f3b55f. Original 1672 x 941 PNG, saved here as a 1600 px JPG.
+
+Input images (none is in gis/heldout_frames.csv):
+- research/concepts/2026-10-17/05_hero_reference_matched.jpg
+- a Google Earth Pro screenshot of the site layout (image 26 Dec 2025). Not saved in the repository.
+- research/frames/JWNowpO44rw/JWNowpO44rw_001212.500.jpg
+- research/frames/JWNowpO44rw/JWNowpO44rw_001240.000.jpg
+- research/frames/JWNowpO44rw/JWNowpO44rw_000004.000.jpg
+
+Prompt:
+Create ONE landscape PNG, 1792 x 1024 or larger, minimum 1536 pixels on the long side. Use case: photorealistic-natural. Internal design-help visualization of Talanta Stadium, Nairobi. This is the OPPOSITE view to reference 1, not a reproduction of its viewpoint or geography.
+Use exactly the five provided references in order: 1 hero concept for photographic look, light quality and finish only; 2 Google Earth Pro screenshot for site layout only, never copy imagery textures, labels, red outlines or overlays; 3 Kenyan Historian facade for shields, spears and louvres; 4 finished roof and aerial site; 5 aerial context for suburbs and trees, not its unfinished roof.
+Camera: drone SOUTH-SOUTH-WEST of stadium, about 150 m high and about 450 m out, above edge of Ngong Road Forest Sanctuary, looking NORTH-NORTH-EAST across stadium toward Lavington. Natural 24 to 35 mm lens. Stadium about 45% of frame width, sky top quarter. Late afternoon about 17:30 EAT. Sun low in west, LEFT of camera, warm side light on camera-facing south facade, long shadows to right, a few cumulus clouds, light atmospheric haze. Match reference 1's photoreal finish and luminous natural color.
+Composition front to back: dense dark-green forest treetops across lower foreground; southwest red murram dirt training field at front left and southeast grass training pitch at front right; low wide stadium in middle with south facade shields facing camera; north forecourt plaza just visible beyond stadium; wide dual carriageway Ngong Road with traffic crossing BEHIND stadium, WSW to ENE, site entirely south of road; low leafy Lavington beyond road, many mature trees hiding low-density red and brown roof houses, only a few mid-rise apartments near Ngando and Liberty Centre; Kilimani mid-rise blocks to right; distant Nairobi CBD and Upper Hill towers small on FAR RIGHT horizon. Green leafy city, not a dense high-rise city.
+Site: trapezoid of red murram and paving with oval bowl in middle. Shield-shaped forecourt north toward road, warm-up running track surrounding grass pitch EAST (right), training pitch southeast (front right), dirt training field southwest (front left). Dense forest south and southwest. Ngong Racecourse and Golf Park lie farther southwest behind the camera, Jamhuri Park and prison farther south, Nairobi Polo Club open fields southeast; do not move these into the north background. Junction Mall northeast along Ngong Road, Kenya Science Campus and Nairobi Chapel east of site, only generic distant masses if visible. Ngong Hills are SOUTHWEST behind camera and must NOT appear on the north horizon.
+Stadium: low wide rounded-rectangle WHITE bowl, gently bulging walls curve inward at top to smooth white membrane roof, faint radial seams, oval opening. Dense thin horizontal white louvre fins cover entire wall, dark gaps behind. Large diamond lattice of thick white tubes in front of fins. Eight Maasai-style shields distributed around facade, only naturally visible shields shown. Each shield 85 to 90% of wall height, top nearly touches roof edge, bottom nearly reaches base. Slight convex bulge. Exact shield pattern: red field, black crescent lobes on left and right, white vertical spine, white round boss, broad white leaves above and below boss. Two WHITE spears cross behind each shield. Blade tips visible to left and right of shield top, just below roof edge; shafts visible below shield. Nothing rises above roof. Short light-grey concrete base band with white columns, no dark plinth.
+No text, labels, logos, watermarks, billboard graphics, Google Earth overlays, red outlines, close-up people, detailed gates, exits, security cameras or control rooms. Render original photographic concept imagery, not a screenshot collage.

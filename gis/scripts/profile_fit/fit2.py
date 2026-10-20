@@ -1,0 +1,483 @@
+"""Profile fit, second version (cloud session 2026-10-18): least squares on image distances, not mask IoU.
+
+Terms per frame (pixels, 1280 x 720):
+  sil    mask boundary points to the projected shell outline (convex hull), and outline vertices to the mask
+         boundary (distance transform); points on the frame border are left out (frames crop the stadium)
+  open   roof-opening mask boundary points to the projected opening ring
+  J, F   hand-read wall-to-roof junction and wall foot points (lines.json) to the projected visible rings
+  S      shield centres with explicit labels: the left-to-right shields of a frame are the adjacent shields
+         k+1, k of the model (angle -91.76 + 45 k deg); k is chosen once per frame in the grid stage
+Cameras start from a coarse grid over azimuth and elevation (the 180 deg symmetry gives two equal minima; the
+better is kept), then a per-camera polish, then the joint fit: profile + one focal length per lens + 7 pose
+values per frame. Leave-one-frame-out repeats the joint fit without each frame in turn.
+Run: python3 fit2.py <workdir with the seg2.py masks> [grid|joint|loo|all]
+"""
+import json, math, os, sys, time
+import numpy as np
+from scipy import ndimage as nd
+from scipy.optimize import least_squares
+from scipy.spatial import ConvexHull
+import model as m
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+LINES = {k: v for k, v in json.load(open(os.path.join(HERE, "lines.json"))).items() if not k.startswith("_")}
+FRAMES = list(LINES)
+KEYS = ["yW", "Rh", "Rv", "openY", "sag", "dF", "bulge", "hs", "dRi"]  # dRi: visible opening edge = roof inner ring - dRi
+LO = np.array([30, 1, 1, 35, -4, -4, -4, 18.0, -4.0]); HI = np.array([60, 40, 20, 60, 6, 15, 6, 36.0, 14.0])
+START = np.array([51.0, 3.0, 3.0, 50.0, 1.5, 1.0, 0.0, 28.75, 0.0])
+PRESS_MAX = 56.0  # press: maximum height about 56 m (soft limit, +-2 m)
+W, H = m.W, m.H
+NS = 360  # ring sampling for the curve distances
+ANG = 2 * np.pi * np.arange(NS) / NS
+
+
+def interp_ring(r):  # model rings are sampled at N = 120; resample to NS
+    x = np.r_[r, r[:1]]; t = np.linspace(0, 1, len(x)); return np.interp(np.linspace(0, 1, NS + 1)[:-1], t, x)
+
+
+RRO, RRI = interp_ring(m.rRo), interp_ring(m.rRi)
+DXS, DZS = np.cos(ANG), np.sin(ANG)
+
+
+def prof(x):
+    p = dict(m.CUR); p.update(dict(zip(KEYS, map(float, x)))); return p
+
+
+def ring(r, y): return np.stack([DXS * r, np.full(NS, y), DZS * r], -1)
+
+
+def project(P, cam):
+    """Pinhole plus one radial distortion term: cam[8] = k1 (per lens; 0 when absent)."""
+    R, C, f = m.cam_matrix(cam[:8]); q = (P - C) @ R.T
+    z = q[:, 2]; x, y = q[:, 0] / np.maximum(z, 1e-3), q[:, 1] / np.maximum(z, 1e-3)
+    s = 1 + (cam[8] if len(cam) > 8 else 0.0) * (x * x + y * y)
+    return np.stack([f * x * s + W / 2, f * y * s + H / 2], 1), z, C
+
+
+def visible(P, C):  # outward-facing points of a ring (normal = radial direction)
+    n = np.stack([P[:, 0], np.zeros(len(P)), P[:, 2]], 1); n /= np.linalg.norm(n, axis=1, keepdims=True)
+    return ((C - P) * n).sum(1) > 0
+
+
+def seg_dist(pts, poly, closed=True):
+    """Distance from each point to a polyline (vectorised point-to-segment)."""
+    a = poly; b = np.roll(poly, -1, 0) if closed else poly[1:]
+    if not closed: a = poly[:-1]
+    ab = b - a; L2 = np.maximum((ab ** 2).sum(1), 1e-9)
+    t = np.clip(((pts[:, None, :] - a[None]) * ab[None]).sum(2) / L2[None], 0, 1)
+    d = pts[:, None, :] - (a[None] + t[..., None] * ab[None]); return np.sqrt((d ** 2).sum(2)).min(1)
+
+
+def runs(mask):  # split a visibility mask on the closed ring into runs of consecutive indices
+    idx = np.nonzero(mask)[0]
+    if len(idx) == 0: return []
+    if mask.all(): return [np.r_[idx, idx[:1]]]
+    k0 = int(np.nonzero(~mask)[0][0]); order = np.roll(np.arange(len(mask)), -k0); out, cur = [], []
+    for i in order:
+        if mask[i]: cur.append(i)
+        elif cur: out.append(np.array(cur)); cur = []
+    if cur: out.append(np.array(cur))
+    return out
+
+
+def curve_dist(pts, P, cam, need_visible=True):
+    uv, z, C = project(P, cam)
+    vis = visible(P, C) if need_visible else np.ones(len(P), bool)
+    vis &= z > 1
+    best = np.full(len(pts), 400.0)
+    for r_ in runs(vis):
+        if len(r_) > 1: best = np.minimum(best, seg_dist(pts, uv[r_], closed=False))
+    return best
+
+
+class Frame:
+    def __init__(self, work, f):
+        self.f = f; M = np.load(f"{work}/mask_{f}.npy")
+        e = M ^ nd.binary_erosion(M, iterations=1)
+        e[:3, :] = e[-3:, :] = e[:, :3] = e[:, -3:] = False      # frame border is not a stadium edge
+        ys, xs = np.nonzero(e); rng = np.random.default_rng(1); k = rng.choice(len(xs), min(220, len(xs)), replace=False)
+        self.edge = np.stack([xs[k], ys[k]], 1).astype(float)
+        self.dt = nd.distance_transform_edt(~e)
+        ys_, xs_ = np.nonzero(M); self.w_px = np.ptp(xs_) + 1; self.h_px = np.ptp(ys_) + 1
+        self.cropped_x = xs_.min() < 4 or xs_.max() > W - 5
+        try:
+            O = np.load(f"{work}/open_{f}.npy")
+            oe = O ^ nd.binary_erosion(O, iterations=1); ys, xs = np.nonzero(oe)
+            k = rng.choice(len(xs), min(90, len(xs)), replace=False); self.oedge = np.stack([xs[k], ys[k]], 1).astype(float)
+            ys_o, xs_o = np.nonzero(O)
+            self.oext = np.array([[xs_o.min(), ys_o[xs_o == xs_o.min()].mean()], [xs_o.max(), ys_o[xs_o == xs_o.max()].mean()],
+                                  [xs_o[ys_o == ys_o.min()].mean(), ys_o.min()]], float)
+            if O.sum() < 6000: self.oedge = None; self.oext = None
+        except FileNotFoundError: self.oedge = None; self.oext = None
+        L = LINES[f]; self.J = np.array(L["J"], float); self.F = np.array(L["F"], float).reshape(-1, 2); self.S = np.array(L["S"], float)
+        self.k = None  # shield label of the rightmost annotated shield
+
+
+def shell_pts(p): return m.shell(p).reshape(-1, 3)
+
+
+def shield_P(p, ks):
+    th = np.radians(-1.76 - 90 + 45 * np.asarray(ks)); y = p["hs"]
+    r = m.wall_r(p, th, y) + 2.6; return np.stack([np.cos(th) * r, np.full(len(ks), y), np.sin(th) * r], -1)
+
+
+def n_res(fr): return 220 + 220 + 90 + 3 + len(fr.J) + len(fr.F) + len(fr.S)
+
+
+def residuals(fr, p, cam, w_sil=1.0, w_line=3.0, w_sh=3.0):
+    """Fixed length per frame (n_res); missing terms are zeros."""
+    r = _residuals(fr, p, cam, w_sil, w_line, w_sh)
+    return r if len(r) == n_res(fr) else np.r_[r, np.zeros(n_res(fr) - len(r))]
+
+
+def _residuals(fr, p, cam, w_sil, w_line, w_sh):
+    out = []
+    uv, z, C = project(shell_pts(p), cam)
+    if (z < 1).any(): return np.full(n_res(fr), 300.0)
+    hull = uv[ConvexHull(uv).vertices]
+    out.append(w_sil * pad(seg_dist(fr.edge, hull), 220))
+    hv = np.linspace(0, 1, 120, endpoint=False); a = hull; b = np.roll(hull, -1, 0)
+    dense = (a[:, None] + (b - a)[:, None] * hv[None, :, None]).reshape(-1, 2)
+    inside = (dense[:, 0] > 3) & (dense[:, 0] < W - 4) & (dense[:, 1] > 3) & (dense[:, 1] < H - 4)
+    dd = np.where(inside, fr.dt[np.clip(dense[:, 1].astype(int), 0, H - 1), np.clip(dense[:, 0].astype(int), 0, W - 1)], 0.0)
+    out.append(w_sil * pad(dd[:: max(1, len(dd) // 220)][:220], 220))
+    op = ring(RRI - p.get("dRi", 0.0), p["openY"])
+    out.append(pad(0.7 * curve_dist(fr.oedge, op, cam, need_visible=False), 90) if fr.oedge is not None else np.zeros(90))
+    # landmarks: the left, right and far (top) extremes of the opening, mask against the projected ring
+    if fr.oext is not None:
+        u, _, _ = project(op, cam)
+        mod = np.array([u[np.argmin(u[:, 0])], u[np.argmax(u[:, 0])], u[np.argmin(u[:, 1])]])
+        out.append(2.0 * np.linalg.norm(mod - fr.oext, axis=1))
+    else: out.append(np.zeros(3))
+    rF = RRO - p["dF"]
+    out.append(w_line * curve_dist(fr.J, ring(RRO, p["yW"]), cam))
+    if len(fr.F): out.append(w_line * curve_dist(fr.F, ring(rF, p["yFoot"]), cam))
+    if fr.k is not None and len(fr.S):
+        ks = [(fr.k + len(fr.S) - 1 - i) % 8 for i in range(len(fr.S))]   # left to right: k+n-1 ... k
+        su, sz, _ = project(shield_P(p, ks), cam)
+        out.append(w_sh * np.linalg.norm(su - fr.S, axis=1))
+    elif len(fr.S): out.append(np.zeros(len(fr.S)))
+    return np.concatenate(out)
+
+
+def pad(r, n):  # fixed residual length per frame for least_squares
+    return np.r_[r, np.zeros(max(0, n - len(r)))][:n]
+
+
+def label_shields(fr, p, cam):
+    """Choose k so the annotated shields match adjacent visible model shields in left-to-right order."""
+    best = (1e18, None)
+    for k in range(8):
+        ks = [(k + len(fr.S) - 1 - i) % 8 for i in range(len(fr.S))]
+        P = shield_P(p, ks); su, sz, C = project(P, cam)
+        nrm = np.stack([np.cos(np.radians(-91.76 + 45 * np.array(ks))), np.zeros(len(ks)), np.sin(np.radians(-91.76 + 45 * np.array(ks)))], -1)
+        facing = (((C - P) * nrm).sum(1) / np.linalg.norm(C - P, axis=1) > 0.15).all()
+        d = np.linalg.norm(su - fr.S, axis=1).sum() + (0 if facing else 5000)
+        if d < best[0]: best = (d, k)
+    return best[1]
+
+
+def cam_from(az, el, f, fr, p):
+    """Target at the bowl centre; distance so the projected shell height matches the mask height."""
+    c = np.array([0, 28, 0, az, el, 3000.0, f, 0.0])
+    uv, z, C = project(shell_pts(p), c)
+    if fr.cropped_x: c[5] = 3000 * (np.ptp(uv[:, 1]) + 1) / fr.h_px
+    else: c[5] = 3000 * (np.ptp(uv[:, 0]) + 1) / fr.w_px
+    # centre the projected shell on the mask centre by shifting the look-at target (small-angle)
+    uv, z, C = project(shell_pts(p), c)
+    du = fr.edge.mean(0) - uv.mean(0); R, C, f_ = m.cam_matrix(c[:8])
+    shift = (R[0] * du[0] + R[1] * du[1]) * c[5] / f_
+    c[0] += shift[0]; c[1] += shift[1]; c[2] += shift[2]; return c
+
+
+def solve_camera(fr, p, f0, free_f=True, seeds=None, top=8, f_fixed=None, prealign=False, k1=0.0):
+    """seeds: list of (az, el, f) to scan around instead of the full grid (re-solve of frames in wrong minima)."""
+    cands = []
+    if f_fixed: free_f = False
+    fl = (f_fixed,) if f_fixed else (700.0, 1000.0, 1500.0, 2500.0)
+    grid = ([(az, el, f_) for az in range(0, 360, 10) for el in range(3, 75, 4) for f_ in fl]
+            if seeds is None else [(a + da, max(3, e + de), f_ * sf) for a, e, f_ in seeds for da in range(-60, 61, 6)
+                                   for de in (-8, -4, 0, 4, 8) for sf in ((1.0,) if f_fixed else (0.8, 1.0, 1.25))])
+    if prealign:  # coarser grid, each start aligned in target, distance and roll before ranking
+        grid = [(az, el, f_) for az in range(0, 360, 15) for el in (4, 10, 16, 22, 30, 40, 52) for f_ in fl]
+    for az, el, f0 in grid:
+            c = np.r_[cam_from(az, el, f0, fr, p), k1]
+            if prealign:
+                fr.k = label_shields(fr, p, c); sub = [0, 1, 2, 5, 7]
+                lo_ = np.array([-150, -20, -150, 60, -20]); hi_ = np.array([150, 90, 150, 3000, 20])
+                def g_(v, c=c):
+                    cc = c.copy(); cc[sub] = v; return np.minimum(residuals(fr, p, cc), 150)
+                rr = least_squares(g_, np.clip(c[sub], lo_ + 1e-6, hi_ - 1e-6), bounds=(lo_, hi_), loss="soft_l1", f_scale=15, max_nfev=25)
+                c = c.copy(); c[sub] = rr.x
+            fr.k = label_shields(fr, p, c)
+            cost = np.sum(np.minimum(residuals(fr, p, c), 150) ** 2)
+            cands.append((cost, c, fr.k))
+    cands.sort(key=lambda t: t[0]); best = None
+    for cost, c, k in cands[:top]:
+        fr.k = k
+        idx = [0, 1, 2, 3, 4, 5, 6, 7] if free_f else [0, 1, 2, 3, 4, 5, 7]
+        def fun(v):
+            cc = c.copy(); cc[idx] = v; return residuals(fr, p, cc)
+        lo = np.array([-150, -20, -150, -1e4, 2, 60, 300, -20])[idx]; hi = np.array([150, 90, 150, 1e4, 85, 3000, 4000, 20])[idx]
+        if len(c) < 9: c = np.r_[c, k1]
+        r = least_squares(fun, np.clip(c[idx], lo + 1e-6, hi - 1e-6), bounds=(lo, hi), loss="soft_l1", f_scale=10, max_nfev=400)
+        cc = c.copy(); cc[idx] = r.x; fr.k = label_shields(fr, p, cc)
+        val = np.sum(np.minimum(residuals(fr, p, cc), 150) ** 2)
+        if best is None or val < best[0]: best = (val, cc, fr.k)
+    fr.k = best[2]; return best[1]
+
+
+F_SCALE = 10.0  # px, robust scale of the image residuals (soft_l1); also their sigma when a prior is used
+CREST_PRIOR = (54.0, 2.0)  # m, mean and sd: narration 10:27 "roughly 54 m" plus press (06_interior_inventory.md)
+
+
+def soft_l1_cost(res, f=F_SCALE):
+    """least_squares soft_l1 cost of residuals res (px): sum f^2 (sqrt(1 + (r/f)^2) - 1)."""
+    return float(np.sum(f * f * (np.sqrt(1 + (np.asarray(res) / f) ** 2) - 1)))
+
+
+def joint(frames, cams, lens, x0, fixed_profile=False, nfev=60, prior=None):
+    """Profile + one focal length per lens + pose per frame. prior=(mean, sd) adds a Gaussian crest prior
+    ((yW + Rv - mean) / sd)^2 in the units of the image term, whose residuals count in units of F_SCALE px:
+    total = image soft_l1 cost + 0.5 F_SCALE^2 ((crest - mean) / sd)^2. The result carries r.cost_image (image
+    residuals only, soft_l1) and r.prior_penalty (the prior term, same units)."""
+    lens_ids = sorted(set(lens[f.f] for f in frames))
+    fvals = {L: np.mean([cams[f.f][6] for f in frames if lens[f.f] == L]) for L in lens_ids}
+    kvals = {L: np.mean([cams[f.f][8] if len(cams[f.f]) > 8 else 0.0 for f in frames if lens[f.f] == L]) for L in lens_ids}
+    v0 = list(x0) + [fvals[L] for L in lens_ids] + [kvals[L] for L in lens_ids]
+    for f in frames: v0 += list(np.delete(np.asarray(cams[f.f])[:8], 6))
+    v0 = np.array(v0); n_p = len(KEYS); n_l = len(lens_ids)
+    lo = list(LO) + [300] * n_l + [-0.5] * n_l; hi = list(HI) + [4000] * n_l + [0.3] * n_l
+    n_l2 = 2 * n_l
+    for _ in frames: lo += [-150, -20, -150, -1e4, 2, 60, -20]; hi += [150, 90, 150, 1e4, 85, 3000, 20]
+    lo, hi = np.array(lo), np.array(hi)
+    lens_index = [lens_ids.index(lens[f.f]) for f in frames]
+    sizes = [n_res(f) for f in frames]
+
+    def unpack(v):
+        p = prof(v[:n_p]); out = []
+        for i, f in enumerate(frames):
+            c = v[n_p + n_l2 + 7 * i: n_p + n_l2 + 7 * i + 7]
+            out.append(np.r_[np.insert(c, 6, v[n_p + lens_index[i]]), v[n_p + n_l + lens_index[i]]])
+        return p, out
+
+    def image_res(v):
+        if fixed_profile: v = np.r_[x0, v[n_p:]]
+        p, cs = unpack(v)
+        res = [pad(residuals(f, p, c), n) for f, c, n in zip(frames, cs, sizes)]
+        top = p["yW"] + p["Rv"]
+        res.append([5.0 * max(0.0, top - (PRESS_MAX + 2.0))])
+        return np.concatenate(res), top
+
+    def fun(v): return image_res(v)[0]
+
+    def fun_prior(v):  # soft_l1 applied by hand (r' with r'^2 = 2 f^2 (sqrt(1 + (r/f)^2) - 1)), prior outside the robust loss
+        r_, top = image_res(v)
+        rr = np.sign(r_) * np.sqrt(2 * F_SCALE ** 2 * (np.sqrt(1 + (r_ / F_SCALE) ** 2) - 1))
+        return np.r_[rr, F_SCALE * (top - prior[0]) / prior[1]]
+
+    x_0 = np.clip(v0, lo + 1e-6, hi - 1e-6)
+    if prior is None:
+        r = least_squares(fun, x_0, bounds=(lo, hi), loss="soft_l1", f_scale=F_SCALE, max_nfev=nfev, x_scale="jac")
+    else:
+        r = least_squares(fun_prior, x_0, bounds=(lo, hi), loss="linear", max_nfev=nfev, x_scale="jac")
+    r_img, top = image_res(r.x)
+    r.cost_image = soft_l1_cost(r_img[:-1]); r.prior_penalty = 0.0 if prior is None else float(0.5 * F_SCALE ** 2 * ((top - prior[0]) / prior[1]) ** 2)
+    p, cs = unpack(r.x)
+    return r.x[:n_p], {f.f: c for f, c in zip(frames, cs)}, {L: [r.x[n_p + i], r.x[n_p + n_l + i]] for i, L in enumerate(lens_ids)}, r
+
+
+def report(frames, p, cams):
+    out = {}
+    for f in frames:
+        res = residuals(f, p, cams[f.f], 1, 1, 1)
+        J = curve_dist(f.J, ring(RRO, p["yW"]), cams[f.f])
+        out[f.f] = {"k": f.k, "sil_median_px": round(float(np.median(res[:220])), 1), "J_rms_px": round(float(np.sqrt((J ** 2).mean())), 1),
+                    "iou": round(iou(f, p, cams[f.f]), 3)}
+    return out
+
+
+def iou(fr, p, cam):
+    uv, z, _ = project(shell_pts(p), cam)
+    s = None if (z < 1).any() else m.raster(uv[ConvexHull(uv).vertices])
+    M = np.load(f"{WORK}/mask_{fr.f}.npy")
+    Md = M.reshape(H // m.SC, m.SC, W // m.SC, m.SC).mean((1, 3)) > 0.5
+    if s is None: return 0.0
+    return float((s & Md).sum() / max(1, (s | Md).sum()))
+
+
+if __name__ == "__main__":
+    WORK = sys.argv[1]; mode = sys.argv[2] if len(sys.argv) > 2 else "all"
+    if mode == "overlay": mode = "none"
+    frames = [Frame(WORK, f) for f in FRAMES]
+    state_path = f"{WORK}/fit2_state.json"
+    state = json.load(open(state_path)) if os.path.exists(state_path) else {}
+    p0 = prof(START)
+    if mode in ("grid", "all") or "cams" not in state:
+        cams = {}
+        for fr in frames:
+            t = time.time()
+            c = solve_camera(fr, p0, None); best = (np.sum(np.minimum(residuals(fr, p0, c), 150) ** 2), c, fr.k)
+            cams[fr.f] = best[1]; fr.k = best[2]
+            print(fr.f, "k", fr.k, "f %.0f" % best[1][6], "az %.0f el %.0f d %.0f roll %.1f" % tuple(best[1][[3, 4, 5, 7]]),
+                  "cost %.0f" % best[0], "%.0f s" % (time.time() - t), flush=True)
+        state["cams"] = {f: list(map(float, c)) for f, c in cams.items()}; state["k"] = {fr.f: fr.k for fr in frames}
+        json.dump(state, open(state_path, "w"), indent=1)
+    if mode == "regrid":   # python3 fit2.py <work> regrid <frame> [<frame> ...]: seeds from the other cameras
+        good = [f for f in state["cams"] if f not in sys.argv[3:]]
+        seeds = [tuple(np.array(state["cams"][f])[[3, 4, 6]]) for f in good]
+        seeds += [((a + 180) % 360, e, f_) for a, e, f_ in seeds]   # and the symmetric twins
+        for fr in frames:
+            if fr.f not in sys.argv[3:]: continue
+            t = time.time(); c = solve_camera(fr, p0, None, seeds=seeds, top=12)
+            v = np.sum(np.minimum(residuals(fr, p0, c), 150) ** 2)
+            print(fr.f, "k", fr.k, "f %.0f" % c[6], "az %.0f el %.0f d %.0f roll %.1f" % tuple(c[[3, 4, 5, 7]]), "cost %.0f (was %.0f)" % (v,
+                  np.sum(np.minimum(residuals(Frame(WORK, fr.f) if False else fr, p0, np.array(state["cams"][fr.f])), 150) ** 2)), "%.0f s" % (time.time() - t), flush=True)
+            state["cams"][fr.f] = list(map(float, c)); state["k"][fr.f] = fr.k
+        json.dump(state, open(state_path, "w"), indent=1)
+    cams = {f: np.array(c) for f, c in state["cams"].items()}
+    for fr in frames: fr.k = state["k"][fr.f]
+    lens = state.get("lens") or {f: ("tele" if cams[f][6] > 1600 else "wide") for f in FRAMES}
+    state["lens"] = lens
+    if mode in ("joint", "all"):
+        t = time.time()
+        x, cams2, fl, r = joint(frames, cams, lens, START, nfev=120)
+        p = prof(x)
+        state["joint"] = {"profile": dict(zip(KEYS, map(float, x))), "focal": {k: list(map(float, v)) for k, v in fl.items()},
+                          "cams": {f: list(map(float, c)) for f, c in cams2.items()}, "per_frame": report(frames, p, cams2),
+                          "cost": float(r.cost), "seconds": round(time.time() - t)}
+        json.dump(state, open(state_path, "w"), indent=1)
+        print("joint", {k: round(v, 2) for k, v in state["joint"]["profile"].items()}, state["joint"]["focal"], round(time.time() - t), "s", flush=True)
+        print(json.dumps(state["joint"]["per_frame"]), flush=True)
+    if mode in ("loo", "all"):
+        base = state["joint"]; x0 = np.array([base["profile"][k] for k in KEYS])
+        cj = {f: np.array(c) for f, c in base["cams"].items()}; loo = {}
+        for drop in FRAMES:
+            t = time.time(); sub = [fr for fr in frames if fr.f != drop]
+            x, _, _, _ = joint(sub, cj, lens, x0, nfev=80)
+            loo[drop] = dict(zip(KEYS, map(float, x)))
+            print("loo without", drop, {k: round(v, 2) for k, v in loo[drop].items()}, round(time.time() - t), "s", flush=True)
+            state["loo"] = loo; json.dump(state, open(state_path, "w"), indent=1)
+        spread = {k: float(np.ptp([loo[f][k] for f in loo])) for k in KEYS}
+        state["spread"] = spread; json.dump(state, open(state_path, "w"), indent=1)
+        print("spread (max - min over leave-one-out)", {k: round(v, 2) for k, v in spread.items()}, flush=True)
+
+
+# ---- acceptance rule (geometry pass 2 review): a parameter is accepted only when max(basin spread, leave-one-out
+# spread) < ACCEPT_M. Basins are all multistart solutions whose image-only cost is within BASIN_TOL of the best.
+ACCEPT_M, BASIN_TOL = 2.0, 0.04
+EXCLUDED = ["001232.600"]  # no camera could be matched (geometry pass 1)
+SPREAD_KEYS = KEYS + ["crest"]
+
+
+def with_crest(p): p = dict(p); p["crest"] = p["yW"] + p["Rv"]; return p
+
+
+def basins(solutions, tol=BASIN_TOL):
+    """Indices of the solutions (dicts with "cost_image") within tol of the best image-only cost."""
+    best = min(s["cost_image"] for s in solutions)
+    return [i for i, s in enumerate(solutions) if s["cost_image"] <= best * (1 + tol)]
+
+
+def acceptance(basin_profiles, loo_profiles, keys=SPREAD_KEYS, limit=ACCEPT_M):
+    out = {}
+    for k in keys:
+        sb = float(np.ptp([p[k] for p in basin_profiles])); sl = float(np.ptp([p[k] for p in loo_profiles]))
+        vals = [p[k] for p in basin_profiles + loo_profiles]
+        at_bound = k in KEYS and any(min(v - LO[KEYS.index(k)], HI[KEYS.index(k)] - v) < 0.05 for v in vals)
+        out[k] = {"basin_spread": sb, "loo_spread": sl, "combined": max(sb, sl), "at_bound": bool(at_bound),
+                  "accepted": max(sb, sl) < limit and not at_bound,  # a value held by its bound has no spread but is not fitted
+                  "median": float(np.median([p[k] for p in basin_profiles]))}
+    return out
+
+
+_G = {}
+
+
+def _init(work, state_path): _G["work"] = work; _G["st"] = json.load(open(state_path))
+
+
+def _frames(drop=None):
+    st = _G["st"]; fr_ = [Frame(_G["work"], f) for f in FRAMES if f not in EXCLUDED and f != drop]
+    for fr in fr_: fr.k = st["final"]["k"][fr.f] if "k" in st["final"] else st["k"][fr.f]
+    return fr_
+
+
+def _pack(x, c2, fl, r, frames):
+    return {"profile": with_crest(dict(zip(KEYS, map(float, x)))), "cams": {f: list(map(float, c)) for f, c in c2.items()},
+            "focal": {k: list(map(float, v)) for k, v in fl.items()}, "cost_total": float(r.cost), "cost_image": r.cost_image,
+            "prior_penalty": r.prior_penalty, "per_frame": report(frames, prof(x), c2), "k": {fr.f: fr.k for fr in frames}}
+
+
+def _ms_worker(a):
+    (yw, dri), prior = a; st = _G["st"]; B = st["final"]; frames = _frames()
+    x0 = np.array([B["profile"].get(k, 0.0) for k in KEYS]); x0[0] = yw; x0[KEYS.index("dRi")] = dri
+    x, c2, fl, r = joint(frames, {f: np.array(c) for f, c in B["cams"].items()}, st["lens"], x0, nfev=80, prior=prior)
+    d = _pack(x, c2, fl, r, frames); d["start"] = [yw, dri]; return d
+
+
+def _loo_worker(a):
+    drop, best, prior = a; frames = _frames(drop)
+    x0 = np.array([best["profile"][k] for k in KEYS])
+    x, c2, fl, r = joint(frames, {f: np.array(c) for f, c in best["cams"].items()}, _G["st"]["lens"], x0, nfev=60 if drop else 100, prior=prior)
+    d = _pack(x, c2, fl, r, frames); d["drop"] = drop; return d
+
+
+def robust(work, state_path, tag, starts, prior):
+    """Multistart, basins, leave-one-out from the best basin, acceptance; written to state[tag]."""
+    from multiprocessing import Pool
+    t0 = time.time()
+    with Pool(3, _init, (work, state_path)) as pool:
+        ms = pool.map(_ms_worker, [(s, prior) for s in starts])
+        for s in ms: print("start", s["start"], "image cost %.0f prior %.0f" % (s["cost_image"], s["prior_penalty"]),
+                           {k: round(v, 2) for k, v in s["profile"].items()}, flush=True)
+        bi = basins(ms); best = min((ms[i] for i in bi), key=lambda s: s["cost_image"] + s["prior_penalty"])
+        print("basins (image cost within %d %% of the best):" % (100 * BASIN_TOL), [ms[i]["start"] for i in bi], flush=True)
+        lo_ = pool.map(_loo_worker, [(d, best, prior) for d in [None] + [f for f in FRAMES if f not in EXCLUDED]])
+    final = lo_[0]; loo = {d["drop"]: d["profile"] for d in lo_[1:]}
+    for f, p in loo.items(): print("without", f, {k: round(v, 2) for k, v in p.items()}, flush=True)
+    acc = acceptance([ms[i]["profile"] for i in bi], list(loo.values()))
+    st = json.load(open(state_path))
+    st[tag] = {"prior": prior, "starts": starts, "multistart": ms, "basins": bi, "final": final, "loo": loo, "acceptance": acc,
+               "excluded": EXCLUDED, "seconds": round(time.time() - t0)}
+    json.dump(st, open(state_path, "w"), indent=1)
+    for k, v in acc.items(): print("%-6s basin %.2f loo %.2f -> %s (median %.2f)" % (k, v["basin_spread"], v["loo_spread"], "ACCEPT" if v["accepted"] else "reject", v["median"]), flush=True)
+    return st[tag]
+
+
+def overlay(work, frames, p, cams, tag):
+    """Fitted outline (cyan), junction ring (magenta), crest (yellow), foot (orange), opening (green), model
+    shields (red rings) and hand-read points (white dots) on every frame."""
+    from PIL import Image, ImageDraw
+    tiles = []
+    for fr in [fr for fr in frames if fr.f in cams]:   # excluded frames have no camera
+        c = cams[fr.f]
+        im = Image.open(m.ROOT + f"research/frames/JWNowpO44rw/JWNowpO44rw_{fr.f}.jpg").convert("RGB"); d = ImageDraw.Draw(im)
+        uv, z, C = project(shell_pts(p), c); h = uv[ConvexHull(uv).vertices]
+        d.line([tuple(q) for q in np.vstack([h, h[:1]])], fill=(0, 255, 255), width=3)
+        crest = ring(RRO - p["Rh"], p["yW"] + p["Rv"])
+        for P, col in ((ring(RRO, p["yW"]), (255, 0, 255)), (crest, (255, 255, 0)), (ring(RRO - p["dF"], p["yFoot"]), (255, 140, 0))):
+            u, _, C_ = project(P, c); vis = visible(P, C_)
+            for r_ in runs(vis): d.line([tuple(q) for q in u[r_]], fill=col, width=2)
+        u, _, _ = project(ring(RRI - p.get("dRi", 0.0), p["openY"]), c); d.line([tuple(q) for q in np.vstack([u, u[:1]])], fill=(0, 255, 0), width=2)
+        if fr.k is not None and len(fr.S):
+            ks = [(fr.k + len(fr.S) - 1 - i) % 8 for i in range(len(fr.S))]
+            for q in project(shield_P(p, ks), c)[0]: d.ellipse((q[0] - 12, q[1] - 12, q[0] + 12, q[1] + 12), outline=(255, 0, 0), width=4)
+        for q in np.vstack([fr.J, fr.F.reshape(-1, 2), fr.S]): d.ellipse((q[0] - 5, q[1] - 5, q[0] + 5, q[1] + 5), fill=(255, 255, 255))
+        im = im.resize((640, 360)); ImageDraw.Draw(im).text((5, 5), f"{fr.f}  iou {iou(fr, p, c):.3f}", fill=(255, 255, 0)); tiles.append(im)
+    sh = Image.new("RGB", (1920, 360 * ((len(tiles) + 2) // 3)))
+    for k, t in enumerate(tiles): sh.paste(t, ((k % 3) * 640, (k // 3) * 360))
+    sh.save(f"{work}/overlay_{tag}.jpg", quality=85)
+
+
+if __name__ == "__main__" and "robust" in sys.argv:
+    # python3 fit2.py <work> robust <tag> [prior]: 3 starts (wall top 40, 46, 51 m; dRi 3, 5, 1 m as in pass 2)
+    tag = sys.argv[sys.argv.index("robust") + 1]
+    robust(WORK, f"{WORK}/fit2_state.json", tag, [[40.0, 3.0], [46.0, 5.0], [51.0, 1.0]], list(CREST_PRIOR) if "prior" in sys.argv else None)
+
+if __name__ == "__main__" and "overlay" in sys.argv:
+    st = json.load(open(f"{WORK}/fit2_state.json")); key = sys.argv[sys.argv.index("overlay") + 1]
+    if key == "grid": p = prof(START); cams = {f: np.array(c) for f, c in st["cams"].items()}
+    else: p = prof([st[key]["profile"][k] for k in KEYS]); cams = {f: np.array(c) for f, c in st[key]["cams"].items()}
+    for fr in frames: fr.k = st["k"][fr.f]
+    overlay(WORK, frames, p, cams, key)

@@ -1,3 +1,15 @@
 archive/video/
 engineering/.luna_gaps_resume.log
 gis/raw/
+__pycache__/
+blender/out/*.blend1
+blender/out/web_hero/
+blender/web_hero/node/node_modules/
+blender/out/*.log
+blender/out/step_*.blend
+gis/scripts/profile_fit/work/*.npy
+gis/scripts/profile_fit/work/*.log
+gis/scripts/profile_fit/work/seg.jpg
+blender/out/*.blend
+blender/assets/hdri/belfast_sunset_puresky_4k.hdr
+blender/assets/hdri/kloofendal_48d_partly_cloudy_puresky_4k.hdr

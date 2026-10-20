@@ -1,0 +1,2 @@
+{"camera": "C13", "sun": {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, "sun_elevation_deg": 69.99, "sun_azimuth_deg": 171.54, "quality": "check", "resolution": [960, 540], "samples": 32, "seconds": 84.1}
+{"camera": "C10", "sun": {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, "sun_elevation_deg": 69.99, "sun_azimuth_deg": 171.54, "quality": "check", "resolution": [960, 540], "samples": 32, "seconds": 101.5}

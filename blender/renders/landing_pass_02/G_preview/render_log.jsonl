@@ -1,0 +1,2 @@
+{"camera": "L07", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "17:45", "kind": "golden hour"}, "sun_elevation_deg": 13.86, "sun_azimuth_deg": 248.63, "quality": "preview", "resolution": [480, 270], "samples": 8, "seconds": 27.0, "shadow_image_deg": 7.9}
+{"camera": "L06", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "17:45", "kind": "golden hour"}, "sun_elevation_deg": 13.86, "sun_azimuth_deg": 248.63, "quality": "preview", "resolution": [480, 270], "samples": 8, "seconds": 26.9, "shadow_image_deg": -155.8}
