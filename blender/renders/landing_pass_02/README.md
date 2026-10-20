@@ -58,3 +58,28 @@ Conflicts with the mockups (the frames and GE win; nothing was copied):
 - L06: the mockup's roundabout lawn sits on the W1b-measured north-east warm-up track.
 - L07: the mockup's curved approach road and lawn sit on the south-west training field. The as-built road loop in frame 000714.767 only partly matches.
 - L07: the small flat-roofed building in the mockup is not in the GE screenshot.
+
+## T: trees only where they belong
+
+Time: rule script and checks about 50 min, build 7 min, renders 22 min (L06 12.6 min, L07 9.1 min).
+
+- `blender/context/tree_rules.py` checks the surface under every tree point.
+  - No trees on paving, roads, paths, pitches, tracks, car-park aisles or the forecourt.
+  - Inside the W1b boundary a tree also needs a lawn or planting bed under it, or a path or road within 9 m (a row along the path).
+- Removed:
+
+  | Group | Removed | Of |
+  |---|---|---|
+  | Site trees | 645 | 823 |
+  | Palms | 36 | 261 |
+  | Context trees | 19 | 31,976 |
+
+- The nearest trees get the irregular high crowns in stills (`canopy.py` LIMIT). The web bundle keeps the web level of detail.
+- L07: trees now line the paths, and the pitch, track and forecourt are clear.
+
+Gaps after T:
+- The foreground is now barer than the mockups.
+  - Mockups 06 and 07 show dense shrub and flower beds round the plaza. Those beds are not traced, so the trees that would stand in them are gone.
+  - Needs a closer GE capture of the forecourt (about 500 m eye altitude).
+- Crown types: eucalyptus rows (step L) and broadleaf are in. Jacaranda is a sparse lilac tint. Palms only stay where the site plan has them, not checked against the mockups one by one.
+- The off-site context trees still use the umbrella crown far out; they read as lollipops in L07's middle distance.
