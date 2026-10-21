@@ -6,6 +6,7 @@ All assets in this folder are CC0 (public domain). No attribution is required; i
 |---|---|---|---|---|
 | hdri/kloppenheim_06_puresky_4k.hdr | Kloppenheim 06 (Pure Sky) | https://polyhaven.com/a/kloppenheim_06_puresky | CC0 | Morning golden-hour sky (06 look, bake) |
 | hdri/wasteland_clouds_puresky_4k.hdr | Wasteland Clouds (Pure Sky) | https://polyhaven.com/a/wasteland_clouds_puresky | CC0 | Evening golden-hour sky (07 still) |
+| hdri/overcast_soil_puresky_4k.hdr | Overcast Soil (Pure Sky) | https://polyhaven.com/a/overcast_soil_puresky | CC0 | Grey overcast sky for the drone cameras D01-D03 (replica plan pass D; not committed, fetch with the URL) |
 | textures/PavingStones146 | Paving Stones 146 | https://ambientcg.com/a/PavingStones146 | CC0 | Forecourt and plaza paving |
 | textures/Asphalt031 | Asphalt 031 | https://ambientcg.com/a/Asphalt031 | CC0 | Ngong Road and access roads |
 | textures/Ground109 | Ground 109 | https://ambientcg.com/a/Ground109 | CC0 | Bare earth; tint toward red murram in the shader |

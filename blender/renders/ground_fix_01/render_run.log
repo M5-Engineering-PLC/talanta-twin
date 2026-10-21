@@ -1,0 +1,6 @@
+== D01 overcast 09:47:32
+00:04.068  cycles           | WARNING CUEW initialization failed: Error opening the library
+15:02.664  render           | Saved: '/home/user/talanta-twin/blender/renders/ground_fix_01/D01_overcast_hero.png'
+{"camera": "D01", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 898.1, "shadow_image_deg": -7.7, "state": "asbuilt"}
+-- D01 done 10:02:35
+== D02 overcast 10:02:35

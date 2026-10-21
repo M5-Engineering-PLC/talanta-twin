@@ -45,6 +45,11 @@ def sun_position(date, hhmm_eat, lat, lon):
 
 bpy.ops.wm.open_mainfile(filepath=__import__("os").environ.get("TALANTA_SITE_BLEND", str(ROOT / "blender/out/talanta_site.blend")))  # a frozen copy per step
 s = bpy.context.scene
+# surface state (replica plan pass C): TALANTA_STATE=asbuilt for the drone and facade frames, finished (default) for
+# the landing views; blender/scene_state.py
+_state = __import__("os").environ.get("TALANTA_STATE")
+if _state:
+    sys.path.insert(0, str(ROOT / "blender")); import scene_state; scene_state.set_state(s, _state)
 m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json", extra=ROOT / "blender/data/interior_cameras.json")
 apply_render_settings(s, m, look_check=(quality not in ("hero", "hero_artistic")))
 s.camera = cams[cid]
@@ -88,6 +93,7 @@ if night or st.get("fixtures"):  # night fixtures on; a preset may switch them o
                 elif nd.type == "EMISSION": nd.inputs["Strength"].default_value = v
     for ob in bpy.data.objects:
         if ob.type == "LIGHT" and "night_energy" in ob: ob.data.energy = ob["night_energy"]
+        if not night and ob.type == "LIGHT" and "dusk_energy" in ob: ob.data.energy = ob["dusk_energy"]  # dusk (pass E)
 sky_log = None
 if sun_key in sky_hdri.PRESETS:
     sky_log = sky_hdri.apply(s, sun_key, el, az, sun)
@@ -136,6 +142,7 @@ from bpy_extras.object_utils import world_to_camera_view
 g0 = Vector((0, 0, m["frame"]["site_pad_y"])); g1 = g0 + 100 * Vector((-math.sin(math.radians(az)), -math.cos(math.radians(az)), 0))
 p0, p1 = (world_to_camera_view(s, s.camera, g) for g in (g0, g1))
 rec["shadow_image_deg"] = round(math.degrees(math.atan2((p1.y - p0.y) * s.render.resolution_y, (p1.x - p0.x) * s.render.resolution_x)), 1)
+rec["state"] = s.get("talanta_state", "finished")
 print(json.dumps(rec))
 log = out / "render_log.jsonl"
 with open(log, "a") as f: f.write(json.dumps(rec) + "\n")
