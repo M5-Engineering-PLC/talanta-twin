@@ -40,7 +40,7 @@ PRESETS = {
     # sky, weak soft sun (render_cycles.py overcast branch keeps the 25 deg sun disc), lower exposure
     "overcast_drone": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast",
                        "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "sky_strength": 1.0,
-                       "sun_kelvin": 6500, "sun_to_sky": 0.35, "exposure_ev": -1.6},
+                       "sun_kelvin": 6500, "sun_to_sky": 0.35, "exposure_ev": -0.2, "sky_tint": (0.86, 0.96, 1.16)},
     "daylight_artistic": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight",
                           "hdri": "blender/assets/hdri/kloofendal_48d_partly_cloudy_puresky_4k.hdr", "sky_strength": 1.0,
                           "sun_kelvin": 5600, "sun_to_sky": 5.0, "exposure_ev": -1.1},
@@ -109,6 +109,9 @@ def apply(scene, preset_key, el, az, sun):
     cl = n.new("ShaderNodeVectorMath"); cl.operation = "MINIMUM"; cl.name = "hdri_clip"; cl.inputs[1].default_value = (hs["clip"],) * 3
     l.new(tc.outputs["Generated"], mp.inputs["Vector"]); l.new(mp.outputs["Vector"], env.inputs["Vector"])
     l.new(env.outputs["Color"], cl.inputs[0]); l.new(cl.outputs["Vector"], bg.inputs["Color"])
+    if p.get("sky_tint"):  # white balance of the sky light (the overcast HDRI is warmer than the drone frames' grey deck)
+        tn = n.new("ShaderNodeVectorMath"); tn.operation = "MULTIPLY"; tn.name = "hdri_tint"; tn.inputs[1].default_value = p["sky_tint"]
+        l.new(cl.outputs["Vector"], tn.inputs[0]); l.new(tn.outputs["Vector"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = p["sky_strength"]
     sun.data.energy = p["sun_to_sky"] * hs["sky_horizontal_irradiance"] * p["sky_strength"]
     sun.data.color = blackbody(p["sun_kelvin"])

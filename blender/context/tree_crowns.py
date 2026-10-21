@@ -98,21 +98,25 @@ existing = KDTree(len(TP) + 1)
 for i, (x_, y_) in enumerate(TP): existing.insert((x_, y_, 0), i)
 existing.balance(); k = len(TP)
 mask = ndimage.binary_opening(LAB == TREE, iterations=2)
+cc_, n_ = ndimage.label(mask); sizes = np.bincount(cc_.ravel())
+mask &= sizes[cc_] * CELL * CELL >= 600  # forest edges and tree groups only; small dark blobs are lawn in shade
 cells = np.argwhere(mask); rng.shuffle(cells)
 col = bpy.data.collections.get("trace_trees") or bpy.data.collections.new("trace_trees")
 if col.name not in scene.collection.children: scene.collection.children.link(col)
 for o in list(col.objects): bpy.data.objects.remove(o)
-src = [bpy.data.objects[n] for n in ("tree_0_round", "tree_2_eucalyptus", "tree_1_acacia") if n in bpy.data.objects]
+src = [bpy.data.objects[n] for n in ("tree_0_round", "tree_1_acacia") if n in bpy.data.objects]  # broad forms: the frames show dense low canopy
 placed = []
 for r, c in cells:
     x, z = -EXT + (c + 0.5) * CELL, -EXT + (r + 0.5) * CELL
+    if math.hypot(x, z) < 230.0: continue  # inside the site the tree class also catches dark lawn; the frames' trees are the forest edges
     if existing.find((x, -z, 0))[2] < 6.0: continue
-    if placed and min(np.hypot(px - x, pz - z) for px, pz in placed[-200:]) < 6.0: continue
+    if placed and min(np.hypot(px - x, pz - z) for px, pz in placed[-200:]) < 9.0: continue
     hit = bvh.ray_cast(Vector((x, -z, 3000.0)), Vector((0, 0, -1)))
     if hit[0] is None: continue
-    w_ = np.array([0.45, 0.4, 0.15])[:len(src)]; s_ = src[int(rng.choice(len(src), p=w_ / w_.sum()))]
+    w_ = np.array([0.6, 0.4])[:len(src)]; s_ = src[int(rng.choice(len(src), p=w_ / w_.sum()))]
     o = bpy.data.objects.new(f"trace_tree_{len(placed):04d}", s_.data); col.objects.link(o)
-    sc = rng.uniform(1.5, 2.2)  # the frames show large mature canopies; o.scale = (sc, sc, sc * rng.uniform(0.9, 1.2)); o.rotation_euler.z = rng.uniform(0, 2 * math.pi)
+    sc = rng.uniform(1.5, 2.2)  # the frames show large mature canopies, wide crowns that touch, not crowns on poles
+    o.scale = (sc * 1.7, sc * 1.7, sc * rng.uniform(0.9, 1.1)); o.rotation_euler.z = rng.uniform(0, 2 * math.pi)
     o.location = (x, -z, hit[0].z - 0.3); o["claim"] = "derived (tree cells of the as-built trace); species and size estimated"
     placed.append((x, z))
     if len(placed) >= 1500: break

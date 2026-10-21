@@ -18,7 +18,7 @@ ONLY_FINISHED_PREFIX = {
     "finish_plaza": ("fp_shrub", "fp_flower", "fp_tree", "fp_plaza", "fp_beds", "fp_paths"),
     "forecourt_context": ("palm_slot", "fc_central", "fc_axial", "fc_edge", "fc_path", "fc_bench", "fc_retained", "fc_planter"),
     "site": ("palms", "site_trees", "shrubs", "planters", "jets", "sign_frames", "entrance_canopies", "parking_lines", "bollards"),
-    "site_layout_ge": ("ge_apron_ring", "ge_east_hardstanding"),
+    "site_layout_ge": ("ge_apron_ring", "ge_east_hardstanding", "ge_road_north_east_euc"),  # the euc row is not planted yet in the frames
 }
 EXACT_FINISHED = {"ge_road_north_east"}  # the road surface; its lamps and trees (ge_road_north_east_*) stay
 
