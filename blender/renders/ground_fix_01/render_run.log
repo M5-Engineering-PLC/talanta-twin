@@ -21,3 +21,13 @@ skip D01
 {"camera": "F16", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, "sun_elevation_deg": 69.99, "sun_azimuth_deg": 171.54, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 789.5, "shadow_image_deg": 11.5, "state": "asbuilt"}
 -- F16 done 17:41:48
 RENDERS_DONE 17:41:48
+skip D01
+skip D02
+skip D03
+skip F16
+RENDERS_DONE 17:53:47
+skip D01
+skip D02
+skip D03
+skip F16
+RENDERS_DONE 18:04:53
