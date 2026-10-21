@@ -91,7 +91,7 @@ def attr_mat(name, attr, rough=0.9):
 # Replace the blockout's flat materials with PBR versions of the same identities.
 PBR = {
     "white_shell": principled("white_shell_pbr", (0.80, 0.80, 0.78), 0.32, 0.0, coat=0.2, noise_rough=0.06, noise_scale=0.08),
-    "membrane": principled("membrane_pbr", (0.86, 0.86, 0.83), 0.55, 0.0, noise_rough=0.08, noise_scale=0.05),
+    "membrane": principled("membrane_pbr", (0.93, 0.93, 0.91), 0.75, 0.0, noise_rough=0.08, noise_scale=0.05),
     "concrete_light": principled("concrete_light_pbr", (0.66, 0.65, 0.62), 0.85, 0.0, noise_rough=0.05, noise_scale=0.6, bump=0.03),
     "concrete_shade": principled("concrete_shade_pbr", (0.36, 0.35, 0.33), 0.9),
     "concrete": principled("concrete_pbr", (0.55, 0.53, 0.50), 0.85, 0.0, noise_rough=0.05, noise_scale=0.6, bump=0.05),
@@ -126,7 +126,7 @@ wn = mn.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = "1D"; ml.new(fl.ou
 pv = mn.new("ShaderNodeMapRange"); pv.inputs["To Min"].default_value = 0.96; pv.inputs["To Max"].default_value = 1.02; ml.new(wn.outputs["Value"], pv.inputs["Value"])
 mul = mn.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; ml.new(seam.outputs[0], mul.inputs[0]); ml.new(pv.outputs[0], mul.inputs[1])
 mcol = mn.new("ShaderNodeMix"); mcol.data_type = "RGBA"; mcol.blend_type = "MULTIPLY"; mcol.inputs[0].default_value = 1.0
-mcol.inputs[6].default_value = (0.86, 0.86, 0.83, 1); ml.new(mul.outputs[0], mcol.inputs[7]); ml.new(mcol.outputs[2], mn["Principled BSDF"].inputs["Base Color"])
+mcol.inputs[6].default_value = (0.93, 0.93, 0.91, 1); ml.new(mul.outputs[0], mcol.inputs[7]); ml.new(mcol.outputs[2], mn["Principled BSDF"].inputs["Base Color"])  # roof_fix_01: bright white, soft (was 0.86, rough 0.55)
 # PTFE membrane lets daylight through: the underside glows (stage 03, by eye from JWNowpO44rw 10:04)
 mtr = mn.new("ShaderNodeBsdfTranslucent"); ml.new(mcol.outputs[2], mtr.inputs["Color"])
 mms = mn.new("ShaderNodeMixShader"); mms.inputs[0].default_value = 0.35

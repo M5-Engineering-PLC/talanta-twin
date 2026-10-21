@@ -512,9 +512,12 @@ NROW, HB = int(VO("bowl.roof.cushion_rows", 8)), VO("bowl.roof.cushion_bulge", 0
 NU, NV = 8, 6
 # pillow shape: an exponent under 1 flattens the top and steepens the seams (inflated cushions, 001033.567, 001232.600)
 PILLOW = VO("bowl.roof.cushion_pillow", 1.0)
+# roof_fix_01 (pass B, 2026-10-21): D03 000617.567 shows two cushion columns in each topside-rib bay (seam pitch half
+# the rib pitch on the solved camera), so each bay is split (ledger bowl.roof.cushion_cols_per_bay)
+NCOL = nrib * int(VO("bowl.roof.cushion_cols_per_bay", 1))
 cv, cf = [], []
-for k in range(nrib):
-    ta, tb = 2 * math.pi * k / nrib, 2 * math.pi * (k + 1) / nrib
+for k in range(NCOL):
+    ta, tb = 2 * math.pi * k / NCOL, 2 * math.pi * (k + 1) / NCOL
     for jr in range(NROW):
         ja = J_FACADE + (NP - 1 - J_FACADE) * jr / NROW; jb = J_FACADE + (NP - 1 - J_FACADE) * (jr + 1) / NROW
         base = len(cv)
