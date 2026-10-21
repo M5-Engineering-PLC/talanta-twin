@@ -4,3 +4,20 @@
 {"camera": "D01", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 898.1, "shadow_image_deg": -7.7, "state": "asbuilt"}
 -- D01 done 10:02:35
 == D02 overcast 10:02:35
+skip D01
+== D02 overcast 17:09:22
+00:17.303  cycles           | WARNING CUEW initialization failed: Error opening the library
+08:21.177  render           | Saved: '/home/user/talanta-twin/blender/renders/ground_fix_01/D02_overcast_hero.png'
+{"camera": "D02", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 483.4, "shadow_image_deg": 173.8, "state": "asbuilt"}
+-- D02 done 17:18:05
+== D03 overcast 17:18:05
+00:03.592  cycles           | WARNING CUEW initialization failed: Error opening the library
+10:28.265  render           | Saved: '/home/user/talanta-twin/blender/renders/ground_fix_01/D03_overcast_hero.png'
+{"camera": "D03", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 624.3, "shadow_image_deg": 23.5, "state": "asbuilt"}
+-- D03 done 17:28:34
+== F16 neutral 17:28:34
+00:03.707  cycles           | WARNING CUEW initialization failed: Error opening the library
+13:13.566  render           | Saved: '/home/user/talanta-twin/blender/renders/ground_fix_01/F16_neutral_hero.png'
+{"camera": "F16", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, "sun_elevation_deg": 69.99, "sun_azimuth_deg": 171.54, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 789.5, "shadow_image_deg": 11.5, "state": "asbuilt"}
+-- F16 done 17:41:48
+RENDERS_DONE 17:41:48
