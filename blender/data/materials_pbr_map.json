@@ -1522,6 +1522,13 @@
     {
       "material": "suburbs_leaf_756486",
       "claim": "estimated",
+      "present": false,
+      "action": "unchanged",
+      "reason": "Preserve existing surface or unknown material."
+    },
+    {
+      "material": "suburbs_leaf_A890C8",
+      "claim": "estimated",
       "present": true,
       "action": "unchanged",
       "reason": "Preserve existing surface or unknown material."

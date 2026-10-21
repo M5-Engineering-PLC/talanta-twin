@@ -106,7 +106,7 @@ PBR = {
     # facade spec 2026-10-20: the lattice has its own copy of the shell white (bevel cap in hero_artistic.py); the
     # set-back ground floor under the ring beam reads dark
     "white_shell_lattice": principled("white_shell_lattice_pbr", (0.80, 0.80, 0.78), 0.32, 0.0, coat=0.2, noise_rough=0.06, noise_scale=0.08),
-    "concrete_recess_dark": principled("concrete_recess_dark_pbr", (0.12, 0.12, 0.115), 0.9),
+    "concrete_recess_dark": principled("concrete_recess_dark_pbr", (0.025, 0.025, 0.026), 0.9),  # pass A: darker in overcast
 }
 # Membrane (stage 02b fix 6, by eye from 12:40): faint radial seams at the rib spacing and slight
 # panel-to-panel brightness variation, from the angle round the bowl centre (object coordinates).
@@ -132,7 +132,9 @@ mtr = mn.new("ShaderNodeBsdfTranslucent"); ml.new(mcol.outputs[2], mtr.inputs["C
 mms = mn.new("ShaderNodeMixShader"); mms.inputs[0].default_value = 0.35
 ml.new(mn["Principled BSDF"].outputs[0], mms.inputs[1]); ml.new(mtr.outputs[0], mms.inputs[2]); ml.new(mms.outputs[0], mn["Material Output"].inputs["Surface"])
 # The louvred wall is real fin geometry over a dark backing (build_blockout.py, stage 02b), so no louvre texture.
-PBR["facade_void"] = principled("facade_void_pbr", (0.035, 0.036, 0.04), 0.75)
+# pass A (2026-10-20, lead): a light grey backing behind the fins, not a dark void (ledger bowl.fin.backing_grey)
+_bg = float(_LR["bowl.fin.backing_grey"])
+PBR["facade_void"] = principled("facade_void_pbr", (_bg, _bg, _bg * 0.98), 0.8)
 for o in scene.objects:
     if o.type == "MESH":
         for slot in o.material_slots:

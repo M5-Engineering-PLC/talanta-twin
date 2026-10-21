@@ -297,7 +297,7 @@ def copy_proto(src, name, leaf=None):
     o = bpy.data.objects.new(name, me); protos.objects.link(o); return o
 t_round = copy_proto(tp["tree_0_round"], "st_0_round"); t_acacia = copy_proto(tp["tree_1_acacia"], "st_1_acacia")
 t_euc = copy_proto(tp["tree_2_eucalyptus"], "st_2_eucalyptus")
-t_jac = copy_proto(tp["tree_0_round"], "st_3_jacaranda", mat("jacaranda_leaf", "#655481", 0.8))
+t_jac = copy_proto(tp["tree_0_round"], "st_3_jacaranda", mat("jacaranda_leaf", "#A58CCB", 0.8))
 for o, hx in ((t_round, "#36583B"), (t_acacia, "#3F5E36")):  # SR39 leaves, a little lighter than the far forest
     m_ = o.data.materials[0].copy(); m_.name = o.name + "_leaf"; m_.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (*srgb(hx), 1); o.data.materials[0] = m_
 # shrubs (SR09) green and flowering red (design model)

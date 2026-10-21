@@ -533,25 +533,12 @@ roof["claim"] = "plan measured, profile derived from frames, cushions estimated"
 roof["sources"] = SRC_SH + "; cushions: ledger bowl.roof.ribs, bowl.roof.cushion_rows, bowl.roof.cushion_bulge (by eye from 001221.500-001239.267)"
 curve_obj("ring_beam", "facade_detail", [[surf(2 * math.pi * i / N, NP - 1, 0) for i in range(N)]], V("bowl.roof.ring_beam_r"), WHITE, closed=True, sources="ledger bowl.roof.ring_beam_r (estimated)")
 
-# Shield image painted here from simple shapes (our own drawing, not a frame), per the lead's description
-# checked against 12:12, 12:16 and 10:28: red field, black crescent lobes on the left and right edges, a white
-# vertical spine, a white central boss and broad white leaf shapes above and below it. Red from the ledger.
+# Shield image: our own drawing from simple shapes (blender/shield_paint.py), never a frame pixel. Paint colours and the
+# lens outline from the ledger (pass A, 2026-10-21: bowl.shield.red, black, outline_a/_b tuned in F16 renders against 001216.000).
 def shield_png(path, w=512, h=1024):
-    yy, xx = np.mgrid[0:h, 0:w]; u = (xx + 0.5) / w * 2 - 1; v = (yy + 0.5) / h * 2 - 1
-    au, av = np.abs(u), np.abs(v)
-    outline = au <= np.clip(1 - av ** 2, 0, 1) ** 0.62
-    hexr = L["bowl.shield.red"]["value"].lstrip("#"); red = [int(hexr[i:i + 2], 16) / 255 for i in (0, 2, 4)]
-    white = [0.95, 0.95, 0.93, 1]
-    img = np.zeros((h, w, 4)); img[outline] = [*red, 1]
-    crescent = outline & (au >= 1 - 0.4 * np.sqrt(np.clip(1 - (v / 0.56) ** 2, 0, 1)))
-    hexb = L["bowl.shield.black"]["value"].lstrip("#")
-    img[crescent] = [*[int(hexb[i:i + 2], 16) / 255 for i in (0, 2, 4)], 1]
-    img[outline & (au < 0.014) & (av < 0.97)] = white  # spine
-    t = np.clip((av - 0.16) / 0.78, 0, 1)  # leaves above and below the boss, pointed at both ends
-    lw = 0.085 * np.sin(np.pi * t) ** 0.7
-    img[outline & (av > 0.16) & (av < 0.94) & (np.abs(au - 0.115) < lw)] = white
-    img[(u / 0.18) ** 2 + (v / 0.13) ** 2 <= 1] = white  # boss
-    # facade spec 2026-10-20 rule 8: no pale rim; the edge has the face colour (the RF13 rim row is superseded)
+    sys.path.insert(0, str(ROOT / "blender")); import shield_paint
+    img = shield_paint.draw(w, h, L["bowl.shield.red"]["value"], L["bowl.shield.black"]["value"],
+                            V("bowl.shield.outline_a"), V("bowl.shield.outline_b"))
     im = bpy.data.images.new("shield", w, h, alpha=True); im.pixels.foreach_set(img[::-1].ravel().astype(np.float32))
     im.filepath_raw = str(path); im.file_format = "PNG"; im.save()
     return im
@@ -565,6 +552,7 @@ except Exception: pass
 nt = sm.node_tree; pb = nt.nodes["Principled BSDF"]; tx = nt.nodes.new("ShaderNodeTexImage"); tx.image = sh_img
 nt.links.new(tx.outputs["Color"], pb.inputs["Base Color"]); nt.links.new(tx.outputs["Alpha"], pb.inputs["Alpha"])
 pb.inputs["Roughness"].default_value = V("bowl.shield.roughness"); pb.inputs["Metallic"].default_value = 0.0  # matte paint
+pb.inputs["Specular IOR Level"].default_value = VO("bowl.shield.specular", 0.5)  # pass A: low sheen, no sky veil on the red
 sm.diffuse_color = (0.42, 0.06, 0.12, 1)
 SPEAR = mat("spear_white", (0.92, 0.92, 0.9), 0.35)
 axisA = math.radians(-bearing); sw = V("bowl.shield.width")
@@ -574,6 +562,7 @@ sy0, sy1 = Y_LO, Y_TOP
 NSH = int(V("bowl.shields.count")); SH_EVERY = K // NSH
 bulge, soff = V("bowl.shield.bulge"), V("bowl.shield.offset")
 span, bl, br, srad = V("bowl.spear.span_shields"), V("bowl.spear.blade_len"), V("bowl.spear.blade_r"), V("bowl.spear.radius")
+BW = V("bowl.spear.blade_width_ratio") * srad  # blade half-width: max blade width = ratio x shaft diameter
 tip_y = yF - V("bowl.spear.tip_below_fascia")
 verts, faces, uvs, spear_paths = [], [], [], []
 for k in range(NSH):
@@ -599,11 +588,12 @@ for k in range(NSH):
         for q in range(n):
             if q: acc += (pts[q][0] - pts[q - 1][0]).length
             m = L_ - acc  # distance from the tip
-            if m <= bl:
-                x = min(max(m / bl, 0.0), 1.0); r = max(br * max(math.sin(math.pi * x), 0.0) ** 0.8, srad * 0.85 if x > 0.9 else 0.0); squash = 0.55
-            else:
-                r = srad * min(1.0, 0.25 + 0.75 * acc / 2.5); squash = 1.0
-            pts[q].append((r, r * squash))
+            if m <= bl:  # leaf blade (pass A, 2026-10-20): pointed tip, widest 62 % of the way down, flat
+                x = min(max(m / bl, 0.0), 1.0)
+                r = BW * (x / 0.62) ** 0.85 if x <= 0.62 else srad + (BW - srad) * math.cos((x - 0.62) / 0.38 * math.pi / 2)
+                pts[q].append((r, min(r, srad) * 0.6)); continue
+            r = srad * min(1.0, 0.25 + 0.75 * acc / 2.5)
+            pts[q].append((r, r))
         spear_paths.append(pts)
 me = bpy.data.meshes.new("shields"); me.from_pydata(verts, [], faces); me.update()
 for p in me.polygons: p.use_smooth = True

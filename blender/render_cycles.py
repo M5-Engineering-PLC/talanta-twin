@@ -117,6 +117,15 @@ if __import__("os").environ.get("TALANTA_LOOKDEV") == "1" or artistic:
     from lookdev import apply_lookdev
     apply_lookdev(s, "night" if night else "day")
 if artistic: hero_artistic.finish(s)
+# test hooks (pass A paint tuning): TALANTA_PRE runs a Python file on the set-up scene; TALANTA_BORDER="x0,y0,x1,y1"
+# renders only that part of the frame (fractions, top-left origin); TALANTA_SAMPLES overrides the sample count
+_env = __import__("os").environ
+if _env.get("TALANTA_PRE"): exec(compile(open(_env["TALANTA_PRE"]).read(), _env["TALANTA_PRE"], "exec"), {"bpy": bpy, "s": s, "ROOT": ROOT})
+if _env.get("TALANTA_BORDER"):
+    bx0, by0, bx1, by1 = map(float, _env["TALANTA_BORDER"].split(","))
+    s.render.use_border = True; s.render.use_crop_to_border = False
+    s.render.border_min_x, s.render.border_max_x, s.render.border_min_y, s.render.border_max_y = bx0, bx1, 1 - by1, 1 - by0
+if _env.get("TALANTA_SAMPLES"): c.samples = int(_env["TALANTA_SAMPLES"])
 t0 = time.time(); bpy.ops.render.render(write_still=True); sec = time.time() - t0
 rec = {"camera": cid, "sky": sky_log, "sun": st, "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2), "quality": quality,
        "resolution": [s.render.resolution_x * s.render.resolution_percentage // 100, s.render.resolution_y * s.render.resolution_percentage // 100],
