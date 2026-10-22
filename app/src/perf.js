@@ -44,6 +44,8 @@ export function detectTier(renderer) {
 /** Create a four-second FPS readout and a one-way quality downgrade monitor. */
 export function createFpsMonitor({ onDowngrade, tier = 'high' }) {
   const visible = new URLSearchParams(location.search).has('fps');
+  // An explicit ?tier= pins the tier: no automatic downgrade.
+  if (new URLSearchParams(location.search).has('tier')) onDowngrade = () => {};
   const element = document.createElement('div');
   Object.assign(element.style, {
     position: 'fixed', right: '12px', bottom: '12px', zIndex: '10000',
