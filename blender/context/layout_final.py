@@ -103,7 +103,7 @@ def bed_material():
     tc = nt.nodes.new("ShaderNodeTexCoord"); mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (0.35, 0.09, 1.0)
     nz = nt.nodes.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 3.0; nz.inputs["Detail"].default_value = 3.0
     ramp = nt.nodes.new("ShaderNodeValToRGB"); ramp.color_ramp.elements[0].position = 0.5; ramp.color_ramp.elements[1].position = 0.56
-    ramp.color_ramp.elements[0].color = (*srgb("#8A4630"), 1); ramp.color_ramp.elements[1].color = (*srgb("#3F5A2C"), 1)
+    ramp.color_ramp.elements[0].color = (*srgb("#7A4632"), 1); ramp.color_ramp.elements[1].color = (*srgb("#3A5230"), 1)
     nt.links.new(tc.outputs["Object"], mp.inputs["Vector"]); nt.links.new(mp.outputs["Vector"], nz.inputs["Vector"])
     nt.links.new(nz.outputs["Fac"], ramp.inputs["Fac"]); nt.links.new(ramp.outputs["Color"], p.inputs["Base Color"])
     p.inputs["Roughness"].default_value = 0.95; m.diffuse_color = (*srgb("#7A4A30"), 1); m["claim"] = CLAIM
