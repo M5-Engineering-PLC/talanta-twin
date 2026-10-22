@@ -1,9 +1,9 @@
 import * as THREE from 'three/webgpu';
-import { attribute, uniform, vec3, float, mix, sin, step } from 'three/tsl';
+import { attribute, instanceColor, uniform, vec3, float, mix, sin, step } from 'three/tsl';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { Timeline, night_show } from './timeline.js';
 import { fallbackFacadeLines, validFacadeLines, padY } from './geometry.js';
-import { limits, droneFrame } from './shapes.js';
+import { limits, droneFrame, faceDronePoint } from './shapes.js';
 
 function strips(data) {
   const parts = [...data.ribs, data.fascia, data.opening].map((line, index) => {
@@ -37,11 +37,11 @@ export function installShows({ scene, camera, renderer, heroGroup, bowlGroup, cl
   const facadeMaterial = new THREE.MeshStandardNodeMaterial({ color: 0x101010, roughness: 0.5 });
   facadeMaterial.emissiveNode = color.mul(pulse).mul(tint).mul(5);
   const lampMaterial = new THREE.MeshStandardNodeMaterial({ color: 0xffffff });
-  lampMaterial.emissiveNode = attribute('instanceColor', 'vec3').mul(8);
+  lampMaterial.emissiveNode = instanceColor.mul(8);
   const droneMaterial = new THREE.MeshStandardNodeMaterial({ color: 0xffffff });
-  droneMaterial.emissiveNode = attribute('instanceColor', 'vec3').mul(10);
+  droneMaterial.emissiveNode = instanceColor.mul(10);
   const droneGeo = new THREE.OctahedronGeometry(0.65, 0);
-  const drones = new THREE.InstancedMesh(droneGeo, droneMaterial, budget.drones); drones.frustumCulled = false; drones.visible = false; root.add(drones);
+  const drones = new THREE.InstancedMesh(droneGeo, droneMaterial, budget.drones); drones.name = 'SHW-03'; drones.frustumCulled = false; drones.visible = false; root.add(drones);
   // The emissive node reads instanceColor, so the buffer must exist before the first compile.
   for (let i = 0; i < budget.drones; i++) drones.setColorAt(i, new THREE.Color(0, 0, 0));
   const lampGeo = new THREE.BoxGeometry(1.6, 0.7, 1.1);
@@ -52,7 +52,7 @@ export function installShows({ scene, camera, renderer, heroGroup, bowlGroup, cl
     if (facade) { root.remove(facade, lamps); facade.geometry.dispose(); lights.forEach(l => { root.remove(l, l.target); l.dispose(); }); }
     data = geometry;
     facade = new THREE.Mesh(strips(data), facadeMaterial); facade.name = 'SHW-02'; root.add(facade);
-    lamps = new THREE.InstancedMesh(lampGeo, lampMaterial, data.floodlights.length); lamps.frustumCulled = false; root.add(lamps);
+    lamps = new THREE.InstancedMesh(lampGeo, lampMaterial, data.floodlights.length); lamps.name = 'SHW-01'; lamps.frustumCulled = false; root.add(lamps);
     data.floodlights.forEach((l, i) => { dummy.position.set(...l.pos); dummy.lookAt(...l.aim); dummy.updateMatrix(); lamps.setMatrixAt(i, dummy.matrix); lamps.setColorAt(i, c.setRGB(0, 0, 0)); });
     lights = Array.from({ length: budget.lights }, (_, i) => {
       const l = data.floodlights[Math.floor(i / budget.lights * data.floodlights.length)];
@@ -93,7 +93,8 @@ export function installShows({ scene, camera, renderer, heroGroup, bowlGroup, cl
     lights.forEach((l, i) => { l.intensity = intensity(Math.floor(i / lights.length * data.floodlights.length)) * 180000; l.color.copy(lightColor); });
     const drone = state('SHW-03'); drones.visible = !!drone;
     if (drone) {
-      droneFrame(drone.localTime, budget.drones, drone.duration ?? 32).forEach((p, i) => { dummy.position.set(...p.position); dummy.quaternion.identity(); dummy.updateMatrix(); drones.setMatrixAt(i, dummy.matrix); drones.setColorAt(i, c.setRGB(...p.color)); });
+      const viewer = camera?.getWorldPosition(new THREE.Vector3());
+      droneFrame(drone.localTime, budget.drones, drone.duration ?? 32).forEach((p, i) => { dummy.position.set(...faceDronePoint(p.position, viewer)); dummy.quaternion.identity(); dummy.updateMatrix(); drones.setMatrixAt(i, dummy.matrix); drones.setColorAt(i, c.setRGB(...p.color)); });
       drones.instanceMatrix.needsUpdate = true; drones.instanceColor.needsUpdate = true;
     }
   }

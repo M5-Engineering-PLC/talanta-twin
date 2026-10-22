@@ -570,10 +570,21 @@ async function startShow() {
     shows = installShows({ scene, camera, renderer, heroGroup: hero?.group, bowlGroup: bowl.group });
   }
   stopLiveClock(); state.minutes = 1200; const t = document.querySelector('#landing-time'); if (t) t.value = '1200';
+  if (!startShow.savedFlood) {
+    startShow.savedFlood = flood.map(light => ({ light, descriptor: Object.getOwnPropertyDescriptor(light, 'intensity') }));
+    // applyTime writes intensity again after a time change. Hold these lamps dark until stopShow.
+    for (const { light } of startShow.savedFlood) Object.defineProperty(light, 'intensity', { configurable: true, enumerable: true, get: () => 0, set: () => {} });
+  }
   shows.play('night_show');
   if (import.meta.env.DEV) window.__shows = shows;
 }
-function stopShow() { shows?.dispose(); shows = null; }
+function stopShow() {
+  shows?.dispose(); shows = null;
+  if (startShow.savedFlood) {
+    for (const { light, descriptor } of startShow.savedFlood) Object.defineProperty(light, 'intensity', descriptor);
+    startShow.savedFlood = null;
+  }
+}
 document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   if (b.disabled) return;
   document.querySelectorAll('#modes button').forEach((x) => x.classList.toggle('on', x === b));
