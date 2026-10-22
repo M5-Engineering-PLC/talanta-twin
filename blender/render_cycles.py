@@ -87,7 +87,7 @@ if night or st.get("fixtures"):  # night fixtures on; a preset may switch them o
     for mt in bpy.data.materials:
         if not mt.node_tree: continue
         for nd in mt.node_tree.nodes:
-            if nd.label.startswith("night:"):
+            if nd.label.startswith("night:") or (not night and nd.label.startswith("dusk:")):  # dusk: only before night
                 v = float(nd.label.split(":")[1])
                 if nd.type == "BSDF_PRINCIPLED": nd.inputs["Emission Strength"].default_value = v
                 elif nd.type == "EMISSION": nd.inputs["Strength"].default_value = v
@@ -133,9 +133,20 @@ if _env.get("TALANTA_BORDER"):
     s.render.border_min_x, s.render.border_max_x, s.render.border_min_y, s.render.border_max_y = bx0, bx1, 1 - by1, 1 - by0
 if _env.get("TALANTA_SAMPLES"): c.samples = int(_env["TALANTA_SAMPLES"])
 t0 = time.time(); bpy.ops.render.render(write_still=True); sec = time.time() - t0
+# display grade of a preset (sky_hdri "display_grade", e.g. the drone camera look of overcast_drone): applied to the
+# saved 8-bit image, so the frame match holds in display values; the scene, paint and grade stay as they are
+_dg = (sky_hdri.PRESETS.get(sun_key) or {}).get("display_grade")
+if _dg:
+    import numpy as np
+    _im = bpy.data.images.load(s.render.filepath)
+    _px = np.empty(len(_im.pixels), np.float32); _im.pixels.foreach_get(_px); _px = _px.reshape(-1, 4)
+    _c = _px[:, :3]; _lum = (_c @ np.array([0.2126, 0.7152, 0.0722], np.float32))[:, None]
+    _c = _dg["gain"] * (_lum + _dg["saturation"] * (_c - _lum)) * (1 - _dg["veil"]) + _dg["veil"] * np.array(_dg["veil_rgb"], np.float32)
+    _px[:, :3] = np.clip(_c, 0, 1); _im.pixels.foreach_set(_px.ravel()); _im.save(); bpy.data.images.remove(_im)
 rec = {"camera": cid, "sky": sky_log, "sun": st, "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2), "quality": quality,
        "resolution": [s.render.resolution_x * s.render.resolution_percentage // 100, s.render.resolution_y * s.render.resolution_percentage // 100],
        "samples": c.samples, "seconds": round(sec, 1)}
+if _dg: rec["display_grade"] = _dg
 if artistic: rec["hero_artistic"] = art_log; rec["labelled_copy"] = hero_artistic.stamp(s.render.filepath).name
 # image direction of cast shadows: a 100 m ground step away from the sun at the pitch centre (0 = right, ccw)
 from bpy_extras.object_utils import world_to_camera_view

@@ -803,6 +803,8 @@
    "projection": "perspective",
    "focal_length_mm": 24,
    "vfov_deg": 45.747,
+   "exposure_ev": -1.1,
+   "exposure_note": "follow-up 2026-10-22: the 000714.767 day is darker than 000645.000; the offset brings the D02 louvre sample to 10 levels of the frame under overcast_drone (facade_samples.py)",
    "sun": {
     "date": "2026-01-15",
     "time_eat": "10:30",

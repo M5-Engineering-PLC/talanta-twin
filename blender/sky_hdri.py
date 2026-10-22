@@ -26,9 +26,11 @@ PRESETS = {
                        "sun_kelvin": 3800, "sun_to_sky": 5.0, "exposure_ev": -1.7},
     # landing stills L06 and L07 (Munene, 2026-10-19: mirror landing mockups 06 "Sunset" and 07 "Daylight"). At 18:05 the
     # sun stands about 8 deg up, inside the top of the L06 frame as in the mockup; site lamps and facade lights are on.
+    # follow-up 2026-10-22: weaker low sun (5.0 -> 2.0) and +0.4 EV, so the dusk uplights and the backing glow read
+    # as in landing mockup 06 (L06 check renders)
     "sunset_landing": {"date": "2026-01-15", "time_eat": "18:05", "kind": "evening golden",
                        "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0,
-                       "sun_kelvin": 3300, "sun_to_sky": 5.0, "exposure_ev": -1.8, "fixtures": True},
+                       "sun_kelvin": 3300, "sun_to_sky": 2.0, "exposure_ev": -1.4, "fixtures": True},
     "daylight_landing": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight",
                          "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0,
                          "sun_kelvin": 5600, "sun_to_sky": 5.0, "exposure_ev": -1.2},
@@ -40,7 +42,11 @@ PRESETS = {
     # sky, weak soft sun (render_cycles.py overcast branch keeps the 25 deg sun disc), lower exposure
     "overcast_drone": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast",
                        "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "sky_strength": 1.0,
-                       "sun_kelvin": 6500, "sun_to_sky": 0.35, "exposure_ev": -0.2, "sky_tint": (0.86, 0.96, 1.16)},
+                       "sun_kelvin": 6500, "sun_to_sky": 0.35, "exposure_ev": -0.2, "sky_tint": (0.86, 0.96, 1.16),
+                       # follow-up 2026-10-22: drone camera and air veil, in display space after the render (render_cycles.py):
+                       # out = gain * (lum + sat * (c - lum)) * (1 - veil) + veil * veil_rgb; fitted on the D01 shield red, lobe black and
+                       # louvre samples (facade_samples.py, 000645.000) to 4 levels. The paint stays as matched in sun (F16).
+                       "display_grade": {"veil": 0.094, "veil_rgb": (0.863, 0.693, 1.25), "saturation": 0.684, "gain": 0.964}},
     "daylight_artistic": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight",
                           "hdri": "blender/assets/hdri/kloofendal_48d_partly_cloudy_puresky_4k.hdr", "sky_strength": 1.0,
                           "sun_kelvin": 5600, "sun_to_sky": 5.0, "exposure_ev": -1.1},

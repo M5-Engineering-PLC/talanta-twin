@@ -62,7 +62,8 @@ for k in range(K):
     o = bpy.data.objects.new(ld.name, ld); (up_col or scene.collection).objects.link(o)
     o.location = (x, -z, RG["pad"] + 0.4); r_ = math.hypot(x, z); aim = Vector((x - 4 * x / r_, -(z - 4 * z / r_), RG["pad"] + 40))
     o.rotation_euler = (aim - o.location).normalized().to_track_quat("-Z", "Y").to_euler()
-    o["night_energy"] = 30000.0; o["dusk_energy"] = 30000.0; o["claim"] = "Visualization (dusk uplight, warm white)"
+    o["night_energy"] = 30000.0; o["dusk_energy"] = 90000.0;  # dusk x3 (follow-up 2026-10-22, L06 check renders)
+    o["claim"] = "Visualization (dusk uplight, warm white)"
 for o in bpy.data.objects:
     if o.name.startswith("night_wash_"): o["dusk_energy"] = 0.0
 report["uplights"] = K
@@ -75,6 +76,17 @@ if rm and not rm.get("pass_e_glow"):
     em.label = "night:2.5"; out = n_["Material Output"]; prev = out.inputs["Surface"].links[0].from_socket
     add = n_.new("ShaderNodeAddShader"); l_.new(prev, add.inputs[0]); l_.new(em.outputs[0], add.inputs[1]); l_.new(add.outputs[0], out.inputs["Surface"])
     rm["pass_e_glow"] = "Visualization (warm glow in the recess at dusk and night)"; report["recess_glow"] = True
+
+# 2b. follow-up 2026-10-22: warm light behind the louvres at dusk, so the whole facade glows as in landing mockup 06
+# (uplights alone light only the lower facade). Emission on the light backing, "dusk:" label: on with a preset that
+# switches the fixtures on before night, off at night and by day. L06 check renders: 2 reads, 6 burns out.
+bm = bpy.data.materials.get("facade_void_pbr")
+if bm and not bm.get("dusk_glow"):
+    n_, l_ = bm.node_tree.nodes, bm.node_tree.links
+    em = n_.new("ShaderNodeEmission"); em.inputs["Color"].default_value = (1.0, 0.62, 0.30, 1); em.inputs["Strength"].default_value = 0.0
+    em.label = "dusk:2.0"; out = n_["Material Output"]; prev = out.inputs["Surface"].links[0].from_socket
+    add = n_.new("ShaderNodeAddShader"); l_.new(prev, add.inputs[0]); l_.new(em.outputs[0], add.inputs[1]); l_.new(add.outputs[0], out.inputs["Surface"])
+    bm["dusk_glow"] = "Visualization (warm light behind the louvres at dusk)"; report["backing_glow"] = True
 
 # 3. people on the finished plaza and path surfaces
 SURF = [o for o in bpy.data.objects if o.type == "MESH" and (o.name in ("fp_plaza", "fp_paths", "north_plaza") or o.name.startswith("fc_path_") and "kerb" not in o.name)]
