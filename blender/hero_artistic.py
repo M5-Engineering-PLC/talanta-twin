@@ -195,7 +195,13 @@ def prepare(scene, dusk):
     """Scene changes before the look layer. Returns a log dict."""
     _render(scene)
     log = {"preset": "hero_artistic", "resolution": list(RES), "settings": SET}
-    log.update(_uplights(scene, dusk)); log.update(_bevels_and_fins()); log.update(_cars(scene)); log.update(_people(scene))
+    # pass H (2026-10-22): scenes from step_FE on carry their own dusk uplights (landing_look.py), cars (layout_final.py)
+    # and CC0 figures (people_figures.py); the step H stand-ins are added only to scenes without them
+    has = lambda pre: any(o.name.startswith(pre) for o in scene.objects)
+    log.update(_uplights(scene, dusk) if not has("dusk_uplight_") else {"uplights": "scene (landing_look.py)"})
+    log.update(_bevels_and_fins())
+    log.update(_cars(scene) if not has("layout_final_cars") else {"parked_cars": "scene (layout_final.py)"})
+    log.update(_people(scene) if not has("people_figures") else {"people": "scene (people_figures.py)"})
     import lookdev  # stronger bloom and glare for the artistic set
     lookdev.STRENGTHS["glare"] = SET["glare_mix"]; lookdev.STRENGTHS["glare_threshold"] = SET["glare_threshold"]
     return log

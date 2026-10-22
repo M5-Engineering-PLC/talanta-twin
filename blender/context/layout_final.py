@@ -9,7 +9,10 @@ Adds to the scene (default blender/out/talanta_site.blend, or TALANTA_SITE_BLEND
 - murram planting beds with planted wedges in the spine between the plaza and the car park;
 - the road between the training pitches, from the north-east road to the bowl apron;
 - the forecourt footpaths and beds in murram (red laterite) with planted wedges, not pale paving; the NE track ring in
-  dark asphalt grey as in the photo.
+  dark asphalt grey as in the photo; the old OSM footways inside the W1b site boundary are dropped (the photo shows the
+  murram paths and the modelled roads only);
+- the white-box cars of the east hardstanding (pass E) and of the Ngong Road traffic (pass D) become the same low-poly
+  car figures (Visualization), long vehicles plain buses.
 What the new layout covers is cleared in the finished state only: finished-only objects are cut or hidden in place;
 shared objects get a cut copy (state_only "finished") and keep the uncut original for the asbuilt state
 (blender/scene_state.py). Everything is estimated (+-15 m near the photo camera, +-30 m far). Visualization: the cars
@@ -213,6 +216,10 @@ for t in FB["towers"]: ZONES.append([(t[0] - 5, t[1] - 6), (t[0] + 5, t[1] - 6),
 ZB = [(min(p[0] for p in r), max(p[0] for p in r), min(p[1] for p in r), max(p[1] for p in r)) for r in ZONES]
 
 
+import csv as _csv
+SITE = [(float(r["x_east"]), float(r["z_south"])) for r in _csv.DictReader(open(ROOT / "gis/measurements/normalized/site_boundary_w1b_2026-10-16.csv"))]
+
+
 def in_zones(x, z):
     for (x0, x1, z0, z1), r in zip(ZB, ZONES):
         if x0 <= x <= x1 and z0 <= z <= z1 and inside((x, z), r): return True
@@ -239,7 +246,8 @@ def cut_mesh(o, name=None):
     bm = bmesh.new(); bm.from_mesh(o.data); M = o.matrix_world
     if len(bm.faces):
         if o.name.startswith(("roads", "road_markings")):  # long road quads: drop a face when any corner is in a zone
-            dead = [fc for fc in bm.faces if any(in_zones((M @ vv.co).x, -(M @ vv.co).y) for vv in fc.verts)]
+            # and the old OSM footways inside the W1b site, which the photo does not show (the site roads are modelled)
+            dead = [fc for fc in bm.faces if any(in_zones((M @ vv.co).x, -(M @ vv.co).y) or inside(((M @ vv.co).x, -(M @ vv.co).y), SITE) for vv in fc.verts)]
         else:
             dead = [fc for fc in bm.faces if in_zones(*(lambda c: (c.x, -c.y))(M @ fc.calc_center_median()))]
         bmesh.ops.delete(bm, geom=dead, context="FACES"); n = len(dead)
@@ -251,6 +259,7 @@ def cut_mesh(o, name=None):
 
 
 def bbox_plan(o):
+    if o.name.startswith(("roads", "road_markings")): return -1e4, 1e4, -1e4, 1e4  # always considered (site footways)
     bb = [o.matrix_world @ Vector(c) for c in o.bound_box]
     return min(v.x for v in bb), max(v.x for v in bb), min(-v.y for v in bb), max(-v.y for v in bb)
 
@@ -452,11 +461,38 @@ if old:
         car(cxy[0], -cxy[1], math.atan2(-ax_[1], ax_[0])); n_old += 1
     old["state_hide_render"] = True; old.hide_render = True
     report["cars_east_replaced"] = n_old
+# Ngong Road traffic (pass D boxes, two per car) -> the same car figures, and plain buses for the long boxes
+tr = bpy.data.objects.get("traffic_Visualization")  # the uncut original: eight vertices per box, in order
+if tr:
+    co = np.array([tuple(tr.matrix_world @ vv.co) for vv in tr.data.vertices]); n_tr = n_bus = 0
+    boxes = co[: len(co) // 8 * 8].reshape(-1, 8, 3)
+    # traffic.py writes each vehicle as body, cabin, (bus skirt), four wheels: a body is a large box after a small one
+    big = [float(np.ptp(bx[:, 0])) ** 2 + float(np.ptp(bx[:, 1])) ** 2 > 9.0 for bx in boxes]
+    for k, b in enumerate(boxes):
+        if not big[k] or (k > 0 and big[k - 1]): continue
+        xy = b[:, :2]; c = xy.mean(0)
+        if in_zones(c[0], -c[1]): continue
+        _, sv, Vt = np.linalg.svd(xy - c); ax_ = Vt[0]; L_ = float(np.ptp((xy - c) @ ax_)); W_ = float(np.ptp((xy - c) @ Vt[1]))
+        if L_ < 6.0:
+            car(c[0], -c[1], math.atan2(-ax_[1], ax_[0])); n_tr += 1
+        else:  # matatu (7 m) or bus (11 m): plain body, a dark glass band, pale roof
+            g = ground(c[0], -c[1]) + 0.14; Hh = 2.7 if L_ < 9 else 3.2
+            u = np.array([ax_[0], -ax_[1]]); w = np.array([-u[1], u[0]]); cc = np.array([c[0], -c[1]])
+            v_, f_, mi_ = car_bm["v"], car_bm["f"], car_bm["mi"]; ci = 0 if L_ >= 9 else int(rng.choice(len(CPM), p=CPW))
+            oriented_box(v_, f_, cc, u, w, L_, W_, g + 0.3, g + Hh * 0.55); mi_ += [ci] * 6
+            oriented_box(v_, f_, cc, u, w, L_ - 0.2, W_ - 0.04, g + Hh * 0.55, g + Hh * 0.9); mi_ += [len(CPM)] * 6
+            oriented_box(v_, f_, cc, u, w, L_, W_, g + Hh * 0.9, g + Hh); mi_ += [ci] * 6
+            oriented_box(v_, f_, cc, u, w, L_ * 0.85, W_ * 0.96, g, g + 0.32); mi_ += [len(CPM) + 1] * 6
+            n_bus += 1
+    tr["state_only"] = "asbuilt"
+    trf = bpy.data.objects.get("traffic_Visualization_final")
+    if trf: trf["state_hide_render"] = True; trf.hide_render = True
+    report["traffic_figures"] = {"cars": n_tr, "buses": n_bus}
 me = bpy.data.meshes.new("layout_final_cars_visualization"); me.from_pydata(car_bm["v"], [], car_bm["f"]); me.update()
 for m in CPM + [GLASS, TYRE]: me.materials.append(m)
 for p, i in zip(me.polygons, car_bm["mi"]): p.material_index = i
 o = bpy.data.objects.new("layout_final_cars_visualization", me); CARS.objects.link(o); o["claim"] = VIS; o["state_only"] = "finished"
-report["cars_total"] = len(car_bm["mi"]) // 24
+report["boxes_total"] = len(car_bm["mi"]) // 6
 
 # ---------------------------------------------------------------- east: road between the training pitches
 rb = D["road_between_pitches"]
@@ -470,6 +506,16 @@ for name, m in (("fp_paths", MURRAM), ("fp_beds", BEDS)):
     o = bpy.data.objects.get(name)
     if o:
         o.data.materials.clear(); o.data.materials.append(m); recol.append(name)
+# fc_murram (forecourt paths, step L) rendered pale beige through its legacy mix; the photo's paths are red laterite
+fm = bpy.data.materials.get("fc_murram")
+if fm and not fm.get("lf_red"):
+    nt = fm.node_tree; p = nt.nodes["Principled BSDF"]
+    for l in list(p.inputs["Base Color"].links): nt.links.remove(l)
+    tc = nt.nodes.new("ShaderNodeTexCoord"); nz = nt.nodes.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 0.6
+    ramp = nt.nodes.new("ShaderNodeValToRGB"); ramp.color_ramp.elements[0].color = (*srgb("#7C412D"), 1); ramp.color_ramp.elements[1].color = (*srgb("#A0593C"), 1)
+    ramp.color_ramp.elements[0].position = 0.3; ramp.color_ramp.elements[1].position = 0.7
+    nt.links.new(tc.outputs["Object"], nz.inputs["Vector"]); nt.links.new(nz.outputs["Fac"], ramp.inputs["Fac"]); nt.links.new(ramp.outputs["Color"], p.inputs["Base Color"])
+    fm["lf_red"] = "pass F: red laterite as in the dusk photo"; recol.append("fc_murram")
 t = bpy.data.objects.get("warmup_track_ne")
 if t:
     for i, m in enumerate(t.data.materials):
