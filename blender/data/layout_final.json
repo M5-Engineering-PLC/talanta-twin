@@ -1,0 +1,13 @@
+{
+ "_note": "Pass F (lead order 2026-10-22): final layout, finished state. App frame plan coordinates [x east, z south] in metres, origin W1b pitch centre. Positions come from back-projecting the dusk aerial photo (research/reference/dusk_aerial_finished_2026-10-17.jpg, internal only) through camera P01, which is solved to the photo on the bowl outline, the NE track pitch and the Ngong Road kerb. Check: the track pitch centre lands within 3 m of W1b; the far west lot within 10 m of the loop road traced in pass C from D02. Everything here is estimated, about +-15 m near the camera and +-30 m on the far side. The dusk photo shows the station, the railway and the car park on the WEST side of the site (the photo looks SSE from over Ngong Road), not the east. No gate, turnstile, exit or access detail (AGENTS.md rule 8); no signs.",
+ "source": "dusk photo 2026-10-17 back-projected through P01; D02 frame 000714.767 for the far west lot",
+ "west_road": {"centre": [[-157, -236], [-156, -120], [-156, 0], [-160, 120], [-166, 250], [-174, 400], [-185, 560], [-195, 700]], "width_m": 21, "median_m": 2, "lanes_each_way": 2, "verge_east_m": 6, "lamp_spacing_m": 40},
+ "railway": {"centre": [[-202, -224], [-202, -150], [-204, 0], [-208, 150], [-213, 300], [-220, 500], [-228, 700]], "tracks": 2, "track_spacing_m": 4.5, "gauge_m": 1.0, "ballast_width_m": 11},
+ "station": {"platform": {"x": [-196.5, -188.0], "z": [-200, 40], "height_m": 0.9}, "canopies": [{"z": [-122, -48]}, {"z": [-38, 40]}], "canopy_height_m": 5.2, "canopy_width_m": 9.5, "forecourt": {"x": [-188.0, -167.0], "z": [-215, 40]}},
+ "footbridge": {"east": [-136, -140], "west": [-214, -151], "deck_clearance_m": 6.6, "width_m": 4.0, "towers": [[-136, -140], [-192, -148], [-214, -151]]},
+ "carpark_north_west": {"ring": [[-66, -228], [-145, -230], [-145, -104], [-122, -86], [-96, -112], [-66, -148]], "aisle_axis_deg": 0, "module_m": 16.5, "fill": 0.78},
+ "spine_beds": {"ring": [[-64, -228], [-52, -228], [-52, -150], [-64, -148]]},
+ "carpark_south_west": {"ring": [[-150, 132], [-78, 132], [-78, 228], [-150, 228]], "aisle_axis_deg": 0, "module_m": 16.5, "fill": 0.72, "planted_strip": [[-150, 205], [-78, 150]]},
+ "road_between_pitches": {"centre": [[252, -12], [200, -5], [128, -2]], "width_m": 8},
+ "track_ring_ne": {"surface": "dark asphalt grey, as in the photo (was terracotta)"}
+}

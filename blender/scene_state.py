@@ -5,6 +5,8 @@
 blender/context/asbuilt_ground.py: murram, bare earth, laterite, patchy grass, asphalt from asbuilt_trace.py) instead
 of the finished surfaces, and no planted dressing (beds, shrubs, flowers, palms, young trees, car park markings), which
 the frames do not show yet. Masts, lamp poles, the fence, buildings, the bowl and the context stay in both states.
+Objects can also carry o["state_only"] = "finished" | "asbuilt" (pass F, layout_final.py: shared objects cut for the
+final layout keep their uncut original for the asbuilt state).
 Use: set_state(scene, "asbuilt" | "finished"); render_cycles.py reads TALANTA_STATE.
 """
 import bpy
@@ -26,6 +28,7 @@ EXACT_FINISHED = {"ge_road_north_east"}  # the road surface; its lamps and trees
 
 
 def _finished_only(o):
+    if o.get("state_only") == "finished": return True  # pass F (2026-10-22): per-object override, see layout_final.py
     for c in o.users_collection:
         if c.name in ONLY_FINISHED: return True
         if o.name in EXACT_FINISHED: return True
@@ -39,7 +42,7 @@ def set_state(scene, state):
     for o in scene.objects:
         if "state_hide_render" not in o.keys(): o["state_hide_render"] = o.hide_render  # as built, once
         base = bool(o["state_hide_render"])
-        if any(c.name in ONLY_ASBUILT for c in o.users_collection): o.hide_render = base or not asb
+        if o.get("state_only") == "asbuilt" or any(c.name in ONLY_ASBUILT for c in o.users_collection): o.hide_render = base or not asb
         elif _finished_only(o): o.hide_render = base or asb
         else: o.hide_render = base
     scene["talanta_state"] = state
