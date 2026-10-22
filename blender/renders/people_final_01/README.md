@@ -37,16 +37,17 @@ The order says the clustered crowns of pass D read as soft blobs in the D02 and 
   - a fine noise adds leaf grain;
   - both drive a soft bump.
 - **Voronoi tried first:** a Voronoi cell pattern was tried and rejected; it read as a tortoise shell.
-- **Outlines:** the 92 trace trees nearest the cameras (pass D) get one subdivision and a 0.35 m cloud displacement on their leaf faces only, so the outlines break up. Trunks stay straight.
+- **Outlines:** the two crown meshes of the trace trees nearest the cameras get their leaf vertices pushed in and out by a smooth noise (±0.35 m), baked into the mesh, so the outlines break up. The forest instances share those meshes, so every round and acacia crown changes too. Trunks stay straight.
+- **Modifiers rejected:** subdivision and Displace modifiers were tried first. On the shared meshes they took about 10 GB at render and broke the P01 render (out of memory). The baked version renders at 2.5 GB.
 - **Unchanged:** crown size and tree positions do not change.
 
 ## Renders (1080p, Cycles 128 samples, look layer on, step_FH)
 
 | Render | Camera | Light | Time |
 |---|---|---|---|
-| P01_sunset_landing_hero.png | P01 (dusk photo camera, 1920 x 1288) | sunset_landing | see render_run.log |
-| D02_daylight_landing_hero.png | D02 | daylight_landing, -1.2 EV | see render_run.log |
-| D03_daylight_landing_hero.png | D03 | daylight_landing, -1.2 EV | see render_run.log |
+| P01_sunset_landing_hero.png | P01 (dusk photo camera, 1920 x 1288) | sunset_landing | 16.5 min |
+| D02_daylight_landing_hero.png | D02 | daylight_landing, -1.2 EV | 9.5 min |
+| D03_daylight_landing_hero.png | D03 | daylight_landing, -1.2 EV | 12.9 min |
 
 `sheets/P01_vs_photo_internal.jpg` sets the people against the photo; it is internal, because it contains the photo.
 
