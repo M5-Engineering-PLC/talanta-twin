@@ -6,8 +6,9 @@ camera they read as soft green blobs. Two changes:
   object space: a coarse distorted noise (masses of about 0.6 m) sets the tone from 0.5 to 1.2 times the leaf colour, a
   fine noise adds leaf grain, and both drive a soft bump. (A Voronoi cell pattern was tried first: it read as a tortoise
   shell.)
-- the foreground trace trees get one subdivision and a small cloud displacement (0.35 m) on their leaf faces only, so
-  the crown outlines break up; trunks stay straight.
+- the crown meshes of the foreground trace trees, which the forest instances share, get their leaf vertices pushed in
+  and out by a smooth noise (0.35 m, baked into the shared mesh), so the crown outlines break up; trunks stay straight.
+  (Subdivision and Displace modifiers with a vertex group were tried first and took about 10 GB at render time.)
 Crown size and tree positions do not change. Both states.
 Run from the repo root: ~/.venvs/bpy/bin/python blender/context/crown_detail.py
 """
@@ -50,21 +51,20 @@ for m in bpy.data.materials:
     lk.new(bump.outputs["Normal"], p.inputs["Normal"])
     m["crown_detail"] = "pass H: noise leaf masses (tone, grain, bump); estimated look"
     done.append(n)
-# silhouettes: the foreground trace trees (tree_crowns.py, unique meshes) get a small cloud displacement on their leaf
-# faces only (0.35 m, 0.7 m noise), so the crown outlines break up; trunks stay straight
-tex = bpy.data.textures.get("crown_rough") or bpy.data.textures.new("crown_rough", "CLOUDS")
-tex.noise_scale = 0.7; tex.noise_depth = 2
+# silhouettes: the crown meshes of the foreground trace trees (tree_crowns.py; shared with the forest instances, about
+# 530 users each) get their leaf vertices pushed along the normal by a smooth noise (+-0.35 m, about 0.7 m features),
+# baked into the shared mesh in local coordinates, so every crown of those types breaks its outline; trunks stay
+# straight. (Subdivision and Displace modifiers with a vertex group were tried first: on the shared meshes they took
+# about 10 GB at render.)
+from mathutils import noise
 nd_ = 0
-for o in bpy.data.objects:
-    if o.type != "MESH" or not o.name.startswith("trace_tree_") or o.modifiers.get("crown_rough"): continue
-    leaf = {i for i, m in enumerate(o.data.materials) if m and m.name.endswith("_leaf")}
-    vs = sorted({v for p_ in o.data.polygons if p_.material_index in leaf for v in p_.vertices})
+for me in {o.data for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("trace_tree_")}:
+    if me.get("crown_rough"): continue
+    leaf = {i for i, m in enumerate(me.materials) if m and m.name.endswith("_leaf")}
+    vs = {v for p_ in me.polygons if p_.material_index in leaf for v in p_.vertices}
     if not vs: continue
-    vg = o.vertex_groups.new(name="crown"); vg.add(vs, 1.0, "REPLACE")
-    md = o.modifiers.new("crown_rough", "DISPLACE"); md.texture = tex; md.strength = 0.35; md.mid_level = 0.5
-    md.vertex_group = "crown"; md.texture_coords = "GLOBAL"
-    sub = o.modifiers.new("crown_sub", "SUBSURF"); sub.levels = sub.render_levels = 1
-    o.modifiers.move(len(o.modifiers) - 1, 0)  # subdivide first, then displace
-    nd_ += 1
-print("CROWN_DETAIL " + json.dumps({"materials": done, "displaced_trees": nd_}), flush=True)
+    for i in vs:
+        v = me.vertices[i]; v.co += v.normal * 0.35 * noise.noise(v.co / 0.7)
+    me.update(); me["crown_rough"] = "pass H: baked noise offset on the leaf vertices"; nd_ += 1
+print("CROWN_DETAIL " + json.dumps({"materials": done, "roughened_crown_meshes": nd_}), flush=True)
 bpy.ops.wm.save_mainfile()
