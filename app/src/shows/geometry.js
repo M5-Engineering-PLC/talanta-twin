@@ -15,10 +15,12 @@ export function fallbackFacadeLines() {
     const y = j <= 14 ? E.plinthH + (E.bulgeY - E.plinthH) * f : E.bulgeY + E.shoulderH * Math.sin(p);
     return [Math.cos(a) * (radius(a) + dr + 1), y, Math.sin(a) * (radius(a) + dr + 1)];
   };
+  // First V point on the first shield axis, as in bowl.js.
+  const v0 = (-F.pitch_bearing_deg * Math.PI) / 180 - Math.PI / 2;
   const ribs = [];
   for (let k = 0; k < 24; k++) for (const direction of [-1, 1]) {
     // Top and bottom V vertices share the same set of 24 bay angles.
-    ribs.push(Array.from({ length: end + 1 }, (_, j) => surface((k + direction * j / end) / 24 * tau, end - j)));
+    ribs.push(Array.from({ length: end + 1 }, (_, j) => surface(v0 + (k + direction * j / end) / 24 * tau, end - j)));
   }
   const fascia = Array.from({ length: 121 }, (_, i) => surface(i / 120 * tau, end));
   const hole = Array.from({ length: 121 }, (_, i) => { const a = i / 120 * tau, r = rayRadius(opening, Math.cos(a), Math.sin(a)); return [r * Math.cos(a), E.openingY, r * Math.sin(a)]; });

@@ -42,6 +42,8 @@ export function installShows({ scene, camera, renderer, heroGroup, bowlGroup, cl
   droneMaterial.emissiveNode = attribute('instanceColor', 'vec3').mul(10);
   const droneGeo = new THREE.OctahedronGeometry(0.65, 0);
   const drones = new THREE.InstancedMesh(droneGeo, droneMaterial, budget.drones); drones.frustumCulled = false; drones.visible = false; root.add(drones);
+  // The emissive node reads instanceColor, so the buffer must exist before the first compile.
+  for (let i = 0; i < budget.drones; i++) drones.setColorAt(i, new THREE.Color(0, 0, 0));
   const lampGeo = new THREE.BoxGeometry(1.6, 0.7, 1.1);
   let facade, lamps, lights = [], data, disposed = false, scripted = false;
   const dummy = new THREE.Object3D(), c = new THREE.Color();
@@ -54,7 +56,7 @@ export function installShows({ scene, camera, renderer, heroGroup, bowlGroup, cl
     data.floodlights.forEach((l, i) => { dummy.position.set(...l.pos); dummy.lookAt(...l.aim); dummy.updateMatrix(); lamps.setMatrixAt(i, dummy.matrix); lamps.setColorAt(i, c.setRGB(0, 0, 0)); });
     lights = Array.from({ length: budget.lights }, (_, i) => {
       const l = data.floodlights[Math.floor(i / budget.lights * data.floodlights.length)];
-      const light = new THREE.SpotLight(0xffffff, 0, 250, Math.PI / 3, 0.65, 2); light.castShadow = false;
+      const light = new THREE.SpotLight(0xffffff, 0, 250, Math.PI / 7, 0.5, 2); light.castShadow = false;
       light.position.set(...l.pos); light.target.position.set(...l.aim); root.add(light, light.target); return light;
     });
   };

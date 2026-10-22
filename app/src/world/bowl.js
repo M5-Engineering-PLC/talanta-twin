@@ -23,7 +23,7 @@ export const BOWL_EST = {
   ],
   seatPitch: 0.5, aisleEvery: 16, aisleW: 1.3,
   shields: 8, shieldW: 21, shieldY0: 6.5, shieldY1: 46,
-  lattice: 40,
+  lattice: 24, // ledger bowl.profile.lattice_members_704 (2026-10-20): shields on every third V point
   N: 240,
 };
 
@@ -114,11 +114,12 @@ export function buildBowl(features, opts = {}) {
     const r = r0 + (r1 - r0) * f + off;
     return new THREE.Vector3(Math.cos(theta) * r, y0, Math.sin(theta) * r);
   };
+  const v0 = ((-bearing) * Math.PI) / 180 - Math.PI / 2; // first V point on the first shield axis
   for (let k = 0; k < K; k++) for (const s of [1, -1]) {
-    const th0 = (k / K) * Math.PI * 2, d = (s * Math.PI * 2) / K;
+    const th0 = v0 + (k / K) * Math.PI * 2, d = (s * Math.PI * 2) / K;
     const pts = [];
     for (let j = 0; j <= segs; j++) pts.push(surf(th0 + d * (j / segs), j, 0.55));
-    tubes.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), segs * 2, 0.42, 5, false));
+    tubes.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), segs * 2, 0.23, 5, false)); // 0.45 m rib face
   }
   // horizontal rings at the plinth top, the bulge and the crest
   for (const j of [0, facadeSamples, louvreEnd]) {
