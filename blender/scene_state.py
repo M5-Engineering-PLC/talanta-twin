@@ -16,7 +16,9 @@ ONLY_FINISHED = {"sport", "forecourt", "canopy_slots", "trace_sw_finished", "con
 # objects hidden in asbuilt inside collections that also hold kept objects: name prefixes per collection
 ONLY_FINISHED_PREFIX = {
     "finish_plaza": ("fp_shrub", "fp_flower", "fp_tree", "fp_plaza", "fp_beds", "fp_paths"),
-    "forecourt_context": ("palm_slot", "fc_central", "fc_axial", "fc_edge", "fc_path", "fc_bench", "fc_retained", "fc_planter"),
+    "forecourt_context": ("palm_slot", "fc_central", "fc_axial", "fc_edge", "fc_path", "fc_bench", "fc_retained", "fc_planter",
+                          # follow-up 2026-10-22: the forecourt lawns, base and plaza bands covered the traced ground in D01
+                          "fc_base", "fc_west_lawn", "fc_east_lawn", "fc_roadside_lawn", "fc_plaza_edge", "fc_plaza_ring_walk"),
     "site": ("palms", "site_trees", "shrubs", "planters", "jets", "sign_frames", "entrance_canopies", "parking_lines", "bollards"),
     "site_layout_ge": ("ge_apron_ring", "ge_east_hardstanding", "ge_road_north_east_euc"),  # the euc row is not planted yet in the frames
 }
