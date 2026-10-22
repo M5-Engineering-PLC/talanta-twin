@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu';
-import { uniform, attribute, positionLocal, vec3, float, sin, cos, abs, max, min, smoothstep, mix, uv, step, color, cameraWorldMatrix, modelWorldMatrixInverse } from 'three/tsl';
+import { uniform, attribute, positionGeometry, vec3, float, sin, cos, abs, max, min, smoothstep, mix, uv, step, color, cameraWorldMatrix, modelWorldMatrixInverse } from 'three/tsl';
 import { figureGeometry } from './geometry.js';
 import { generateSeats } from './seats.js';
 import { clampFill, occupancyOrder, selectSeats } from './model.js';
@@ -12,7 +12,9 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
   const config = { ...(typeof quality === 'object' ? quality : {}), ...(seatList ? { seats: seatList } : {}), ...(features ? { features } : {}) };
   const root = new THREE.Group();
   root.name = 'seated-crowd'; root.userData.claim = 'Visualization';
-  const parent = heroGroup || bowlGroup || scene;
+  // Drawn bowl seats are authoritative and use the bowl parent frame.
+  const hasBowlSeats = bowlGroup?.getObjectByName('seats')?.isInstancedMesh;
+  const parent = hasBowlSeats ? bowlGroup : heroGroup || bowlGroup || scene;
   parent.add(root);
   const u = { time: uniform(0), start: uniform(0), cheer: uniform(0), goal: uniform(0), end: uniform(1),
     wave: uniform(0), speed: uniform(12), perimeter: uniform(600), scarves: uniform(0), phones: uniform(0), night: uniform(0), duration: uniform(8) };
@@ -26,13 +28,14 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
   if (globalThis.document) {
     label = document.createElement('div');
     label.textContent = 'Visualization'; label.dataset.peopleVisualization = '';
-    Object.assign(label.style, { position: 'fixed', bottom: '16px', left: '16px', zIndex: '1000', color: '#fff',
+    Object.assign(label.style, { position: 'fixed', top: '78px', left: '16px', zIndex: '1000', color: '#fff',
       background: 'rgba(0,0,0,.78)', padding: '5px 9px', borderRadius: '3px', font: '12px sans-serif', pointerEvents: 'none' });
     (renderer?.domElement?.parentElement || document.body).appendChild(label);
   }
   function material(cards) {
     const mat = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide, alphaTest: .5 });
     const phase = attribute('fanPhase', 'float'), angle = attribute('fanAngle', 'float');
+    const origin = attribute('fanOrigin', 'vec3');
     const elapsed = max(0, u.time.sub(u.start));
     const active = float(1).sub(step(u.duration, elapsed));
     const travel = elapsed.mul(u.speed).div(u.perimeter).mul(Math.PI * 2);
@@ -54,21 +57,25 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
       const phoneMask = step(.85, y).mul(step(.35, p.x.sub(.5))).mul(phone);
       mat.opacityNode = max(max(head, body), max(arms, max(scarfMask, phoneMask)));
       mat.colorNode = mix(mix(shirt, color('#95633f'), head), color('#ffffff'), phoneMask);
-      const local = positionLocal.mul(vec3(1, mix(1.25, 1.95, raised), 1));
+      const local = positionGeometry.mul(vec3(1, mix(1.25, 1.95, raised), 1));
       // Convert camera axes to parent-local axes, then undo the instance yaw.
       // Card matrices carry translation only.
       const right = modelWorldMatrixInverse.mul(cameraWorldMatrix.element(0)).xyz.normalize();
       const up = modelWorldMatrixInverse.mul(cameraWorldMatrix.element(1)).xyz.normalize();
-      mat.positionNode = right.mul(local.x).add(up.mul(local.y.add(bob)));
+      mat.positionNode = origin.add(right.mul(local.x)).add(up.mul(local.y.add(bob)));
     } else {
       const kind = attribute('kind', 'float');
       const isScarf = float(1).sub(step(.1, abs(kind.sub(3))));
       const isPhone = float(1).sub(step(.1, abs(kind.sub(4))));
       const visible = mix(float(1), scarf, isScarf).mul(mix(float(1), phone, isPhone));
-      const p = positionLocal.mul(visible);
+      // positionNode runs AFTER Three.js instancing. Deform the raw figure,
+      // then apply yaw and origin exactly once instead of rotating seat positions.
+      const p = positionGeometry.mul(visible);
+      const yaw = attribute('fanYaw', 'float').add(turn);
       const leg = float(1).sub(step(.1, abs(kind.sub(2))));
       const y = p.y.add(attribute('rise', 'float').mul(raised)).add(p.y.mul(raised).mul(leg)).add(bob);
-      mat.positionNode = vec3(p.x.mul(cos(turn)).add(p.z.mul(sin(turn))), y, p.z.mul(float(1).sub(raised.mul(leg))).mul(cos(turn)).sub(p.x.mul(sin(turn))));
+      const z = p.z.mul(float(1).sub(raised.mul(leg)));
+      mat.positionNode = origin.add(vec3(p.x.mul(cos(yaw)).add(z.mul(sin(yaw))), y, z.mul(cos(yaw)).sub(p.x.mul(sin(yaw)))));
       const skin = float(1).sub(step(.1, abs(kind.sub(1))));
       const legs = float(1).sub(step(.1, abs(kind.sub(2))));
       mat.colorNode = mix(mix(mix(shirt, color('#95633f'), skin), color('#292934'), legs), color('#ffffff').mul(3), isPhone);
@@ -86,7 +93,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     const colors = [new THREE.Color(home), new THREE.Color(away), new THREE.Color('#ded9cc'), new THREE.Color('#292934')];
     for (const cards of width() < 768 ? [true] : [false, true]) {
       const geometry = cards ? new THREE.PlaneGeometry(.8, 1).translate(0, .5, 0) : figureGeometry();
-      const phase = [], angles = [], ends = [], shirts = [];
+      const phase = [], angles = [], ends = [], shirts = [], origins = [], yaws = [];
       const mesh = new THREE.InstancedMesh(geometry, material(cards), picked.length);
       const transform = new THREE.Object3D();
       picked.forEach((index, j) => {
@@ -94,12 +101,15 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
         transform.position.set(seat.x, seat.y + .02, seat.z);
         transform.rotation.set(0, cards ? 0 : seat.facing_deg * Math.PI / 180, 0);
         transform.updateMatrix(); mesh.setMatrixAt(j, transform.matrix);
+        origins.push(seat.x, seat.y + .02, seat.z); yaws.push(seat.facing_deg * Math.PI / 180);
         const end = seat.z >= 0 ? 1 : -1;
         const rand = (Math.sin(index * 17.13) * 43758.5 % 1 + 1) % 1;
         const team = rand < .72 ? (end > 0 ? 0 : 1) : rand < .88 ? 2 : 3;
         colors[team].toArray(shirts, j * 3);
         phase.push(rand * Math.PI * 2); angles.push(waveAngle((Math.atan2(seat.z, seat.x) + Math.PI * 2) % (Math.PI * 2))); ends.push(end);
       });
+      geometry.setAttribute('fanOrigin', new THREE.InstancedBufferAttribute(new Float32Array(origins), 3));
+      geometry.setAttribute('fanYaw', new THREE.InstancedBufferAttribute(new Float32Array(yaws), 1));
       geometry.setAttribute('fanPhase', new THREE.InstancedBufferAttribute(new Float32Array(phase), 1));
       geometry.setAttribute('fanAngle', new THREE.InstancedBufferAttribute(new Float32Array(angles), 1));
       geometry.setAttribute('fanEnd', new THREE.InstancedBufferAttribute(new Float32Array(ends), 1));
@@ -113,7 +123,11 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
   function syncLabel() {
     let visible = !dead && meshes.some((mesh) => mesh.visible && mesh.count > 0);
     for (let p = root; p; p = p.parent) visible = visible && p.visible;
-    if (label) label.hidden = !visible;
+    if (label) {
+      label.hidden = !visible;
+      const compass = document.getElementById?.('compass')?.getBoundingClientRect();
+      if (compass) { label.style.top = `${compass.bottom + 10}px`; label.style.left = `${compass.left}px`; }
+    }
   }
   function accept(data) {
     if (dead) return;
@@ -154,7 +168,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     }
     return result;
   }
-  const initial = config.seats || (config.features && generateSeats(config.features)) || fromMesh(heroGroup) || fromMesh(bowlGroup);
+  const initial = fromMesh(bowlGroup) || fromMesh(heroGroup) || config.seats || (config.features && generateSeats(config.features));
   let ready;
   if (initial) { accept(initial); ready = Promise.resolve(); }
   else ready = (async () => {
