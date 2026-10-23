@@ -121,3 +121,22 @@ pass 3 included). They replace the lost B pass 2 stills, which only ever existed
 Note for the next agent: freeze the site blend inside `blender/out/` (as `frozen_<step>.blend`). Its image paths are relative
 (`//../textures`, `//../assets`). A copy anywhere else renders every image texture missing (magenta shields). This happened
 once in this pass, and those stills were discarded.
+
+## H: hero_artistic stills (rendered 2026-10-23)
+
+The code came with commit 79432fc (hero_artistic.py). It had not been rendered. Time: L06 71 min, L07 40 min (3840 x 2160, 128
+samples, adaptive). They were rendered from the same frozen F scene, with the step H CC0 skies (`blender/assets/fetch_hdri_h.sh`).
+Pillow had to be installed into Blender's bundled Python for `stamp()`.
+
+- `H/L0N_*_hero_artistic.jpg` (quality 94), and `H/L0N_*_hero_artistic_labelled.jpg` with "Visualization: people, vehicles and
+  lighting are illustrative" in the corner. The 16 MB PNG masters are not committed. They can be re-rendered from this commit.
+- Added by the preset: 96 uplights (dusk only), a warm base glow, volumetric haze, glare, bevels, fins 1.35x deeper, 409 parked
+  cars (plain bodies) and 1,400 people on paving (Visualization).
+
+Read against the mockups:
+- L06: the warm lit base reads strongly, as in mockup 06, and so does the sunset cloud sky.
+- L06: the facade still reads mid-grey, not the mockup's warm uplit white. The 96 x 1,800 W uplights barely reach the louvres.
+  Try more power or a wider spot angle.
+- L06: the far land and the Ngong Hills show salt-and-pepper grain. That is volumetric haze noise at 128 samples that the denoiser
+  did not clear. Try more samples, or haze only in the near band.
+- L07: clean. The cumulus sky, the plaza people and the deeper fins read. The overall grade is a little darker than mockup 07.
