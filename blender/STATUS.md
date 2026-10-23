@@ -43,6 +43,7 @@ then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `b
 | Tier section 01 (row counts) | rows 15 / 12 / 32 derived; tread/riser fit rejected | blender/renders/tier_section_01/README.md |
 | Bake (all groups, maps/stages.json) | done | blender/out/web_hero/bake_log.json (local) |
 | Pass F layout_final_01 (lead order 2026-10-22) | WITHDRAWN 2026-10-23: the dusk image is AI-generated (LEAD_REVIEW.md rev 2) | blender/renders/layout_final_01/README.md |
+| Pass J landmarks_pass_j_01 (cloud handoff 2026-10-23, Step 2) | done: 12 real buildings from the gpkg (Enkang A-C, Denali, Alba, Junction, ...); step_FJ = step_FI + people_figures + crown_detail + landmarks_pass_j | blender/renders/landmarks_pass_j_01/README.md |
 | Pass I layout_pass_i_01 (cloud handoff 2026-10-23, Step 1) | done: pass F layout removed, east approach with island, SW grass, NW lawn; step_FI | blender/renders/layout_pass_i_01/README.md |
 | Pass G live data | done: app/public/data/facade_lines.json, seats.json (63,325 seats) | blender/renders/live_data_01/README.md |
 | Pass H people_final_01 | done: CC0 Quaternius figures, crown leaf masses; step_FH | blender/renders/people_final_01/README.md |
