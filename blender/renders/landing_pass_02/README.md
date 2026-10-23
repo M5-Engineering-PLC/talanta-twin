@@ -104,3 +104,20 @@ Gaps after R:
 - The station is outside both landing frames (just right of L06, just left of L07), so the L06 and L07 stills for R are the same as B's and were not re-rendered.
 - Canopy size, height and pump count are typical values, not measured. A GE trace of the canopy would fix them.
 - The brief put the station near the Jamhuri entrance, on the east side. The only Rubis in OSM near the site is this north-west one, and Munene chose it.
+
+## F: plaza, beds and paths, with B pass 3 (rendered 2026-10-23)
+
+Time: build 42 s, context chain 30 min (the second tree_rules pass alone takes about 20 min), renders 20 min (L06 614 s,
+L07 566 s). The stills come from a frozen copy of the site scene built from this branch (finish_plaza.py and background_b.py
+pass 3 included). They replace the lost B pass 2 stills, which only ever existed in the container that rendered them.
+
+- `F/L06_sunset_landing_hero.png`, `F/L07_daylight_landing_hero.png`, and `F/L0N_vs_mockup_F_internal.jpg` (internal only).
+- finish_plaza.py built 36 plaza quads, 133 bed quads, 17 radiating paths, 194 shrubs, 148 flower clumps, 38 trees and 48 lamps.
+  It builds only on unmeasured ground, so most of the ring stays as W1b, OSM and GE put it.
+- L07: the plaza ring, the planting beds with paths through them and the lamp rows read clearly in the foreground.
+- L06: the change is small. The murram paths at lower right now read in a light paving tone (orange in B pass 1), and there are a
+  few more beds and trees at the bowl's base. The mockup's wide plaza and flower ring stay mostly outside the unmeasured ground.
+
+Note for the next agent: freeze the site blend inside `blender/out/` (as `frozen_<step>.blend`). Its image paths are relative
+(`//../textures`, `//../assets`). A copy anywhere else renders every image texture missing (magenta shields). This happened
+once in this pass, and those stills were discarded.
