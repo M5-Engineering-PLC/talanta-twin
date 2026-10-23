@@ -45,7 +45,7 @@ def sun_position(date, hhmm_eat, lat, lon):
 
 bpy.ops.wm.open_mainfile(filepath=__import__("os").environ.get("TALANTA_SITE_BLEND", str(ROOT / "blender/out/talanta_site.blend")))  # a frozen copy per step
 s = bpy.context.scene
-m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json", extra=ROOT / "blender/data/interior_cameras.json")
+m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json", extra=[ROOT / "blender/data/interior_cameras.json", ROOT / "blender/data/matchday_cameras.json"])
 apply_render_settings(s, m, look_check=(quality not in ("hero", "hero_artistic")))
 s.camera = cams[cid]
 # Objects a camera stands inside or right behind (blender/data/camera_hides.json, with a reason)
@@ -111,6 +111,10 @@ artistic = quality == "hero_artistic"  # step H: 4K artistic set (hero_artistic.
 if artistic:
     import hero_artistic
     art_log = hero_artistic.prepare(s, bool(st.get("fixtures")))
+matchday_log = None  # group 3: the matchday Visualization only on the M cameras (blender/matchday.py)
+if cid.startswith("M") and (ROOT / "blender/data/matchday_cameras.json").exists():
+    import matchday
+    matchday_log = matchday.prepare(s, night)
 # Opt-in photographic layer. Existing cloud commands retain the original path.
 if __import__("os").environ.get("TALANTA_LOOKDEV") == "1" or artistic:
     sys.path.insert(0, str(ROOT / "blender"))
@@ -122,6 +126,7 @@ rec = {"camera": cid, "sky": sky_log, "sun": st, "sun_elevation_deg": round(el, 
        "resolution": [s.render.resolution_x * s.render.resolution_percentage // 100, s.render.resolution_y * s.render.resolution_percentage // 100],
        "samples": c.samples, "seconds": round(sec, 1)}
 if artistic: rec["hero_artistic"] = art_log; rec["labelled_copy"] = hero_artistic.stamp(s.render.filepath).name
+if matchday_log is not None: rec["matchday"] = matchday_log; rec["labelled_copy"] = matchday.stamp(s.render.filepath).name
 # image direction of cast shadows: a 100 m ground step away from the sun at the pitch centre (0 = right, ccw)
 from bpy_extras.object_utils import world_to_camera_view
 g0 = Vector((0, 0, m["frame"]["site_pad_y"])); g1 = g0 + 100 * Vector((-math.sin(math.radians(az)), -math.cos(math.radians(az)), 0))

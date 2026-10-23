@@ -17,8 +17,9 @@ def load_cameras(scene, path, collection_name="critic_cameras", extra=None):
     blender/data/interior_cameras.json, kept out of the app manifest); an optional "roll_deg" turns the camera
     about its view axis (hand-held frames)."""
     m = json.load(open(path))
-    if extra is not None and __import__("os").path.exists(extra):
-        m = dict(m); m["cameras"] = m["cameras"] + json.load(open(extra))["cameras"]
+    for ex in (extra if isinstance(extra, (list, tuple)) else [extra]):  # one path or a list (matchday cameras M01-M02)
+        if ex is not None and __import__("os").path.exists(ex):
+            m = dict(m); m["cameras"] = m["cameras"] + json.load(open(ex))["cameras"]
     col = bpy.data.collections.get(collection_name) or bpy.data.collections.new(collection_name)
     if col.name not in scene.collection.children:
         scene.collection.children.link(col)
