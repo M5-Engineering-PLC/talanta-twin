@@ -24,6 +24,10 @@ Written 2026-10-19 for the next coding agent. Last code commit before this file:
 `blender/out/*.blend` are build outputs and are git-ignored (Munene, 2026-10-20). A fresh clone has none: build them
 first (about 25 s), then run any render or export:
 `for s in build_blockout build_bowl_detail build_scene build_site_detail; do ~/.venvs/bpy/bin/python blender/$s.py; done`
+(2026-10-23, pass I: the chain is step_FE + `blender/context/layout_pass_i.py` (save as step_FI); `layout_final.py` is
+withdrawn and out of the chain. step_FE = the four builds, then `site_layout_ge.py`, `tree_rules.py`, `background_b.py`,
+`rubis_station.py`, `finish_plaza.py`, `tree_rules.py`, `asbuilt_ground.py`, `tree_crowns.py`, `context_fix.py`,
+`landing_look.py`; about 39 min on 4 cores.)
 (2026-10-22: the final scene step_FH = step_FE + `blender/context/layout_final.py` (save as step_FF) + `people_figures.py` +
 `crown_detail.py`; fetch the CC0 figures first with `blender/assets/fetch_people_quaternius.sh`.)
 then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `background_b.py`), then
@@ -38,7 +42,8 @@ then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `b
 | Geometry pass 3 (crest prior, last height fit) | rule failed; build values kept | blender/renders/geometry_pass_03/README.md |
 | Tier section 01 (row counts) | rows 15 / 12 / 32 derived; tread/riser fit rejected | blender/renders/tier_section_01/README.md |
 | Bake (all groups, maps/stages.json) | done | blender/out/web_hero/bake_log.json (local) |
-| Pass F layout_final_01 (lead order 2026-10-22) | done: west road, railway, station, footbridge, car parks from the dusk photo (camera P01); step_FF | blender/renders/layout_final_01/README.md |
+| Pass F layout_final_01 (lead order 2026-10-22) | WITHDRAWN 2026-10-23: the dusk image is AI-generated (LEAD_REVIEW.md rev 2) | blender/renders/layout_final_01/README.md |
+| Pass I layout_pass_i_01 (cloud handoff 2026-10-23, Step 1) | done: pass F layout removed, east approach with island, SW grass, NW lawn; step_FI | blender/renders/layout_pass_i_01/README.md |
 | Pass G live data | done: app/public/data/facade_lines.json, seats.json (63,325 seats) | blender/renders/live_data_01/README.md |
 | Pass H people_final_01 | done: CC0 Quaternius figures, crown leaf masses; step_FH | blender/renders/people_final_01/README.md |
 | 4K hero_artistic L06, L07 (step 19) | done on step_FH; W waits for Munene's approval | blender/renders/hero_artistic_02/README.md |

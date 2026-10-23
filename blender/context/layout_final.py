@@ -1,4 +1,7 @@
-"""Pass F (lead order 2026-10-22): the final layout, finished state, from the dusk aerial photo and the GE trace.
+"""WITHDRAWN 2026-10-23 (engineering/layout_audit_01/LEAD_REVIEW.md, revision 2): the dusk image is AI-generated, so this
+layout has no evidence. Pass I (blender/context/layout_pass_i.py) replaces this script in the chain. Kept for the record.
+
+Pass F (lead order 2026-10-22): the final layout, finished state, from the dusk aerial photo and the GE trace.
 
 Adds to the scene (default blender/out/talanta_site.blend, or TALANTA_SITE_BLEND), all from blender/data/layout_final.json:
 - the west dual carriageway from Ngong Road south past the bowl, with a median, verge and lamp rows;

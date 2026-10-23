@@ -8,7 +8,7 @@ station forecourt, denser toward the bowl and the plaza, about the density of th
 (research/reference/dusk_aerial_finished_2026-10-17.jpg, internal only). Each person gets a height, a heading, and
 shirt, trouser and skin colours from seeded palettes (instancer attributes read by the figure materials).
 Visualization: not a crowd count, occupancy or evacuation / safety simulation.
-Run from the repo root after layout_final.py: ~/.venvs/bpy/bin/python blender/context/people_figures.py
+Run from the repo root after layout_pass_i.py (pass I; layout_final.py before it): ~/.venvs/bpy/bin/python blender/context/people_figures.py
 """
 import json, math, os
 from pathlib import Path

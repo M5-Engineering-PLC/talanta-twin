@@ -1,5 +1,10 @@
 # Layout final 01: pass F, the final layout from the dusk photo and the GE trace (finished state)
 
+> **Withdrawn 2026-10-23.** The source image, `research/reference/dusk_aerial_finished_2026-10-17.jpg`, is AI-generated
+> (made with Argon, confirmed by Munene). It is not a photo and not evidence for layout, positions or sizes. The layout in
+> this pass is withdrawn (engineering/layout_audit_01/LEAD_REVIEW.md, revision 2). Pass I
+> (`blender/context/layout_pass_i.py`, `blender/renders/layout_pass_i_01/`) replaces it. Camera P01 stays a viewpoint only.
+
 Lead order of 2026-10-22, pass F.
 
 The dusk aerial photo of the finished site is internal reference only. It is not a texture and not public.
