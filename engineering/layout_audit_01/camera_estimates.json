@@ -1,0 +1,202 @@
+[
+  {
+    "id": "east_approach_envelope",
+    "camera_solve": "D03",
+    "evidence": "JWNowpO44rw_000617.567.jpg",
+    "image_size_px": [
+      1280,
+      720
+    ],
+    "pixels": [
+      [
+        548,
+        321
+      ],
+      [
+        663,
+        321
+      ],
+      [
+        741,
+        629
+      ],
+      [
+        546,
+        680
+      ]
+    ],
+    "ring_m": [
+      [
+        128.66,
+        24.78
+      ],
+      [
+        129.29,
+        -21.04
+      ],
+      [
+        283.24,
+        -36.5
+      ],
+      [
+        297.67,
+        9.88
+      ]
+    ],
+    "label": "estimate from a camera solve",
+    "ground_plane_y_m": 6.12,
+    "ground_plane_0_sensitivity_max_m": 11.01,
+    "uncertainty_m": 15,
+    "method": "Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit."
+  },
+  {
+    "id": "east_training_rectangle",
+    "camera_solve": "D03",
+    "evidence": "JWNowpO44rw_000617.567.jpg",
+    "image_size_px": [
+      1280,
+      720
+    ],
+    "pixels": [
+      [
+        198,
+        354
+      ],
+      [
+        530,
+        355
+      ],
+      [
+        522,
+        479
+      ],
+      [
+        123,
+        482
+      ]
+    ],
+    "ring_m": [
+      [
+        152.17,
+        154.17
+      ],
+      [
+        154.47,
+        29.14
+      ],
+      [
+        225.97,
+        23.78
+      ],
+      [
+        226.22,
+        144.3
+      ]
+    ],
+    "label": "estimate from a camera solve",
+    "ground_plane_y_m": 6.12,
+    "ground_plane_0_sensitivity_max_m": 11.79,
+    "uncertainty_m": 15,
+    "method": "Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit."
+  },
+  {
+    "id": "south_west_grass",
+    "camera_solve": "D02",
+    "evidence": "JWNowpO44rw_000714.767.jpg",
+    "image_size_px": [
+      1280,
+      720
+    ],
+    "pixels": [
+      [
+        294,
+        471
+      ],
+      [
+        524,
+        468
+      ],
+      [
+        538,
+        642
+      ],
+      [
+        110,
+        680
+      ]
+    ],
+    "ring_m": [
+      [
+        -139.48,
+        122.45
+      ],
+      [
+        -73.32,
+        135.11
+      ],
+      [
+        -80.11,
+        232.62
+      ],
+      [
+        -153.45,
+        228.17
+      ]
+    ],
+    "label": "estimate from a camera solve",
+    "ground_plane_y_m": 6.12,
+    "ground_plane_0_sensitivity_max_m": 18.59,
+    "uncertainty_m": 15,
+    "method": "Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit."
+  },
+  {
+    "id": "east_approach_island",
+    "camera_solve": "D03",
+    "evidence": "JWNowpO44rw_000617.567.jpg",
+    "image_size_px": [
+      1280,
+      720
+    ],
+    "pixels": [
+      [
+        603,
+        340
+      ],
+      [
+        637,
+        400
+      ],
+      [
+        606,
+        472
+      ],
+      [
+        565,
+        413
+      ]
+    ],
+    "ring_m": [
+      [
+        143.83,
+        2.3
+      ],
+      [
+        184.44,
+        -10.83
+      ],
+      [
+        222.91,
+        -1.47
+      ],
+      [
+        191.84,
+        13.33
+      ]
+    ],
+    "label": "estimate from a camera solve",
+    "ground_plane_y_m": 6.12,
+    "ground_plane_0_sensitivity_max_m": 10.38,
+    "uncertainty_m": 15,
+    "method": "Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit."
+  }
+]
