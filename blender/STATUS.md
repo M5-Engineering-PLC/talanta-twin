@@ -38,8 +38,18 @@ then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `b
 | Bake (all groups, maps/stages.json) | done | blender/out/web_hero/bake_log.json (local) |
 | Environment pass web_hero_v1 | built, 148.95 MB of 250 MB; release upload blocked | blender/web_hero/WEB_HERO_V1.md, web_hero_v1_manifest.json |
 | Landing-page preview with the bundle | screenshot taken (Hillside, 07:30) | this file, "App preview" |
+| Landing pass 02 steps F and H (2026-10-23) | rendered; H gaps: grey facade at dusk, haze grain | blender/renders/landing_pass_02/README.md, sections F and H |
+| Seat count pass 01 (2026-10-23) | done; 61,039 places (+1.7 %); upper overhang and vomitories estimated | blender/renders/seat_count_01/README.md |
+| Group 3 matchday (PL-01 to PL-19, PL-39/42; 2026-10-23) | done on M01/M02 (Visualization); night pitch under-lit | blender/renders/matchday_01/README.md |
 
-Open task lists: Group 3 (PL rows on the matchday camera only) not started. Web hero task: the release step is open.
+Open task lists: Web hero task: the release step is open. Group 3 forecourt and traffic rows (PL-20 to PL-38) not started.
+
+2026-10-23 cloud session notes:
+- This container had no `~/.venvs/bpy`. The installed `blender -b --factory-startup --python <script> -- <args>` runs every
+  script unchanged (they read `sys.argv` from the end).
+- Freeze site blends inside `blender/out/`. Their image paths are relative, and a copy elsewhere renders the textures missing.
+- `hero_artistic.stamp()` and `matchday.stamp()` need Pillow in Blender's bundled Python
+  (`/opt/blender/5.2/python/bin/python3.13 -m pip install pillow`).
 
 ## Blocked: GitHub prerelease web_hero_v1
 
