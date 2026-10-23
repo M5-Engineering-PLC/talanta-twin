@@ -33,7 +33,7 @@ Munene also wants real local apartment blocks in the background, because local v
 
 Do this step only when engineering/layout_audit_01/LEAD_REVIEW.md is on this branch. A draft of the audit is on the branch now, but it is not reviewed. Do not apply the draft. The lead writes LEAD_REVIEW.md after the review and pushes it. If LEAD_REVIEW.md is not there yet, start Step 2 and fetch again later.
 
-Apply the fix list in LAYOUT_AUDIT.md, section "Fix list in visual order". The draft findings are below. The reviewed file wins where it differs.
+Apply LEAD_REVIEW.md (revision 2). The dusk image in research/reference/ is AI-generated, so pass I removes the whole pass F layout. The notes below are from the draft. LEAD_REVIEW.md wins where it differs.
 
 - The north-west car park (`layout_final.json:carpark_north_west`, 318 cars) covers lawn and crossed red paths in the frames. Remove it from the finished state. Show the lawn, paths, beds and palms again.
 - The south-west lot (`layout_final.json:carpark_south_west`, 207 cars) covers a grass rectangle inside the loop road. Remove the lot. Show the grass and the small stand again. Keep the loop road.
