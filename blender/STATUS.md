@@ -47,7 +47,8 @@ then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `b
 | Pass I layout_pass_i_01 (cloud handoff 2026-10-23, Step 1) | done: pass F layout removed, east approach with island, SW grass, NW lawn; step_FI | blender/renders/layout_pass_i_01/README.md |
 | Pass G live data | done: app/public/data/facade_lines.json, seats.json (63,325 seats) | blender/renders/live_data_01/README.md |
 | Pass H people_final_01 | done: CC0 Quaternius figures, crown leaf masses; step_FH | blender/renders/people_final_01/README.md |
-| 4K hero_artistic L06, L07 (step 19) | done on step_FH; W waits for Munene's approval | blender/renders/hero_artistic_02/README.md |
+| 4K hero_artistic L06, L07 (step 19) | superseded by hero_artistic_03 (step_FH carried the withdrawn pass F layout) | blender/renders/hero_artistic_02/README.md |
+| 4K hero_artistic L06, L07 (cloud handoff 2026-10-23, Step 4) | done on step_FJ: ridge speckle fixed at the cause (haze-free pass layer), warmer L06 sky; W waits for Munene's approval | blender/renders/hero_artistic_03/README.md |
 | Environment pass web_hero_v1 | built, 148.95 MB of 250 MB; release upload blocked | blender/web_hero/WEB_HERO_V1.md, web_hero_v1_manifest.json |
 | Landing-page preview with the bundle | screenshot taken (Hillside, 07:30) | this file, "App preview" |
 

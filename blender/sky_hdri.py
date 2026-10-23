@@ -37,7 +37,10 @@ PRESETS = {
     # step H (Munene, 2026-10-19): hero_artistic stills, sunset and cumulus skies (CC0; blender/assets/fetch_hdri_h.sh)
     "sunset_artistic": {"date": "2026-01-15", "time_eat": "18:05", "kind": "evening golden",
                         "hdri": "blender/assets/hdri/belfast_sunset_puresky_4k.hdr", "sky_strength": 1.0,
-                        "sun_kelvin": 3000, "sun_to_sky": 5.0, "exposure_ev": -1.6, "fixtures": True},
+                        "sun_kelvin": 3000, "sun_to_sky": 5.0, "exposure_ev": -1.6, "fixtures": True,
+                        # cloud handoff 2026-10-23, Step 4: warmer, more saturated clouds as seen by the camera only (mockup 06's
+                        # orange clouds); the light the sky casts on the scene is unchanged
+                        "camera_sky_grade": {"saturation": 1.55, "gain": (1.12, 0.97, 0.80)}},
     # replica plan pass D (lead, 2026-10-20): the drone frames D01-D03 are under a heavy grey cloud deck; grey overcast
     # sky, weak soft sun (render_cycles.py overcast branch keeps the 25 deg sun disc), lower exposure
     "overcast_drone": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast",
@@ -118,6 +121,14 @@ def apply(scene, preset_key, el, az, sun):
     if p.get("sky_tint"):  # white balance of the sky light (the overcast HDRI is warmer than the drone frames' grey deck)
         tn = n.new("ShaderNodeVectorMath"); tn.operation = "MULTIPLY"; tn.name = "hdri_tint"; tn.inputs[1].default_value = p["sky_tint"]
         l.new(cl.outputs["Vector"], tn.inputs[0]); l.new(tn.outputs["Vector"], bg.inputs["Color"])
+    if p.get("camera_sky_grade"):  # camera rays see a graded sky; lighting rays keep the ungraded HDRI
+        g = p["camera_sky_grade"]; src = bg.inputs["Color"].links[0].from_socket
+        hsv = n.new("ShaderNodeHueSaturation"); hsv.name = "hdri_camera_grade"; hsv.inputs["Saturation"].default_value = g["saturation"]
+        gm = n.new("ShaderNodeVectorMath"); gm.operation = "MULTIPLY"; gm.inputs[1].default_value = g["gain"]
+        lp = n.new("ShaderNodeLightPath"); mx = n.new("ShaderNodeMix"); mx.data_type = "RGBA"
+        l.new(src, hsv.inputs["Color"]); l.new(hsv.outputs["Color"], gm.inputs[0])
+        l.new(lp.outputs["Is Camera Ray"], mx.inputs["Factor"]); l.new(src, mx.inputs[6]); l.new(gm.outputs["Vector"], mx.inputs[7])
+        l.new(mx.outputs[2], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = p["sky_strength"]
     sun.data.energy = p["sun_to_sky"] * hs["sky_horizontal_irradiance"] * p["sky_strength"]
     sun.data.color = blackbody(p["sun_kelvin"])
