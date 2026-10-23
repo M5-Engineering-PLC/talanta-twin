@@ -342,6 +342,15 @@ for nm, ta, ya, yb, m in [("vip_glass", V("bowl.tier_middle.t0"), V("bowl.band.v
     for i in range(N):
         a, b = 2 * i, 2 * ((i + 1) % N); f.append((a, b, b + 1, a + 1))
     obj(nm, "tiers", v, f, m, "estimated", "ledger bowl.band.* (estimated)")
+# seat count pass 01: the upper tier overhangs the middle tier; a flat soffit closes its underside back to the middle tier's back band
+if V("bowl.tier_upper.t0") < V("bowl.tier_middle.t1"):
+    ys = V("bowl.tier_upper.y0") - V("bowl.tier_upper.soffit_drop"); v, f = [], []
+    for i in range(N):
+        ux, uz = dirs[i]
+        for r in (at(i, V("bowl.tier_upper.t0")) - 0.1, at(i, V("bowl.tier_middle.t1"))): v.append((ux * r, Y(ys), uz * r))
+    for i in range(N):
+        a, b = 2 * i, 2 * ((i + 1) % N); f.append((a, a + 1, b + 1, b))
+    obj("upper_soffit", "tiers", v, f, CONC, "estimated", "ledger bowl.tier_upper.t0_blockout, bowl.tier_upper.soffit_drop_blockout (estimated)")
 
 # ---------------------------------------------------------------- facade details (stage 02 pass 2; all estimated)
 # Diamond lattice, rings, roof ribs, opening ring beam, eight shields. Counts and
