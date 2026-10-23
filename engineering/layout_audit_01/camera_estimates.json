@@ -46,7 +46,7 @@
     "label": "estimate from a camera solve",
     "ground_plane_y_m": 6.12,
     "ground_plane_0_sensitivity_max_m": 11.01,
-    "uncertainty_m": 15,
+    "uncertainty_m": 20,
     "method": "Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit."
   },
   {
@@ -96,7 +96,7 @@
     "label": "estimate from a camera solve",
     "ground_plane_y_m": 6.12,
     "ground_plane_0_sensitivity_max_m": 11.79,
-    "uncertainty_m": 15,
+    "uncertainty_m": 20,
     "method": "Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit."
   },
   {
@@ -146,7 +146,7 @@
     "label": "estimate from a camera solve",
     "ground_plane_y_m": 6.12,
     "ground_plane_0_sensitivity_max_m": 18.59,
-    "uncertainty_m": 15,
+    "uncertainty_m": 25,
     "method": "Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit."
   },
   {
@@ -196,7 +196,7 @@
     "label": "estimate from a camera solve",
     "ground_plane_y_m": 6.12,
     "ground_plane_0_sensitivity_max_m": 10.38,
-    "uncertainty_m": 15,
+    "uncertainty_m": 20,
     "method": "Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit."
   }
 ]

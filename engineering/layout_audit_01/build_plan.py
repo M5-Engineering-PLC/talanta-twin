@@ -56,7 +56,7 @@ add('spine_beds','planting','asbuilt',[-58,-190],{'east_west':6,'north_south':66
  '12 m strip at x -64 to -52, z -228 to -148.',
  'Planting borders a lawn and path network. A car park spine is not established.',
  'unknown','medium',['000645.000','000659.633'],hold='Q1. Preserve observed lawn edges until final layout authority is clear.')
-add('carpark_south_west','lawn','asbuilt',[-112,178],{'east_west':73,'north_south':106},'layout_final.json:carpark_south_west',
+add('carpark_south_west','lawn','asbuilt',[-112,180],{'east_west':73,'north_south':106},'layout_final.json:carpark_south_west',
  '72 x 96 m asphalt lot, 207 illustrative cars, pitch and small stand hidden.',
  'A grass rectangle lies inside a paved loop beside a stand. No bays appear on the grass. Sport markings are not resolved.',
  'unknown','high',['000714.767','000716.317','001246.333'],basis='estimate from a camera solve',ring=E['south_west_grass']['ring_m'],

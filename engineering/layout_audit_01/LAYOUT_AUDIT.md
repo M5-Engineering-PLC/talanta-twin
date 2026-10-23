@@ -217,3 +217,28 @@ The lead reviews the proposed plan and answers Q1 to Q9 before the builder chang
 The builder must retain separate asbuilt and finished states. This audit approves no rendering, baking or export.
 
 No tool guarantees STE compliance. The official dictionary is free at asd-ste100.org.
+
+## Acceptance record
+
+Software result: the plan contains 32 features and all 14 required model features.
+All 32 rows cite indexed frames. Every plan feature has evidence and a state.
+All 13 JPEG sheets decode. The JSON parser accepts layout_plan.json.
+The three longest descriptive sentences contain 20, 18 and 18 words.
+The text scan finds no banned modal, asterisk or em dash. The scan does not prove dictionary compliance.
+
+The first full validate_audit.py run stopped at the worktree scope test.
+It reported: AssertionError: ?? engineering/landmarks_01/LANDMARK_CANDIDATES.md
+Another process then committed the shared worktree in 67ffc4e. That commit includes an earlier audit draft and unrelated work.
+The audit preserves that commit and all unrelated files. The final status contains changes only under engineering/layout_audit_01/.
+The final full validator run passes the content and path scope tests. Acceptance 7 remains incomplete because final updates are uncommitted.
+
+The original paths remain intact. The destination is engineering/layout_audit_01/.
+Operation: derived report and internal contact sheets. Source preservation: yes. Network publication by this worker: none.
+The lead receives a local review artifact with unresolved finished-state authority.
+
+Git staging initially succeeded for this folder. The final staging attempt failed with this exact error:
+
+fatal: Unable to create '/home/munene/CEO/14_talanta_twin/.git/worktrees/talanta_layout_audit/index.lock': Read-only file system
+
+The earlier audit snapshot is in commit 67ffc4e. The working files contain the final updates.
+The lead must stage and commit those updates when Git metadata permits writes. This worker made no commit or push.

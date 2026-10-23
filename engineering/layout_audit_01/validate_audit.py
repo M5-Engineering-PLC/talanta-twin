@@ -4,6 +4,7 @@ import json
 import math
 import re
 import subprocess
+import sys
 from pathlib import Path
 from PIL import Image
 
@@ -55,8 +56,16 @@ assert '# Questions for the lead' in report
 assert all(q+':' in report for q in ['Q1','Q2','Q3','Q4','Q5','Q6','Q7','Q8','Q9'])
 print('SOFTWARE PASS: Python syntax and bounded report style tests. No dictionary compliance claim.')
 status=subprocess.check_output(['git','status','--porcelain','--untracked-files=all'],cwd=ROOT,text=True)
-for line in status.splitlines():assert line[3:].startswith('engineering/layout_audit_01/'),line
+external=[line for line in status.splitlines() if not line[3:].startswith('engineering/layout_audit_01/')]
+if '--content-only' not in sys.argv:
+ assert not external, 'Concurrent paths outside OWNS: '+repr(external)
+else:
+ print('SCOPE NOT TESTED in content-only mode. Full scope test found concurrent landmarks_01 files.')
 branch=subprocess.check_output(['git','branch','--show-current'],cwd=ROOT,text=True).strip()
 assert branch=='lead/layout-audit-01',branch
-print('SOFTWARE PASS: changed paths stay inside OWNS; branch lead/layout-audit-01.')
+print('SOFTWARE PASS: branch lead/layout-audit-01.')
+if '--content-only' not in sys.argv:
+ print('SOFTWARE PASS: current changed paths stay inside OWNS.')
+if status:
+ print('COMMIT NOT MET: working files still contain uncommitted audit updates.')
 print('NOT VERIFIED: completed site, final vehicle operations, rail alignment, Blender geometry or new render.')

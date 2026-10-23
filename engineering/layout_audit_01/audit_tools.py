@@ -87,7 +87,7 @@ def estimates():
             image_size_px=[1280,720], pixels=pixels, ring_m=pts,
             label='estimate from a camera solve', ground_plane_y_m=6.12,
             ground_plane_0_sensitivity_max_m=round(sensitivity,2),
-            uncertainty_m=15, method='Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit.'))
+            uncertainty_m=25 if cid == 'D02' else 20, method='Pinhole rays through manifest pose and vfov. Flat plane only. Roll rotates image basis. No terrain fit.'))
     (OUT / 'camera_estimates.json').write_text(json.dumps(records, indent=2)+'\n')
     for r in records: print(r['id'],r['ring_m'],'plane sensitivity',r['ground_plane_0_sensitivity_max_m'])
     return {r['id']:r for r in records}
