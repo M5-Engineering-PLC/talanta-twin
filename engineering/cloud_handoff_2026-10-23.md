@@ -25,13 +25,13 @@ Munene also wants real local apartment blocks in the background, because local v
 | engineering/landmarks_01/LANDMARK_CANDIDATES.md | Candidate buildings, frames, camera projections, and the map positions | Done. Low confidence on names from frames alone. |
 | engineering/landmarks_01/sheets/ | Frame crops of the apartment blocks | Internal only |
 | engineering/landmarks_01/ref/gmaps_*.webp | Two Google Maps satellite screenshots from Munene | Internal only. Use for positions, never as a texture. |
-| engineering/layout_audit_01/ | The layout audit from the drone frames, with a fix list | Arrives later on this branch. See "Step 1". |
+| engineering/layout_audit_01/ | The layout audit from the drone frames, with a fix list | Draft only. Wait for LEAD_REVIEW.md. See "Step 1". |
 
 ## Work order, in this sequence
 
 ### Step 1: Pass I, layout fix
 
-Do this step only when engineering/layout_audit_01/LAYOUT_AUDIT.md is on this branch. The lead reviews it first and then pushes it. If it is not there yet, start Step 2 and fetch again later.
+Do this step only when engineering/layout_audit_01/LEAD_REVIEW.md is on this branch. A draft of the audit is on the branch now, but it is not reviewed. Do not apply the draft. The lead writes LEAD_REVIEW.md after the review and pushes it. If LEAD_REVIEW.md is not there yet, start Step 2 and fetch again later.
 
 Apply the fix list in LAYOUT_AUDIT.md, section "Fix list in visual order". The draft findings are below. The reviewed file wins where it differs.
 
