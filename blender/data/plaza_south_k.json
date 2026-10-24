@@ -183,5 +183,12 @@
     "planting": "inference",
     "kerbs": "inference"
   },
-  "keep": "the south-west grass loop and its road (sw_lawn, sw_loop_road, pi_sw_grass) stay as they are"
+  "keep": "the south-west grass loop and its road (track_sw, track_sw_infield; sw_lawn, sw_loop_road, pi_sw_grass where built) stay as they are; the plaza's west edge stops 1 m outside the loop road's outer east edge",
+  "loop_objects": [
+    "track_sw",
+    "track_sw_infield",
+    "sw_loop_road",
+    "sw_lawn"
+  ],
+  "loop_gap_m": 1.0
 }

@@ -147,6 +147,25 @@ if apron:  # outer edge of the apron (vertex pairs inner, outer; site_layout_ge.
     north = sorted([(p.x, -p.y + 0.5) for p in outer if -p.y > 0 and x_from <= p.x <= x_to], key=lambda q: q[0])
 # outline: the apron edge from west to east, then the solved east, south and west points (the three north points dropped)
 PLAZA = (north + OUT[3:]) if len(north) >= 3 else OUT
+# keep the south-west grass loop and its road as they are: the west edge stops at the loop road's outer east edge
+# (track_sw; the solved west edge at x -64 lies about 12 m inside it, within the +-25 m of the solve)
+LOOP = [bpy.data.objects.get(n) for n in D["loop_objects"]]
+loop_edge = {}
+for lo in [o for o in LOOP if o is not None]:
+    M = lo.matrix_world
+    for v in lo.data.vertices:
+        w = M @ v.co; k = int((-w.y) // 2)
+        loop_edge[k] = max(loop_edge.get(k, -1e9), w.x)
+clipped = 0
+if loop_edge:
+    zs = sorted(loop_edge); edge = lambda z: np.interp(z, [2 * k + 1 for k in zs], [loop_edge[k] for k in zs], left=-1e9, right=-1e9)
+    R = [tuple(p) for p in resample(PLAZA + [PLAZA[0]], 2.0)[:-1]]
+    PLAZA = []
+    for x, z in R:
+        e = edge(z) + D["loop_gap_m"]
+        if x < e: x = e; clipped += 1
+        PLAZA.append((float(x), z))
+report["west_edge_clipped_to_loop"] = clipped
 if area(PLAZA) < 1: raise SystemExit("south plaza outline is degenerate")
 
 # ---------------------------------------------------------------- beds (outlines in the app plan)
@@ -167,7 +186,7 @@ SKIP_COLL = {"plaza_south_k", "layout_pass_i", "layout_cars_visualization", "she
              "tiers", "plinth", "night_lights", "bowl_protos", "site_protos", "site_trees_protos", "atmosphere",
              "people_visualization", "people_figures_visualization", "people_protos", "landmarks_pass_j", "trace_sw_finished"}
 KEEP = {"terrain_site", "terrain_far", "ge_apron_ring", "suburbs_buildings", "buildings", "haze_volume", "site_pad",
-        "sw_lawn", "sw_loop_road", "pi_sw_grass"}
+        "sw_lawn", "sw_loop_road", "pi_sw_grass", "track_sw", "track_sw_infield", "track_masts", "training_field_sw"}
 cut_report = {"hidden": [], "cut": [], "copied": []}
 
 
@@ -241,7 +260,7 @@ for nm, R, m in [("pk_round_bed_ring", circle(br), MURRAM)] + [(f"pk_axial_bed_{
     kerb(nm + "_kerb", Bb, lambda x, z, g=gtop: g, 0.01, CLAIM("kerbs"))
     if "round" in nm:  # planted centre inside the murram ring
         surface("pk_round_bed_planting", circle(br - RB["murram_ring_m"]), PLANT, 0.0, CLAIM("planting"), step=2.0, height=gtop + 0.02)
-report["south_plaza"] = {"area_m2": round(area(PLAZA)), "apron_edge_points": len(north), "outline_points": len(PLAZA),
+report["south_plaza"] = {"area_m2": round(area(PLAZA)), "apron_edge_points": len(north), "outline_points": len(PLAZA), "west_edge_clipped_points": clipped,
                          "round_bed_centre": [bx, bz], "round_bed_r_m": br, "axial_beds": {k: [list(map(round, p)) for p in v] for k, v in AX.items()},
                          "extent_x": [round(min(p[0] for p in PLAZA)), round(max(p[0] for p in PLAZA))],
                          "extent_z": [round(min(p[1] for p in PLAZA)), round(max(p[1] for p in PLAZA))]}
