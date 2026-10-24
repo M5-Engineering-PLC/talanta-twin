@@ -108,5 +108,12 @@ drops). Nothing was changed.
   lowers 37 generic mid-rise blocks to one storey. The generic city behind the Enkang towers reads much lower than
   before, while real gpkg towers (The Fedge, Rock Park Apartments) still stand behind them. Keep the rule, or cap at a
   higher percentile?
-- The south plaza solve puts the round bed at (-16, 206), 33 m west of Sol's audit centre (15, 195), and the extent at
-  about 110 x 125 m, a little above the audit's 80-100 x 100-130 m. Both are within the 25 m uncertainty.
+- The south plaza solve gives two centres. The round-bed centre is (-15.7, 206.1). The centre of the built paving outline
+  is (-17.5, 195.2) (the solved eight-point outline alone: (-16.0, 191.0)). Both lie about 33 m west of Sol's audit
+  centre (15, 195): the bed 32.6 m, the outline 32.5 m. That is more than the 25 m uncertainty, so the solve and the
+  audit do not agree on the position. The solved position is kept (the plaza is not moved); a GE trace would settle it.
+  Size, measured from blender/data/plaza_south_k.json: the solved outline spans 110 x 135 m (x -64.0 to 45.8, z 124.9 to
+  260.4). The built paving spans 109 x 123 m (z from 136.6), because its north edge follows the outer edge of
+  ge_apron_ring instead of the three solved north points. The audit gave 80-100 x 100-130 m.
+  (Corrected 2026-10-24, web hero v2 order W0: this item first said 110 x 125 m and that both centres agree within the
+  25 m uncertainty.)

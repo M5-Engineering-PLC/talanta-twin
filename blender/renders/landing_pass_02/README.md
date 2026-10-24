@@ -1,5 +1,8 @@
 # Landing pass 02 (internal)
 
+**The F and H stills are superseded by blender/renders/hero_artistic_04/** (pass K, step_FK, approved by Munene on
+2026-10-24). Keep them as a record only.
+
 Landing stills L06 (sunset_landing, 18:05) and L07 (daylight_landing, 10:30) at 1920 x 1080, one folder per step of
 Munene's 2026-10-19 work order (G, L, T, B, R, H, W). Each folder holds the two renders and `L0N_vs_mockup_<step>_internal.jpg`,
 the render next to landing mockup 06 or 07.
@@ -127,6 +130,8 @@ Gaps after B:
 
 ## F: plaza, beds and paths, with B pass 3 (rendered 2026-10-23)
 
+Superseded by blender/renders/hero_artistic_04/.
+
 Time: build 42 s, context chain 30 min (the second tree_rules pass alone takes about 20 min), renders 20 min (L06 614 s,
 L07 566 s). The stills come from a frozen copy of the site scene built from this branch (finish_plaza.py and background_b.py
 pass 3 included). They replace the lost B pass 2 stills, which only ever existed in the container that rendered them.
@@ -143,6 +148,8 @@ Note for the next agent: freeze the site blend inside `blender/out/` (as `frozen
 once in this pass, and those stills were discarded.
 
 ## H: hero_artistic stills (rendered 2026-10-23)
+
+Superseded by blender/renders/hero_artistic_04/.
 
 The code came with commit 79432fc (hero_artistic.py). It had not been rendered. Time: L06 71 min, L07 40 min (3840 x 2160, 128
 samples, adaptive). They were rendered from the same frozen F scene, with the step H CC0 skies (`blender/assets/fetch_hdri_h.sh`).
