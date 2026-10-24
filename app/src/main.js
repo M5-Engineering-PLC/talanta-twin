@@ -561,6 +561,29 @@ function drawCharts() {
 }
 
 // ---------------------------------------------------------------- modes and date
+// Night show (SHW-01 to SHW-03): loaded on demand, removed when another mode is chosen.
+let shows = null;
+async function startShow() {
+  if (!shows) {
+    const { installShows } = await import('./shows/index.js');
+    shows = installShows({ scene, camera, renderer, heroGroup: hero?.group, bowlGroup: bowl.group });
+  }
+  stopLiveClock(); state.minutes = 1200; const t = document.querySelector('#landing-time'); if (t) t.value = '1200';
+  if (!startShow.savedFlood) {
+    startShow.savedFlood = flood.map(light => ({ light, descriptor: Object.getOwnPropertyDescriptor(light, 'intensity') }));
+    // applyTime writes intensity again after a time change. Hold these lamps dark until stopShow.
+    for (const { light } of startShow.savedFlood) Object.defineProperty(light, 'intensity', { configurable: true, enumerable: true, get: () => 0, set: () => {} });
+  }
+  shows.play('night_show');
+  if (import.meta.env.DEV) window.__shows = shows;
+}
+function stopShow() {
+  shows?.dispose(); shows = null;
+  if (startShow.savedFlood) {
+    for (const { light, descriptor } of startShow.savedFlood) Object.defineProperty(light, 'intensity', descriptor);
+    startShow.savedFlood = null;
+  }
+}
 document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   if (b.disabled) return;
   document.querySelectorAll('#modes button').forEach((x) => x.classList.toggle('on', x === b));
@@ -569,6 +592,7 @@ document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   stopPlay(); buildTimeline(); applyBuild();
   if (b.dataset.mode === 'construction') { state.build = Date.UTC(2023, 0, 8); focus('bowl'); }
   if (b.dataset.mode === 'weather') { $('#weather').scrollIntoView({ behavior: 'smooth' }); focus('overview'); }
+  if (b.dataset.mode === 'show') { focus('overview'); void startShow(); } else stopShow();
 });
 $('#date').onchange = (e) => { if (e.target.value) { stopLiveClock(); state.day = e.target.value; wxKey = ''; buildTimeline(); } };
 
@@ -784,6 +808,7 @@ renderer.setAnimationLoop((now) => {
   stepFly(now);
   if (!hero && site.group.visible) site.update(now / 1000, night);
   traffic?.update(dt);
+  shows?.update(dt);
   site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
   if (crowd) {
     crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible;
