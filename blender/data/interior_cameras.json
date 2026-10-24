@@ -143,9 +143,9 @@
    "purpose": "match tour frame JWNowpO44rw 002320.200: north end, upper tier front walkway behind the glass balustrade, across the bowl; internal only",
    "frame": "research/frames/JWNowpO44rw/JWNowpO44rw_002320.200.jpg",
    "position": [
-    -8.75,
+    -7.96,
     40.72,
-    -100.03
+    -90.99
    ],
    "target": [
     -70.27,
@@ -204,6 +204,52 @@
    },
    "variants": [],
    "seed": 35
+  },
+  {
+   "id": "F16",
+   "purpose": "facade fix check against frame JWNowpO44rw 001216.000 (camera solved from lattice landmarks, rms 12.67 px); internal only",
+   "projection": "perspective",
+   "focal_length_mm": 18.99,
+   "position": [
+    133.66,
+    43.09,
+    108.37
+   ],
+   "target": [
+    51.68,
+    28.75,
+    52.94
+   ],
+   "roll_deg": 0.33,
+   "seed": 1,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "10:30",
+    "kind": "daylight"
+   }
+  },
+  {
+   "id": "F32",
+   "purpose": "facade fix check against frame JWNowpO44rw 001232.600 (camera solved from lattice landmarks, rms 25.54 px); internal only",
+   "projection": "perspective",
+   "focal_length_mm": 29.33,
+   "position": [
+    170.73,
+    133.74,
+    -162.37
+   ],
+   "target": [
+    101.62,
+    93.95,
+    -102.04
+   ],
+   "roll_deg": -4.312,
+   "seed": 1,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "10:30",
+    "kind": "daylight"
+   }
   }
  ]
 }

@@ -1,6 +1,6 @@
 # Handoff: where the Talanta twin is parked
 
-Updated: 2026-10-19. Read this file first on a new device or with a new coding agent. Then read AGENTS.md, then blender/STATUS.md.
+Updated: 2026-10-19. New lead chat: read engineering/lead_handoff_2026-10-20.md first. Read this file first on a new device or with a new coding agent. Then read AGENTS.md, then blender/STATUS.md.
 
 ## Where the work is
 
@@ -39,8 +39,8 @@ The path to the landing mockups 06 and 07 (work items L1 to L8 and three open de
 3. App: load the 8K EXR panorama when the device can take it. Else load the 2048 HDR.
 4. Done (2026-10-19): the landing caption reads "60,000 design capacity"; the procedural seat count is gone from it.
 5. Blender (cloud): fix the pale pink-grey blotches on the near ground and the ground tiles. Re-export the ground tiles only.
-6. Blender (cloud): the build has 63,949 places against the narrated 60,000. Check the upper tier depth and overhang, and cut the vomitories. Keep the 0.5 m seat pitch.
-7. Blender (cloud): group 3 PL rows on the matchday camera only (see blender/STATUS.md).
+6. Done (2026-10-23, seat count pass 01): upper tier overhang and vomitories modelled; 61,039 places (+1.7 %). The web blockout.glb was not re-exported (app owner). See blender/renders/seat_count_01/README.md.
+7. Done (2026-10-23): group 3 bowl rows on matchday cameras M01/M02, labelled Visualization (blender/renders/matchday_01/). Open: brighter night floodlights; forecourt and traffic rows PL-20 to PL-38.
 8. Test the landing at 375 px phone width on a real phone. A headless check at 375 x 812 (?hero, Hillside, morning) showed no horizontal scroll and no overlap.
 
 App tasks run on a laptop. Bakes, renders and exports run in the cloud chat. A new bundle gets a new release tag (web_hero_v2). Do not replace the files in web_hero_v1.

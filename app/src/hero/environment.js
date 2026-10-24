@@ -1,5 +1,6 @@
 import * as THREE from 'three/webgpu';
 import { vec3 } from 'three/tsl';
+import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 
 // The panorama centre maps to +x in three.js equirectangular UVs, so a +90 deg yaw turns it to north (-z) (checked by Sol with a software probe).
@@ -41,24 +42,39 @@ function specularEnvironmentMaterial(BaseMaterial) {
 const SpecularStandardMaterial = specularEnvironmentMaterial(THREE.MeshStandardNodeMaterial);
 const SpecularPhysicalMaterial = specularEnvironmentMaterial(THREE.MeshPhysicalNodeMaterial);
 
-function listedEnvironmentFile(manifest, small) {
-  const wanted = small ? manifest.environment?.file_2048 : manifest.environment?.file;
-  const entry = manifest.files?.find((file) => file.file === wanted && file.file.startsWith('app/public/env/'));
-  return entry?.file?.replace(/^app\/public\//, '');
+export function choosePanorama(manifest, { desktopGPU = false, maxTextureSize = 0, memoryGB = 0, phone = true, preferSmall = false } = {}) {
+  const env = manifest.environment ?? {};
+  const files = (manifest.files ?? []).map(f => f.file).filter(f => f.startsWith('app/public/env/'));
+  const hdr = [env.file_2048, env.file].find(f => files.includes(f) && /\.hdr$/i.test(f));
+  const stem = hdr?.replace(/_2048\.hdr$/i, '');
+  const exr = [env.file_exr, env.file, ...files.filter(f => f === `${stem}.exr`)].find(f => files.includes(f) && /\.exr$/i.test(f));
+  const large = !preferSmall && !phone && desktopGPU && memoryGB >= 8 && maxTextureSize >= (env.resolution?.[0] ?? 8192);
+  return [...new Set([large && exr, hdr].filter(Boolean))].map(f => f.replace(/^app\/public\//, ''));
 }
 
-/** Load the exported HDR panorama and apply it to the scene, or return null when it is unavailable. */
-export async function loadEnvironment({ renderer, scene, manifest, base = './', preferSmall = false, environmentIntensity = 1 }) {
-  const small = preferSmall || (typeof window !== 'undefined' && window.innerWidth < 768);
-  const path = listedEnvironmentFile(manifest, small);
-  if (!path) {
-    console.warn('Environment panorama is missing from manifest.files.');
-    return null;
+export function panoramaDevice(renderer, preferSmall) {
+  const backend = renderer.backend;
+  const gl = backend?.gl;
+  const maxTextureSize = backend?.device?.limits?.maxTextureDimension2D ?? (gl ? gl.getParameter(gl.MAX_TEXTURE_SIZE) : 0);
+  let gpu = backend?.adapter?.info?.device ?? backend?.adapter?.info?.description ?? '';
+  if (gl) {
+    const debug = gl.getExtension('WEBGL_debug_renderer_info');
+    if (debug) gpu = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL);
   }
+  const nav = globalThis.navigator;
+  const phone = /Android|iPhone|iPad|Mobile/i.test(nav?.userAgent ?? '') || (nav?.maxTouchPoints > 1 && /Macintosh/i.test(nav?.userAgent ?? '')) || (globalThis.innerWidth ?? 0) < 768;
+  return { phone, preferSmall, maxTextureSize, memoryGB: nav?.deviceMemory ?? 8,
+    desktopGPU: Boolean(backend?.isWebGPUBackend || gl) && !/swiftshader|llvmpipe|software/i.test(gpu) };
+}
 
-  const url = `${base.endsWith('/') ? base : `${base}/`}${path}`;
-  try {
-    const texture = await new HDRLoader().loadAsync(url);
+/** Load a capable desktop's EXR or fall back to the small HDR. */
+export async function loadEnvironment({ renderer, scene, manifest, base = './', preferSmall = false, environmentIntensity = 1 }) {
+  const paths = choosePanorama(manifest, panoramaDevice(renderer, preferSmall));
+  for (const path of paths) {
+    const url = `${base.endsWith('/') ? base : `${base}/`}${path}`;
+    try {
+      const loader = /\.exr$/i.test(path) ? new EXRLoader() : new HDRLoader();
+      const texture = await loader.loadAsync(url);
     texture.mapping = THREE.EquirectangularReflectionMapping;
     texture.colorSpace = THREE.LinearSRGBColorSpace;
     scene.background = texture;
@@ -74,10 +90,12 @@ export async function loadEnvironment({ renderer, scene, manifest, base = './', 
         texture.dispose();
       },
     };
-  } catch (error) {
-    console.warn(`Environment panorama failed to load: ${url}`, error);
-    return null;
+    } catch (error) {
+      console.warn(`Environment panorama failed to load: ${url}`, error);
+    }
   }
+  console.warn('Environment panorama unavailable; keeping procedural sky.');
+  return null;
 }
 
 /**

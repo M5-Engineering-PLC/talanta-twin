@@ -476,6 +476,21 @@ ifr("bowl.hung_screens.count", 8, "count", "JWNowpO44rw 000155.000, 000158.000, 
 ifr("bowl.hung_screens.size", "4.0;2.4", "m (w;h)", "JWNowpO44rw 000155.000", "by eye", "+-1 m")
 ifr("bowl.hung_screens.drop", 4.0, "m below the primaries", "JWNowpO44rw 000155.000, 001003.000; IF25", "by eye: on visible hanging cables", "+-2 m")
 
+# Seat count pass 01 (2026-10-23, HANDOFF task 6): the upper tier gets the depth its 32 derived rows need and overhangs
+# the middle tier (frames 000745-000805: its parapet overhangs the middle tier); the IT03 portals become vomitories that
+# cut the rows they pass through. The _blockout rows override the build; the earlier rows stay as they were.
+SC = "blender/renders/seat_count_01/README.md; blender/renders/tier_section_01/README.md"
+add("bowl.tier_upper.t0_blockout", 0.54, "fraction", SC + "; JWNowpO44rw 000745.000, 000747.000", "2026-10-23",
+    "32 rows (derived) at a tread of 0.75-0.89 m round the bowl (front-to-back depth 52.1-61.9 m, mean 57.3 m): t0 = 1 - 32 x 0.82 / 57.3",
+    "+-0.03", "estimated (tread from the brief's 0.7-0.9 m range; overhang seen in 000745-000805)", "blender/build_blockout.py tiers",
+    "replaces 0.70 in the build; the upper front now overhangs the middle tier (t1 0.66) by 0.12 of the depth, about 7 m")
+add("bowl.tier_upper.soffit_drop_blockout", 0.7, "m below the upper front row", SC, "2026-10-23",
+    "flat soffit under the overhang at the foot of the dark upper tier band (IF17, 0.7 m deep)", "+-0.3 m", "estimated",
+    "blender/build_blockout.py tiers", "clear height over the middle tier back row: about 2.8 m")
+add("bowl.portals.cut_rows", "yes", "", SC + "; JWNowpO44rw 000945.200, 002320.200", "2026-10-23",
+    "the IT03 portal mouths run back into the tier until its treads reach the portal head; no seat stands inside a mouth or within 0.25 m of its jambs",
+    "", "estimated", "blender/build_bowl_detail.py seats, IT03 portals", "generic openings only; no signage or egress meaning (AGENTS.md rule 8)")
+
 out = ROOT / "gis/parameter_ledger.csv"
 with open(out, "w", newline="") as f:
     w = csv.DictWriter(f, COLS, lineterminator="\n"); w.writeheader(); w.writerows(rows)

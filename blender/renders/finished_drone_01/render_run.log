@@ -1,0 +1,15 @@
+== D01 daylight_landing 06:22:46
+00:07.550  cycles           | WARNING CUEW initialization failed: Error opening the library
+PRE exposure -1.2000000476837158
+08:11.131  render           | Saved: '/home/user/talanta-twin/blender/renders/finished_drone_01/D01_daylight_landing_hero.png'
+-- D01 done 06:30:58
+== D02 daylight_landing 06:30:58
+00:07.059  cycles           | WARNING CUEW initialization failed: Error opening the library
+PRE exposure -1.2000000476837158
+09:12.961  render           | Saved: '/home/user/talanta-twin/blender/renders/finished_drone_01/D02_daylight_landing_hero.png'
+-- D02 done 06:40:11
+== D03 daylight_landing 06:40:11
+00:07.466  cycles           | WARNING CUEW initialization failed: Error opening the library
+PRE exposure -1.2000000476837158
+12:18.422  render           | Saved: '/home/user/talanta-twin/blender/renders/finished_drone_01/D03_daylight_landing_hero.png'
+-- D03 done 06:52:30

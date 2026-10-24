@@ -10,6 +10,9 @@ import json, math
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 G = json.loads((ROOT / "blender/out/bowl_rings.json").read_text()); N, PAD = G["N"], G["pad"]
+import csv
+LG = {r["name"]: r for r in csv.DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
+T0U = float(LG.get("bowl.tier_upper.t0_blockout", LG["bowl.tier_upper.t0"])["value"])  # seat count pass 01 moved the upper front
 
 
 def roof_ring(theta_deg, dr, h):
@@ -35,7 +38,7 @@ CAMS = [  # id, frame, purpose, position, target, focal mm, roll deg
     ("C33", "000154.067", "east upper tier back, looking up at the catwalk ring and the roof lattice",
      ring(10, 0.9, 42.5 + 1.6), roof_ring(32, 4.0, 47.0), 30, -12.0),
     ("C34", "002320.200", "north end, upper tier front walkway behind the glass balustrade, across the bowl",
-     ring(265, 0.715, 33.0 + 1.6), ring(195, 0.6, 33.0), 22, 0.0),
+     ring(265, T0U + 0.015, 33.0 + 1.6), ring(195, 0.6, 33.0), 22, 0.0),   # 0.715 before seat count pass 01
     ("C35", "000131.700", "east upper gallery behind the top row, along the gallery, bowl on the right",
      ring(0, 1.0, 44.3 + 1.6, dr=0.5), ring(40, 0.98, 41.0), 22, 0.0),   # pass 2: near the rail, off the colonnade
 ]

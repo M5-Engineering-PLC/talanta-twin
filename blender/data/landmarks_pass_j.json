@@ -1,0 +1,221 @@
+{
+  "_note": "Pass J (engineering/cloud_handoff_2026-10-23.md, Step 2): real local buildings as plain masses. Positions in the app frame (m, x east, z south); footprints and heights from gis/derived/near_ring_buildings.gpkg (EPSG:32737). Pins from Munene's map screenshots (engineering/landmarks_01/LANDMARK_CANDIDATES.md), good to about 25 m. Colours and window rhythm by eye from the cited frames; no photo or map pixels are used. No names, logos or signage on the buildings.",
+  "pin_radius_m": 40,
+  "min_area_m2": 100,
+  "tall_min_m": 12.0,
+  "tall_radius_m": 80,
+  "_pick_note": "pass K (K5a): a pin takes the nearest footprint (min_area_m2, pin_radius_m); if it is lower than tall_min_m, the tallest footprint above tall_min_m within tall_radius_m (then the largest area); if none, the nearest stays and the README asks the lead",
+  "storey_m": 3.2,
+  "palettes": {
+    "enkang": {
+      "wall": "#DCCBA6",
+      "strip": "#6E3530",
+      "window": "#30363C",
+      "roof": "#857F77",
+      "parapet": "#4A2A25",
+      "strip_pitch_m": 8.0,
+      "strip_frac": 0.28,
+      "source": "JWNowpO44rw_000706.800 (12-storey tower: cream and ochre walls, brown-maroon vertical strips full height, regular window grid, darker maroon roof parapet, core and plant on the roof; late sun), 000619.700 (white and maroon towers in the same group, daylight); by eye, no pixels used; pass K (K5b)",
+      "parapet_m": 1.5,
+      "plant": "#9A968E",
+      "roof_plant": {
+        "core_w_m": 7.0,
+        "core_d_m": 5.0,
+        "core_h_m": 3.2,
+        "tank_h_m": 2.2
+      }
+    },
+    "cream": {
+      "wall": "#D6CBB2",
+      "window": "#3D4248",
+      "roof": "#8E8A84",
+      "parapet": "#B9AE96",
+      "source": "JWNowpO44rw_000619.700, 000706.800, 000709.167: cream and white flat-roofed blocks (group level)"
+    },
+    "white": {
+      "wall": "#DCDAD4",
+      "window": "#3B4148",
+      "roof": "#8C8A86",
+      "parapet": "#C9C6BE",
+      "source": "JWNowpO44rw_001242.050, 001244.833: white, grey and cream distant blocks (group level)"
+    },
+    "low": {
+      "wall": "#CFC8BA",
+      "window": "#4A5056",
+      "roof": "#9A9890",
+      "parapet": "#BEB7A8",
+      "source": "no frame; neutral pale walls, pale grey flat roofs"
+    }
+  },
+  "buildings": [
+    {
+      "name": "enkang_a",
+      "label": "Enkang Apartments A",
+      "fids": [
+        8630
+      ],
+      "pin": [
+        -102,
+        -462
+      ],
+      "palette": "enkang",
+      "position_source": "gpkg footprint named Enkang Apartments A (pin 111 m west: the pin marks the group label)",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "medium (inference: the 12-storey tower of 000706.800 is probably an Enkang block)"
+    },
+    {
+      "name": "enkang_b",
+      "label": "Enkang Apartments B",
+      "fids": [
+        8635
+      ],
+      "pin": [
+        -102,
+        -462
+      ],
+      "palette": "enkang",
+      "position_source": "gpkg footprint named Enkang Apartments B",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "medium"
+    },
+    {
+      "name": "enkang_c",
+      "label": "Enkang Apartments C",
+      "fids": [
+        8625
+      ],
+      "pin": [
+        -102,
+        -462
+      ],
+      "palette": "enkang",
+      "position_source": "gpkg footprint named Enkang Apartments C",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "medium"
+    },
+    {
+      "name": "ngando_flats",
+      "label": "Ngando Flats",
+      "fids": "pin",
+      "pin": [
+        -275,
+        -424
+      ],
+      "palette": "cream",
+      "position_source": "pick() rule (pass K, K5a): nearest gpkg footprint of 100 m2 or more within 40 m of the map pin; if lower than 12 m, the tallest footprint above 12 m within 80 m",
+      "height_source": "gpkg (low; Open Buildings 2023)",
+      "confidence": "low (000619.700 group, not resolved)"
+    },
+    {
+      "name": "liberty_centre",
+      "label": "Liberty Centre",
+      "fids": "pin",
+      "pin": [
+        -100,
+        -653
+      ],
+      "palette": "low",
+      "position_source": "pick() rule (pass K, K5a): nearest gpkg footprint of 100 m2 or more within 40 m of the map pin; if lower than 12 m, the tallest footprint above 12 m within 80 m",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "low (no frame)"
+    },
+    {
+      "name": "denali",
+      "label": "Denali Apartments",
+      "fids": [
+        8290
+      ],
+      "pin": [
+        -200,
+        -796
+      ],
+      "palette": "cream",
+      "position_source": "gpkg footprint named Denali Apartments (34 m), 89 m from the map pin; used because the gpkg has only low buildings (5 m or less) within 40 m of the pin, so the pin marks the map label, not the block (decided 2026-10-23)",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "medium (named footprint; no frame)"
+    },
+    {
+      "name": "racecourse_gardens",
+      "label": "Racecourse Gardens Apartments",
+      "fids": "pin",
+      "pin": [
+        -468,
+        -825
+      ],
+      "palette": "cream",
+      "position_source": "pick() rule (pass K, K5a): nearest gpkg footprint of 100 m2 or more within 40 m of the map pin; if lower than 12 m, the tallest footprint above 12 m within 80 m",
+      "height_source": "gpkg default_by_area (no measured height)",
+      "confidence": "low (no frame)"
+    },
+    {
+      "name": "white_village",
+      "label": "White Village Apartments",
+      "fids": "pin",
+      "pin": [
+        174,
+        -909
+      ],
+      "palette": "white",
+      "position_source": "pick() rule (pass K, K5a): nearest gpkg footprint of 100 m2 or more within 40 m of the map pin; if lower than 12 m, the tallest footprint above 12 m within 80 m",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "low (no frame)"
+    },
+    {
+      "name": "alba",
+      "label": "Alba Apartments",
+      "fids": [
+        10428
+      ],
+      "pin": [
+        255,
+        -890
+      ],
+      "palette": "cream",
+      "position_source": "gpkg footprint named TSAVO Skywalk (41.5 m), 92 m from the Alba pin; the gpkg has nothing above 15 m within 40 m of the pin, so the nearest tall block is used (handoff: probably Alba). The identity stays unconfirmed (decided 2026-10-23)",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "low (000706.800 and 000709.167, not resolved)"
+    },
+    {
+      "name": "kmd",
+      "label": "Kenya Meteorological Department",
+      "fids": [
+        9665
+      ],
+      "pin": [
+        1084,
+        -632
+      ],
+      "palette": "low",
+      "position_source": "gpkg footprint named Kenya Meteorological Department",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "medium (named footprint; no frame)"
+    },
+    {
+      "name": "junction",
+      "label": "The Junction Mall and Century Cinemax",
+      "fids": [
+        9846,
+        14176
+      ],
+      "pin": [
+        1410,
+        -879
+      ],
+      "palette": "low",
+      "position_source": "gpkg footprints named The Junction Mall",
+      "height_source": "gpkg open_buildings_2023",
+      "confidence": "medium (named footprints; outside all hero cameras, live twin only)"
+    }
+  ],
+  "generic_cap": {
+    "_note": "pass K (K5c): generic masses (background_b.py blocks) in the L07 view cone within radius_m of the bowl: a gpkg footprint under the block gives its height; otherwise the height is capped at the median gpkg height within median_radius_m. CBD, Upper Hill, Kilimani and Westlands clusters are not in the list (and lie beyond radius_m). suburbs_buildings already carry the gpkg heights and are not changed.",
+    "objects": [
+      "bg_midrise_near",
+      "bg_midrise_far"
+    ],
+    "camera": "L07",
+    "radius_m": 1500,
+    "cone_margin_deg": 5.0,
+    "median_radius_m": 200
+  }
+}

@@ -1,0 +1,168 @@
+{
+ "F16": {
+  "frame": "001216.000",
+  "shield": 3,
+  "direction": -1,
+  "rms_px": 12.67,
+  "position": [
+   133.66,
+   43.09,
+   108.37
+  ],
+  "target": [
+   51.68,
+   28.75,
+   52.94
+  ],
+  "roll_deg": 0.33,
+  "focal_px": 1012.6,
+  "opening_median_px": NaN,
+  "focal_length_mm": 18.99,
+  "candidates": [
+   {
+    "shield": 7,
+    "dir": -1,
+    "rms_px": 12.67,
+    "position": [
+     -133.7,
+     43.1,
+     -108.4
+    ]
+   },
+   {
+    "shield": 3,
+    "dir": -1,
+    "rms_px": 12.67,
+    "position": [
+     133.7,
+     43.1,
+     108.4
+    ]
+   },
+   {
+    "shield": 4,
+    "dir": -1,
+    "rms_px": 18.44,
+    "position": [
+     14.4,
+     38.1,
+     151.7
+    ]
+   },
+   {
+    "shield": 0,
+    "dir": -1,
+    "rms_px": 18.44,
+    "position": [
+     -14.4,
+     38.1,
+     -151.7
+    ]
+   },
+   {
+    "shield": 5,
+    "dir": -1,
+    "rms_px": 19.14,
+    "position": [
+     -126.9,
+     46.7,
+     146.9
+    ]
+   },
+   {
+    "shield": 1,
+    "dir": -1,
+    "rms_px": 19.14,
+    "position": [
+     126.9,
+     46.7,
+     -146.9
+    ]
+   }
+  ],
+  "picked_by": "best fit (shield 3 or its half-turn twin 7, 12.7 px); the frame is sunlit and under the 12:30 January sun only the south-east twin (shield 3) is in sun; the drone position solved for 001212.500 pointed at shield 5, which fits worse (19 px)"
+ },
+ "F32": {
+  "frame": "001232.600",
+  "shield": 1,
+  "direction": -1,
+  "rms_px": 25.54,
+  "position": [
+   170.73,
+   133.74,
+   -162.37
+  ],
+  "target": [
+   101.62,
+   93.95,
+   -102.04
+  ],
+  "roll_deg": -4.312,
+  "focal_px": 1042.9,
+  "opening_median_px": 19.8,
+  "focal_length_mm": 29.33,
+  "candidates": [
+   {
+    "shield": 3,
+    "dir": -1,
+    "rms_px": 22.89,
+    "position": [
+     151.3,
+     132.4,
+     176.2
+    ]
+   },
+   {
+    "shield": 7,
+    "dir": -1,
+    "rms_px": 22.9,
+    "position": [
+     -151.3,
+     132.4,
+     -176.3
+    ]
+   },
+   {
+    "shield": 1,
+    "dir": -1,
+    "rms_px": 25.54,
+    "position": [
+     170.7,
+     133.7,
+     -162.4
+    ]
+   },
+   {
+    "shield": 5,
+    "dir": -1,
+    "rms_px": 25.6,
+    "position": [
+     -170.7,
+     133.8,
+     162.6
+    ]
+   },
+   {
+    "shield": 0,
+    "dir": -1,
+    "rms_px": 30.36,
+    "position": [
+     1.8,
+     247.5,
+     -332.6
+    ]
+   },
+   {
+    "shield": 4,
+    "dir": -1,
+    "rms_px": 30.36,
+    "position": [
+     -1.8,
+     247.5,
+     332.6
+    ]
+   }
+  ],
+  "picked_by": "the frame looks across the bowl into the Ngong Road forest (south-west of the site), so the camera is on the north-east side; the half-turn twin (shield 5) would look at the city"
+ }
+}

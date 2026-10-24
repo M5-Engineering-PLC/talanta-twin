@@ -49,5 +49,39 @@
    0.0701,
    0.0
   ]
+ },
+ "overcast_soil_puresky_4k.hdr:16949123": {
+  "file": "blender/assets/hdri/overcast_soil_puresky_4k.hdr",
+  "size": [
+   4096,
+   2048
+  ],
+  "sun_alpha_deg": 11.909,
+  "sun_elevation_deg": 34.673,
+  "clip": 3.0043,
+  "sun_irradiance": 0.0069,
+  "sky_horizontal_irradiance": 4.6661,
+  "sun_color": [
+   1.0,
+   0.7335,
+   0.4349
+  ]
+ },
+ "kloofendal_48d_partly_cloudy_puresky_4k.hdr:20674857": {
+  "file": "blender/assets/hdri/kloofendal_48d_partly_cloudy_puresky_4k.hdr",
+  "size": [
+   4096,
+   2048
+  ],
+  "sun_alpha_deg": -34.233,
+  "sun_elevation_deg": 47.856,
+  "clip": 6.8075,
+  "sun_irradiance": 4.5169,
+  "sky_horizontal_irradiance": 1.4496,
+  "sun_color": [
+   0.9927,
+   1.0,
+   0.9114
+  ]
  }
 }

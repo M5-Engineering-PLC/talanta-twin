@@ -21,7 +21,6 @@ import { getGradePreset } from './hero/grade.js';
 import { initOverlay } from './hero/overlay.js';
 import CAMS from '../cameras/manifest.json';
 import { buildTraffic } from './hero/traffic.js';
-import { buildCrowd } from './hero/crowd.js';
 import { createTour, enableTouchUX } from './tour.js';
 import { detectTier, TIERS, createFpsMonitor, profileGeometry } from './perf.js';
 
@@ -562,6 +561,29 @@ function drawCharts() {
 }
 
 // ---------------------------------------------------------------- modes and date
+// Night show (SHW-01 to SHW-03): loaded on demand, removed when another mode is chosen.
+let shows = null;
+async function startShow() {
+  if (!shows) {
+    const { installShows } = await import('./shows/index.js');
+    shows = installShows({ scene, camera, renderer, heroGroup: hero?.group, bowlGroup: bowl.group });
+  }
+  stopLiveClock(); state.minutes = 1200; const t = document.querySelector('#landing-time'); if (t) t.value = '1200';
+  if (!startShow.savedFlood) {
+    startShow.savedFlood = flood.map(light => ({ light, descriptor: Object.getOwnPropertyDescriptor(light, 'intensity') }));
+    // applyTime writes intensity again after a time change. Hold these lamps dark until stopShow.
+    for (const { light } of startShow.savedFlood) Object.defineProperty(light, 'intensity', { configurable: true, enumerable: true, get: () => 0, set: () => {} });
+  }
+  shows.play('night_show');
+  if (import.meta.env.DEV) window.__shows = shows;
+}
+function stopShow() {
+  shows?.dispose(); shows = null;
+  if (startShow.savedFlood) {
+    for (const { light, descriptor } of startShow.savedFlood) Object.defineProperty(light, 'intensity', descriptor);
+    startShow.savedFlood = null;
+  }
+}
 document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   if (b.disabled) return;
   document.querySelectorAll('#modes button').forEach((x) => x.classList.toggle('on', x === b));
@@ -570,6 +592,7 @@ document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   stopPlay(); buildTimeline(); applyBuild();
   if (b.dataset.mode === 'construction') { state.build = Date.UTC(2023, 0, 8); focus('bowl'); }
   if (b.dataset.mode === 'weather') { $('#weather').scrollIntoView({ behavior: 'smooth' }); focus('overview'); }
+  if (b.dataset.mode === 'show') { focus('overview'); void startShow(); } else stopShow();
 });
 $('#date').onchange = (e) => { if (e.target.value) { stopLiveClock(); state.day = e.target.value; wxKey = ''; buildTimeline(); } };
 
@@ -636,6 +659,7 @@ function updateHud() {
 // (manifest.time), so hero mode keeps that baked light while the UI clock remains independent.
 // It loads in the background: the procedural twin stays usable until the hero is ready, or if it never is.
 let hero = null, heroHidden = [], heroFog = null, heroGradeOn = null;
+let heroImpostors = null, heroTreesUpdated = -Infinity;
 const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} timed out after ${ms / 1000} s`)), ms))]);
 async function loadPreferredHero() {
   for (const base of ['./models/', './models/test/']) {
@@ -661,6 +685,10 @@ if (params.has('hero')) {
     if (late) return;
     if (env) { scene.background = scene.environment = env.texture; scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation); }
     scene.add(h.group);
+    const { installTreeImpostors } = await import('./hero/impostors.js');
+    heroImpostors = installTreeImpostors(h.group, camera);
+    const { loadGroundTiles } = await import('./hero/groundTiles.js');
+    void loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768 });
     limitEnvToSpecular(h.group, env?.texture);
     let hasGround = false; h.group.traverse((o) => { if (o.isMesh && /^ground/.test(o.name)) hasGround = true; });
     heroHidden = [bowl.group, pitch.group, sport.group, site.group, buildings, roads, trees, siteLine, blockout].filter(Boolean);
@@ -675,6 +703,12 @@ if (params.has('hero')) {
 }
 // Keep procedural lights and geometry hidden when the time or layer controls change.
 function heroLock() {
+  if (performance.now() - heroTreesUpdated > 100) {
+    heroImpostors?.update(); heroTreesUpdated = performance.now();
+  }
+  const contactShadows = params.get('contactShadows') !== '0' && quality.shadows;
+  traffic?.setContactShadows?.(contactShadows);
+  crowd?.setContactShadows?.(contactShadows);
   sun.intensity = 0; hemi.intensity = 0; for (const s of flood) s.intensity = 0;
   for (const o of heroHidden) o.visible = false;
   applyHeroHaze(scene, heroFog);
@@ -688,6 +722,7 @@ if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost'
   try {
     pipeline = new THREE.RenderPipeline(renderer);
     const scenePass = pass(scene, camera);
+    // PassNode inherits renderer.samples (4 with antialias:true). No extra AA pass is needed.
     scenePass.setMRT(mrt({ output, normal: normalView }));
     const color = scenePass.getTextureNode('output');
     const aoPass = ao(scenePass.getTextureNode('depth'), scenePass.getTextureNode('normal'), camera);
@@ -711,12 +746,17 @@ fetch('./data/traffic_lines.json').then((r) => r.json()).then((lines) => {
   traffic.setLimit?.(quality.trafficCount);
   scene.add(traffic.group);
 }).catch((e) => console.warn('traffic off:', e));
-// The crowd is heavy (about 56 triangles per fan), so it is built only when Match day is first opened.
+// The crowd is heavy (92 triangles per near fan), so it is built only when Match day is first opened.
 let crowd = null;
-function ensureCrowd() {
-  if (crowd || !bowl.seats || quality.crowdFraction === 0) return;
-  crowd = buildCrowd({ seats: bowl.seats, pitch: { centre: [0, 0, 0], bearing: F.pitch_bearing_deg }, fraction: quality.crowdFraction });
-  crowd.group.position.y = PAD; scene.add(crowd.group);
+// Seated crowd (PPL-01, PPL-02, Visualization): one fan per seat place, with scripted reactions on match day.
+let crowdLoading = false, nextCheer = 20, nextWave = 45;
+async function ensureCrowd() {
+  if (crowd || crowdLoading || !bowl.seats || quality.crowdFraction === 0) return;
+  crowdLoading = true;
+  const { installSeatedCrowd } = await import('./people/index.js');
+  crowd = installSeatedCrowd({ scene, camera, renderer, bowlGroup: bowl.group, heroGroup: hero?.group, quality: tier, features: F });
+  crowd.setFill(quality.crowdFraction); crowdLoading = false;
+  if (import.meta.env.DEV) window.__crowd = crowd;
 }
 const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   tier = next; quality = TIERS[tier];
@@ -728,9 +768,7 @@ const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   { const keep = quality.treeCount / Math.max(1, trees.children.reduce((n, m) => n + m.count, 0)); if (keep < 1) for (const m of trees.children) if (m.isInstancedMesh) m.count = Math.floor(m.count * keep); }
   traffic?.setLimit(quality.trafficCount);
   if (crowd && quality.crowdFraction < 1) {
-    scene.remove(crowd.group);
-    crowd.group.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } });
-    crowd = null; if (state.matchday) ensureCrowd();
+    crowd.dispose(); crowd = null; if (state.matchday) ensureCrowd();
   }
   if (!quality.crowdFraction) site.crowd.visible = false;
 } });
@@ -770,8 +808,16 @@ renderer.setAnimationLoop((now) => {
   stepFly(now);
   if (!hero && site.group.visible) site.update(now / 1000, night);
   traffic?.update(dt);
+  shows?.update(dt);
   site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
-  if (crowd) { crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible; if (crowd.group.visible) crowd.update(now / 1000, night); }
+  if (crowd) {
+    crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible;
+    if (crowd.group.visible) {
+      const t = now / 1000; crowd.setNight(night); crowd.react('phones', { on: night }); crowd.update(dt, t);
+      if (t > nextWave) { crowd.react('wave', { speed: 12 }); nextWave = t + 75; nextCheer = t + 30; }
+      else if (t > nextCheer) { crowd.react('cheer'); nextCheer = t + 25; }
+    }
+  }
   fpsMonitor.update(now);
   controls.update();
   const timeKey = `${state.day}:${state.minutes}:${Boolean(hero)}`;

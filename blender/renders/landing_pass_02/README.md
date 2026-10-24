@@ -104,3 +104,59 @@ Gaps after R:
 - The station is outside both landing frames (just right of L06, just left of L07), so the L06 and L07 stills for R are the same as B's and were not re-rendered.
 - Canopy size, height and pump count are typical values, not measured. A GE trace of the canopy would fix them.
 - The brief put the station near the Jamhuri entrance, on the east side. The only Rubis in OSM near the site is this north-west one, and Munene chose it.
+
+## B: background (from data plus estimated masses; no image cards)
+
+Time: script 40 min, build 10 min per pass, renders 25 to 30 min per pass (pass 2: L06 13.3 min, L07 11.5 min). Pass 1 is kept in `B/pass1/`.
+
+- `blender/context/background_b.py`:
+  - Forest belt: the Sentinel-2 belt cells get 2 extra jittered trees per point (38,432 added), so the belt reads as one canopy.
+  - Far land: pulled toward a hazy green-grey (pass 3 makes it greener; that is in the F scene and the H stills).
+  - City: mid-rise blocks north of Ngong Road and clusters at the CBD, Upper Hill, Kilimani and Westlands. Walls in warm greys and roofs in a red and grey mix.
+    - Blocks are placed only where a ray hits bare terrain, so Open Buildings and OSM footprints are never overlapped.
+    - Positions and heights are estimated (Visualization).
+  - Town lights: warm points over the far land, on at dusk only.
+- Pass 2, after the L07 sheet showed a wall of white towers:
+  - The near blocks drop to 4–12 storeys, there are fewer of them, and they are spread wider, so roofs and tree cover read between them.
+  - Walls are darker and warmer. Town lights are dimmer.
+
+Gaps after B:
+- L07: the CBD skyline reads but is lower and paler than the mockup's. Tower counts and heights are estimated; no skyline data was used.
+- L06: the far land behind the forest belt still shows a beige band in pass 2. The pass 3 tint fixes most of it (F and H).
+- Mockup 06's warm town glow at the horizon depends on the sunset sky; the H stills use a real sunset HDRI.
+
+## F: plaza, beds and paths, with B pass 3 (rendered 2026-10-23)
+
+Time: build 42 s, context chain 30 min (the second tree_rules pass alone takes about 20 min), renders 20 min (L06 614 s,
+L07 566 s). The stills come from a frozen copy of the site scene built from this branch (finish_plaza.py and background_b.py
+pass 3 included). They replace the lost B pass 2 stills, which only ever existed in the container that rendered them.
+
+- `F/L06_sunset_landing_hero.png`, `F/L07_daylight_landing_hero.png`, and `F/L0N_vs_mockup_F_internal.jpg` (internal only).
+- finish_plaza.py built 36 plaza quads, 133 bed quads, 17 radiating paths, 194 shrubs, 148 flower clumps, 38 trees and 48 lamps.
+  It builds only on unmeasured ground, so most of the ring stays as W1b, OSM and GE put it.
+- L07: the plaza ring, the planting beds with paths through them and the lamp rows read clearly in the foreground.
+- L06: the change is small. The murram paths at lower right now read in a light paving tone (orange in B pass 1), and there are a
+  few more beds and trees at the bowl's base. The mockup's wide plaza and flower ring stay mostly outside the unmeasured ground.
+
+Note for the next agent: freeze the site blend inside `blender/out/` (as `frozen_<step>.blend`). Its image paths are relative
+(`//../textures`, `//../assets`). A copy anywhere else renders every image texture missing (magenta shields). This happened
+once in this pass, and those stills were discarded.
+
+## H: hero_artistic stills (rendered 2026-10-23)
+
+The code came with commit 79432fc (hero_artistic.py). It had not been rendered. Time: L06 71 min, L07 40 min (3840 x 2160, 128
+samples, adaptive). They were rendered from the same frozen F scene, with the step H CC0 skies (`blender/assets/fetch_hdri_h.sh`).
+Pillow had to be installed into Blender's bundled Python for `stamp()`.
+
+- `H/L0N_*_hero_artistic.jpg` (quality 94), and `H/L0N_*_hero_artistic_labelled.jpg` with "Visualization: people, vehicles and
+  lighting are illustrative" in the corner. The 16 MB PNG masters are not committed. They can be re-rendered from this commit.
+- Added by the preset: 96 uplights (dusk only), a warm base glow, volumetric haze, glare, bevels, fins 1.35x deeper, 409 parked
+  cars (plain bodies) and 1,400 people on paving (Visualization).
+
+Read against the mockups:
+- L06: the warm lit base reads strongly, as in mockup 06, and so does the sunset cloud sky.
+- L06: the facade still reads mid-grey, not the mockup's warm uplit white. The 96 x 1,800 W uplights barely reach the louvres.
+  Try more power or a wider spot angle.
+- L06: the far land and the Ngong Hills show salt-and-pepper grain. That is volumetric haze noise at 128 samples that the denoiser
+  did not clear. Try more samples, or haze only in the near band.
+- L07: clean. The cumulus sky, the plaza people and the deeper fins read. The overall grade is a little darker than mockup 07.

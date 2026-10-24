@@ -1,0 +1,194 @@
+{
+  "_note": "Pass K (engineering/cloud_pass_k_2026-10-24.md, K2, 2026-10-24): the south plaza, finished state only. Coordinates in the app frame: metres, x east, z south, from the twin origin. No plaza object existed in any state (pass F, pass I and the step F finish_plaza.py have none here), so it is built new by blender/context/plaza_south_k.py. Outline, round bed and axial beds: pixels picked in D02 (JWNowpO44rw_000714.767) and back-projected with the camera solve of engineering/layout_audit_01/camera_estimates.json (pinhole rays through the manifest D02 pose and vfov, flat ground plane y 6.12; the same code reproduces the audit's south_west_grass ring to 0.01 m). Pattern after the north plaza (blender/data/forecourt_layout.json: plaza_edge, central_round_bed, axial_bed_north, axial_bed_south). The dusk image (research/reference/dusk_aerial_finished_2026-10-17.jpg) is AI-generated and is not used.",
+  "source": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg (D02); research/frames/JWNowpO44rw/JWNowpO44rw_000716.317.jpg (D02, same view)",
+  "camera_solve": {
+    "camera": "D02",
+    "method": "engineering/layout_audit_01/audit_tools.py backproject(), flat plane y 6.12",
+    "uncertainty_m": 25,
+    "ground_plane_0_sensitivity_max_m": 19.46,
+    "pixels": {
+      "outline": [
+        [
+          592,
+          452
+        ],
+        [
+          760,
+          447
+        ],
+        [
+          905,
+          450
+        ],
+        [
+          1000,
+          575
+        ],
+        [
+          965,
+          655
+        ],
+        [
+          800,
+          700
+        ],
+        [
+          650,
+          700
+        ],
+        [
+          612,
+          600
+        ]
+      ],
+      "bed_centre": [
+        [
+          802,
+          549
+        ]
+      ],
+      "bed_edge": [
+        [
+          758,
+          549
+        ],
+        [
+          846,
+          549
+        ],
+        [
+          802,
+          532
+        ],
+        [
+          802,
+          567
+        ]
+      ],
+      "axial_north": [
+        [
+          748,
+          478
+        ],
+        [
+          792,
+          526
+        ]
+      ],
+      "axial_south": [
+        [
+          818,
+          574
+        ],
+        [
+          884,
+          656
+        ]
+      ]
+    }
+  },
+  "outline": [
+    [
+      -51.1,
+      124.9
+    ],
+    [
+      2.2,
+      132.1
+    ],
+    [
+      45.8,
+      145.4
+    ],
+    [
+      21.0,
+      228.1
+    ],
+    [
+      -5.1,
+      254.6
+    ],
+    [
+      -39.8,
+      260.4
+    ],
+    [
+      -64.0,
+      254.8
+    ],
+    [
+      -63.5,
+      220.0
+    ]
+  ],
+  "north_edge": "the outline's three north points are replaced by the outer edge of ge_apron_ring between x_from and x_to, so the paving joins the outer apron",
+  "north_edge_x": [
+    -64,
+    46
+  ],
+  "round_bed": {
+    "centre": [
+      -15.7,
+      206.1
+    ],
+    "radius_m": 9.5,
+    "murram_ring_m": 2.0
+  },
+  "axial_beds": [
+    {
+      "name": "north",
+      "line": [
+        [
+          -11.4,
+          158.2
+        ],
+        [
+          -12.7,
+          193.1
+        ]
+      ],
+      "width_m": 5.0
+    },
+    {
+      "name": "south",
+      "line": [
+        [
+          -17.4,
+          218.7
+        ],
+        [
+          -19.6,
+          251.5
+        ]
+      ],
+      "width_m": 5.0
+    }
+  ],
+  "lift_m": {
+    "paving": 0.18,
+    "bed": 0.3
+  },
+  "kerb": {
+    "paving_w_m": 0.3,
+    "paving_h_m": 0.18,
+    "bed_w_m": 0.25,
+    "bed_h_m": 0.15
+  },
+  "clear_tree_m": 3.0,
+  "labels": {
+    "outline": "estimate from a camera solve",
+    "round_bed": "estimate from a camera solve",
+    "axial_beds": "estimate from a camera solve",
+    "paving_finish": "inference",
+    "planting": "inference",
+    "kerbs": "inference"
+  },
+  "keep": "the south-west grass loop and its road (track_sw, track_sw_infield; sw_lawn, sw_loop_road, pi_sw_grass where built) stay as they are; the plaza's west edge stops 1 m outside the loop road's outer east edge",
+  "loop_objects": [
+    "track_sw",
+    "track_sw_infield",
+    "sw_loop_road",
+    "sw_lawn"
+  ],
+  "loop_gap_m": 1.0
+}

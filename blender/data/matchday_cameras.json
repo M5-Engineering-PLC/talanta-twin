@@ -1,0 +1,69 @@
+{
+ "note": "Matchday cameras (group 3). Render viewpoints for review only; not real camera locations (AGENTS.md rule 8). Every still from them is a Visualization.",
+ "cameras": [
+  {
+   "id": "M01",
+   "name": "Matchday bowl, day (Visualization)",
+   "purpose": "group 3 matchday crowd, players and staff (detail sheet PL); Visualization; internal only",
+   "position": [
+    -58.89,
+    28.82,
+    -58.89
+   ],
+   "target": [
+    47.96,
+    10.12,
+    47.96
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 22,
+   "roll_deg": 0.0,
+   "dof": false,
+   "exposure_ev": 0.0,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 40
+  },
+  {
+   "id": "M02",
+   "name": "Matchday bowl, night (Visualization)",
+   "purpose": "group 3 matchday crowd, players and staff (detail sheet PL); Visualization; internal only",
+   "position": [
+    -58.89,
+    28.82,
+    -58.89
+   ],
+   "target": [
+    47.96,
+    10.12,
+    47.96
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 22,
+   "roll_deg": 0.0,
+   "dof": false,
+   "exposure_ev": 0.0,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "20:30",
+    "kind": "night, venue lights on"
+   },
+   "variants": [],
+   "seed": 41
+  }
+ ]
+}

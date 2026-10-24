@@ -91,7 +91,7 @@ def attr_mat(name, attr, rough=0.9):
 # Replace the blockout's flat materials with PBR versions of the same identities.
 PBR = {
     "white_shell": principled("white_shell_pbr", (0.80, 0.80, 0.78), 0.32, 0.0, coat=0.2, noise_rough=0.06, noise_scale=0.08),
-    "membrane": principled("membrane_pbr", (0.86, 0.86, 0.83), 0.55, 0.0, noise_rough=0.08, noise_scale=0.05),
+    "membrane": principled("membrane_pbr", (0.93, 0.93, 0.91), 0.75, 0.0, noise_rough=0.08, noise_scale=0.05),
     "concrete_light": principled("concrete_light_pbr", (0.66, 0.65, 0.62), 0.85, 0.0, noise_rough=0.05, noise_scale=0.6, bump=0.03),
     "concrete_shade": principled("concrete_shade_pbr", (0.36, 0.35, 0.33), 0.9),
     "concrete": principled("concrete_pbr", (0.55, 0.53, 0.50), 0.85, 0.0, noise_rough=0.05, noise_scale=0.6, bump=0.05),
@@ -103,6 +103,10 @@ PBR = {
     "seat_green": principled("seat_green_pbr", (0.04, 0.22, 0.10), 0.4, spec=0.6),
     "seat_red": principled("seat_red_pbr", (0.38, 0.03, 0.04), 0.4, spec=0.6),
     "spear_white": principled("spear_pbr", (0.82, 0.82, 0.80), 0.3, 0.0, coat=0.2),
+    # facade spec 2026-10-20: the lattice has its own copy of the shell white (bevel cap in hero_artistic.py); the
+    # set-back ground floor under the ring beam reads dark
+    "white_shell_lattice": principled("white_shell_lattice_pbr", (0.80, 0.80, 0.78), 0.32, 0.0, coat=0.2, noise_rough=0.06, noise_scale=0.08),
+    "concrete_recess_dark": principled("concrete_recess_dark_pbr", (0.025, 0.025, 0.026), 0.9),  # pass A: darker in overcast
 }
 # Membrane (stage 02b fix 6, by eye from 12:40): faint radial seams at the rib spacing and slight
 # panel-to-panel brightness variation, from the angle round the bowl centre (object coordinates).
@@ -122,13 +126,15 @@ wn = mn.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = "1D"; ml.new(fl.ou
 pv = mn.new("ShaderNodeMapRange"); pv.inputs["To Min"].default_value = 0.96; pv.inputs["To Max"].default_value = 1.02; ml.new(wn.outputs["Value"], pv.inputs["Value"])
 mul = mn.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; ml.new(seam.outputs[0], mul.inputs[0]); ml.new(pv.outputs[0], mul.inputs[1])
 mcol = mn.new("ShaderNodeMix"); mcol.data_type = "RGBA"; mcol.blend_type = "MULTIPLY"; mcol.inputs[0].default_value = 1.0
-mcol.inputs[6].default_value = (0.86, 0.86, 0.83, 1); ml.new(mul.outputs[0], mcol.inputs[7]); ml.new(mcol.outputs[2], mn["Principled BSDF"].inputs["Base Color"])
+mcol.inputs[6].default_value = (0.93, 0.93, 0.91, 1); ml.new(mul.outputs[0], mcol.inputs[7]); ml.new(mcol.outputs[2], mn["Principled BSDF"].inputs["Base Color"])  # roof_fix_01: bright white, soft (was 0.86, rough 0.55)
 # PTFE membrane lets daylight through: the underside glows (stage 03, by eye from JWNowpO44rw 10:04)
 mtr = mn.new("ShaderNodeBsdfTranslucent"); ml.new(mcol.outputs[2], mtr.inputs["Color"])
 mms = mn.new("ShaderNodeMixShader"); mms.inputs[0].default_value = 0.35
 ml.new(mn["Principled BSDF"].outputs[0], mms.inputs[1]); ml.new(mtr.outputs[0], mms.inputs[2]); ml.new(mms.outputs[0], mn["Material Output"].inputs["Surface"])
 # The louvred wall is real fin geometry over a dark backing (build_blockout.py, stage 02b), so no louvre texture.
-PBR["facade_void"] = principled("facade_void_pbr", (0.035, 0.036, 0.04), 0.75)
+# pass A (2026-10-20, lead): a light grey backing behind the fins, not a dark void (ledger bowl.fin.backing_grey)
+_bg = float(_LR["bowl.fin.backing_grey"])
+PBR["facade_void"] = principled("facade_void_pbr", (_bg, _bg, _bg * 0.98), 0.8)
 for o in scene.objects:
     if o.type == "MESH":
         for slot in o.material_slots:

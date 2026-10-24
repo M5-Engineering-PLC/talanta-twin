@@ -1,0 +1,20 @@
+00:00.556  blend            | Read blend: "/tmp/claude-0/-home-user-talanta-twin/81ebe561-742b-59f2-bb86-fe0a3525c15a/scratchpad/wt/blender/out/frozen_seat01.blend"
+00:01.121  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+14:12.568  render           | Saved: '/home/user/talanta-twin/blender/renders/matchday_01/M01_neutral_hero.png'
+{"camera": "M01", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, "sun_elevation_deg": 69.99, "sun_azimuth_deg": 171.54, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 851.1, "matchday": {"preset": "matchday", "claim": "Visualization: matchday scene (group 3, detail sheet PL); crowd, players and staff are illustrative", "night": false, "fans": 52283, "seats_empty": 7914, "scarves": 3222, "hand_flags": 1660, "horns": 1295, "big_flag_m": [15.0, 10.0], "players": 22, "officials": 3, "stewards": 9, "ball_attendants": 5, "crew": 12}, "labelled_copy": "M01_neutral_hero_labelled.jpg", "shadow_image_deg": -160.3}
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:35:05)
+
+Blender quit
+00:00.534  blend            | Read blend: "/tmp/claude-0/-home-user-talanta-twin/81ebe561-742b-59f2-bb86-fe0a3525c15a/scratchpad/wt/blender/out/frozen_seat01.blend"
+00:01.080  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+18:04.989  render           | Saved: '/home/user/talanta-twin/blender/renders/matchday_01/M02_night_hero.png'
+{"camera": "M02", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "20:30", "kind": "night, venue lights on"}, "sun_elevation_deg": -24.44, "sun_azimuth_deg": 246.14, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 1083.6, "matchday": {"preset": "matchday", "claim": "Visualization: matchday scene (group 3, detail sheet PL); crowd, players and staff are illustrative", "night": true, "fans": 52283, "seats_empty": 7914, "scarves": 3222, "hand_flags": 1660, "horns": 1295, "phone_lights": 931, "big_flag_m": [15.0, 10.0], "players": 22, "officials": 3, "stewards": 9, "ball_attendants": 5, "crew": 12}, "labelled_copy": "M02_night_hero_labelled.jpg", "shadow_image_deg": 174.1}
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:35:05)
+
+Blender quit

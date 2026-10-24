@@ -1,3 +1,4 @@
+import { contactShadowBatch } from './contactShadows.js';
 import * as THREE from 'three/webgpu';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { uniform, float, vec3, sin, abs, smoothstep, instanceIndex, positionLocal, positionGeometry, color } from 'three/tsl';
@@ -162,6 +163,22 @@ export function buildCrowd({ seats, occupancy = 0.9, seed = 1, players = true, p
 
   const q = new THREE.Quaternion(), yAx = new THREE.Vector3(0, 1, 0), pv = new THREE.Vector3(), one = new THREE.Vector3(1, 1, 1);
   const sm = (a, b, x) => { const u = Math.min(1, Math.max(0, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
+  let fanContact = null, playerContact = null;
+  function setContactShadows(enabled) {
+    if (enabled && !fanContact) {
+      fanContact = contactShadowBatch(n); group.add(fanContact.mesh);
+      for (let i = 0; i < n; i++) {
+        SM.fromArray(src, pick[i] * 16);
+        fanContact.set(i, SM, .55, .65);
+      }
+      fanContact.finish(n);
+      if (pm) {
+        playerContact = contactShadowBatch(roster.length);
+        pm.shirt.parent.add(playerContact.mesh);
+      }
+    }
+    fanContact?.setEnabled(enabled); playerContact?.setEnabled(enabled);
+  }
   function update(t = 0, night = 0) {
     uT.value = t;
     uCheer.value = sm(0.55, 0.9, Math.sin(t * 0.21) * 0.6 + Math.sin(t * 0.073 + 1.3) * 0.5); // now and then the stands lift
@@ -172,12 +189,16 @@ export function buildCrowd({ seats, occupancy = 0.9, seed = 1, players = true, p
         q.setFromAxisAngle(yAx, p.yaw + Math.sin(t * 0.07 + p.px) * 0.4);
         M.compose(pv.set(x, Math.abs(Math.sin(t * 2.2 + p.px)) * 0.03, z), q, one);
         pm.shirt.setMatrixAt(i, M); pm.shorts.setMatrixAt(i, M); pm.skin.setMatrixAt(i, M);
+        if (playerContact?.enabled) {
+          M.elements[13] = 0; playerContact.set(i, M, .75, .65);
+        }
       });
+      if (playerContact?.enabled) playerContact.finish(roster.length);
       pm.shirt.instanceMatrix.needsUpdate = pm.shorts.instanceMatrix.needsUpdate = pm.skin.instanceMatrix.needsUpdate = true;
     }
   }
   update(0, 0);
   const calls = 2 + (big ? 1 : 0) + (hand ? 1 : 0) + 1 + (pm ? 3 : 0);
   group.userData.stats = { fans: n, seats: nSeats, largeFlags: nBig, handFlags: nHand, phones: nPh, figures: roster.length, drawCalls: calls };
-  return { group, update };
+  return { group, update, setContactShadows };
 }

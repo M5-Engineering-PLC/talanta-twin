@@ -129,6 +129,16 @@ TUN_W, TUN_H = V("bowl.tunnel.width"), V("bowl.tunnel.height")
 cols["media"] = srgb(L["bowl.media.seat_hex"]["value"])
 VP, VROT, vip_rows_geo = [], [], []
 n_media = 0
+# seat count pass 01 (ledger bowl.portals.cut_rows): the IT03 portal mouths (section F) cut the rows they pass through.
+# Per tier: (aisle angles, tier fraction range, height range) of the mouths; seats within the jambs + 0.25 m are dropped.
+PW_CUT = V("bowl.portals.width") / 2 + 0.35 + 0.25
+_tu = {k: V(f"bowl.tier_upper.{k}") for k in ("t0", "t1", "y0", "y1")}
+_tm = {k: V(f"bowl.tier_middle.{k}") for k in ("t0", "t1", "y0", "y1")}
+UP_FLOOR, MID_FLOOR = _tu["y0"] + 0.3, _tm["y1"] - V("bowl.portals.height") - 0.6
+UP_HEAD_T = _tu["t0"] + (UP_FLOOR + V("bowl.portals.height") + 0.35 - _tu["y0"]) / (_tu["y1"] - _tu["y0"]) * (_tu["t1"] - _tu["t0"])
+PCUT = {"upper": (ais_th, _tu["t0"], UP_HEAD_T, UP_FLOOR - 0.5, UP_FLOOR + V("bowl.portals.height") + 0.35),
+        "middle": (ais_th[::int(V("bowl.portals.middle_every"))], _tm["t1"] - 0.035, _tm["t1"], MID_FLOOR - 0.5, MID_FLOOR + V("bowl.portals.height") + 0.35)}
+n_cut = 0
 for tn in ("lower", "middle", "upper"):
     t0, t1, y0, y1, rows = (V(f"bowl.tier_{tn}.{k}") for k in ("t0", "t1", "y0", "y1", "rows")); rows = int(rows)
     for k in range(rows):
@@ -152,6 +162,11 @@ for tn in ("lower", "middle", "upper"):
             idx = idx[~in_v[idx]]
         if tn == "lower" and ya < y0 + TUN_H + 0.2:  # tunnel mouth (IF71) cuts the front rows
             idx = idx[angdist(th[idx], TH_TUN) * np.hypot(x[idx], z[idx]) > TUN_W / 2 + 0.4]
+        if L["bowl.portals.cut_rows"]["value"] == "yes" and tn in PCUT:  # vomitories (IT03 portals) cut the rows
+            pa, plo, phi, pyl, pyh = PCUT[tn]
+            if plo <= ta + 0.55 * (tb - ta) <= phi and pyl <= ya <= pyh:
+                keep = np.min(angdist(th[idx][:, None], pa[None, :]), axis=1) * np.hypot(x[idx], z[idx]) > PW_CUT
+                n_cut += int((~keep).sum()); idx = idx[keep]
         f = k / max(rows - 1, 1); u = rng.random(len(idx))
         # IT01-IT03, IT05 (detail sheet 05, frames 000945.200, 002144.300): three seeded tones per tier; the middle tier
         # keeps the green flecks (002144.300 confirms them), denser in its lower rows
@@ -240,7 +255,7 @@ gnv = gn.copy(); gnv.name = "vip_seat_scatter"
 vso.modifiers.new("seats", "NODES").node_group = gnv
 n_box = int(V("bowl.boxband.bays_per_aisle")) * n_ais - int(V("bowl.media.office_bays"))
 box_places = n_box * int(V("bowl.skybox.places_each"))
-print("seats:", len(P), "of which media", n_media, "| VIP seats", len(VP), "| sky boxes", n_box, "x", int(V("bowl.skybox.places_each")),
+print("seats:", len(P), "of which media", n_media, "| cut by portal mouths", n_cut, "| VIP seats", len(VP), "| sky boxes", n_box, "x", int(V("bowl.skybox.places_each")),
       "=", box_places, "places | total places", len(P) + len(VP) + box_places, "| aisles per ring:", n_ais)
 
 # ---------------------------------------------------------------- B. pitch
@@ -621,14 +636,15 @@ columns("boxband_columns", r_bm, y1m, lambda i: V("bowl.band.upper_front_y1"), c
 PORTAL = principled("portal_void", srgb("#141516"), 0.9); PANEL = principled("sign_panel_blank", srgb(L["bowl.portals.panel_hex"]["value"]), 0.5)
 pv, pf, sv_, sf_, rv, rf = [], [], [], [], [], []
 pw, ph = V("bowl.portals.width") / 2, V("bowl.portals.height")
-def portal(a, t_mouth, y_floor, panel_below):
+def portal(a, t_mouth, y_floor, panel_below, t_back=None):
     i0 = int(round(a / (2 * math.pi) * N)) % N; ux, uz = dirs[i0]; tx, tz = -uz, ux; r = at(i0, t_mouth)
+    r_back = at(i0, t_back) if t_back is not None else r + 2.5  # seat count pass 01: upper mouths run back to UP_HEAD_T
     def bx(lst_v, lst_f, w, y0_, y1_, r0_, r1_):
         cs = []
         for yy in (y0_, y1_):
             for rr_, ss in ((r0_, -w), (r0_, w), (r1_, w), (r1_, -w)): cs.append(B(ux * rr_ + tx * ss, yy, uz * rr_ + tz * ss))
         box(lst_v, lst_f, cs)
-    bx(pv, pf, pw, y_floor, y_floor + ph, r - 0.05, r + 2.5)                         # dark mouth
+    bx(pv, pf, pw, y_floor, y_floor + ph, r - 0.05, r_back)                          # dark mouth
     bx(rv, rf, pw + 0.35, y_floor + ph, y_floor + ph + 0.35, r - 0.15, r + 0.2)      # white head
     for sg in (-1, 1):                                                                # white jambs
         cs = []
@@ -639,7 +655,7 @@ def portal(a, t_mouth, y_floor, panel_below):
     if panel_below:  # blank sign panel on the tier front under the portal (no text)
         bx(sv_, sf_, pw + 0.6, y_floor - 1.35, y_floor - 0.25, r - 0.25, r - 0.15)
 for a in ais_th:
-    portal(a, t0u_ + 0.015, y0u_ + 0.3, True)
+    portal(a, t0u_ + 0.015, y0u_ + 0.3, True, UP_HEAD_T if L["bowl.portals.cut_rows"]["value"] == "yes" else None)
 for k, a in enumerate(ais_th):
     if k % int(V("bowl.portals.middle_every")) == 0: portal(a, t1m - 0.03, y1m - ph - 0.6, False)
 mesh_obj("portals", "bowl_detail", pv, pf, PORTAL, "estimated (IT03 portals, generic openings; no signage or egress meaning)", SRC_IT)

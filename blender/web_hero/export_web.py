@@ -24,7 +24,11 @@ import bpy, bmesh
 import numpy as np
 
 TEST = "test" in sys.argv
-BASE = OUT / "test" if TEST else OUT
+# base=<dir>: stage from blender/out/web_hero/<dir>; unbaked: the app-testing preview of stage_unbaked.py (no maps, plain
+# materials, terrain_site exported as the ground because there are no baked ground tiles)
+BASE_DIR = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("base=")), None)
+UNBAKED = "unbaked" in sys.argv
+BASE = OUT / BASE_DIR if BASE_DIR else OUT / "test" if TEST else OUT
 STAGE = BASE / "export"; STAGE.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.open_mainfile(filepath=str(BASE / "talanta_web_baked.blend"))
 s = bpy.context.scene
@@ -36,10 +40,12 @@ CLIP = 1500.0
 THIN_TUBE = 0.35  # m bevel radius; unbaked curves thinner than this export as 4-sided tubes
 
 HERO_COLS = ["plinth", "shell", "facade_detail", "roof_detail", "bowl_detail", "tiers", "pitch", "sport"]
-SITE_COLS = ["context", "site", "forecourt_context", "suburbs_context", "traffic_visualization"]
+SITE_COLS = ["context", "site", "forecourt_context", "suburbs_context", "traffic_visualization",
+             "site_layout_ge", "finish_plaza", "rubis_station", "background_b"]  # v2: steps L, F, R, B
 # far land and horizon layers live in the panorama (render_panorama.py near=800); terrain_site is replaced by the
 # baked ground tiles
-SKIP = {"terrain_far", "terrain_horizon", "terrain_horizon_hills", "terrain_horizon_far", "terrain_site", "haze_volume"}
+SKIP = {"terrain_far", "terrain_horizon", "terrain_horizon_hills", "terrain_horizon_far", "terrain_site", "haze_volume", "bg_town_lights"}  # town lights: dusk stills only
+if UNBAKED: SKIP.discard("terrain_site")
 DETAIL_COLS = {"bowl_detail", "roof_detail"}  # dropped beyond 1 km
 DETAIL_NAMES = {"goals", "corner_flags", "corner_flag_poles", "dugouts", "pitch_markings", "training_pitch_lines",
                 "parking_lines", "road_markings", "ngong_markings", "boundary_fence", "sign_frames"}
@@ -214,6 +220,7 @@ for glb, cols in (("hero", HERO_COLS), ("site", SITE_COLS)):
         if col is None: continue
         for o in list(col.all_objects):
             if o.hide_render or o.name in SKIP or o.name in INSTANCERS or o.type not in ("MESH", "CURVE"): continue
+            if "internal_only" in o.keys(): continue  # brand marks: internal stills only (step R)
             if any(m.type == "NODES" for m in o.modifiers) and o.type == "MESH" and not o.data.polygons: continue
             baked = "bake_group" in o.keys()
             if o.type == "CURVE" and o.data.bevel_depth < THIN_TUBE:
@@ -434,7 +441,7 @@ for glb, obs in export.items():
                               export_attributes=False, export_gn_mesh=False, export_gpu_instances=False)
     print("wrote", glb, flush=True)
 el, az = bake["sun_elevation_deg"], bake["sun_azimuth_deg"]
-write_json(STAGE / "stage.json", {"instances": sets, "lod_table": lod_table, "bake": bake,
+write_json(STAGE / "stage.json", {"unbaked": UNBAKED, "instances": sets, "lod_table": lod_table, "bake": bake,
                                   "view": {"transform": s.view_settings.view_transform, "look": s.view_settings.look,
                                            "exposure": s.view_settings.exposure},
                                   "albedo_groups": [g for g in bake["groups"] if ALBEDO_GROUPS(g)]})
