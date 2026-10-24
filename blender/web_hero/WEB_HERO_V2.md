@@ -136,5 +136,12 @@ TALANTA_SITE_BLEND=$PWD/blender/out/frozen_FK.blend blender -b --factory-startup
 
 ### Parts run
 
-| Part | Groups | CPU time | Result |
-|---|---|---|---|
+The tool that runs long commands here stops a command after 2 h, so each part runs as one or two sub-runs of whole
+batches (`only=`), each under 2 h; a lost sub-run costs at most its open batch (stages are saved per batch). Times are
+wall clock on 4 CPU cores (Cycles uses all four). Branch `assets/web_hero_v2_bake` is pushed after each sub-run.
+
+| Part | Sub-run: groups | Batches (s) | Wall | Result |
+|---|---|---|---|---|
+| 1 | 1a: stadium_shell, stadium_fins, stadium_ornament, roof | albedo 81 + 53; AO 456 + 397; light 1,822 + 1,418 | 4,304 s | done; light scales 5.17, 3.58, 5.06, 3.63; pushed ce3c942 |
+| 1 | 1b: sport, roads (roads_final), site_built, forecourt | albedo 72 + 588; light 849 + 988 | 2,562 s | done; pushed ac10079 |
+| 1 | total | | 6,866 s (1.91 h; estimate 2.1 h) | about 20 % slower per batch than v1 (look-layer material wraps), within the margin |
