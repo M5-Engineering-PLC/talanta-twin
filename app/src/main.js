@@ -21,7 +21,6 @@ import { getGradePreset } from './hero/grade.js';
 import { initOverlay } from './hero/overlay.js';
 import CAMS from '../cameras/manifest.json';
 import { buildTraffic } from './hero/traffic.js';
-import { buildCrowd } from './hero/crowd.js';
 import { createTour, enableTouchUX } from './tour.js';
 import { detectTier, TIERS, createFpsMonitor, profileGeometry } from './perf.js';
 
@@ -723,12 +722,17 @@ fetch('./data/traffic_lines.json').then((r) => r.json()).then((lines) => {
   traffic.setLimit?.(quality.trafficCount);
   scene.add(traffic.group);
 }).catch((e) => console.warn('traffic off:', e));
-// The crowd is heavy (about 56 triangles per fan), so it is built only when Match day is first opened.
+// The crowd is heavy (92 triangles per near fan), so it is built only when Match day is first opened.
 let crowd = null;
-function ensureCrowd() {
-  if (crowd || !bowl.seats || quality.crowdFraction === 0) return;
-  crowd = buildCrowd({ seats: bowl.seats, pitch: { centre: [0, 0, 0], bearing: F.pitch_bearing_deg }, fraction: quality.crowdFraction });
-  crowd.group.position.y = PAD; scene.add(crowd.group);
+// Seated crowd (PPL-01, PPL-02, Visualization): one fan per seat place, with scripted reactions on match day.
+let crowdLoading = false, nextCheer = 20, nextWave = 45;
+async function ensureCrowd() {
+  if (crowd || crowdLoading || !bowl.seats || quality.crowdFraction === 0) return;
+  crowdLoading = true;
+  const { installSeatedCrowd } = await import('./people/index.js');
+  crowd = installSeatedCrowd({ scene, camera, renderer, bowlGroup: bowl.group, heroGroup: hero?.group, quality: tier, features: F });
+  crowd.setFill(quality.crowdFraction); crowdLoading = false;
+  if (import.meta.env.DEV) window.__crowd = crowd;
 }
 const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   tier = next; quality = TIERS[tier];
@@ -740,9 +744,7 @@ const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   { const keep = quality.treeCount / Math.max(1, trees.children.reduce((n, m) => n + m.count, 0)); if (keep < 1) for (const m of trees.children) if (m.isInstancedMesh) m.count = Math.floor(m.count * keep); }
   traffic?.setLimit(quality.trafficCount);
   if (crowd && quality.crowdFraction < 1) {
-    scene.remove(crowd.group);
-    crowd.group.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } });
-    crowd = null; if (state.matchday) ensureCrowd();
+    crowd.dispose(); crowd = null; if (state.matchday) ensureCrowd();
   }
   if (!quality.crowdFraction) site.crowd.visible = false;
 } });
@@ -783,7 +785,14 @@ renderer.setAnimationLoop((now) => {
   if (!hero && site.group.visible) site.update(now / 1000, night);
   traffic?.update(dt);
   site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
-  if (crowd) { crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible; if (crowd.group.visible) crowd.update(now / 1000, night); }
+  if (crowd) {
+    crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible;
+    if (crowd.group.visible) {
+      const t = now / 1000; crowd.setNight(night); crowd.react('phones', { on: night }); crowd.update(dt, t);
+      if (t > nextWave) { crowd.react('wave', { speed: 12 }); nextWave = t + 75; nextCheer = t + 30; }
+      else if (t > nextCheer) { crowd.react('cheer'); nextCheer = t + 25; }
+    }
+  }
   fpsMonitor.update(now);
   controls.update();
   const timeKey = `${state.day}:${state.minutes}:${Boolean(hero)}`;
