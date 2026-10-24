@@ -4,7 +4,8 @@ Users: the training pitches (fan() in build_site_detail.py, UV in metres along t
 stripes) and the south-west lawn (sw_lawn in context/asbuilt_ground.py, no UV, so the stripe term stays constant and
 the lawn has no markings). The pass K review found the material flat and too saturated in L07 next to the Grass005
 grass. This tree:
-- lowers the saturation toward the Grass005 grass in the same render (colours below, tuned on the L07 check render);
+- lowers the saturation to the Grass005 grass in the same render (L07: saturation 0.64 before, about 0.55 for the
+  other lawns; colours below, tuned on L07 crops);
 - adds low-frequency colour and brightness variation from world-space noise at about 8 to 20 m;
 - adds a small roughness and bump variation;
 - keeps the mowing stripes (UV x every stripe_w metres) on the pitches only.
@@ -13,8 +14,8 @@ No frame pixels are used; colours are by eye against the other grass in the rend
 """
 import bpy
 
-STRIPE = ("#58763F", "#5F7C46")   # stripe pair, was #4D8B38 / #568F40 (saturation 0.60 -> about 0.45)
-PATCH = ("#53703B", "#6C8048")    # low-frequency patches: darker green to a drier olive
+STRIPE = ("#5A7B39", "#5F7F3E")   # stripe pair, was #4D8B38 / #568F40 (saturation 0.60 -> about 0.53)
+PATCH = ("#527234", "#788545")    # low-frequency patches: darker green to a drier olive
 CLAIM = "estimated: colour by eye against the Grass005 grass in the L07 render (pass K, K4); no frame pixels"
 
 
@@ -41,12 +42,12 @@ def build(m, stripe_w=5.0):
     ramp = n_.new("ShaderNodeValToRGB"); ramp.color_ramp.elements[0].position = 0.3; ramp.color_ramp.elements[1].position = 0.7
     ramp.color_ramp.elements[0].color = (*srgb(PATCH[0]), 1); ramp.color_ramp.elements[1].color = (*srgb(PATCH[1]), 1)
     l_.new(big.outputs["Fac"], ramp.inputs["Fac"])
-    mx = n_.new("ShaderNodeMix"); mx.data_type = "RGBA"; mx.inputs[0].default_value = 0.45
+    mx = n_.new("ShaderNodeMix"); mx.data_type = "RGBA"; mx.inputs[0].default_value = 0.6
     l_.new(st.outputs[2], mx.inputs[6]); l_.new(ramp.outputs["Color"], mx.inputs[7])
-    # brightness: +-10 % from a second, offset noise at about 12 m; fine grain at about 1 m (multiply, 15 %)
+    # brightness: +-25 % from a second, offset noise at about 12 m; fine grain at about 1 m (multiply, 15 %)
     lum = n_.new("ShaderNodeTexNoise"); lum.inputs["Scale"].default_value = 0.11; lum.inputs["Detail"].default_value = 1.0
     l_.new(tc.outputs["Object"], lum.inputs["Vector"])
-    lr = n_.new("ShaderNodeMapRange"); lr.inputs[3].default_value = 0.9; lr.inputs[4].default_value = 1.1; l_.new(lum.outputs["Fac"], lr.inputs[0])
+    lr = n_.new("ShaderNodeMapRange"); lr.inputs[3].default_value = 0.75; lr.inputs[4].default_value = 1.25; l_.new(lum.outputs["Fac"], lr.inputs[0])
     br = n_.new("ShaderNodeMix"); br.data_type = "RGBA"; br.blend_type = "MULTIPLY"; br.inputs[0].default_value = 1.0
     l_.new(mx.outputs[2], br.inputs[6]); l_.new(lr.outputs[0], br.inputs[7])
     fine = n_.new("ShaderNodeTexNoise"); fine.inputs["Scale"].default_value = 1.0; fine.inputs["Detail"].default_value = 4.0
