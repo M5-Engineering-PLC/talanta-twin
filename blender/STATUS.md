@@ -49,7 +49,8 @@ then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `b
 | Pass H people_final_01 | done: CC0 Quaternius figures, crown leaf masses; step_FH | blender/renders/people_final_01/README.md |
 | 4K hero_artistic L06, L07 (step 19) | superseded by hero_artistic_03 (step_FH carried the withdrawn pass F layout) | blender/renders/hero_artistic_02/README.md |
 | 4K hero_artistic L06, L07 (cloud handoff 2026-10-23, Step 4) | done on step_FJ: ridge speckle fixed at the cause (haze-free pass layer), warmer L06 sky; W waits for Munene's approval | blender/renders/hero_artistic_03/README.md |
-| Pass K (cloud work order 2026-10-24, K1-K8) | done on step_FK (= step_FE + pass I, H, J steps with the K code + plaza_south_k + grass_k); checks and 4K follow; W waits | blender/renders/pass_k_check_01/README.md |
+| Pass K (cloud work order 2026-10-24, K1-K8) | done on step_FK (= step_FE + pass I, H, J steps with the K code + plaza_south_k + grass_k); 1080p checks pass (Enkang partly: real gpkg towers behind) | blender/renders/pass_k_check_01/README.md |
+| 4K hero_artistic L06, L07 (pass K) | done on step_FK; W re-bake waits for Munene's approval | blender/renders/hero_artistic_04/README.md |
 | Environment pass web_hero_v1 | built, 148.95 MB of 250 MB; release upload blocked | blender/web_hero/WEB_HERO_V1.md, web_hero_v1_manifest.json |
 | Landing-page preview with the bundle | screenshot taken (Hillside, 07:30) | this file, "App preview" |
 | Landing pass 02 steps F and H (2026-10-23) | rendered; H gaps: grey facade at dusk, haze grain | blender/renders/landing_pass_02/README.md, sections F and H |
@@ -61,6 +62,8 @@ Open task lists: Web hero task: the release step is open. Group 3 forecourt and 
 2026-10-23 cloud session notes:
 - This container had no `~/.venvs/bpy`. The installed `blender -b --factory-startup --python <script> -- <args>` runs every
   script unchanged (they read `sys.argv` from the end).
+- Blender exits 0 when a `--python` script raises: run chains with `--python-exit-code 1`. Blender's bundled Python
+  needs scipy (`asbuilt_ground.py`, `tree_crowns.py`) and Pillow (2026-10-24).
 - Freeze site blends inside `blender/out/`. Their image paths are relative, and a copy elsewhere renders the textures missing.
 - `hero_artistic.stamp()` and `matchday.stamp()` need Pillow in Blender's bundled Python
   (`/opt/blender/5.2/python/bin/python3.13 -m pip install pillow`).
