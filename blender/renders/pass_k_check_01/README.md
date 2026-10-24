@@ -8,7 +8,10 @@ this pass. People, cars and lights are a Visualization, not a count, occupancy o
 
 `step_FK` = step_FE + the step_FJ steps run with the pass K code + two new steps:
 `layout_pass_i.py` (K3), `people_figures.py` (K1), `crown_detail.py`, `landmarks_pass_j.py` (K5), `plaza_south_k.py` (K2),
-`grass_k.py` (K4). This container had no scene files, so step_FE was rebuilt from scratch from this branch (about 40 min).
+`grass_k.py` (K4). This container had no scene files, so step_FE was rebuilt from scratch from this branch (about 40 min). A first build
+lost `asbuilt_ground.py` and `tree_crowns.py` to a missing scipy in Blender's Python; Blender still exits 0 when a
+`--python` script fails. Its renders were discarded. The chain now runs with `--python-exit-code 1`, and the final build
+log has no traceback.
 This branch also carries seat count pass 01 (upper tier overhang, vomitories; 61,039 places), which the lead's step_FJ did not.
 
 ## Change list
@@ -16,7 +19,7 @@ This branch also carries seat count pass 01 (upper tier overhang, vomitories; 61
 | Item | Change | Files |
 |---|---|---|
 | K1 | The people script no longer calls the dusk image a photo or a source. Density and grouping are stated as an artistic Visualization choice. The `lf_station_forecourt` branch is gone (the station is not in the model, so the crowd does not change). Density unchanged. | blender/context/people_figures.py |
-| K2 | No south plaza object existed in any state (pass F, pass I and finish_plaza.py have none there), so it is built new. Outline, round bed and axial beds are fitted to D02 with the audit's camera solve (same code reproduces the audit's south_west_grass ring). Paving, kerbs and raised beds follow the north plaza pattern. The north edge runs on the outer edge of ge_apron_ring. Lawn, paths, beds, shrubs and trees under it are hidden or cut in the finished state only. The south-west loop and its road are kept: the plaza's west edge stops 1 m outside track_sw. | blender/context/plaza_south_k.py, blender/data/plaza_south_k.json |
+| K2 | No south plaza object existed in any state (pass F, pass I and finish_plaza.py have none there), so it is built new. Outline, round bed and axial beds are fitted to D02 with the audit's camera solve (same code reproduces the audit's south_west_grass ring). Paving, kerbs and raised beds follow the north plaza pattern. The north edge runs on the outer edge of ge_apron_ring. Lawn, paths, beds, shrubs and trees under it are hidden or cut in the finished state only. The south-west loop and its road (sw_lawn, sw_loop_road) are kept: the west edge would stop 1 m outside the loop road, and on step_FK it already lies outside it (no clipping). | blender/context/plaza_south_k.py, blender/data/plaza_south_k.json |
 | K3 | The east island is a long pointed lens (32 points, parabolic sides), tips [144,2] and [223,-1], 23 m wide at the middle. Outer paving unchanged. | blender/context/layout_pass_i.py island_ring(), blender/data/layout_pass_i.json |
 | K4 | `training_grass` is less saturated (stripe pair #58763F / #5F7C46, was #4D8B38 / #568F40), with world-space patches at 8 to 20 m, a brightness variation, a fine grain, roughness 0.80 to 0.92 and a small bump. Stripes stay on the pitches (UV); the south-west lawn has no UV, so no stripes and no markings. | blender/grass_look.py, build_site_detail.py, blender/context/grass_k.py |
 | K5a | pick() rule: nearest footprint (100 m2 or more, within 40 m of the pin); if it is lower than 12 m, the tallest footprint above 12 m within 80 m. No landmark changes footprint (table below). | blender/context/landmarks_pass_j.py, landmarks_pass_j.json |
@@ -45,14 +48,14 @@ Footprints of 100 m2 or more; heights from gis/derived/near_ring_buildings.gpkg.
 
 `K8_L06_forecourt_look_on_vs_off.jpg`, from `k8_look_on/` and `k8_look_off/`: hero_artistic L06 (sunset_artistic, sun
 9.2 deg elevation) at 1080p, lower-right quarter, rendered once with the look layer on and once with compositing off.
-6.2 and 6.1 min.
+6.2 and 5.8 min.
 
 | | look layer on | look layer off |
 |---|---|---|
-| sunlit forecourt, mean RGB | 165, 116, 58 | 159, 121, 81 |
+| sunlit forecourt, mean RGB | 167, 118, 59 | 161, 122, 83 |
 | shadow, mean RGB | 62, 60, 38 | 56, 57, 40 |
-| sunlit / shadow | 2.12 | 2.36 |
-| largest step across the shadow edge (row 1000) | 22 levels | 24 levels |
+| sunlit / shadow | 2.14 | 2.39 |
+| largest step across the shadow edge (row 1000) | 22 levels | 25 levels |
 
 The two crops agree: the bright patch and the hard diagonal edge are in the render without the look layer. They are the
 stadium's cast shadow under the low sun (sun angle 0.53 deg, lookdev.py). The look layer only warms the grade (the blue
@@ -68,4 +71,4 @@ drops). Nothing was changed.
   lowers 37 generic mid-rise blocks to one storey. The Enkang towers now stand alone, but the city behind them reads
   much lower than before. Keep the rule, or cap at a higher percentile?
 - The south plaza solve puts the round bed at (-16, 206), 33 m west of Sol's audit centre (15, 195), and the extent at
-  about 105 x 125 m, a little above the audit's 80-100 x 100-130 m. Both are within the 25 m uncertainty.
+  about 110 x 125 m, a little above the audit's 80-100 x 100-130 m. Both are within the 25 m uncertainty.
