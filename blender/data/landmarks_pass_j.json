@@ -2,17 +2,28 @@
   "_note": "Pass J (engineering/cloud_handoff_2026-10-23.md, Step 2): real local buildings as plain masses. Positions in the app frame (m, x east, z south); footprints and heights from gis/derived/near_ring_buildings.gpkg (EPSG:32737). Pins from Munene's map screenshots (engineering/landmarks_01/LANDMARK_CANDIDATES.md), good to about 25 m. Colours and window rhythm by eye from the cited frames; no photo or map pixels are used. No names, logos or signage on the buildings.",
   "pin_radius_m": 40,
   "min_area_m2": 100,
+  "tall_min_m": 12.0,
+  "tall_radius_m": 80,
+  "_pick_note": "pass K (K5a): a pin takes the nearest footprint (min_area_m2, pin_radius_m); if it is lower than tall_min_m, the tallest footprint above tall_min_m within tall_radius_m (then the largest area); if none, the nearest stays and the README asks the lead",
   "storey_m": 3.2,
   "palettes": {
     "enkang": {
-      "wall": "#DAD5CB",
-      "strip": "#7A3B35",
-      "window": "#3A4046",
-      "roof": "#8A847C",
-      "parapet": "#6E3A30",
-      "strip_pitch_m": 9.0,
-      "strip_frac": 0.2,
-      "source": "JWNowpO44rw_000706.800 (cream tower, brown vertical strips, at dusk), 000619.700 (white towers with red-brown vertical panels, daylight)"
+      "wall": "#DCCBA6",
+      "strip": "#6E3530",
+      "window": "#30363C",
+      "roof": "#857F77",
+      "parapet": "#4A2A25",
+      "strip_pitch_m": 8.0,
+      "strip_frac": 0.28,
+      "source": "JWNowpO44rw_000706.800 (12-storey tower: cream and ochre walls, brown-maroon vertical strips full height, regular window grid, darker maroon roof parapet, core and plant on the roof; late sun), 000619.700 (white and maroon towers in the same group, daylight); by eye, no pixels used; pass K (K5b)",
+      "parapet_m": 1.5,
+      "plant": "#9A968E",
+      "roof_plant": {
+        "core_w_m": 7.0,
+        "core_d_m": 5.0,
+        "core_h_m": 3.2,
+        "tank_h_m": 2.2
+      }
     },
     "cream": {
       "wall": "#D6CBB2",
@@ -91,7 +102,7 @@
         -424
       ],
       "palette": "cream",
-      "position_source": "largest-area rule: nearest gpkg footprint of 100 m2 or more within 40 m of the map pin",
+      "position_source": "pick() rule (pass K, K5a): nearest gpkg footprint of 100 m2 or more within 40 m of the map pin; if lower than 12 m, the tallest footprint above 12 m within 80 m",
       "height_source": "gpkg (low; Open Buildings 2023)",
       "confidence": "low (000619.700 group, not resolved)"
     },
@@ -104,7 +115,7 @@
         -653
       ],
       "palette": "low",
-      "position_source": "nearest gpkg footprint of 100 m2 or more within 40 m of the map pin",
+      "position_source": "pick() rule (pass K, K5a): nearest gpkg footprint of 100 m2 or more within 40 m of the map pin; if lower than 12 m, the tallest footprint above 12 m within 80 m",
       "height_source": "gpkg open_buildings_2023",
       "confidence": "low (no frame)"
     },
@@ -132,7 +143,7 @@
         -825
       ],
       "palette": "cream",
-      "position_source": "nearest gpkg footprint of 100 m2 or more within 40 m of the map pin",
+      "position_source": "pick() rule (pass K, K5a): nearest gpkg footprint of 100 m2 or more within 40 m of the map pin; if lower than 12 m, the tallest footprint above 12 m within 80 m",
       "height_source": "gpkg default_by_area (no measured height)",
       "confidence": "low (no frame)"
     },
@@ -145,7 +156,7 @@
         -909
       ],
       "palette": "white",
-      "position_source": "nearest gpkg footprint of 100 m2 or more within 40 m of the map pin",
+      "position_source": "pick() rule (pass K, K5a): nearest gpkg footprint of 100 m2 or more within 40 m of the map pin; if lower than 12 m, the tallest footprint above 12 m within 80 m",
       "height_source": "gpkg open_buildings_2023",
       "confidence": "low (no frame)"
     },
@@ -195,5 +206,16 @@
       "height_source": "gpkg open_buildings_2023",
       "confidence": "medium (named footprints; outside all hero cameras, live twin only)"
     }
-  ]
+  ],
+  "generic_cap": {
+    "_note": "pass K (K5c): generic masses (background_b.py blocks) in the L07 view cone within radius_m of the bowl: a gpkg footprint under the block gives its height; otherwise the height is capped at the median gpkg height within median_radius_m. CBD, Upper Hill, Kilimani and Westlands clusters are not in the list (and lie beyond radius_m). suburbs_buildings already carry the gpkg heights and are not changed.",
+    "objects": [
+      "bg_midrise_near",
+      "bg_midrise_far"
+    ],
+    "camera": "L07",
+    "radius_m": 1500,
+    "cone_margin_deg": 5.0,
+    "median_radius_m": 200
+  }
 }

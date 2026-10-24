@@ -6,7 +6,8 @@ so the west road, railway, station, footbridge, both car parks, the spine beds, 
 dark track recolour are not built, and every object pass F hid or cut is back uncut (west forecourt lawn and paths,
 sw_lawn, sw_stand, the trees, the fence, the facade apron, the OSM roads, the traffic, the terracotta track ring).
 It adds, from blender/data/layout_pass_i.json:
-- the east approach (audit fix 3): a pale paved area between the training pitches with a raised planted island, its
+- the east approach (audit fix 3): a pale paved area between the training pitches with a raised planted island (a long
+  pointed lens since pass K, K3; it was a four-corner diamond), its
   west edge on the outer edge of the bowl apron and its east end open to the peripheral route; no lanes, no cars;
 - the junction with the peripheral route ge_road_north_east (audit fix 6): the road surface stops at the paved edge,
   and no tree stands in the approach or the junction;
@@ -164,7 +165,20 @@ if apron:  # outer edge of the apron between the two west corners (vertex pairs 
 # outline: south-west corner, along the apron edge to the north-west corner, then the review's two east corners
 APPROACH = (west or [(ex0, ez0), (ex1, ez1)]) + [(ex2, ez2), (ex3, ez3)]
 ROAD = bpy.data.objects.get("ge_road_north_east")
-ISL = EA["island"]; CLEAR = EA["tree_clear_m"]
+
+
+def island_ring(spec):
+    """Pass K (K3): long pointed lens between the two tips; half-width (W / 2) * 4t(1 - t) along the axis (parabolic
+    sides, pointed tips, widest at the middle). Returns spec["points"] points, counter-clockwise in the app plan."""
+    (ax_, az_), (bx_, bz_) = spec["tips"]; W = spec["max_width_m"]; n = spec["points"] // 2
+    L = math.hypot(bx_ - ax_, bz_ - az_); ux, uz = (bx_ - ax_) / L, (bz_ - az_) / L; vx, vz = -uz, ux
+    ts = [k / n for k in range(n + 1)]
+    side = lambda t, s: (ax_ + ux * L * t + vx * s * W / 2 * 4 * t * (1 - t), az_ + uz * L * t + vz * s * W / 2 * 4 * t * (1 - t))
+    R = [side(t, 1) for t in ts] + [side(t, -1) for t in reversed(ts[1:-1])]
+    return R if sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(R, R[1:] + R[:1])) > 0 else R[::-1]
+
+
+ISL = island_ring(EA["island"]); CLEAR = EA["tree_clear_m"]
 
 
 def in_approach(x, z, buf=0.0): return near((x, z), APPROACH, buf)
@@ -255,14 +269,15 @@ for name in ("roads", "road_markings"):
 pave, _ = surface("pi_east_approach", APPROACH, PAVE, 0.05, CLAIM_EA, step=4.0)
 # raised planted island: kerb walls round a planted top, a level top at the highest ground under it plus the kerb
 gtop = max(ground(*p) for p in resample(ISL + [ISL[0]], 2.0)) + 0.05 + EA["island_kerb_m"]
-top, B = surface("pi_east_approach_island", ISL, BEDS, 0.0, CLAIM_EA, step=3.0, height=gtop)
+CLAIM_ISL = EA["island"]["claim"] + "; " + EA["island_kerb_claim"] + "; source " + EA["island"]["source"]
+top, B = surface("pi_east_approach_island", ISL, BEDS, 0.0, CLAIM_ISL, step=2.0, height=gtop)
 v, f = [], []
 for (x, z) in B: v += [(x, -z, ground(x, z) + 0.02), (x, -z, gtop + 0.01)]
 n = len(B)
 for i in range(n): j = (i + 1) % n; f.append((2 * i, 2 * j, 2 * j + 1, 2 * i + 1))
-obj("pi_east_approach_island_kerb", v, f, [KERB], CLAIM_EA)
+obj("pi_east_approach_island_kerb", v, f, [KERB], CLAIM_ISL)
 area = lambda R: abs(sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(R, R[1:] + R[:1]))) / 2
-report["east_approach"] = {"area_m2": round(area(APPROACH)), "island_area_m2": round(area(ISL)), "west_edge_points": len(west)}
+report["east_approach"] = {"area_m2": round(area(APPROACH)), "island_area_m2": round(area(ISL)), "island_points": len(ISL), "west_edge_points": len(west)}
 
 # ---------------------------------------------------------------- south-west: grass inside the loop road, no markings
 SW = D["south_west_grass"]; CLAIM_SW = SW["claim"] + "; source " + SW["source"]

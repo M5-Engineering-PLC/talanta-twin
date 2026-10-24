@@ -1,23 +1,83 @@
 {
   "_note": "Pass I (engineering/layout_audit_01/LEAD_REVIEW.md, revision 2, Munene 2026-10-23). Finished state only. Coordinates in the app frame: metres, x east, z south, from the twin origin. The pass F layout (blender/data/layout_final.json) is withdrawn: its source, research/reference/dusk_aerial_finished_2026-10-17.jpg, is an AI-generated image.",
   "east_approach": {
-    "ring": [[129, 25], [129, -21], [283, -37], [298, 10]],
+    "ring": [
+      [
+        129,
+        25
+      ],
+      [
+        129,
+        -21
+      ],
+      [
+        283,
+        -37
+      ],
+      [
+        298,
+        10
+      ]
+    ],
     "west_edge": "replaced by the outer edge of ge_apron_ring between the two west corners, so the paving runs into the apron",
-    "island": [[144, 2], [184, -11], [223, -1], [192, 13]],
+    "island": {
+      "_note": "pass K (K3, 2026-10-24): a long pointed lens in place of the pass I diamond (144,2; 184,-11; 223,-1; 192,13). The tips are the camera-solve tips of the diamond; the width is the diamond's width across its middle (about 24 m, camera solve), taken as 23 m. The sides are parabolic arcs, so the tips are pointed. layout_pass_i.py island_ring() builds the outline.",
+      "tips": [
+        [
+          144,
+          2
+        ],
+        [
+          223,
+          -1
+        ]
+      ],
+      "max_width_m": 23.0,
+      "points": 32,
+      "source": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg (D03); engineering/layout_audit_01/camera_estimates.json",
+      "claim": "tips and width: estimate from a camera solve, +-20 m; lens outline: inference"
+    },
     "island_kerb_m": 0.25,
     "tree_clear_m": 6.0,
     "source": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg (D03)",
-    "claim": "estimate from a camera solve (engineering/layout_audit_01/camera_estimates.json, flat ground plane), +-20 m; total width 40 to 50 m; no lanes, no markings, no cars"
+    "claim": "estimate from a camera solve (engineering/layout_audit_01/camera_estimates.json, flat ground plane), +-20 m; total width 40 to 50 m; no lanes, no markings, no cars",
+    "island_kerb_claim": "kerb 0.25 m high and the planted top: inference (not from the camera solve)"
   },
   "south_west_grass": {
-    "ring": [[-139, 122], [-73, 135], [-80, 233], [-153, 228]],
+    "ring": [
+      [
+        -139,
+        122
+      ],
+      [
+        -73,
+        135
+      ],
+      [
+        -80,
+        233
+      ],
+      [
+        -153,
+        228
+      ]
+    ],
     "source": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg (D02), JWNowpO44rw_000716.317.jpg",
     "claim": "estimate from a camera solve, +-25 m; grass, no pitch markings; the loop road stays"
   },
   "north_west_lawn": {
-    "bounds_x": [-125, -57],
-    "bounds_z": [-238, -143],
-    "objects": ["fc_west_lawn", "fc_path_west"],
+    "bounds_x": [
+      -125,
+      -57
+    ],
+    "bounds_z": [
+      -238,
+      -143
+    ],
+    "objects": [
+      "fc_west_lawn",
+      "fc_path_west"
+    ],
     "source": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg (D01), JWNowpO44rw_000659.633.jpg",
     "claim": "frame evidence: lawn with red crossed paths; positions from forecourt_layout.json:west_lawn"
   },

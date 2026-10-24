@@ -1,12 +1,15 @@
 """Pass J (engineering/cloud_handoff_2026-10-23.md, Step 2): real local buildings as plain masses, both states.
 
 Reads blender/data/landmarks_pass_j.json and gis/derived/near_ring_buildings.gpkg. Each landmark is its gpkg
-footprint (named footprint, or the nearest footprint of 100 m2 or more within 40 m of the map pin) extruded to the gpkg
+footprint (named footprint, or the pin footprint chosen by pick()) extruded to the gpkg
 height, with a flat roof and a parapet. The walls carry a storey rhythm (window rows every storey_m, window columns)
 and, for the Enkang blocks, the vertical strips of the frames; colours by eye from the cited frames, never from photo or
 map pixels. No names, logos or signage. The generic context masses that overlap a landmark footprint are removed:
 the gpkg extrusions in `buildings` and `suburbs_buildings` (suburbs.py) and the step B blocks (`bg_*`, background_b.py).
 The buildings exist today, so they show in both the asbuilt and the finished state.
+Pass K (engineering/cloud_pass_k_2026-10-24.md, K5): pick() looks further for an apartment pin that found a low building
+(K5a); the Enkang palette adds a darker, deeper parapet and roof plant (K5b); generic background_b.py blocks in the L07
+view cone within 1,500 m take the gpkg height under them or the local median gpkg height (K5c, both states).
 Run from the repo root: TALANTA_SITE_BLEND=blender/out/step_FJ.blend ~/.venvs/bpy/bin/python blender/context/landmarks_pass_j.py
 """
 import json, math, os, sqlite3, struct
@@ -52,11 +55,32 @@ with sqlite3.connect(f"file:{ROOT / 'gis/derived/near_ring_buildings.gpkg'}?mode
                                    c=(sum(p[0] for p in P) / len(P), sum(p[1] for p in P) / len(P)))
 
 
+def inside(p, ring):
+    x, y = p; yes = False
+    for (ax, ay), (bx, by) in zip(ring, ring[1:] + ring[:1]):
+        if (ay > y) != (by > y) and x < (bx - ax) * (y - ay) / (by - ay) + ax: yes = not yes
+    return yes
+
+
 def pick(b):
+    """Named footprints as listed. A map pin takes the nearest footprint of min_area_m2 or more within pin_radius_m.
+    Pass K (K5a): when that footprint is lower than tall_min_m (an apartment pin that found a small building next to it),
+    the tallest footprint above tall_min_m within tall_radius_m is used instead (then the largest area); when there is
+    none, the nearest footprint stays and the case goes to the lead (pick_note)."""
     if b["fids"] != "pin": return [ROWS[f] for f in b["fids"]]
-    px, pz = b["pin"]
-    near = [r for r in ROWS.values() if math.dist(r["c"], (px, pz)) <= D["pin_radius_m"] and r["area"] >= D["min_area_m2"]]
-    return [min(near, key=lambda r: math.dist(r["c"], (px, pz)))] if near else []
+    px, pz = b["pin"]; d = lambda r: math.dist(r["c"], (px, pz))
+    near = [r for r in ROWS.values() if d(r) <= D["pin_radius_m"] and r["area"] >= D["min_area_m2"]]
+    if not near: return []
+    best = min(near, key=d)
+    if best["h"] >= D["tall_min_m"]: return [best]
+    tall = [r for r in ROWS.values() if d(r) <= D["tall_radius_m"] and r["area"] >= D["min_area_m2"] and r["h"] > D["tall_min_m"]]
+    if tall: return [max(tall, key=lambda r: (r["h"], r["area"]))]
+    PICK_NOTE[b["name"]] = (f"nearest footprint {best['fid']} is {best['h']} m; no footprint taller than {D['tall_min_m']} m "
+                            f"within {D['tall_radius_m']} m of the pin, so it stays (question for the lead)")
+    return [best]
+
+
+PICK_NOTE = {}
 
 
 # ---------------------------------------------------------------- ground
@@ -137,23 +161,48 @@ def resample_ring(R, step=2.0):
     return out
 
 
+def box(bm, cx, cz, w, d, z0, z1, mi, ang=0.0):
+    """Closed box on the roof (plant), plan centre (cx, cz) in the app frame, w along ang."""
+    c, s = math.cos(ang), math.sin(ang)
+    q = [(cx + c * u - s * v, cz + s * u + c * v) for u, v in ((-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2))]
+    lo = [bm.verts.new((x, -z, z0)) for x, z in q]; hi = [bm.verts.new((x, -z, z1)) for x, z in q]
+    for i in range(4):
+        j = (i + 1) % 4; bm.faces.new((lo[i], lo[j], hi[j], hi[i])).material_index = mi
+    bm.faces.new(hi).material_index = mi; bm.faces.new(lo[::-1]).material_index = mi
+
+
+def roof_plant(bm, P, top, pal):
+    """Pass K (K5b, frames 000706.800, 000619.700): a lift and stair core and water tanks on the roof, kept inside the
+    footprint along its long axis. Sizes are estimates (by eye), not measured."""
+    A = np.array(P); c = A.mean(0); _, _, Vt = np.linalg.svd(A - c); ax = Vt[0]; ang = math.atan2(ax[1], ax[0])
+    span = float(np.ptp((A - c) @ ax)); wid = float(np.ptp((A - c) @ Vt[1]))
+    core = pal["roof_plant"]
+    box(bm, c[0], c[1], min(core["core_w_m"], span * 0.4), min(core["core_d_m"], wid * 0.6), top, top + core["core_h_m"], 3, ang)
+    for k in (-1, 1):  # tanks toward the two ends of the long axis
+        tx, tz = c + ax * k * span * 0.28
+        if inside((tx, tz), P): box(bm, tx, tz, 2.4, 2.4, top, top + core["tank_h_m"], 3, ang)
+
+
 def mass(name, R, h, pal, claim):
-    """Extruded footprint: walls from below the lowest ground to the roof, a flat roof, a 1 m parapet."""
+    """Extruded footprint: walls from below the lowest ground to the roof, a flat roof, a parapet (1 m unless the
+    palette gives parapet_m), roof plant when the palette has it (K5b)."""
     S = D["storey_m"]; gs = [ground(*p) for p in resample_ring(R)]; g0, g1 = min(gs), max(gs)
     top = g1 + h; bm = bmesh.new()
     signed = sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(R, R[1:] + R[:1]))
     P = R if signed < 0 else R[::-1]  # counter-clockwise in Blender x, y (y = -z): outward wall normals
-    lo, mid, hi = ([bm.verts.new((x, -z, zz)) for x, z in P] for zz in (g0 - 0.5, top, top + 1.0))
+    lo, mid, hi = ([bm.verts.new((x, -z, zz)) for x, z in P] for zz in (g0 - 0.5, top, top + pal.get("parapet_m", 1.0)))
     n = len(P)
     for i in range(n):
         j = (i + 1) % n
         bm.faces.new((lo[i], lo[j], mid[j], mid[i])).material_index = 0
-        bm.faces.new((mid[i], mid[j], hi[j], hi[i])).material_index = 2  # parapet band, 1 m
+        bm.faces.new((mid[i], mid[j], hi[j], hi[i])).material_index = 2  # parapet band
     roof = bm.faces.new([bm.verts.new((x, -z, top)) for x, z in P]); roof.material_index = 1
     if roof.normal.z < 0: roof.normal_flip()
+    if "roof_plant" in pal: roof_plant(bm, P, top, pal)
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
     me.materials.append(wall_material(name + "_wall", pal, g1, S))
     me.materials.append(flat(name + "_roof", pal["roof"], 0.7)); me.materials.append(flat(name + "_parapet", pal["parapet"], 0.8))
+    me.materials.append(flat(name + "_plant", pal.get("plant", pal["roof"]), 0.6))
     o = bpy.data.objects.new(name, me); col.objects.link(o); o["claim"] = claim
     return o, g0, top
 
@@ -172,16 +221,10 @@ for b in D["buildings"]:
                      "height_m": r["h"], "height_src": r["src"], "storeys": max(1, round(r["h"] / D["storey_m"])),
                      "pin_distance_m": round(math.dist(r["c"], b["pin"]))})
     report[b["name"]] = recs or "no footprint found"
+    if b["name"] in PICK_NOTE: report[b["name"] + "_pick_note"] = PICK_NOTE[b["name"]]
 
 
 # ---------------------------------------------------------------- remove the generic masses on these footprints
-def inside(p, ring):
-    x, y = p; yes = False
-    for (ax, ay), (bx, by) in zip(ring, ring[1:] + ring[:1]):
-        if (ay > y) != (by > y) and x < (bx - ax) * (y - ay) / (by - ay) + ax: yes = not yes
-    return yes
-
-
 def overlaps(x0, x1, z0, z1, pad=1.0):
     """An island's plan box overlaps a landmark: box corners or centre in the footprint, or footprint vertices in the box."""
     for _, R, (a, b, c, d), _ in FOOT:
@@ -217,6 +260,55 @@ for o in [o for o in scene.objects if o.type == "MESH" and (o.name in ("building
         removed[o.name] = len(set(dead))
     bm.free()
 report["removed_faces"] = removed
+
+
+# ---------------------------------------------------------------- pass K (K5c): generic masses no taller than their area
+def in_view_cone(x, z, cam, half_deg):
+    """Plan angle from the camera's forward direction within half_deg (app x, z; the camera from landing_cameras.json)."""
+    (cx, _, cz), (tx, _, tz) = cam["position"], cam["target"]
+    a = math.atan2(z - cz, x - cx) - math.atan2(tz - cz, tx - cx)
+    return abs((a + math.pi) % (2 * math.pi) - math.pi) <= math.radians(half_deg)
+
+
+K5C = D["generic_cap"]
+CAM = json.loads((ROOT / "blender/data/landing_cameras.json").read_text())[K5C["camera"]]["solved"]
+HALF = math.degrees(math.atan(18.0 / json.loads((ROOT / "blender/data/landing_cameras.json").read_text())[K5C["camera"]]["focal_length_mm"])) + K5C["cone_margin_deg"]
+GRID = {}
+for r in ROWS.values(): GRID.setdefault((int(r["c"][0] // 100), int(r["c"][1] // 100)), []).append(r)
+
+
+def rows_near(x, z, rad):
+    k = int(rad // 100) + 1; gx, gz = int(x // 100), int(z // 100)
+    return [r for i in range(gx - k, gx + k + 1) for j in range(gz - k, gz + k + 1) for r in GRID.get((i, j), []) if math.dist(r["c"], (x, z)) <= rad]
+
+
+capped = {"by_footprint": 0, "by_median": 0, "unchanged": 0, "examples": []}
+for o in [o for o in scene.objects if o.type == "MESH" and o.name in K5C["objects"]]:
+    me = o.data; M = o.matrix_world; bm = bmesh.new(); bm.from_mesh(me); bm.verts.ensure_lookup_table()
+    seen = set()
+    for v0 in bm.verts:  # connected vertex islands: one block each (blocks() writes closed boxes)
+        if v0.index in seen: continue
+        stack, isl = [v0], []; seen.add(v0.index)
+        while stack:
+            v = stack.pop(); isl.append(v)
+            for e in v.link_edges:
+                w = e.other_vert(v)
+                if w.index not in seen: seen.add(w.index); stack.append(w)
+        W = [M @ v.co for v in isl]; x, z = sum(p.x for p in W) / len(W), -sum(p.y for p in W) / len(W)
+        if math.hypot(x, z) > K5C["radius_m"] or not in_view_cone(x, z, CAM, HALF): continue
+        z0 = min(v.co.z for v in isl); h = max(v.co.z for v in isl) - z0 - 0.5  # local z (no scale); blocks() start 0.5 m below the ground
+        under = [r for r in rows_near(x, z, 60) if inside((x, z), r["ring"])]
+        if under: h_new, how = under[0]["h"], "by_footprint"
+        else:
+            hs = sorted(r["h"] for r in rows_near(x, z, K5C["median_radius_m"]))
+            if not hs or h <= hs[len(hs) // 2]: capped["unchanged"] += 1; continue
+            h_new, how = hs[len(hs) // 2], "by_median"
+        k = (h_new + 0.5) / (h + 0.5)
+        for v in isl: v.co.z = z0 + (v.co.z - z0) * k
+        capped[how] += 1
+        if len(capped["examples"]) < 12: capped["examples"].append([o.name, round(x), round(z), round(h, 1), round(h_new, 1)])
+    bm.to_mesh(me); me.update(); bm.free()
+report["generic_cap"] = capped
 print("LANDMARKS_PASS_J " + json.dumps(report), flush=True)
 (ROOT / "blender/out/landmarks_pass_j_report.json").write_text(json.dumps(report, indent=1))
 bpy.ops.wm.save_mainfile()

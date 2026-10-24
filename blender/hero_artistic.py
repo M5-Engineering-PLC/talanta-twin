@@ -26,6 +26,9 @@ SET = {
     # with clean passes the Ngong Hills band reads as a flat white wall at dusk (fixed band haze toward a far tint that
     # the bright sunset haze colour makes near white); at dusk: less haze on the far layers and a darker far tint
     "dusk_far_haze": {"terrain_horizon_hills": 0.32, "terrain_horizon_far": 0.40}, "dusk_far_tint": (0.85, 0.48),
+    # pass K (K6): the day values (lookdev.py defaults), set explicitly so a day call after a dusk call in the same
+    # process gets them back (blender/test_hero_artistic_day_dusk.py)
+    "day_far_haze": {"terrain_horizon_hills": 0.58, "terrain_horizon_far": 0.70}, "day_far_tint": (0.85, 0.95),
     "uplights": 96, "uplight_w": 1800.0, "uplight_k": 2900, "uplight_spot_deg": 38.0, "uplight_out_m": 2.5,
     "base_glow": 5.0, "base_glow_k": 3000,
     "haze_density": 1.6e-5, "haze_anisotropy": 0.72,
@@ -211,10 +214,16 @@ def prepare(scene, dusk):
     log.update(_people(scene) if not has("people_figures") else {"people": "scene (people_figures.py)"})
     import lookdev  # stronger bloom and glare for the artistic set
     lookdev.STRENGTHS["glare"] = SET["glare_mix"]; lookdev.STRENGTHS["glare_threshold"] = SET["glare_threshold"]
-    if dusk:
-        lookdev.STRENGTHS["aerial_band_haze"] = {**lookdev.STRENGTHS["aerial_band_haze"], **SET["dusk_far_haze"]}
-        lookdev.STRENGTHS["aerial_far_tint"] = SET["dusk_far_tint"]
+    set_far_values(lookdev.STRENGTHS, dusk)
     return log
+
+
+def set_far_values(strengths, dusk):
+    """Far band haze and far tint for dusk or day, set in both branches (K6). Returns the values set."""
+    key = "dusk" if dusk else "day"
+    strengths["aerial_band_haze"] = {**strengths["aerial_band_haze"], **SET[key + "_far_haze"]}
+    strengths["aerial_far_tint"] = tuple(SET[key + "_far_tint"])
+    return {"aerial_band_haze": dict(SET[key + "_far_haze"]), "aerial_far_tint": strengths["aerial_far_tint"]}
 
 
 def finish(scene):

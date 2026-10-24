@@ -3,9 +3,9 @@
 Replaces the stick figures of pass E (people_visualization: a cone and a ball each) with the ten posed figures of
 Quaternius "Background Posed Humans" (CC0 1.0; blender/assets/CREDITS.md; fetch with
 blender/assets/fetch_people_quaternius.sh): men and women standing, walking, hands on hips, waving, looking up.
-They are instanced with geometry nodes on points scattered over the finished plaza, path and apron surfaces and the
-station forecourt, denser toward the bowl and the plaza, about the density of the dusk photo forecourt
-(research/reference/dusk_aerial_finished_2026-10-17.jpg, internal only). Each person gets a height, a heading, and
+They are instanced with geometry nodes on points scattered over the finished plaza, path and apron surfaces, denser
+toward the bowl and the plaza. The crowd density and the grouping are an artistic Visualization choice, not taken from
+any source (pass K, 2026-10-24). Each person gets a height, a heading, and
 shirt, trouser and skin colours from seeded palettes (instancer attributes read by the figure materials).
 Visualization: not a crowd count, occupancy or evacuation / safety simulation.
 Run from the repo root after layout_pass_i.py (pass I; layout_final.py before it): ~/.venvs/bpy/bin/python blender/context/people_figures.py
@@ -92,7 +92,6 @@ def walk_surface(o):
     n = o.name
     if o.type != "MESH" or o.hide_render or "kerb" in n: return 0.0
     if n in ("fp_plaza", "fp_paths", "ge_apron_ring") or n.startswith(("fc_central", "fc_axial", "fc_facade_apron", "fc_plaza", "fc_path_")): return 1.0
-    if n == "lf_station_forecourt": return 2.5  # the dusk photo shows a crowd at the station
     return 0.0
 tris, wts = [], []
 dg = bpy.context.evaluated_depsgraph_get()
@@ -115,7 +114,7 @@ for i in rng.choice(len(tris), N, p=wts):
     if u + v > 1: u, v = 1 - u, 1 - v
     pts.append(a + (b - a) * u + (c - a) * v)
 P = np.array(pts)
-# small groups: a third of the people stand near another person, as in the photo
+# small groups: a third of the people stand near another person (artistic choice)
 for i in rng.choice(N, N // 3, replace=False):
     j = int(rng.integers(N)); P[i, :2] = P[j, :2] + rng.normal(0, 0.9, 2)
 fw = np.array([w for _, _, w in FIG]); fw /= fw.sum()

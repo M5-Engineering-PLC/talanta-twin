@@ -178,17 +178,9 @@ mx = tn_.new("ShaderNodeMix"); mx.data_type = "RGBA"; tl_.new(ln.outputs[0], mx.
 mx.inputs[6].default_value = (*srgb("#9A493D"), 1); mx.inputs[7].default_value = (*srgb("#EDEBE4"), 1)
 tl_.new(mx.outputs[2], tn_["Principled BSDF"].inputs["Base Color"])
 def striped_grass(name, stripe_w=5.0):
-    m = mat(name, "#4D8B38", 0.85); n_, l_ = m.node_tree.nodes, m.node_tree.links
-    uv = n_.new("ShaderNodeUVMap"); sp = n_.new("ShaderNodeSeparateXYZ"); l_.new(uv.outputs["UV"], sp.inputs[0])
-    dv = n_.new("ShaderNodeMath"); dv.operation = "DIVIDE"; dv.inputs[1].default_value = stripe_w; l_.new(sp.outputs["X"], dv.inputs[0])
-    fl = n_.new("ShaderNodeMath"); fl.operation = "FLOOR"; l_.new(dv.outputs[0], fl.inputs[0])
-    md = n_.new("ShaderNodeMath"); md.operation = "MODULO"; md.inputs[1].default_value = 2; l_.new(fl.outputs[0], md.inputs[0])
-    nz = n_.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 0.5; l_.new(uv.outputs["UV"], nz.inputs["Vector"])
-    a_ = n_.new("ShaderNodeMix"); a_.data_type = "RGBA"; l_.new(md.outputs[0], a_.inputs[0])
-    a_.inputs[6].default_value = (*srgb("#4D8B38"), 1); a_.inputs[7].default_value = (*srgb("#568F40"), 1)
-    b_ = n_.new("ShaderNodeMix"); b_.data_type = "RGBA"; b_.blend_type = "MULTIPLY"; b_.inputs[0].default_value = 0.25
-    l_.new(a_.outputs[2], b_.inputs[6]); l_.new(nz.outputs["Color"], b_.inputs[7]); l_.new(b_.outputs[2], n_["Principled BSDF"].inputs["Base Color"])
-    return m
+    """Mowing stripes along UV x plus the pass K variation (blender/grass_look.py, K4)."""
+    import sys; sys.path.insert(0, str(ROOT / "blender")); import grass_look
+    return grass_look.build(mat(name, grass_look.STRIPE[0], 0.85), stripe_w)
 GR = striped_grass("training_grass")
 def fan(name, outline, c, a, e, dy, material, claim):
     """Filled outline draped on the terrain; UV = metres along/across the axis (for stripes)."""
