@@ -1,6 +1,6 @@
 # Handoff: where the Talanta twin is parked
 
-Updated: 2026-10-19. Read this file first on a new device or with a new coding agent. Then read AGENTS.md, then blender/STATUS.md.
+Updated: 2026-10-19. New lead chat: read engineering/lead_handoff_2026-10-20.md first. Read this file first on a new device or with a new coding agent. Then read AGENTS.md, then blender/STATUS.md.
 
 ## Where the work is
 
