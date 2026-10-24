@@ -686,14 +686,14 @@
    "name": "Drone 000645.000",
    "purpose": "environment check against drone frame 000645.000 (north of the site over Ngong Road, looking SSW); internal only",
    "position": [
-    45.75,
-    78.28,
-    -397.11
+    31.48,
+    79.9,
+    -395.25
    ],
    "target": [
-    52.4,
-    -29.97,
-    2.57
+    32.6,
+    -21.35,
+    -8.28
    ],
    "up": [
     0,
@@ -701,8 +701,8 @@
     0
    ],
    "projection": "perspective",
-   "focal_length_mm": 24,
-   "vfov_deg": 45.747,
+   "focal_length_mm": 23.66,
+   "vfov_deg": 46.336,
    "sun": {
     "date": "2026-01-15",
     "time_eat": "10:30",
@@ -712,7 +712,8 @@
     "golden"
    ],
    "seed": 31,
-   "note": "solved to the stadium box and sky band of JWNowpO44rw_000645.000.jpg (blender/concept_match/solve_cameras.py drone, residuals in blender/data/drone_cameras.json)"
+   "note": "solved to the stadium box and sky band of JWNowpO44rw_000645.000.jpg (blender/concept_match/solve_cameras.py drone, residuals in blender/data/drone_cameras.json); refined 2026-10-21 on the stadium silhouette (blender/concept_match/refine_drone_cams.py: IoU 0.7314 -> 0.9056, moved 14.48 m)",
+   "roll_deg": -0.684
   },
   {
    "id": "C20",
@@ -802,6 +803,8 @@
    "projection": "perspective",
    "focal_length_mm": 24,
    "vfov_deg": 45.747,
+   "exposure_ev": -1.1,
+   "exposure_note": "follow-up 2026-10-22: the 000714.767 day is darker than 000645.000; the offset brings the D02 louvre sample to 10 levels of the frame under overcast_drone (facade_samples.py)",
    "sun": {
     "date": "2026-01-15",
     "time_eat": "10:30",
@@ -818,14 +821,14 @@
    "name": "Drone 000617.567",
    "purpose": "environment check against overview frame 000617.567 (east of the bowl, looking W); internal only",
    "position": [
-    432.08,
-    173.05,
-    -16.62
+    425.65,
+    172.55,
+    -12.94
    ],
    "target": [
-    -0.31,
-    -96.34,
-    -13.16
+    86.15,
+    -38.96,
+    -11.58
    ],
    "up": [
     0,
@@ -833,8 +836,8 @@
     0
    ],
    "projection": "perspective",
-   "focal_length_mm": 24,
-   "vfov_deg": 45.747,
+   "focal_length_mm": 24.01,
+   "vfov_deg": 45.73,
    "sun": {
     "date": "2026-01-15",
     "time_eat": "10:30",
@@ -844,199 +847,233 @@
     "golden"
    ],
    "seed": 33,
-   "note": "solved to the stadium box and sky band of JWNowpO44rw_000617.567.jpg (blender/concept_match/solve_cameras.py drone, residuals in blender/data/drone_cameras.json)"
+   "note": "solved to the stadium box and sky band of JWNowpO44rw_000617.567.jpg (blender/concept_match/solve_cameras.py drone, residuals in blender/data/drone_cameras.json); refined 2026-10-21 on the stadium silhouette (blender/concept_match/refine_drone_cams.py: IoU 0.9251 -> 0.944, moved 7.42 m)",
+   "roll_deg": -0.501
   },
   {
-    "id": "C30",
-    "name": "Interior 000945.200",
-    "purpose": "match tour: pitch level near the west touchline, across to the east stand; internal only",
-    "position": [
-      -30.0,
-      7.720000000000001,
-      6.0
-    ],
-    "target": [
-      80.0,
-      -6.9571336177715235,
-      6.0
-    ],
-    "up": [
-      0,
-      1,
-      0
-    ],
-    "projection": "perspective",
-    "focal_length_mm": 26,
-    "vfov_deg": 42.554,
-    "roll_deg": 0.0,
-    "exposure_ev": 1.0,
-    "sun": {
-      "date": "2026-01-15",
-      "time_eat": "12:30",
-      "kind": "neutral daylight"
-    },
-    "variants": [],
-    "seed": 30
+   "id": "C30",
+   "name": "Interior 000945.200",
+   "purpose": "match tour: pitch level near the west touchline, across to the east stand; internal only",
+   "position": [
+    -30.0,
+    7.720000000000001,
+    6.0
+   ],
+   "target": [
+    80.0,
+    -6.9571336177715235,
+    6.0
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 26,
+   "vfov_deg": 42.554,
+   "roll_deg": 0.0,
+   "exposure_ev": 1.0,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 30
   },
   {
-    "id": "C31",
-    "name": "Interior 002144.300",
-    "purpose": "match tour: west concourse at the top of the lower tier, along the concourse, bowl on the left; internal only",
-    "position": [
-      -61.67,
-      20.22,
-      35.6
-    ],
-    "target": [
-      -37.16,
-      19.62,
-      79.7
-    ],
-    "up": [
-      0,
-      1,
-      0
-    ],
-    "projection": "perspective",
-    "focal_length_mm": 24,
-    "vfov_deg": 45.747,
-    "roll_deg": 0.0,
-    "exposure_ev": 1.0,
-    "sun": {
-      "date": "2026-01-15",
-      "time_eat": "12:30",
-      "kind": "neutral daylight"
-    },
-    "variants": [],
-    "seed": 31
+   "id": "C31",
+   "name": "Interior 002144.300",
+   "purpose": "match tour: west concourse at the top of the lower tier, along the concourse, bowl on the left; internal only",
+   "position": [
+    -61.67,
+    20.22,
+    35.6
+   ],
+   "target": [
+    -37.16,
+    19.62,
+    79.7
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "roll_deg": 0.0,
+   "exposure_ev": 1.0,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 31
   },
   {
-    "id": "C32",
-    "name": "Interior 000735.433",
-    "purpose": "match tour: east concourse by a column, across the bowl to the west stand; internal only",
-    "position": [
-      66.92,
-      20.22,
-      5.85
-    ],
-    "target": [
-      -68.21,
-      28.12,
-      2.38
-    ],
-    "up": [
-      0,
-      1,
-      0
-    ],
-    "projection": "perspective",
-    "focal_length_mm": 24,
-    "vfov_deg": 45.747,
-    "roll_deg": 0.0,
-    "exposure_ev": 1.0,
-    "sun": {
-      "date": "2026-01-15",
-      "time_eat": "12:30",
-      "kind": "neutral daylight"
-    },
-    "variants": [],
-    "seed": 32
+   "id": "C32",
+   "name": "Interior 000735.433",
+   "purpose": "match tour: east concourse by a column, across the bowl to the west stand; internal only",
+   "position": [
+    66.92,
+    20.22,
+    5.85
+   ],
+   "target": [
+    -68.21,
+    28.12,
+    2.38
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 24,
+   "vfov_deg": 45.747,
+   "roll_deg": 0.0,
+   "exposure_ev": 1.0,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 32
   },
   {
-    "id": "C33",
-    "name": "Interior 000154.067",
-    "purpose": "match tour: east upper tier back, looking up at the catwalk ring and the roof lattice; internal only",
-    "position": [
-      86.12,
-      50.22,
-      15.18
-    ],
-    "target": [
-      45.87,
-      53.12,
-      28.66
-    ],
-    "up": [
-      0,
-      1,
-      0
-    ],
-    "projection": "perspective",
-    "focal_length_mm": 30,
-    "vfov_deg": 37.299,
-    "roll_deg": -12.0,
-    "exposure_ev": 1.0,
-    "sun": {
-      "date": "2026-01-15",
-      "time_eat": "12:30",
-      "kind": "neutral daylight"
-    },
-    "variants": [],
-    "seed": 33
+   "id": "C33",
+   "name": "Interior 000154.067",
+   "purpose": "match tour: east upper tier back, looking up at the catwalk ring and the roof lattice; internal only",
+   "position": [
+    86.12,
+    50.22,
+    15.18
+   ],
+   "target": [
+    45.87,
+    53.12,
+    28.66
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 30,
+   "vfov_deg": 37.299,
+   "roll_deg": -12.0,
+   "exposure_ev": 1.0,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 33
   },
   {
-    "id": "C34",
-    "name": "Interior 002320.200",
-    "purpose": "match tour: north end, upper tier front walkway behind the glass balustrade, across the bowl; internal only",
-    "position": [
-      -8.75,
-      40.72,
-      -100.03
-    ],
-    "target": [
-      -70.27,
-      39.12,
-      -18.83
-    ],
-    "up": [
-      0,
-      1,
-      0
-    ],
-    "projection": "perspective",
-    "focal_length_mm": 22,
-    "vfov_deg": 49.426,
-    "roll_deg": 0.0,
-    "exposure_ev": 1.0,
-    "sun": {
-      "date": "2026-01-15",
-      "time_eat": "12:30",
-      "kind": "neutral daylight"
-    },
-    "variants": [],
-    "seed": 34
+   "id": "C34",
+   "name": "Interior 002320.200",
+   "purpose": "match tour: north end, upper tier front walkway behind the glass balustrade, across the bowl; internal only",
+   "position": [
+    -8.75,
+    40.72,
+    -100.03
+   ],
+   "target": [
+    -70.27,
+    39.12,
+    -18.83
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 22,
+   "vfov_deg": 49.426,
+   "roll_deg": 0.0,
+   "exposure_ev": 1.0,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 34
   },
   {
-    "id": "C35",
-    "name": "Interior 000131.700",
-    "purpose": "match tour: east upper gallery behind the top row, along the gallery, bowl on the right; internal only",
-    "position": [
-      92.12,
-      52.02,
-      0.0
-    ],
-    "target": [
-      85.02,
-      47.12,
-      71.34
-    ],
-    "up": [
-      0,
-      1,
-      0
-    ],
-    "projection": "perspective",
-    "focal_length_mm": 22,
-    "vfov_deg": 49.426,
-    "roll_deg": 0.0,
-    "exposure_ev": 1.0,
-    "sun": {
-      "date": "2026-01-15",
-      "time_eat": "12:30",
-      "kind": "neutral daylight"
-    },
-    "variants": [],
-    "seed": 35
+   "id": "C35",
+   "name": "Interior 000131.700",
+   "purpose": "match tour: east upper gallery behind the top row, along the gallery, bowl on the right; internal only",
+   "position": [
+    92.12,
+    52.02,
+    0.0
+   ],
+   "target": [
+    85.02,
+    47.12,
+    71.34
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 22,
+   "vfov_deg": 49.426,
+   "roll_deg": 0.0,
+   "exposure_ev": 1.0,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "12:30",
+    "kind": "neutral daylight"
+   },
+   "variants": [],
+   "seed": 35
+  },
+  {
+   "id": "P01",
+   "name": "Dusk photo 2026-10-17",
+   "purpose": "layout check against the dusk aerial photo of the finished site (research/reference/dusk_aerial_finished_2026-10-17.jpg, north-north-west over Ngong Road, looking SSE); internal only, never public",
+   "position": [
+    -221.9,
+    167.35,
+    -498.3
+   ],
+   "target": [
+    -2.15,
+    6.3,
+    -25.38
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "projection": "perspective",
+   "focal_length_mm": 36.53,
+   "vfov_deg": 36.576,
+   "sun": {
+    "date": "2026-01-15",
+    "time_eat": "18:45",
+    "kind": "dusk"
+   },
+   "variants": [
+    "golden"
+   ],
+   "seed": 41,
+   "note": "pass F (2026-10-22): solved by hand and least squares to the photo (bowl outline and opening, NE track pitch centre, Ngong Road kerb; residuals 1-12 px on 1600 x 1073 except the opening 17-40 px); frame aspect 1.491, render 1920 x 1288"
   }
  ]
 }

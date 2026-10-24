@@ -1,0 +1,73 @@
+== D01 overcast 08:22:28
+00:00.413  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:01.134  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+restart after worker restart 09:00:33
+== D01 overcast 09:00:33
+00:01.749  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:05.470  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+09:58.215  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_01/D01_overcast_hero.png'
+{"camera": "D01", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 592.2, "shadow_image_deg": -8.1}
+== D02 overcast 09:10:33
+00:00.438  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:01.096  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+11:09.197  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_01/D02_overcast_hero.png'
+{"camera": "D02", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 667.7, "shadow_image_deg": 173.8}
+== D03 overcast 09:21:43
+00:00.472  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:01.156  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+14:56.631  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_01/D03_overcast_hero.png'
+{"camera": "D03", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 895.1, "shadow_image_deg": 22.5}
+== L06 sunset_landing 09:36:40
+00:00.407  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:01.796  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+09:34.922  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_01/L06_sunset_landing_hero.png'
+{"camera": "L06", "sky": {"preset": "sunset_landing", "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "rotation_deg": 122.99, "hdri_sun_elevation_deg": 7.69, "scene_sun_elevation_deg": 9.21, "sun_energy": 16.954, "sun_kelvin": 3300, "sun_color": [1.0, 0.495, 0.2205], "haze_rgb": [4.5407, 3.3752, 1.4955]}, "sun": {"date": "2026-01-15", "time_eat": "18:05", "kind": "evening golden", "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0, "sun_kelvin": 3300, "sun_to_sky": 5.0, "exposure_ev": -1.8, "fixtures": true}, "sun_elevation_deg": 9.21, "sun_azimuth_deg": 248.89, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 572.9, "shadow_image_deg": -156.0}
+== L07 daylight_landing 09:46:16
+00:00.489  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:01.858  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+09:06.639  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_01/L07_daylight_landing_hero.png'
+{"camera": "L07", "sky": {"preset": "daylight_landing", "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "rotation_deg": -2.01, "hdri_sun_elevation_deg": 7.69, "scene_sun_elevation_deg": 52.15, "sun_energy": 16.954, "sun_kelvin": 5600, "sun_color": [1.0, 0.8655, 0.7551], "haze_rgb": [0.888, 1.0232, 0.9972]}, "sun": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight", "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0, "sun_kelvin": 5600, "sun_to_sky": 5.0, "exposure_ev": -1.2}, "sun_elevation_deg": 52.15, "sun_azimuth_deg": 123.89, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 544.5, "shadow_image_deg": 175.6}
+== F16 neutral 09:55:28
+00:00.405  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:01.057  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+11:33.380  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_01/F16_neutral_hero.png'
+{"camera": "F16", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, "sun_elevation_deg": 69.99, "sun_azimuth_deg": 171.54, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 692.0, "shadow_image_deg": 11.5}
+== F32 overcast 10:07:02
+00:00.411  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:01.162  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+09:57.582  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_01/F32_overcast_hero.png'
+{"camera": "F32", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 596.0, "shadow_image_deg": 5.7}
+FX_RENDERS_DONE 10:17:00
+== F32 overcast (re-solved camera with the opening) 10:31:29
+00:00.417  blend            | Read blend: "/home/user/talanta-twin/blender/out/step_FX.blend"
+00:01.169  cycles           | WARNING CUEW initialization failed: Error opening the library
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+14:06.792  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_01/F32_overcast_hero.png'
+{"camera": "F32", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 845.2, "shadow_image_deg": 8.5}
+F32_DONE 10:45:37

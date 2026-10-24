@@ -1,0 +1,11 @@
+== F16 neutral 08:18:01
+00:01.040  cycles           | WARNING CUEW initialization failed: Error opening the library
+20:07.477  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_02/F16_neutral_hero.png'
+{"camera": "F16", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "12:30", "kind": "neutral daylight"}, "sun_elevation_deg": 69.99, "sun_azimuth_deg": 171.54, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 1206.1, "shadow_image_deg": 11.5, "state": "finished"}
+-- F16 done 08:38:09
+== D02 overcast 08:38:09
+00:01.202  cycles           | WARNING CUEW initialization failed: Error opening the library
+18:19.197  render           | Saved: '/home/user/talanta-twin/blender/renders/facade_fix_02/D02_overcast_hero.png'
+{"camera": "D02", "sky": null, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast"}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 1097.7, "shadow_image_deg": 173.8, "state": "finished"}
+-- D02 done 08:56:29
+RENDERS_DONE 08:56:29

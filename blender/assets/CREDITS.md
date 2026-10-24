@@ -6,6 +6,7 @@ All assets in this folder are CC0 (public domain). No attribution is required; i
 |---|---|---|---|---|
 | hdri/kloppenheim_06_puresky_4k.hdr | Kloppenheim 06 (Pure Sky) | https://polyhaven.com/a/kloppenheim_06_puresky | CC0 | Morning golden-hour sky (06 look, bake) |
 | hdri/wasteland_clouds_puresky_4k.hdr | Wasteland Clouds (Pure Sky) | https://polyhaven.com/a/wasteland_clouds_puresky | CC0 | Evening golden-hour sky (07 still) |
+| hdri/overcast_soil_puresky_4k.hdr | Overcast Soil (Pure Sky) | https://polyhaven.com/a/overcast_soil_puresky | CC0 | Grey overcast sky for the drone cameras D01-D03 (replica plan pass D; not committed, fetch with the URL) |
 | textures/PavingStones146 | Paving Stones 146 | https://ambientcg.com/a/PavingStones146 | CC0 | Forecourt and plaza paving |
 | textures/Asphalt031 | Asphalt 031 | https://ambientcg.com/a/Asphalt031 | CC0 | Ngong Road and access roads |
 | textures/Ground109 | Ground 109 | https://ambientcg.com/a/Ground109 | CC0 | Bare earth; tint toward red murram in the shader |
@@ -20,3 +21,4 @@ Textures are 2K JPG (recompressed to quality 80): Color, Roughness, NormalGL and
 No asset here is derived from a reference frame or a concept image.
 | hdri/belfast_sunset_puresky_4k.hdr | Belfast Sunset (Pure Sky) | https://polyhaven.com/a/belfast_sunset_puresky | CC0 | Step H sunset sky (hero_artistic L06). Not committed: `blender/assets/fetch_hdri_h.sh` |
 | hdri/kloofendal_48d_partly_cloudy_puresky_4k.hdr | Kloofendal 48d Partly Cloudy (Pure Sky) | https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky | CC0 | Step H cumulus sky (hero_artistic L07). Not committed: `blender/assets/fetch_hdri_h.sh` |
+| people/*.blend | Background Posed Humans (10 posed figures: male and female standing, walking, hands on hips, waving, looking up) | https://quaternius.com/packs/backgroundposedhumans.html ("Background characters by Quaternius") | CC0 1.0 (License.txt in the pack) | Pass H people on the finished plazas and paths (Visualization). Not committed: `blender/assets/fetch_people_quaternius.sh` |

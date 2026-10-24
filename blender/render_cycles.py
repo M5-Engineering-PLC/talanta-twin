@@ -45,6 +45,11 @@ def sun_position(date, hhmm_eat, lat, lon):
 
 bpy.ops.wm.open_mainfile(filepath=__import__("os").environ.get("TALANTA_SITE_BLEND", str(ROOT / "blender/out/talanta_site.blend")))  # a frozen copy per step
 s = bpy.context.scene
+# surface state (replica plan pass C): TALANTA_STATE=asbuilt for the drone and facade frames, finished (default) for
+# the landing views; blender/scene_state.py
+_state = __import__("os").environ.get("TALANTA_STATE")
+if _state:
+    sys.path.insert(0, str(ROOT / "blender")); import scene_state; scene_state.set_state(s, _state)
 m, cams = load_cameras(s, ROOT / "app/cameras/manifest.json", extra=[ROOT / "blender/data/interior_cameras.json", ROOT / "blender/data/matchday_cameras.json"])
 apply_render_settings(s, m, look_check=(quality not in ("hero", "hero_artistic")))
 s.camera = cams[cid]
@@ -82,12 +87,13 @@ if night or st.get("fixtures"):  # night fixtures on; a preset may switch them o
     for mt in bpy.data.materials:
         if not mt.node_tree: continue
         for nd in mt.node_tree.nodes:
-            if nd.label.startswith("night:"):
+            if nd.label.startswith("night:") or (not night and nd.label.startswith("dusk:")):  # dusk: only before night
                 v = float(nd.label.split(":")[1])
                 if nd.type == "BSDF_PRINCIPLED": nd.inputs["Emission Strength"].default_value = v
                 elif nd.type == "EMISSION": nd.inputs["Strength"].default_value = v
     for ob in bpy.data.objects:
         if ob.type == "LIGHT" and "night_energy" in ob: ob.data.energy = ob["night_energy"]
+        if not night and ob.type == "LIGHT" and "dusk_energy" in ob: ob.data.energy = ob["dusk_energy"]  # dusk (pass E)
 sky_log = None
 if sun_key in sky_hdri.PRESETS:
     sky_log = sky_hdri.apply(s, sun_key, el, az, sun)
@@ -121,10 +127,30 @@ if __import__("os").environ.get("TALANTA_LOOKDEV") == "1" or artistic:
     from lookdev import apply_lookdev
     apply_lookdev(s, "night" if night else "day")
 if artistic: hero_artistic.finish(s)
+# test hooks (pass A paint tuning): TALANTA_PRE runs a Python file on the set-up scene; TALANTA_BORDER="x0,y0,x1,y1"
+# renders only that part of the frame (fractions, top-left origin); TALANTA_SAMPLES overrides the sample count
+_env = __import__("os").environ
+if _env.get("TALANTA_PRE"): exec(compile(open(_env["TALANTA_PRE"]).read(), _env["TALANTA_PRE"], "exec"), {"bpy": bpy, "s": s, "ROOT": ROOT})
+if _env.get("TALANTA_BORDER"):
+    bx0, by0, bx1, by1 = map(float, _env["TALANTA_BORDER"].split(","))
+    s.render.use_border = True; s.render.use_crop_to_border = False
+    s.render.border_min_x, s.render.border_max_x, s.render.border_min_y, s.render.border_max_y = bx0, bx1, 1 - by1, 1 - by0
+if _env.get("TALANTA_SAMPLES"): c.samples = int(_env["TALANTA_SAMPLES"])
 t0 = time.time(); bpy.ops.render.render(write_still=True); sec = time.time() - t0
+# display grade of a preset (sky_hdri "display_grade", e.g. the drone camera look of overcast_drone): applied to the
+# saved 8-bit image, so the frame match holds in display values; the scene, paint and grade stay as they are
+_dg = (sky_hdri.PRESETS.get(sun_key) or {}).get("display_grade")
+if _dg:
+    import numpy as np
+    _im = bpy.data.images.load(s.render.filepath)
+    _px = np.empty(len(_im.pixels), np.float32); _im.pixels.foreach_get(_px); _px = _px.reshape(-1, 4)
+    _c = _px[:, :3]; _lum = (_c @ np.array([0.2126, 0.7152, 0.0722], np.float32))[:, None]
+    _c = _dg["gain"] * (_lum + _dg["saturation"] * (_c - _lum)) * (1 - _dg["veil"]) + _dg["veil"] * np.array(_dg["veil_rgb"], np.float32)
+    _px[:, :3] = np.clip(_c, 0, 1); _im.pixels.foreach_set(_px.ravel()); _im.save(); bpy.data.images.remove(_im)
 rec = {"camera": cid, "sky": sky_log, "sun": st, "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2), "quality": quality,
        "resolution": [s.render.resolution_x * s.render.resolution_percentage // 100, s.render.resolution_y * s.render.resolution_percentage // 100],
        "samples": c.samples, "seconds": round(sec, 1)}
+if _dg: rec["display_grade"] = _dg
 if artistic: rec["hero_artistic"] = art_log; rec["labelled_copy"] = hero_artistic.stamp(s.render.filepath).name
 if matchday_log is not None: rec["matchday"] = matchday_log; rec["labelled_copy"] = matchday.stamp(s.render.filepath).name
 # image direction of cast shadows: a 100 m ground step away from the sun at the pitch centre (0 = right, ccw)
@@ -132,6 +158,7 @@ from bpy_extras.object_utils import world_to_camera_view
 g0 = Vector((0, 0, m["frame"]["site_pad_y"])); g1 = g0 + 100 * Vector((-math.sin(math.radians(az)), -math.cos(math.radians(az)), 0))
 p0, p1 = (world_to_camera_view(s, s.camera, g) for g in (g0, g1))
 rec["shadow_image_deg"] = round(math.degrees(math.atan2((p1.y - p0.y) * s.render.resolution_y, (p1.x - p0.x) * s.render.resolution_x)), 1)
+rec["state"] = s.get("talanta_state", "finished")
 print(json.dumps(rec))
 log = out / "render_log.jsonl"
 with open(log, "a") as f: f.write(json.dumps(rec) + "\n")

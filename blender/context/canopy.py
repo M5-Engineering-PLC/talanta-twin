@@ -9,7 +9,7 @@ from mathutils import Vector
 CLAIM = 'estimated: species mix and crown form from historian frames and concept 06; positions unchanged'
 LIMIT = 6000000  # stills (step T): nearest trees get the irregular high crowns; the web bundle uses the web LOD
 SEED = 704
-TINTS = ('#284A2D', '#3B6034', '#52703C', '#687951', '#796195')
+TINTS = ('#284A2D', '#3B6034', '#52703C', '#687951', '#B49AD8')  # jacaranda lighter lilac (pass A, 2026-10-20: read navy)
 VARIANTS = [('broadleaf_%02d' % i, 'broadleaf', i % 4) for i in range(7)] + [
     ('jacaranda', 'broadleaf', 4), ('eucalyptus_00', 'eucalyptus', 2),
     ('eucalyptus_01', 'eucalyptus', 3), ('palm_00', 'palm', 1), ('palm_01', 'palm', 2)]

@@ -62,6 +62,8 @@ OUTD.mkdir(parents=True, exist_ok=True)
 
 LEVELS = [(0, 0.25, 5), (1, 0.5, 6)]  # level, m per px, tiles per side (centred on the stadium)
 if TEST: LEVELS = [(0, 0.25, 1), (1, 0.5, 1)]
+KW = dict(x.split("=", 1) for x in sys.argv[2:] if "=" in x)
+if "levels" in KW: LEVELS = [L for L in LEVELS if str(L[0]) in KW["levels"].split(",")]  # v2: levels=0 re-renders level 0 only
 tiles, t_all = [], time.time()
 for level, mpp, n in LEVELS:
     size = mpp * 1024
@@ -75,6 +77,13 @@ for level, mpp, n in LEVELS:
             tiles.append({"file": name, "x0": x0, "z0": z0, "size": size, "level": level, "m_per_px": size / RES,
                           "seconds": round(time.time() - t0, 1)})
             print("tile", name, tiles[-1]["seconds"], "s", flush=True)
+# reuse=<bundle ground dir>: tiles of the other levels come from an earlier bundle as KTX2 (post_glb.mjs copies them)
+if "reuse" in KW:
+    prev = json.loads((ROOT / KW["reuse"] / "tiles.json").read_text())
+    done_levels = {L[0] for L in LEVELS}
+    for t in prev["tiles"]:
+        if t["level"] in done_levels: continue
+        tiles.append({**t, "ktx2": str((ROOT / KW["reuse"] / t["file"]).resolve()), "reused_from": KW["reuse"]})
 write_json(OUTD / "tiles_png.json", {"frame": "app (x east, z south); x0, z0 = west and north edges of the tile in m",
                                      "sun": "morning_golden 07:30 EAT 2026-01-15", "look": "AgX, -1 EV (approved morning)",
                                      "samples": SAMPLES, "resolution_px": RES, "ground_objects": sorted(ground),

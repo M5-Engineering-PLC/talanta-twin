@@ -46,6 +46,20 @@ _fc = bpy.data.collections.get("forecourt_context")
 if _fc:  # forecourt.py meshes (paths, kerbs, beds, plaza); empties and instancers stay out
     GROUPS["forecourt"] = (2048, sorted(o.name for o in _fc.all_objects if o.type == "MESH" and not o.hide_render
                                         and not o.modifiers and len(o.data.polygons)))
+# web_hero_v2 (2026-10-20): the site layout (site_layout_ge.py, finish_plaza.py) and the Rubis station are their own
+# groups. Linked copies of tree and shrub prototypes stay out (they export as plain meshes); so do internal-only parts.
+def _own_meshes(*cols):
+    out = []
+    for cn in cols:
+        c_ = bpy.data.collections.get(cn)
+        if c_ is None: continue
+        out += sorted(o.name for o in c_.all_objects if o.type == "MESH" and not o.hide_render and o.data.users == 1
+                      and "internal_only" not in o.keys() and len(o.data.polygons))
+    return out
+if _own_meshes("site_layout_ge", "finish_plaza"): GROUPS["site_layout"] = (2048, _own_meshes("site_layout_ge", "finish_plaza"))
+if _own_meshes("rubis_station"): GROUPS["station"] = (1024, _own_meshes("rubis_station"))
+AO_USED = lambda n: n.startswith("stadium_") or n in ("roof", "suburbs", "traffic")  # post_glb.mjs AO_GROUPS
+ALBEDO_USED = lambda n: not n.startswith("ground_")  # ground colour ships as ground_tiles.py tiles
 CLIP = 1500.0  # the site GLB stops here; the panorama carries everything beyond
 
 
@@ -230,9 +244,13 @@ def save(gname, kind):
     return rec
 
 
-BATCHES = [["stadium_shell", "stadium_fins"], ["stadium_ornament", "roof"], ["sport", "roads", "site_built", "forecourt"], ["suburbs", "traffic"],
-           [f"ground_{k:02d}" for k in range(12)], [f"ground_{k:02d}" for k in range(12, 16)],  # inner tiles (+-700 m)
-           [f"ground_{k:02d}" for k in range(16, 24)]]  # outer tiles: their own batch, as baked with only= (stage tags match)
+# v2: what changed bakes in its own batches; the unchanged ones match the stage tags written by migrate_stages_v2.py
+CHANGED_TILES = [5, 6, 9, 10]  # the four inner tiles under the bowl and the plaza
+BATCHES = [["stadium_shell", "stadium_fins"], ["stadium_ornament", "roof"], ["sport", "roads", "site_built"], ["forecourt"],
+           ["site_layout", "station"], ["suburbs", "traffic"],
+           [f"ground_{k:02d}" for k in CHANGED_TILES], [f"ground_{k:02d}" for k in range(12) if k not in CHANGED_TILES],
+           [f"ground_{k:02d}" for k in range(12, 16)],  # inner tiles (+-700 m)
+           [f"ground_{k:02d}" for k in range(16, 24)]]  # outer tiles
 BATCHES = [[n for n in b_ if n in groups] for b_ in BATCHES]
 BATCHES = [b_ for b_ in BATCHES if b_] + [[n for n in groups if not any(n in b_ for b_ in BATCHES)]]
 if "only" in ARG: BATCHES = [[n for n in b_ if n in ARG["only"]] for b_ in BATCHES]
@@ -241,6 +259,7 @@ times = {}
 for kind, btype, filt, spp in (("albedo", "DIFFUSE", {"COLOR"}, 4), ("ao", "AO", set(), 4 if TEST else 64), ("light", "DIFFUSE", {"DIRECT", "INDIRECT"}, 4 if TEST else SAMPLES)):
     target(kind); c.samples = spp; times[kind] = 0.0
     for batch in BATCHES:
+        batch = [n for n in batch if (kind != "ao" or AO_USED(n)) and (kind != "albedo" or ALBEDO_USED(n))]
         if not batch: continue
         tag = f"{kind}:{'+'.join(batch)}"
         if tag in stages["done"] and stages["done"][tag].get("sig") == [SIG[n] for n in batch] \

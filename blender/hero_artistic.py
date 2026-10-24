@@ -19,11 +19,18 @@ CLAIM = "Visualization: hero_artistic still (step H); lights, people and cars ar
 RES = (3840, 2160)
 SET = {
     "samples": 128, "adaptive_threshold": 0.02, "adaptive_min": 32,
+    # cloud handoff 2026-10-23, Step 4: the L06 far-ridge speckle was not sampling noise. With the haze volume on, the
+    # depth, mist and object index passes take the volume's scatter points in some samples, and the band haze masks of
+    # lookdev.py flip pixel by pixel. finish() reads those passes from a second view layer without volumes.
+    "pass_layer_samples": 16,
+    # with clean passes the Ngong Hills band reads as a flat white wall at dusk (fixed band haze toward a far tint that
+    # the bright sunset haze colour makes near white); at dusk: less haze on the far layers and a darker far tint
+    "dusk_far_haze": {"terrain_horizon_hills": 0.32, "terrain_horizon_far": 0.40}, "dusk_far_tint": (0.85, 0.48),
     "uplights": 96, "uplight_w": 1800.0, "uplight_k": 2900, "uplight_spot_deg": 38.0, "uplight_out_m": 2.5,
     "base_glow": 5.0, "base_glow_k": 3000,
     "haze_density": 1.6e-5, "haze_anisotropy": 0.72,
     "glare_mix": 0.09, "glare_threshold": 1.1, "streak_mix": 0.05,
-    "bevel_m": 0.04, "fin_depth_scale": 1.35,
+    "bevel_m": 0.04, "lattice_bevel_max_m": 0.03, "fin_depth_scale": 1.35,  # lattice cap: facade spec 2026-10-20 (square rib edges)
     "cars": 0.62, "people": 1400,
 }
 
@@ -103,7 +110,7 @@ def _bevels_and_fins():
         if not m.node_tree or not any(k in m.name.lower() for k in ("white", "shell", "fascia", "roof", "lattice", "membrane", "rubis_canopy")): continue
         p = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
         if p is None or p.inputs["Normal"].is_linked: continue
-        b = m.node_tree.nodes.new("ShaderNodeBevel"); b.inputs["Radius"].default_value = SET["bevel_m"]; b.samples = 6
+        b = m.node_tree.nodes.new("ShaderNodeBevel"); b.inputs["Radius"].default_value = min(SET["bevel_m"], SET["lattice_bevel_max_m"]) if "lattice" in m.name.lower() else SET["bevel_m"]; b.samples = 6
         m.node_tree.links.new(b.outputs["Normal"], p.inputs["Normal"]); done.append(m.name)
     fins = bpy.data.objects.get("louvre_fins"); fin_note = None
     if fins is not None:
@@ -195,9 +202,18 @@ def prepare(scene, dusk):
     """Scene changes before the look layer. Returns a log dict."""
     _render(scene)
     log = {"preset": "hero_artistic", "resolution": list(RES), "settings": SET}
-    log.update(_uplights(scene, dusk)); log.update(_bevels_and_fins()); log.update(_cars(scene)); log.update(_people(scene))
+    # pass H (2026-10-22): scenes from step_FE on carry their own dusk uplights (landing_look.py), cars (layout_pass_i.py; layout_final.py before pass I)
+    # and CC0 figures (people_figures.py); the step H stand-ins are added only to scenes without them
+    has = lambda pre: any(o.name.startswith(pre) for o in scene.objects)
+    log.update(_uplights(scene, dusk) if not has("dusk_uplight_") else {"uplights": "scene (landing_look.py)"})
+    log.update(_bevels_and_fins())
+    log.update(_cars(scene) if not (has("layout_final_cars") or has("layout_cars")) else {"parked_cars": "scene (layout_pass_i.py)"})
+    log.update(_people(scene) if not has("people_figures") else {"people": "scene (people_figures.py)"})
     import lookdev  # stronger bloom and glare for the artistic set
     lookdev.STRENGTHS["glare"] = SET["glare_mix"]; lookdev.STRENGTHS["glare_threshold"] = SET["glare_threshold"]
+    if dusk:
+        lookdev.STRENGTHS["aerial_band_haze"] = {**lookdev.STRENGTHS["aerial_band_haze"], **SET["dusk_far_haze"]}
+        lookdev.STRENGTHS["aerial_far_tint"] = SET["dusk_far_tint"]
     return log
 
 
@@ -210,6 +226,18 @@ def finish(scene):
         n.inputs["Density"].default_value = SET["haze_density"]; n.inputs["Anisotropy"].default_value = SET["haze_anisotropy"]
     scene.cycles.volume_bounces = 0; scene.cycles.volume_step_rate = 4.0
     tree = scene.compositing_node_group if hasattr(scene, "compositing_node_group") else scene.node_tree
+    if hz is not None and tree is not None:  # data passes for the look layer from a layer without the haze volume
+        main = scene.view_layers[0]
+        pl = scene.view_layers.get("passes_no_haze") or scene.view_layers.new("passes_no_haze")
+        pl.samples = SET["pass_layer_samples"]
+        for lc in pl.layer_collection.children:  # the haze box's own collection is left out of this layer
+            if hz.name in lc.collection.objects: lc.exclude = True
+        pl.use_pass_z = True; pl.use_pass_mist = True; pl.use_pass_object_index = True
+        rl = tree.nodes.new("CompositorNodeRLayers"); rl.layer = pl.name
+        for n in [n for n in tree.nodes if n.type == "R_LAYERS" and n.layer == main.name]:
+            for o in n.outputs:
+                if o.name in ("Depth", "Mist", "IndexOB", "Object Index", "Index OB") and o.name in rl.outputs:
+                    for lk in list(o.links): tree.links.new(rl.outputs[o.name], lk.to_socket)
     out = next((n for n in tree.nodes if n.type in ("GROUP_OUTPUT", "COMPOSITE")), None)
     if out is not None and out.inputs[0].is_linked:
         src = out.inputs[0].links[0].from_socket

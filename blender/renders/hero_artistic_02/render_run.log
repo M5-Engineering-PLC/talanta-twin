@@ -1,0 +1,10 @@
+== L06 sunset_artistic hero_artistic 16:50:22
+00:11.703  cycles           | WARNING CUEW initialization failed: Error opening the library
+PRE none
+01:04:12.604  render           | Saved: '/home/user/talanta-twin/blender/renders/hero_artistic_02/L06_sunset_artistic_hero_artistic.png'
+-- L06 done 17:54:36
+== L07 daylight_artistic hero_artistic 17:54:36
+00:14.916  cycles           | WARNING CUEW initialization failed: Error opening the library
+PRE none
+37:04.517  render           | Saved: '/home/user/talanta-twin/blender/renders/hero_artistic_02/L07_daylight_artistic_hero_artistic.png'
+-- L07 done 18:31:42

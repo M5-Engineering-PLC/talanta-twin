@@ -1,0 +1,1317 @@
+{
+  "project": "Talanta Twin",
+  "date": "2026-10-23",
+  "status": "partial finished plan; lead decisions remain",
+  "evidence_class": "software",
+  "coordinate_frame": "metres; x east, z south; origin W1b pitch centre as in app/cameras/manifest.json",
+  "coordinate_note": "No camera positions are reproduced. Asbuilt entries record observed construction geometry. Finished entries are explicit inferences or unresolved model placeholders.",
+  "uncertainty": {
+    "camera_estimates_east_m": 20,
+    "camera_estimates_south_west_m": 25,
+    "inherited_ge_trace_m": 10,
+    "pass_F_near_m": 15,
+    "pass_F_far_m": 30
+  },
+  "authority_note": "No inspected frame establishes the full completed site. A filmed design model is not the finished site. The dusk photo has unresolved provenance.",
+  "features": [
+    {
+      "id": "west_road",
+      "type": "road",
+      "state": "asbuilt",
+      "approx_centre_m": null,
+      "size_m": null,
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/OB0OE-PAAVg/OB0OE-PAAVg_000012.345.jpg",
+          "timestamp_s": 12.346,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:west_road",
+      "model_now": "21 m divided road, x about -156, z -236 to 700.",
+      "frames_show": "West apron and work yards are visible. No continuous divided road is established. Ngong Road is the northern divided road.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q1/Q2. Model corridor is not an observed centreline."
+    },
+    {
+      "id": "railway",
+      "type": "railway",
+      "state": "finished",
+      "approx_centre_m": [
+        -204,
+        0
+      ],
+      "size_m": null,
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:railway",
+      "model_now": "Two tracks on 11 m ballast, x about -204.",
+      "frames_show": "No track alignment is resolved in these views. Vegetation and work yards obscure parts of the corridor.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q1/Q2. Centre is the disputed model location only. Do not build from it."
+    },
+    {
+      "id": "station",
+      "type": "station",
+      "state": "finished",
+      "approx_centre_m": [
+        -192,
+        -80
+      ],
+      "size_m": {
+        "platform_model_only": [
+          8.5,
+          240
+        ]
+      },
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:station",
+      "model_now": "8.5 x 240 m platform and two canopies.",
+      "frames_show": "No railway platform is established. Visible roofs alone do not identify a station.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q1/Q2. Centre and size describe the disputed model only."
+    },
+    {
+      "id": "footbridge",
+      "type": "footbridge",
+      "state": "finished",
+      "approx_centre_m": [
+        -175,
+        -146
+      ],
+      "size_m": {
+        "model_span": 79
+      },
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:footbridge",
+      "model_now": "79 m elevated crossing across new road and railway.",
+      "frames_show": "No matching crossing is established. These frames do not prove a later crossing absent.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q1/Q2. Centre and size describe the disputed model only."
+    },
+    {
+      "id": "carpark_north_west",
+      "type": "lawn",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        -91,
+        -190
+      ],
+      "size_m": {
+        "east_west": 68,
+        "north_south": 95
+      },
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000659.633.jpg",
+          "timestamp_s": 419.633,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/mJJ4Qkl858k/mJJ4Qkl858k_000014.000.jpg",
+          "timestamp_s": 14.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:carpark_north_west",
+      "model_now": "Asphalt over west forecourt, 318 illustrative cars. Lawn and paths hidden.",
+      "frames_show": "Grass and red crossed paths west of the north plaza. No car park on this observed lawn.",
+      "verdict": "unknown",
+      "ring_m": [
+        [
+          -125,
+          -143
+        ],
+        [
+          -59,
+          -145
+        ],
+        [
+          -57,
+          -238
+        ],
+        [
+          -125,
+          -231.7844539614561
+        ]
+      ],
+      "questions_for_lead": "Q1. Observed lawn is high confidence. Its final retention remains unresolved."
+    },
+    {
+      "id": "spine_beds",
+      "type": "planting",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        -58,
+        -190
+      ],
+      "size_m": {
+        "east_west": 6,
+        "north_south": 66
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000659.633.jpg",
+          "timestamp_s": 419.633,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:spine_beds",
+      "model_now": "12 m strip at x -64 to -52, z -228 to -148.",
+      "frames_show": "Planting borders a lawn and path network. A car park spine is not established.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q1. Preserve observed lawn edges until final layout authority is clear."
+    },
+    {
+      "id": "carpark_south_west",
+      "type": "lawn",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        -112,
+        180
+      ],
+      "size_m": {
+        "east_west": 73,
+        "north_south": 106
+      },
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000716.317.jpg",
+          "timestamp_s": 436.317,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_001246.333.jpg",
+          "timestamp_s": 766.333,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "estimate from a camera solve",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:carpark_south_west",
+      "model_now": "72 x 96 m asphalt lot, 207 illustrative cars, pitch and small stand hidden.",
+      "frames_show": "A grass rectangle lies inside a paved loop beside a stand. No bays appear on the grass. Sport markings are not resolved.",
+      "verdict": "unknown",
+      "ring_m": [
+        [
+          -139.48,
+          122.45
+        ],
+        [
+          -73.32,
+          135.11
+        ],
+        [
+          -80.11,
+          232.62
+        ],
+        [
+          -153.45,
+          228.17
+        ]
+      ],
+      "questions_for_lead": "Q1/Q3. Grass footprint is clear. Finished use and pitch markings need evidence."
+    },
+    {
+      "id": "road_between_pitches",
+      "type": "paved approach",
+      "state": "finished",
+      "approx_centre_m": [
+        208,
+        -6
+      ],
+      "size_m": {
+        "width_range": [
+          40,
+          50
+        ],
+        "length": 165
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000454.933.jpg",
+          "timestamp_s": 294.933,
+          "state": "finished design model; not completed site"
+        }
+      ],
+      "finding_label": "estimate from a camera solve",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:road_between_pitches",
+      "model_now": "8 m asphalt ribbon from [252,-12] to [128,-2]. No central island.",
+      "frames_show": "A broad pale approach lies between the eastern sport areas. A long central island splits its surface. It joins the outer apron.",
+      "verdict": "resize",
+      "ring_m": [
+        [
+          128.66,
+          24.78
+        ],
+        [
+          129.29,
+          -21.04
+        ],
+        [
+          283.24,
+          -36.5
+        ],
+        [
+          297.67,
+          9.88
+        ]
+      ],
+      "centreline_m": [
+        [
+          290,
+          -13
+        ],
+        [
+          220,
+          0
+        ],
+        [
+          130,
+          2
+        ]
+      ],
+      "questions_for_lead": "Q4. Finished use and vehicle lanes remain unresolved. This is the total paved envelope."
+    },
+    {
+      "id": "track_ring_ne",
+      "type": "track",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        171,
+        -120
+      ],
+      "size_m": {
+        "length": 166,
+        "width": 87
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/LhY5-yDuhfc/LhY5-yDuhfc_000020.000.jpg",
+          "timestamp_s": 20.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:track_ring_ne",
+      "model_now": "Dark asphalt track surface in finished state.",
+      "frames_show": "The near curved strip is dark while the infield contains soil and equipment. Earlier footage shows red track sections.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q5. Do not infer final track material from temporary works."
+    },
+    {
+      "id": "apron_ring",
+      "type": "apron",
+      "state": "finished",
+      "approx_centre_m": [
+        0,
+        0
+      ],
+      "size_m": {
+        "outward_offset_model": 18
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_layout_ge.json:apron_ring",
+      "model_now": "18 m pale ring outside the plinth.",
+      "frames_show": "A continuous pale apron surrounds the bowl. Its width varies at plazas and sport areas.",
+      "verdict": "keep"
+    },
+    {
+      "id": "ge_road_north_east",
+      "type": "road",
+      "state": "finished",
+      "approx_centre_m": [
+        217,
+        -175
+      ],
+      "size_m": {
+        "width_range": [
+          7,
+          10
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000641.633.jpg",
+          "timestamp_s": 401.633,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/LhY5-yDuhfc/LhY5-yDuhfc_000020.000.jpg",
+          "timestamp_s": 20.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_layout_ge.json:roads[0]",
+      "model_now": "9 m road curves north of the track, then follows its east side to z 73.",
+      "frames_show": "A curved peripheral route skirts the track and joins the eastern paved approach. It does not run through the north plaza.",
+      "verdict": "keep",
+      "centreline_m": [
+        [
+          54.7,
+          -249.6
+        ],
+        [
+          105.0,
+          -268.3
+        ],
+        [
+          169.8,
+          -264.0
+        ],
+        [
+          227.3,
+          -233.1
+        ],
+        [
+          248.9,
+          -193.5
+        ],
+        [
+          250.4,
+          -107.2
+        ],
+        [
+          252.5,
+          -13.7
+        ],
+        [
+          259.7,
+          72.7
+        ]
+      ]
+    },
+    {
+      "id": "ge_east_building_a",
+      "type": "building",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        277.7,
+        -89.2
+      ],
+      "size_m": {
+        "width_model": 16,
+        "height_model": 7
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_layout_ge.json:buildings[0]",
+      "model_now": "Plain roof mass, 16 m wide and 7 m high.",
+      "frames_show": "Long low roofs stand east of the approach. The views support roof masses, but not exact wall heights or final function.",
+      "verdict": "keep",
+      "centreline_m": [
+        [
+          266.9,
+          -136.0
+        ],
+        [
+          288.5,
+          -42.4
+        ]
+      ]
+    },
+    {
+      "id": "ge_east_building_b",
+      "type": "building",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        320.9,
+        29.5
+      ],
+      "size_m": {
+        "width_model": 22,
+        "height_model": 7
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_layout_ge.json:buildings[1]",
+      "model_now": "Plain roof mass, 22 m wide and 7 m high.",
+      "frames_show": "Long low roofs stand east of the approach. The views support roof masses, but not exact wall heights or final function.",
+      "verdict": "keep",
+      "centreline_m": [
+        [
+          310.1,
+          -6.5
+        ],
+        [
+          331.7,
+          65.5
+        ]
+      ]
+    },
+    {
+      "id": "ge_east_hardstanding",
+      "type": "hardstanding",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        363,
+        -54
+      ],
+      "size_m": {
+        "east_west_model": 163,
+        "north_south_model": 259
+      },
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_001246.333.jpg",
+          "timestamp_s": 766.333,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000506.533.jpg",
+          "timestamp_s": 306.533,
+          "state": "finished design model; not completed site"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_layout_ge.json:car_parks[0]",
+      "model_now": "Striped asphalt car park with illustrative cars and planted rows.",
+      "frames_show": "The east area contains roofs and work space. No complete final bay layout is resolved.",
+      "verdict": "unknown",
+      "ring_m": [
+        [
+          295.7,
+          -182.7
+        ],
+        [
+          392.8,
+          -28.1
+        ],
+        [
+          456.1,
+          70.5
+        ],
+        [
+          353.2,
+          76.3
+        ],
+        [
+          349.6,
+          0.7
+        ],
+        [
+          302.9,
+          -28.1
+        ],
+        [
+          293.5,
+          -128.8
+        ]
+      ],
+      "questions_for_lead": "Q6. A filmed design model supports parking intent, not current bay positions."
+    },
+    {
+      "id": "east_training_pitch",
+      "type": "pitch",
+      "state": "finished",
+      "approx_centre_m": [
+        189,
+        89
+      ],
+      "size_m": {
+        "east_west": 73,
+        "north_south": 125
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000606.233.jpg",
+          "timestamp_s": 366.233,
+          "state": "finished design model; not completed site"
+        }
+      ],
+      "finding_label": "estimate from a camera solve",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_plan.json:pitch_se",
+      "model_now": "Pitch centre [187.6,96.0], footprint 81.5 x 126.1 m.",
+      "frames_show": "A rectangular graded sport area lies south of the eastern approach. The filmed design model shows a marked green pitch.",
+      "verdict": "keep",
+      "ring_m": [
+        [
+          152.17,
+          154.17
+        ],
+        [
+          154.47,
+          29.14
+        ],
+        [
+          225.97,
+          23.78
+        ],
+        [
+          226.22,
+          144.3
+        ]
+      ]
+    },
+    {
+      "id": "north_east_track_footprint",
+      "type": "track footprint",
+      "state": "finished",
+      "approx_centre_m": [
+        171,
+        -120
+      ],
+      "size_m": {
+        "east_west": 87,
+        "north_south": 166
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_plan.json:tracks[0]",
+      "model_now": "Track and infield northeast of bowl.",
+      "frames_show": "The track location and north-south orientation agree. Construction material covers the infield.",
+      "verdict": "keep"
+    },
+    {
+      "id": "south_west_loop",
+      "type": "road",
+      "state": "finished",
+      "approx_centre_m": [
+        -112,
+        180
+      ],
+      "size_m": {
+        "width_range": [
+          7,
+          10
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000716.317.jpg",
+          "timestamp_s": 436.317,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.py:KEEP / sw_loop_road",
+      "model_now": "Existing loop survives. Pass F fills its grass interior with cars.",
+      "frames_show": "A rounded rectangular paved loop surrounds grass. It bends into the west apron beside the stand.",
+      "verdict": "keep",
+      "centreline_m": [
+        [
+          -155,
+          238
+        ],
+        [
+          -165,
+          180
+        ],
+        [
+          -141,
+          116
+        ],
+        [
+          -76,
+          123
+        ],
+        [
+          -67,
+          185
+        ],
+        [
+          -73,
+          240
+        ]
+      ]
+    },
+    {
+      "id": "south_west_stand",
+      "type": "stand",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        -180,
+        180
+      ],
+      "size_m": {
+        "length_range": [
+          80,
+          110
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000716.317.jpg",
+          "timestamp_s": 436.317,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.py:hide_finished / sw_stand prefix",
+      "model_now": "Small stand hidden in finished state.",
+      "frames_show": "A long roofed stand lies west of the grass rectangle and loop. It is visible in D02.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q1/Q3. Do not erase the observed stand without final-state evidence."
+    },
+    {
+      "id": "north_plaza",
+      "type": "plaza",
+      "state": "finished",
+      "approx_centre_m": [
+        2,
+        -205
+      ],
+      "size_m": {
+        "east_west_approx": 95,
+        "north_south_approx": 110
+      },
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000659.633.jpg",
+          "timestamp_s": 419.633,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/mJJ4Qkl858k/mJJ4Qkl858k_000014.000.jpg",
+          "timestamp_s": 14.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "forecourt_layout.json:elements[id=plaza_edge]",
+      "model_now": "Pale plaza with central round bed and two axial beds.",
+      "frames_show": "A pale oval plaza contains a dark circular bed and two long beds. Pedestrian access connects toward Ngong Road.",
+      "verdict": "keep"
+    },
+    {
+      "id": "south_plaza",
+      "type": "plaza",
+      "state": "finished",
+      "approx_centre_m": [
+        15,
+        195
+      ],
+      "size_m": {
+        "east_west_range": [
+          80,
+          100
+        ],
+        "north_south_range": [
+          100,
+          130
+        ]
+      },
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000716.317.jpg",
+          "timestamp_s": 436.317,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "ground context visible in step_FF/step_FH renders",
+      "model_now": "Pale plaza and central bed remain.",
+      "frames_show": "D02 shows a pale elongated plaza east of the grass loop. It contains a round bed and axial beds.",
+      "verdict": "keep"
+    },
+    {
+      "id": "forecourt_paths",
+      "type": "path network",
+      "state": "finished",
+      "approx_centre_m": [
+        0,
+        -195
+      ],
+      "size_m": {
+        "width_range": [
+          3,
+          5
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000659.633.jpg",
+          "timestamp_s": 419.633,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000441.933.jpg",
+          "timestamp_s": 281.933,
+          "state": "finished design model; not completed site"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "forecourt_layout.json:elements with path_ prefix / layout_final.py:fp_paths",
+      "model_now": "Red paths. West paths hidden below the new car park.",
+      "frames_show": "Crossed red paths divide the north lawns. They reach the plaza and skirt the track. The design model also shows these paths.",
+      "verdict": "keep",
+      "questions_for_lead": "Q1. West paths depend on the disputed car park."
+    },
+    {
+      "id": "east_approach_island",
+      "type": "island",
+      "state": "finished",
+      "approx_centre_m": [
+        187,
+        1
+      ],
+      "size_m": {
+        "length": 79,
+        "width_range": [
+          20,
+          25
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "estimate from a camera solve",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "no dedicated island in layout_final.json:road_between_pitches",
+      "model_now": "Absent from the 8 m ribbon.",
+      "frames_show": "D03 shows a pointed elongated island along the centre of the broad approach.",
+      "verdict": "add",
+      "ring_m": [
+        [
+          143.83,
+          2.3
+        ],
+        [
+          184.44,
+          -10.83
+        ],
+        [
+          222.91,
+          -1.47
+        ],
+        [
+          191.84,
+          13.33
+        ]
+      ]
+    },
+    {
+      "id": "east_approach_flared_join",
+      "type": "paved junction",
+      "state": "finished",
+      "approx_centre_m": [
+        285,
+        -13
+      ],
+      "size_m": {
+        "envelope_width_range": [
+          40,
+          50
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.py:ribbon / lf_road_between_pitches",
+      "model_now": "Constant-width strip stops at [252,-12].",
+      "frames_show": "The eastern mouth spreads across the frontage. It joins a peripheral route around the sport areas.",
+      "verdict": "add",
+      "questions_for_lead": "Q4. This is paved connectivity, not a vehicle traffic plan."
+    },
+    {
+      "id": "apron_approach_join",
+      "type": "paved junction",
+      "state": "finished",
+      "approx_centre_m": [
+        130,
+        2
+      ],
+      "size_m": {
+        "envelope_width_range": [
+          40,
+          50
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000454.933.jpg",
+          "timestamp_s": 294.933,
+          "state": "finished design model; not completed site"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.py:ribbon / lf_road_between_pitches",
+      "model_now": "8 m strip ends abruptly against the apron.",
+      "frames_show": "The pale approach merges into the outer apron. No road enters the internal arena in this view.",
+      "verdict": "resize"
+    },
+    {
+      "id": "north_frontage",
+      "type": "road",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        10,
+        -309
+      ],
+      "size_m": {
+        "model_total_width": 44.8
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/HU3J94fa8_c/HU3J94fa8_c_000650.000.jpg",
+          "timestamp_s": 410.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_plan.json:ngong / road_lines.json:name=Ngong Road",
+      "model_now": "Four lanes each way, 3.3 m each, 2 m median, plus edge and pedestrian strips.",
+      "frames_show": "Ngong Road is divided and carries traffic along the north boundary. Perspective does not settle all lane counts or total width.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q7. Keep existing centreline. Do not certify the four-lane count from this audit."
+    },
+    {
+      "id": "external_vehicle_access",
+      "type": "vehicle access",
+      "state": "asbuilt",
+      "approx_centre_m": null,
+      "size_m": null,
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "research/frames/HU3J94fa8_c/HU3J94fa8_c_001334.000.jpg",
+          "timestamp_s": 814.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/HU3J94fa8_c/HU3J94fa8_c_001822.000.jpg",
+          "timestamp_s": 1102.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "road_lines.json:Cemetery Road / layout_final.json:west_road",
+      "model_now": "Pass F road ends at Ngong Road. The data does not supply a joined final junction.",
+      "frames_show": "Footage shows frontage works beside a live road. It does not continuously show a completed turn from Ngong Road into the site.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q7. Relative position: north and west frontage. No final junction coordinates established."
+    },
+    {
+      "id": "drop_off",
+      "type": "drop-off area",
+      "state": "finished",
+      "approx_centre_m": null,
+      "size_m": null,
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/h--Jmi7SwBs/h--Jmi7SwBs_000058.000.jpg",
+          "timestamp_s": 58.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "not identified in layout_final.json or site_layout_ge.json",
+      "model_now": "No dedicated drop-off is specified.",
+      "frames_show": "Vehicles and equipment appear on work surfaces. No marked final drop-off or lay-by is resolved.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q4/Q7. Do not invent a bus loop, lay-by or final stopping point."
+    },
+    {
+      "id": "west_hardstanding",
+      "type": "hardstanding",
+      "state": "asbuilt",
+      "approx_centre_m": [
+        -185,
+        45
+      ],
+      "size_m": {
+        "extent_approx": [
+          90,
+          130
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/OB0OE-PAAVg/OB0OE-PAAVg_000012.345.jpg",
+          "timestamp_s": 12.346,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "layout_final.json:west_road / railway / station overlap this region",
+      "model_now": "Straight transport corridor replaces parts of the west context.",
+      "frames_show": "D02 shows broad paved work areas northwest of the grass loop. Temporary use does not establish permanent parking.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q1/Q2/Q6. Bay layout and finished transport corridor remain unresolved."
+    },
+    {
+      "id": "forest_belt",
+      "type": "tree belt",
+      "state": "finished",
+      "approx_centre_m": [
+        0,
+        350
+      ],
+      "size_m": {
+        "depth_range": [
+          40,
+          100
+        ]
+      },
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000714.767.jpg",
+          "timestamp_s": 434.767,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_001232.600.jpg",
+          "timestamp_s": 752.6,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_plan.json:trees / existing context",
+      "model_now": "Southern forest context remains, with generic tree crowns.",
+      "frames_show": "A dense forest belt borders the south side. It frames D02 and the L07 foreground.",
+      "verdict": "keep"
+    },
+    {
+      "id": "roadside_trees",
+      "type": "tree belt",
+      "state": "finished",
+      "approx_centre_m": [
+        258,
+        -110
+      ],
+      "size_m": {
+        "row_spacing_model_range": [
+          11,
+          16
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000612.433.jpg",
+          "timestamp_s": 372.433,
+          "state": "finished design model; not completed site"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/KEOmkVfjhu8/KEOmkVfjhu8_001330.000.jpg",
+          "timestamp_s": 810.0,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "site_layout_ge.py:road verge tree loop",
+      "model_now": "Two tall tree rows on both verges of the northeast road.",
+      "frames_show": "The filmed design model shows regular roadside trees. Live footage shows uneven young planting and mature boundary trees.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q8. Treat the regular mature avenue as design intent only."
+    },
+    {
+      "id": "east_lawns_beds",
+      "type": "lawn and planting",
+      "state": "finished",
+      "approx_centre_m": [
+        82,
+        -220
+      ],
+      "size_m": {
+        "east_west_approx": 50,
+        "north_south_approx": 155
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000645.000.jpg",
+          "timestamp_s": 405.0,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000659.633.jpg",
+          "timestamp_s": 419.633,
+          "state": "asbuilt construction; capture date unknown"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000441.933.jpg",
+          "timestamp_s": 281.933,
+          "state": "finished design model; not completed site"
+        }
+      ],
+      "finding_label": "inference",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "forecourt_layout.json:elements[id=east_lawn] / fp_beds",
+      "model_now": "Green lawn panels, red paths and planted beds.",
+      "frames_show": "The north-east lawn panels contain grass and triangular red soil beds. The final planting density is unknown.",
+      "verdict": "keep"
+    },
+    {
+      "id": "far_track",
+      "type": "track",
+      "state": "finished",
+      "approx_centre_m": null,
+      "size_m": null,
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000454.933.jpg",
+          "timestamp_s": 294.933,
+          "state": "finished design model; not completed site"
+        },
+        {
+          "file": "research/frames/JWNowpO44rw/JWNowpO44rw_000617.567.jpg",
+          "timestamp_s": 377.567,
+          "state": "asbuilt construction; capture date unknown"
+        }
+      ],
+      "finding_label": "frame evidence",
+      "geometry_note": "Approximate software plan. No physical measurement.",
+      "model_source": "absent; layout_final_01/README.md gap 5",
+      "model_now": "No additional far track beyond the eastern pitch.",
+      "frames_show": "The design model shows two track ovals in total. A third distant track appears only in the disputed dusk photo.",
+      "verdict": "unknown",
+      "questions_for_lead": "Q1/Q9. Relative position in photo: beyond eastern sport areas. No supported site coordinates."
+    }
+  ]
+}

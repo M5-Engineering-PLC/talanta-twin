@@ -31,10 +31,12 @@ STRENGTHS = {
     # Pass 2: fixed haze per distance band (horizon.py terrain bands 3-8.5 km, then the terrain_horizon
     # layers: 6-12.5 km, 12.5-20 km with the Ngong Hills, beyond 20 km),
     # lightest near, strongest far, so the far land keeps its structure and tone variation.
-    "aerial_band_haze": {"horizon_band_1": 0.12, "horizon_band_2": 0.18, "horizon_band_3": 0.26, "horizon_band_4": 0.36,
-                         "terrain_horizon": 0.42, "terrain_horizon_hills": 0.58, "terrain_horizon_far": 0.70},
+    # replica plan pass D (2026-10-21): the middle bands carried a beige sunset haze over the far land in L06 (mockup:
+    # green land to the blue hills); their haze is lighter and blends fully into the blue far tint
+    "aerial_band_haze": {"horizon_band_1": 0.08, "horizon_band_2": 0.10, "horizon_band_3": 0.12, "horizon_band_4": 0.15,
+                         "terrain_horizon": 0.18, "terrain_horizon_hills": 0.58, "terrain_horizon_far": 0.70},
     "aerial_far_tint": (0.85, 0.95),  # terrain_horizon layers: blue pull and brightness of their haze colour (hills read blue, as in 06)
-    "aerial_far_tint_weight": {"horizon_band_3": 0.35, "horizon_band_4": 0.7},  # the outer bands blend toward it (no seam)
+    "aerial_far_tint_weight": {"horizon_band_2": 0.5, "horizon_band_3": 1.0, "horizon_band_4": 1.0},  # the outer bands blend toward it (no seam)
     "grade_saturation": 1.12,  # Richer greens and warm earth; applied before the view transform.
     "grade_warm": (1.05, 1.0, 0.93),  # Warm gain on mid-tones and highlights.
     "grade_warm_rise": (0.03, 0.18),  # Display-equivalent luminance where the warm gain fades in.

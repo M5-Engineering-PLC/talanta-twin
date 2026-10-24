@@ -253,7 +253,7 @@ def build(scene, root):
             ob = instance(f'suburbs_tank_{fid}', tank_col, row['tank_location']); ob['building_fid'] = fid
             added += tank_tris
     bark = _material('suburbs_bark', '#685843')
-    greens = [_material('suburbs_leaf_' + h[1:], h) for h in ('#334C2A', '#4B6234', '#627242', '#657466', '#756486')]
+    greens = [_material('suburbs_leaf_' + h[1:], h) for h in ('#334C2A', '#4B6234', '#627242', '#657466', '#A890C8')]  # last: jacaranda, lighter lilac (pass A)
     prototypes = [_tree_collection('broad', [bark, greens[0], greens[1]], rng), _tree_collection('jacaranda', [bark, greens[1], greens[4]], rng), _tree_collection('eucalyptus', [bark, greens[3], greens[0]], rng)]
     dg = bpy.context.evaluated_depsgraph_get()
     terrain = [(ob, BVHTree.FromObject(ob, dg)) for name in ('terrain_site', 'terrain_far') if (ob := bpy.data.objects.get(name))]

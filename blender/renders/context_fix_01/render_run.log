@@ -1,0 +1,31 @@
+== D01 overcast_drone 18:04:53
+00:07.847  cycles           | WARNING CUEW initialization failed: Error opening the library
+07:18.561  render           | Saved: '/home/user/talanta-twin/blender/renders/context_fix_01/D01_overcast_drone_hero.png'
+{"camera": "D01", "sky": {"preset": "overcast_drone", "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "rotation_deg": 52.13, "hdri_sun_elevation_deg": 34.673, "scene_sun_elevation_deg": 58.15, "sun_energy": 1.633, "sun_kelvin": 6500, "sun_color": [1.0, 0.9921, 0.9563], "haze_rgb": [0.697, 0.6629, 0.6187]}, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast", "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "sky_strength": 1.0, "sun_kelvin": 6500, "sun_to_sky": 0.35, "exposure_ev": -0.2, "sky_tint": [0.86, 0.96, 1.16]}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 430.5, "shadow_image_deg": -7.7, "state": "asbuilt"}
+-- D01 done 18:12:12
+== D02 overcast_drone 18:12:12
+00:08.535  cycles           | WARNING CUEW initialization failed: Error opening the library
+07:44.090  render           | Saved: '/home/user/talanta-twin/blender/renders/context_fix_01/D02_overcast_drone_hero.png'
+{"camera": "D02", "sky": {"preset": "overcast_drone", "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "rotation_deg": 52.13, "hdri_sun_elevation_deg": 34.673, "scene_sun_elevation_deg": 58.15, "sun_energy": 1.633, "sun_kelvin": 6500, "sun_color": [1.0, 0.9921, 0.9563], "haze_rgb": [0.8345, 0.7994, 0.7683]}, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast", "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "sky_strength": 1.0, "sun_kelvin": 6500, "sun_to_sky": 0.35, "exposure_ev": -0.2, "sky_tint": [0.86, 0.96, 1.16]}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 455.2, "shadow_image_deg": 173.8, "state": "asbuilt"}
+-- D02 done 18:19:57
+== L06 sunset_landing 18:19:57
+00:09.043  cycles           | WARNING CUEW initialization failed: Error opening the library
+11:31.065  render           | Saved: '/home/user/talanta-twin/blender/renders/context_fix_01/L06_sunset_landing_hero.png'
+{"camera": "L06", "sky": {"preset": "sunset_landing", "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "rotation_deg": 122.99, "hdri_sun_elevation_deg": 7.69, "scene_sun_elevation_deg": 9.21, "sun_energy": 16.954, "sun_kelvin": 3300, "sun_color": [1.0, 0.495, 0.2205], "haze_rgb": [4.5407, 3.3752, 1.4955]}, "sun": {"date": "2026-01-15", "time_eat": "18:05", "kind": "evening golden", "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0, "sun_kelvin": 3300, "sun_to_sky": 5.0, "exposure_ev": -1.8, "fixtures": true}, "sun_elevation_deg": 9.21, "sun_azimuth_deg": 248.89, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 681.7, "shadow_image_deg": -156.0, "state": "finished"}
+-- L06 done 18:31:28
+== L07 daylight_landing 18:31:28
+00:07.967  cycles           | WARNING CUEW initialization failed: Error opening the library
+09:55.148  render           | Saved: '/home/user/talanta-twin/blender/renders/context_fix_01/L07_daylight_landing_hero.png'
+{"camera": "L07", "sky": {"preset": "daylight_landing", "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "rotation_deg": -2.01, "hdri_sun_elevation_deg": 7.69, "scene_sun_elevation_deg": 52.15, "sun_energy": 16.954, "sun_kelvin": 5600, "sun_color": [1.0, 0.8655, 0.7551], "haze_rgb": [0.888, 1.0232, 0.9972]}, "sun": {"date": "2026-01-15", "time_eat": "10:30", "kind": "daylight", "hdri": "blender/assets/hdri/wasteland_clouds_puresky_4k.hdr", "sky_strength": 1.0, "sun_kelvin": 5600, "sun_to_sky": 5.0, "exposure_ev": -1.2}, "sun_elevation_deg": 52.15, "sun_azimuth_deg": 123.89, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 586.9, "shadow_image_deg": 175.6, "state": "finished"}
+-- L07 done 18:41:24
+== D01 overcast_drone 19:03:05
+00:07.828  cycles           | WARNING CUEW initialization failed: Error opening the library
+07:05.652  render           | Saved: '/home/user/talanta-twin/blender/renders/context_fix_01/D01_overcast_drone_hero.png'
+{"camera": "D01", "sky": {"preset": "overcast_drone", "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "rotation_deg": 52.13, "hdri_sun_elevation_deg": 34.673, "scene_sun_elevation_deg": 58.15, "sun_energy": 1.633, "sun_kelvin": 6500, "sun_color": [1.0, 0.9921, 0.9563], "haze_rgb": [0.697, 0.6629, 0.6187]}, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast", "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "sky_strength": 1.0, "sun_kelvin": 6500, "sun_to_sky": 0.35, "exposure_ev": -0.2, "sky_tint": [0.86, 0.96, 1.16]}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 417.5, "shadow_image_deg": -7.7, "state": "asbuilt"}
+-- D01 done 19:10:12
+== D02 overcast_drone 19:10:12
+00:07.978  cycles           | WARNING CUEW initialization failed: Error opening the library
+07:21.507  render           | Saved: '/home/user/talanta-twin/blender/renders/context_fix_01/D02_overcast_drone_hero.png'
+{"camera": "D02", "sky": {"preset": "overcast_drone", "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "rotation_deg": 52.13, "hdri_sun_elevation_deg": 34.673, "scene_sun_elevation_deg": 58.15, "sun_energy": 1.633, "sun_kelvin": 6500, "sun_color": [1.0, 0.9921, 0.9563], "haze_rgb": [0.8345, 0.7994, 0.7683]}, "sun": {"date": "2026-01-15", "time_eat": "11:00", "kind": "overcast", "hdri": "blender/assets/hdri/overcast_soil_puresky_4k.hdr", "sky_strength": 1.0, "sun_kelvin": 6500, "sun_to_sky": 0.35, "exposure_ev": -0.2, "sky_tint": [0.86, 0.96, 1.16]}, "sun_elevation_deg": 58.15, "sun_azimuth_deg": 130.22, "quality": "hero", "resolution": [1920, 1080], "samples": 128, "seconds": 433.3, "shadow_image_deg": 173.8, "state": "asbuilt"}
+-- D02 done 19:17:34
+RENDERS_DONE 19:17:34

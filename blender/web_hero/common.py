@@ -30,6 +30,9 @@ def setup_morning(out_dir="blender/out/web_hero/_unused", preset="morning_golden
     # Volume haze is a camera effect, not surface light; keep it out of the bakes and the panorama.
     if "haze_volume" in bpy.data.objects:
         bpy.data.objects["haze_volume"].hide_render = True
+    # Brand marks and other internal-only parts (rubis_station.py) never reach the bake, panorama or export.
+    for o in bpy.data.objects:
+        if "internal_only" in o.keys(): o.hide_render = True; o.hide_viewport = True
     return g
 
 

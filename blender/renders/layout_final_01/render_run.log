@@ -1,0 +1,15 @@
+== P01 sunset_landing hero 14:57:58
+00:08.843  cycles           | WARNING CUEW initialization failed: Error opening the library
+PRE res 1920 1288
+16:57.796  render           | Saved: '/home/user/talanta-twin/blender/renders/layout_final_01/P01_sunset_landing_hero.png'
+-- P01 done 15:14:57
+== D01 daylight_landing hero 15:14:57
+00:09.520  cycles           | WARNING CUEW initialization failed: Error opening the library
+PRE exposure -1.2000000476837158
+08:19.051  render           | Saved: '/home/user/talanta-twin/blender/renders/layout_final_01/D01_daylight_landing_hero.png'
+-- D01 done 15:23:16
+== D02 daylight_landing hero 15:23:16
+00:10.044  cycles           | WARNING CUEW initialization failed: Error opening the library
+PRE exposure -1.2000000476837158
+09:40.553  render           | Saved: '/home/user/talanta-twin/blender/renders/layout_final_01/D02_daylight_landing_hero.png'
+-- D02 done 15:32:57
