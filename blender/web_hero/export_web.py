@@ -24,6 +24,8 @@ import bpy, bmesh
 import numpy as np
 
 TEST = "test" in sys.argv
+# withdrawn pass F (layout_final.py, from an AI-generated image): nothing of it may reach the bundle
+LAYOUT_FINAL = ("layout_final", "layout_final_cars_visualization")
 # base=<dir>: stage from blender/out/web_hero/<dir>; unbaked: the app-testing preview of stage_unbaked.py (no maps, plain
 # materials, terrain_site exported as the ground because there are no baked ground tiles)
 BASE_DIR = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("base=")), None)
@@ -33,7 +35,20 @@ STAGE = BASE / "export"; STAGE.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.open_mainfile(filepath=str(BASE / "talanta_web_baked.blend"))
 s = bpy.context.scene
 bake = json.loads((BASE / "bake_log.json").read_text())
-ALBEDO_GROUPS = lambda g: g.startswith("ground_") or g in ("sport", "roads", "stadium_ornament")  # procedural or painted (shields): ship the albedo map
+if not UNBAKED and (s.get("talanta_state") != "finished" or not s.get("talanta_lookdev")):
+    raise SystemExit(f"baked scene is not the finished state with the look layer (state {s.get('talanta_state')}, look {s.get('talanta_lookdev')})")
+
+
+def layout_final(o):
+    # (passes I and K cut finished-state copies named <name>_final, e.g. roads_final; those are not pass F)
+    return o.name.startswith(LAYOUT_FINAL) or any(c.name in LAYOUT_FINAL for c in o.users_collection)
+
+
+_lf = sorted(o.name for o in bpy.data.objects if layout_final(o) and not o.hide_render)
+_lf += sorted(o.name for o in bpy.data.objects if "bake_group" in o.keys() and layout_final(o))
+if _lf: raise SystemExit(f"layout_final objects in the scene to export: {sorted(set(_lf))[:20]}")
+ALBEDO_GROUPS = lambda g: g.startswith("ground_") or g in ("sport", "roads", "stadium_ornament", "trace_sw")  # procedural or painted (shields): ship the albedo map
+# (trace_sw: the K4 training_grass patches on the south-west lawn, like the training pitches in sport)
 LOD_MIN_TRIS = 4000
 LOD_RATIO = {1: 0.35, 2: 0.10}
 CLIP = 1500.0
@@ -41,7 +56,9 @@ THIN_TUBE = 0.35  # m bevel radius; unbaked curves thinner than this export as 4
 
 HERO_COLS = ["plinth", "shell", "facade_detail", "roof_detail", "bowl_detail", "tiers", "pitch", "sport"]
 SITE_COLS = ["context", "site", "forecourt_context", "suburbs_context", "traffic_visualization",
-             "site_layout_ge", "finish_plaza", "rubis_station", "background_b"]  # v2: steps L, F, R, B
+             "site_layout_ge", "finish_plaza", "rubis_station", "background_b",  # v2: steps L, F, R, B
+             "layout_pass_i", "landmarks_pass_j", "plaza_south_k", "layout_cars_visualization",  # passes I, J, K; I cars
+             "trace_sw_finished", "trace_structures"]  # the south-west grass loop, its road and stand (passes C-E)
 # far land and horizon layers live in the panorama (render_panorama.py near=800); terrain_site is replaced by the
 # baked ground tiles
 SKIP = {"terrain_far", "terrain_horizon", "terrain_horizon_hills", "terrain_horizon_far", "terrain_site", "haze_volume", "bg_town_lights"}  # town lights: dusk stills only
@@ -71,6 +88,9 @@ INST_SWITCH = {"seats": [0, 300], **{k: [0, 300] for k in TREE_SETS}}  # LOD sta
 INST_MAX = {"seats": 1000, "vip_seats": 1000, "shrubs": 1000, "fc_retained_shrubs": 1000, "path_lights": 1000, "bollards": 1000,
             "fc_retained_path_lights": 1000, "fc_retained_bollards": 1000, "jets": 1000}
 IMPOSTOR_CELL = 128
+# web_hero_v2: crown_detail.py made the tree prototypes detailed (suburbs_broad about 3,400 triangles), so a fixed ratio
+# left 1,000+ triangles per instanced tree (2.6M for the suburbs trees); decimated tree LOD0s are capped here instead
+TREE_PROTO_TRIS = 120
 
 
 def tris(me):
@@ -220,6 +240,7 @@ for glb, cols in (("hero", HERO_COLS), ("site", SITE_COLS)):
         if col is None: continue
         for o in list(col.all_objects):
             if o.hide_render or o.name in SKIP or o.name in INSTANCERS or o.type not in ("MESH", "CURVE"): continue
+            if layout_final(o): raise SystemExit(f"layout_final object {o.name} in {cname}: the export stops")
             if "internal_only" in o.keys(): continue  # brand marks: internal stills only (step R)
             if any(m.type == "NODES" for m in o.modifiers) and o.type == "MESH" and not o.data.polygons: continue
             baked = "bake_group" in o.keys()
@@ -240,7 +261,7 @@ for glb, cols in (("hero", HERO_COLS), ("site", SITE_COLS)):
                 if m is not None and i < len(x.data.materials): x.data.materials[i] = export_material(m, o, i)
             strip_props(x)
             name = o.name; o.name = name + "__src"; x.name = name
-            T = tris(x.data); detail = cname in DETAIL_COLS or name in DETAIL_NAMES
+            T = tris(x.data); detail = cname in DETAIL_COLS or name.removesuffix("_final") in DETAIL_NAMES
             x["lod_group"] = name; x["lod"] = 0; x["lod_switch_m"] = [0, 300, 1000] if T > LOD_MIN_TRIS else [0]
             if detail: x["lod_max_m"] = 1000
             if baked: x["talanta_bake_group"] = o["bake_group"]
@@ -415,6 +436,8 @@ for (setname, meshname), Ms in sorted(inst.items()):
         entry["attributes"][k] = {"offset": len(blob), "count": int(a.shape[0]), "components": int(a.shape[1])}
         blob += a.tobytes()
     for lod, recipe in sorted(recipes.items()):
+        if setname in TREE_SETS and isinstance(recipe, float) and recipe < 1.0:
+            recipe = min(recipe, TREE_PROTO_TRIS / max(tris(src), 1))
         me = lowpoly(src, recipe, f"proto__{setname}__{meshname}__LOD{lod}")
         mats = [export_material(m, None, i) if m else None for i, m in enumerate(me.materials)]
         for i, m in enumerate(mats):

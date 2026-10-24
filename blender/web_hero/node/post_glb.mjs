@@ -36,7 +36,7 @@ fs.mkdirSync(DEST, { recursive: true });
 const stage = JSON.parse(fs.readFileSync(path.join(STAGE, "stage.json"), "utf8"));
 const blob = fs.readFileSync(path.join(STAGE, "instances.bin"));
 const bake = stage.bake;
-const AO_GROUPS = (g) => g.startsWith("stadium_") || g === "roof" || g === "suburbs" || g === "traffic";
+const AO_GROUPS = (g) => g.startsWith("stadium_") || g === "roof" || g === "suburbs" || g === "traffic" || g === "landmarks";
 const LOD_D = [0, 300, 1000];
 
 await MeshoptEncoder.ready; await MeshoptDecoder.ready;
