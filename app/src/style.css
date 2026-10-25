@@ -234,3 +234,9 @@ body:not(.landing-mode) #landing-toggle { top: 7px; bottom: auto; right: 96px; p
 #hero-status button { margin-left: 6px; cursor: pointer; }
 #vehicle-claim { bottom: 70px; pointer-events: none; }
 #vehicle-claim[hidden] { display: none; }
+
+/* P4 uses the same stills in both interfaces. Center cover matches the camera fit. */
+#landing-still { object-position: 50% 50%; }
+.cycles-still #landing-still { opacity: 1; }
+.cycles-still-claim #landing-claim { display: block; position: absolute; z-index: 5; bottom: 18px; left: 18px; max-width: calc(100% - 36px); border-radius: 20px; padding: 7px 14px; background: #f5f1e8ed; font-size: 11px; }
+@media (prefers-reduced-motion: reduce) { #landing-still { transition: none; } }

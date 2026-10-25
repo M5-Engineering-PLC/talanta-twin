@@ -8,15 +8,17 @@ import { buildBowl } from './world/bowl.js';
 import { buildPitch, pitchFeatures, buildSport } from './world/pitch.js';
 import { ribbon, centroid, circlePts } from './world/geom.js';
 import { sunPosition, eatDate, sunEvents, openingMinutes } from './sun.js';
-import { initLanding } from './ui/landing.js';
+import { initLanding, createViewStills, STILLS, portrait } from './ui/landing.js';
 import { lineChart } from './ui/charts.js';
 import { buildSite } from './world/site.js';
 import { pass, mrt, output, normalView, vec4, uniform } from 'three/tsl';
 import { ao } from 'three/addons/tsl/display/GTAONode.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { loadEnvironment, limitEnvToSpecular, horizonFogColor } from './hero/environment.js';
-import { applyHeroToneMapping, heroGrade, applyHeroHaze } from './hero/heroLook.js';
+import { applyHeroToneMapping, heroGrade, heroLookCurve, applyHeroHaze } from './hero/heroLook.js';
 import { getGradePreset } from './hero/grade.js';
+import { manifestGrade, measuredLook, lookExposure } from './hero/manifestLook.js';
+import { stillFit } from './ui/stillFit.js';
 import { initOverlay } from './hero/overlay.js';
 import CAMS from '../cameras/manifest.json';
 import { buildTraffic } from './hero/traffic.js';
@@ -195,12 +197,15 @@ function applyTime() {
   const z = zNight.clone().lerp(zDay, dayF).lerp(zDusk, dusk * 0.7);
   const h = hNight.clone().lerp(hDay, dayF).lerp(hDusk, dusk * 0.85);
   paintSky(z, h);
-  scene.fog.color.copy(h);
+  if (scene.fog) scene.fog.color.copy(h);
   night = 1 - smooth(-2, 5, el);
   bowl.lightsMat.emissiveIntensity = night * 4;
   bowl.ledMat.emissiveIntensity = night * 3.5;
   bowl.shieldMat.emissiveIntensity = 0.22 + night * 0.25;
-  if (bloomPass) bloomPass.strength.value = getGradePreset().bloom.strength + night * 0.55;
+  if (bloomPass) {
+    const measured = hero && !parityFallback && measuredLook(hero.manifest);
+    bloomPass.strength.value = measured ? manifestGrade(hero.manifest).bloom.strength : getGradePreset().bloom.strength + night * 0.55;
+  }
   for (const s of flood) s.intensity = night * 9000;
   renderer.toneMappingExposure = 1.0 + night * 0.25;
   return sp;
@@ -233,13 +238,30 @@ function applyBuild() {
 }
 
 // ---------------------------------------------------------------- camera fly-to
-let fly = null;
+let fly = null, viewStills = null, fitView = null, landed = false;
+let parityMode = false, parityFallback = false;
+const heroExposure = uniform(1);
+function fitProjection(id, baseFov = camPose(id === 'lead06' ? 'L06' : 'L07').fov) {
+  const fit = stillFit(baseFov, stage.clientWidth, stage.clientHeight, portrait?.matches ? STILLS[id].crop : null);
+  camera.clearViewOffset(); camera.aspect = stage.clientWidth / stage.clientHeight;
+  camera.fov = fit.fov;
+  if (fit.offset) {
+    const o = fit.offset;
+    camera.setViewOffset(o.fullWidth, o.fullHeight, o.x, o.y, o.width, o.height);
+  }
+  camera.updateProjectionMatrix();
+  return fit;
+}
 function poseFrom({ target, az, el, d }) {
   const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180;
   const T = new THREE.Vector3(...target);
   return { target: T, pos: new THREE.Vector3(T.x + Math.sin(a) * Math.cos(e) * d, T.y + Math.sin(e) * d, T.z - Math.cos(a) * Math.cos(e) * d) };
 }
 function flyTo(pose, ms = 2000) {
+  viewStills?.dismiss(); fitView = null; landed = false;
+  camera.clearViewOffset(); camera.aspect = stage.clientWidth / stage.clientHeight;
+  // Flush residual orbit deltas before the exact Cycles pose arrives.
+  const damping = controls.enableDamping; controls.enableDamping = false; controls.update(); controls.enableDamping = damping;
   fly = { t0: performance.now(), ms, p0: camera.position.clone(), t0v: controls.target.clone(), p1: pose.pos, t1: pose.target, f0: camera.fov, f1: pose.fov ?? 42 };
 }
 function stepFly(now) {
@@ -251,7 +273,7 @@ function stepFly(now) {
   controls.target.lerpVectors(fly.t0v, fly.t1, e);
   camera.fov = THREE.MathUtils.lerp(fly.f0, fly.f1, e);
   camera.updateProjectionMatrix();
-  if (k >= 1) fly = null;
+  if (k >= 1) { fly = null; landed = true; }
 }
 
 // ---------------------------------------------------------------- highlights
@@ -314,7 +336,14 @@ function focus(id, ms) {
   const f = FOCUS.find((x) => x.id === id); if (!f) return;
   focusId = id; focusLabelPos = f.label ? { pos: new THREE.Vector3(...f.label), text: f.name } : null;
   setHighlight(f.rings);
-  flyTo(f.poseFn ? f.poseFn() : f.pose, ms);
+  const pose = f.poseFn ? f.poseFn() : f.pose;
+  flyTo(pose, ms);
+  if (STILLS[id] && !parityMode) {
+    viewStills?.select(id);
+    fitView = { id, baseFov: pose.fov };
+    fly.f1 = fitProjection(id, pose.fov).fov;
+    camera.fov = fly.f0; camera.updateProjectionMatrix();
+  }
   document.querySelectorAll('[data-focus]').forEach((b) => b.classList.toggle('on', b.dataset.focus === id));
 }
 // Views bar: numbered views (keys 1-9), previous/next (arrow keys) and Centre (C or Home).
@@ -359,7 +388,7 @@ tourBtn.onclick = () => {
   tour.start(); tourBtn.classList.add('on'); tourBtn.textContent = '■ Stop tour';
 };
 enableTouchUX({ stage, controls, onPrev: () => { stopTour(); stepView(-1); }, onNext: () => { stopTour(); stepView(1); }, onCentre: () => { stopTour(); centreView(); } });
-controls.addEventListener('start', () => { fly = null; });
+controls.addEventListener('start', () => { fly = null; landed = false; viewStills?.dismiss(); });
 
 // ---------------------------------------------------------------- labels
 const labelsEl = $('#labels');
@@ -651,7 +680,7 @@ renderer.domElement.addEventListener('pointermove', (e) => {
 renderer.domElement.addEventListener('pointerleave', () => { $('#tooltip').hidden = true; });
 
 // ---------------------------------------------------------------- resize, compass, scale bar
-function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); drawCharts(); }
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; if (fitView) { const fit = fitProjection(fitView.id, fitView.baseFov); if (fly) fly.f1 = fit.fov; } camera.updateProjectionMatrix(); drawCharts(); }
 new ResizeObserver(resize).observe(stage);
 function updateHud() {
   const d = camera.position.clone().sub(controls.target);
@@ -666,7 +695,7 @@ function updateHud() {
 }
 
 // ---------------------------------------------------------------- tier-1 baked twin
-let hero = null, heroHidden = [], heroFog = null, heroGradeOn = null;
+let hero = null, heroHidden = [], heroFog = null;
 let heroLighting = null, heroEnvironment = null, heroLookKey = '';
 let heroImpostors = null, heroTreesUpdated = -Infinity;
 const heroStatus = document.createElement('div');
@@ -691,7 +720,7 @@ async function startHero() {
     const { installTreeImpostors } = await import('./hero/impostors.js');
     heroImpostors = installTreeImpostors(h.group, camera);
     const { loadGroundTiles } = await import('./hero/groundTiles.js');
-    void loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: device.phone });
+    h.groundReady = loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: device.phone });
     let hasGround = false; h.group.traverse((o) => { if (o.isMesh && /^ground/.test(o.name)) hasGround = true; });
     heroHidden = [bowl.group, pitch.group, sport.group, site.group, buildings, roads, trees, siteLine, blockout].filter(Boolean);
     if (hasGround) heroHidden.push(terrainSite);
@@ -699,7 +728,7 @@ async function startHero() {
     heroEnvironment = createHeroEnvironment(h);
     scene.add(h.group);
     sun.castShadow = false; renderer.shadowMap.enabled = false;
-    hero = h; heroGradeOn?.();
+    hero = h; configurePipeline();
     heroStatus.textContent = '';
     console.info('hero mode on:', h.manifest.bundle, h.manifest.time);
   } catch (error) {
@@ -718,15 +747,15 @@ function createHeroEnvironment(h) {
       cache.set(period, loadEnvironment({ renderer, scene: new THREE.Scene(), manifest,
         preferSmall: quality.panoramaSize === '2048' }));
     }
-    void cache.get(period).then((env) => {
+    h.environmentReady = cache.get(period).then((env) => {
       if (!env || wanted !== period || applied === period) return;
-      applied = period;
+      applied = period; h.environmentPeriod = period;
       scene.background = scene.environment = env.texture;
       scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation);
       limitEnvToSpecular(h.group, env.texture);
       // Capture material baselines after node-material conversion.
       heroLighting = installHeroLighting(h.group);
-      heroLighting.update(heroDuskParameters(state.minutes));
+      heroLighting.update(heroDuskParameters(parityMode ? 450 : state.minutes));
       heroFog = horizonFogColor(env.texture);
       for (const object of [sky, terrainHz, terrainFar]) if (!heroHidden.includes(object)) heroHidden.push(object);
     });
@@ -750,38 +779,53 @@ function heroLock() {
   crowd?.setContactShadows?.(contactShadows);
   sun.intensity = 0; hemi.intensity = 0; for (const s of flood) s.intensity = 0;
   for (const o of heroHidden) o.visible = false;
-  const dusk = heroDuskParameters(state.minutes);
+  const dusk = heroDuskParameters(parityMode ? 450 : state.minutes);
   const lookKey = `${state.minutes}`;
   if (lookKey !== heroLookKey) {
     heroLookKey = lookKey; heroLighting?.update(dusk); heroEnvironment?.(dusk.panorama);
     heroWarmth.value = getGradePreset().warmth + dusk.gradeWarmth;
   }
-  applyHeroHaze(scene, heroFog, dusk.panorama === 'evening' ? 'evening_golden' : undefined);
-  applyHeroToneMapping(renderer, hero.manifest);
+  const manifest = parityFallback ? { ...hero.manifest, look: undefined } : hero.manifest;
+  if (parityMode || measuredLook(manifest)) scene.fog = null;
+  else applyHeroHaze(scene, heroFog, dusk.panorama === 'evening' ? 'evening_golden' : undefined);
+  heroExposure.value = lookExposure(manifest, focusId === 'lead06' ? 'L06' : 'L07');
+  applyHeroToneMapping(renderer, manifest, focusId === 'lead06' ? 'L06' : 'L07');
 }
 initOverlay({ stage, camera, controls });
 
 // ---------------------------------------------------------------- post: ambient occlusion + bloom
 const heroWarmth = uniform(getGradePreset().warmth);
 let pipeline = null, bloomPass = null;
-if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost')) {
+function configurePipeline() {
+  const manifest = hero && (parityFallback ? { ...hero.manifest, look: undefined } : hero.manifest);
+  const measured = manifest && measuredLook(manifest);
+  const effects = quality.postProcessing && !params.has('nopost');
+  pipeline?.dispose(); pipeline = null; bloomPass = null;
+  if (!effects && !measured) return;
   try {
     pipeline = new THREE.RenderPipeline(renderer);
     const scenePass = pass(scene, camera);
-    // PassNode inherits renderer.samples (4 with antialias:true). No extra AA pass is needed.
-    scenePass.setMRT(mrt({ output, normal: normalView }));
-    const color = scenePass.getTextureNode('output');
-    const aoPass = ao(scenePass.getTextureNode('depth'), scenePass.getTextureNode('normal'), camera);
-    aoPass.resolutionScale = 0.5;
-    aoPass.radius.value = 1.2;
-    const shaded = vec4(color.rgb.mul(aoPass.getTextureNode().r.mul(0.85).add(0.15)), color.a);
-    const look = getGradePreset();
-    bloomPass = bloom(shaded, look.bloom.strength + night * 0.55, look.bloom.radius, look.bloom.threshold);
+    let shaded = scenePass.getTextureNode('output');
+    // The bake already contains occlusion. Extra AO obscures the measured comparison.
+    if (effects && !measured) {
+      scenePass.setMRT(mrt({ output, normal: normalView }));
+      const aoPass = ao(scenePass.getTextureNode('depth'), scenePass.getTextureNode('normal'), camera);
+      aoPass.resolutionScale = 0.5; aoPass.radius.value = 1.2;
+      shaded = vec4(shaded.rgb.mul(aoPass.getTextureNode().r.mul(0.85).add(0.15)), shaded.a);
+    }
+    const look = manifest ? manifestGrade(manifest) : getGradePreset();
+    bloomPass = bloom(shaded, look.bloom.strength, look.bloom.radius, look.bloom.threshold);
     bloomPass.setResolutionScale(TIERS.high.bloomResolutionScale);
-    pipeline.outputNode = heroGrade(shaded, { warmth: heroWarmth }).add(bloomPass);
-    heroGradeOn = () => { pipeline.outputNode = heroGrade(shaded, { warmth: heroWarmth }).add(bloomPass); pipeline.needsUpdate = true; };
-  } catch (e) { console.warn('post-processing off:', e); pipeline = null; bloomPass = null; }
+    const graded = heroGrade(shaded, measured ? { manifest, exposure: heroExposure } : { warmth: heroWarmth });
+    const composed = graded.add(bloomPass);
+    pipeline.outputColorTransform = !measured;
+    pipeline.outputNode = measured ? heroLookCurve(composed, measured, heroExposure) : composed;
+    pipeline.needsUpdate = true;
+  } catch (error) {
+    console.warn('post-processing off:', error); pipeline = null; bloomPass = null;
+  }
 }
+configurePipeline();
 
 // ---------------------------------------------------------------- loop
 // ---------------------------------------------------------------- life: traffic and match-day crowd (Visualization)
@@ -810,7 +854,7 @@ const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   renderer.shadowMap.enabled = quality.shadows && !hero;
   applyShadowQuality(); bowl.setTier(tier);
   // Apply the rest of the tier to what already exists: post-processing off, fewer trees, cheaper traffic.
-  if (!quality.postProcessing) pipeline = null;
+  if (!quality.postProcessing) configurePipeline();
   { const keep = quality.treeCount / Math.max(1, trees.children.reduce((n, m) => n + m.count, 0)); if (keep < 1) for (const m of trees.children) if (m.isInstancedMesh) m.count = Math.floor(m.count * keep); }
   traffic?.setLimit(quality.trafficCount);
   if (crowd && quality.crowdFraction < 1) {
@@ -823,7 +867,17 @@ if (fpsMonitor.element) stage.appendChild(fpsMonitor.element);
 buildTimeline();
 applyBuild();
 focus('overview', 1);
-initLanding({
+viewStills = createViewStills({
+  allowed: () => !parityMode && !tour.running && state.mode === 'venue',
+  onTime(minutes, id) {
+    stopPlay(); stopLiveClock(); state.minutes = minutes;
+    landingUI?.sync(id, minutes);
+  },
+  onProjection(id) { fitView = { id, baseFov: camPose(id === 'lead06' ? 'L06' : 'L07').fov }; fitProjection(id); },
+  onRelease() { fitView = null; camera.clearViewOffset(); camera.aspect = stage.clientWidth / stage.clientHeight; camera.updateProjectionMatrix(); },
+});
+let landingUI = initLanding({
+  stills: viewStills,
   views: FOCUS, focus, state, stopTour,
   setTime(minutes) { stopTour(); stopPlay(); stopLiveClock(); state.minutes = minutes; },
   setEvent(mode) { document.querySelector(`#modes button[data-mode="${mode}"]`)?.click(); },
@@ -836,6 +890,7 @@ let lastLiveMinute = '';
 function performanceProfile() {
   return Object.fromEntries(Object.entries({ seats: bowl.seats, bowl: bowl.group, context: trees, buildings, roads, site: site.group, traffic: traffic?.group, crowd: crowd?.group }).map(([name, root]) => [name, profileGeometry(root)]));
 }
+const frameCaptures = [];
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
   if (state.liveClock) {
@@ -853,11 +908,11 @@ renderer.setAnimationLoop((now) => {
   }
   stepFly(now);
   if (!hero && site.group.visible) site.update(now / 1000, night);
-  traffic?.update(dt);
-  if (traffic) traffic.group.visible = layerOn('vehicles');
-  heroLighting?.setVehiclesVisible(layerOn('vehicles'));
+  if (!parityMode) traffic?.update(dt);
+  if (traffic) traffic.group.visible = !parityMode && layerOn('vehicles');
+  heroLighting?.setVehiclesVisible(!parityMode && layerOn('vehicles'));
   vehicleClaim.hidden = !layerOn('vehicles') || !traffic && !hero;
-  shows?.update(dt);
+  if (!parityMode) shows?.update(dt);
   site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
   if (crowd) {
     crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible;
@@ -888,7 +943,47 @@ renderer.setAnimationLoop((now) => {
   if (pipeline) {
     try { pipeline.render(); } catch (e) { console.warn('post-processing failed, plain render from now on:', e); pipeline = null; bloomPass = null; renderer.render(scene, camera); }
   } else renderer.render(scene, camera);
+  if (landed) { landed = false; viewStills?.arrive(); }
+  for (const resolve of frameCaptures.splice(0)) {
+    try { resolve({ image: renderer.domElement.toDataURL('image/png'), width: renderer.domElement.width,
+      height: renderer.domElement.height, pipeline: Boolean(pipeline), measured: Boolean(hero?.manifest.look && !parityFallback) }); }
+    catch (error) { resolve({ error: String(error) }); }
+  }
 });
 requestAnimationFrame(() => requestAnimationFrame(() => openingPoster.scenePainted()));
 $('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 design capacity · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.)`;
 window.__twin = { performanceProfile, scene, camera, controls, focus, state, FOCUS, get blockout() { return blockout; } };
+
+// Dev-only capture hook. The comparison page never ships with the product build.
+const parityStageStyle = stage.getAttribute('style');
+const parityPixelRatio = renderer.getPixelRatio();
+if (import.meta.env.DEV) window.__twin.parity = {
+  pixelRatio(value) { renderer.setPixelRatio(value); resize(); },
+  async prepare(view, fallback = false) {
+    if (!['L06', 'L07'].includes(view)) throw new Error('Expected L06 or L07');
+    parityMode = true; parityFallback = fallback;
+    Object.assign(stage.style, { position: 'fixed', inset: '0', width: '100vw', height: '100vh', zIndex: '100' });
+    resize();
+    viewStills.dismiss(); stopTour(); stopPlay(); stopLiveClock();
+    document.querySelector('#modes button[data-mode="venue"]')?.click();
+    state.minutes = 450; heroLookKey = '';
+    await startHero();
+    // startHero can already be in flight from the scheduled tier-1 load.
+    const deadline = performance.now() + 180000;
+    while (heroLoading && performance.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 100));
+    if (!hero) throw new Error('Baked hero scene unavailable');
+    if (!fallback && !measuredLook(hero.manifest)) throw new Error('Manifest look block is missing');
+    focus(view === 'L06' ? 'lead06' : 'lead07', 1);
+    configurePipeline();
+    heroLock(); await hero.groundReady; await hero.environmentReady;
+    if (hero.environmentPeriod !== 'day') throw new Error('Bake panorama is unavailable');
+    return { bundle: hero.manifest.bundle, look: fallback ? 'grade.js fallback' : hero.manifest.look.look,
+      reference: `ref_bake_${view}.png`, exposure: lookExposure(fallback ? { ...hero.manifest, look: undefined } : hero.manifest, view) };
+  },
+  capture() { return new Promise((resolve) => frameCaptures.push(resolve)); },
+  finish() {
+    parityMode = false; parityFallback = false; heroLookKey = '';
+    if (parityStageStyle === null) stage.removeAttribute('style'); else stage.setAttribute('style', parityStageStyle);
+    renderer.setPixelRatio(parityPixelRatio); resize(); configurePipeline();
+  },
+};
