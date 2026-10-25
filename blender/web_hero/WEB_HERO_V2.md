@@ -171,9 +171,9 @@ All from `blender/out/frozen_FK.blend` (`TALANTA_SITE_BLEND`), finished state, l
 |---|---|---|---|
 | panorama 07:30 | `render_panorama.py -- 128 8192 preset=morning_golden near=800 out=blender/out/web_hero/web_hero_v2/env` | 1,131 s | 8192 x 4096 EXR (DWAB) and 2048 HDR; 1,574 objects hidden and 16 cut inside 800 m |
 | panorama 17:30 | the same with `preset=evening_golden` | 1,163 s | as above |
-| ground tiles | `ground_tiles.py -- blender/out/web_hero/ground_png 16` (run detached) | TILES_WALL | TILES_RESULT |
+| ground tiles | `ground_tiles.py -- blender/out/web_hero/ground_png 16` (run detached) | 5,490 s | 61 tiles (25 at 0.25 m/px within 640 m, 36 at 0.5 m/px to 1,536 m), PNG, about 90 s each, and `tiles.json` |
 | export | `export_web.py` | 359 s | 123 hero and 817 site objects staged; LOD0 mesh triangles 0.46M hero, 0.72M site (instances apart) |
-| post-process | `node blender/web_hero/node/post_glb.mjs bundle=web_hero_v2` | POST_WALL | POST_RESULT |
+| post-process | `node blender/web_hero/node/post_glb.mjs bundle=web_hero_v2` | 2,778 s | 70 files, 164,571,833 bytes (budget 250,000,000): hero GLB 34.2 MB, site GLB 89.2 MB, 61 ground KTX2 8.1 MB, panoramas 32 MB; manifest with sha256 per file |
 
 Fixes found on the way:
 - `render_panorama.py` and `ground_tiles.py` read every argument after the program name, so under the `blender`
@@ -185,4 +185,6 @@ Fixes found on the way:
   `trace_sw_finished` are now ground too (linked copies of flower and shrub prototypes stay shadow-only), and the
   `_final` cut copies match by their base name (`road_markings_final`). 156 ground objects, 5,432 shadow-only. The
   south plaza with its round and axial beds, the lens island and the south-west lawn and loop road are in the tiles.
+- The first `post_glb.mjs` run was stopped by the tool's 10 min limit for background commands while it encoded
+  the site lightmaps, before it wrote anything; it was run again detached (the 2,778 s above).
 - `post_glb.mjs` names the real source scene in the manifest (`bake_log.json` `scene`).
