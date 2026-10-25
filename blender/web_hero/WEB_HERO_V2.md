@@ -244,7 +244,7 @@ Fixes found on the way:
 | Check | Result |
 |---|---|
 | South plaza shows | pass: L07, the paving with the round bed and the axial beds in front of the south face |
-| Lens island shows | pass: L06, the lens-shaped bed between the training pitch and the north-west paving |
+| Lens island shows | not verified: the east island (K3) is in neither L06 nor L07 (hero_artistic_04 README; D03 shows it). The tiles and the site GLB include `plaza_south_k`, but no app shot from the east was taken. (A first reading took a bed in L06 for the island; that was wrong.) |
 | Landmark towers show | pass: L07, the tower cluster on the skyline at the right, as in the Cycles still |
 | Grass loop shows | pass, weak: L07, the south-west lawn with its loop path shows; at this distance the loop path reads faintly in the ground tiles |
 | No west road, railway, station, footbridge or west car park | pass: L07 shows the west lawns empty apart from the training-pitch stand that is also in the Cycles still. The car park in L06 (right of the stadium, by Ngong Road) is the north car park of the site layout, not on the west lawns. |
