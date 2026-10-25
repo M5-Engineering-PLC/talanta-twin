@@ -1,10 +1,14 @@
 const storageKey = 'talanta-interface-mode';
-// Backdrop stills rendered in Cycles from the twin model (blender/renders/landing_pass_01, cameras L06 and L07), shown
-// while the landing view and time match them, as in the landing mockups (06 Hillside at sunset, 07 Cityside by day).
+// Backdrop stills rendered in Cycles from the twin model (blender/renders/hero_artistic_04, cameras L06 and L07, approved
+// by Munene 2026-10-24), shown while the landing view and time match them, as in the landing mockups (06 Hillside at
+// sunset 18:05, 07 Cityside by day 10:30). Phones held upright get a 9:16 crop of the same still.
 const STILLS = {
-  lead06: { src: 'landing/hillside_sunset.jpg', minutes: 1085 },
-  lead07: { src: 'landing/cityside_daylight.jpg', minutes: 630 },
+  lead06: { src: 'landing/hillside_sunset.jpg', portrait: 'landing/hillside_sunset_portrait.jpg', minutes: 1085 },
+  lead07: { src: 'landing/cityside_daylight.jpg', portrait: 'landing/cityside_daylight_portrait.jpg', minutes: 630 },
 };
+const portrait = globalThis.matchMedia?.('(max-aspect-ratio: 3/4)');
+// The stills show illustrative people, cars and event lighting (hero_artistic_04 README); the claim says so.
+const STILL_CLAIM = 'Rendered from the twin model · Visualization: people, vehicles and lighting are illustrative';
 
 export function initLanding({ views, focus, state, stopTour, setTime, setEvent, startTour }) {
   const $ = (id) => document.getElementById(id);
@@ -19,13 +23,15 @@ export function initLanding({ views, focus, state, stopTour, setTime, setEvent, 
   let touring = false;
   still.onload = () => { still.hidden = false; refreshStill(); };
   still.onerror = () => { still.hidden = true; refreshStill(); };
+  portrait?.addEventListener?.('change', () => refreshStill());
   function refreshStill() {
     const s = STILLS[view.value];
     const want = mode === 'landing' && !touring && s && Number(time.value) === s.minutes && event.value === 'venue';
-    if (want && !still.src.endsWith(s.src)) { still.hidden = true; still.src = `${import.meta.env.BASE_URL}${s.src}`; }
+    const file = s && (portrait?.matches ? s.portrait : s.src);
+    if (want && !still.src.endsWith(file)) { still.hidden = true; still.src = `${import.meta.env.BASE_URL}${file}`; }
     const on = Boolean(want && !still.hidden && still.complete && still.naturalWidth);
     document.body.classList.toggle('landing-still', on);
-    claim.textContent = on ? 'Rendered from the twin model' : 'Visualization';
+    claim.textContent = on ? STILL_CLAIM : 'Visualization';
   }
   function matchStillTime() {
     const s = STILLS[view.value];

@@ -213,6 +213,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--ke-green);
   .landing-sub { font-size: 10px; }
   .landing-pill { font-size: 12px; padding: 11px 14px; }
   .landing-mode .landing-venue { display: block; grid-column: 1 / -1; grid-row: 2; font-size: 13px; }
+  .landing-mode #landing-claim { max-width: calc(100% - 190px); bottom: 14px; left: 12px; }
   .landing-venue span { display: inline; margin-left: 8px; font-size: 11px; }
   .landing-mode #landing-controls { top: 12px; left: 12px; right: 12px; max-width: none; gap: 8px; padding: 10px; }
   #landing-controls label { flex: 1; }
