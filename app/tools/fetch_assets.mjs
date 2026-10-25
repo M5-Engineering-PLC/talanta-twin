@@ -2,7 +2,7 @@
 // Download the baked web hero bundle from its GitHub release, check it against the manifest, and install it.
 // Run from app/: npm run fetch-assets [-- options]
 //
-//   --bundle <tag>      release tag and bundle name (default web_hero_v1)
+//   --bundle <tag>      release tag and bundle name (default web_hero_v2)
 //   --repo <owner/name> GitHub repository (default M5-Engineering-PLC/talanta-twin)
 //   --manifest <file>   bundle manifest with size and sha256 per file
 //                       (default ../blender/web_hero/<bundle>_manifest.json)
@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const opt = (name, fallback) => { const i = args.indexOf(`--${name}`); return i < 0 ? fallback : args[i + 1]; };
-const BUNDLE = opt('bundle', 'web_hero_v1');
+const BUNDLE = opt('bundle', 'web_hero_v2');
 const REPO = opt('repo', 'M5-Engineering-PLC/talanta-twin');
 const MANIFEST = path.resolve(opt('manifest', path.join(APP, '..', 'blender', 'web_hero', `${BUNDLE}_manifest.json`)));
 const FROM = opt('from', null);
