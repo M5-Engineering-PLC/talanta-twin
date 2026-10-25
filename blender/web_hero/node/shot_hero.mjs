@@ -6,7 +6,8 @@
 import { chromium } from '/opt/node-tools/node_modules/playwright-core/index.mjs';
 const [url, out, waitMs] = process.argv.slice(2).filter((a) => !a.startsWith('key='));
 const key = (process.argv.find((a) => a.startsWith('key=')) || '').slice(4);
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+// The browser comes from Playwright's own install (PLAYWRIGHT_BROWSERS_PATH); PW_CHROME=<path> overrides it.
+const b = await chromium.launch({ executablePath: process.env.PW_CHROME || undefined,
   args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
 let on = false;
