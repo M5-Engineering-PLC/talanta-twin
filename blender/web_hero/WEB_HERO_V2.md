@@ -148,3 +148,6 @@ wall clock on 4 CPU cores (Cycles uses all four). Branch `assets/web_hero_v2_bak
 | 2 | 2a: site_layout, station, layout_pass_i, plaza_south, trace_sw, landmarks | albedo 807 + 124; AO 292 (landmarks); light 1,746 + 1,198 | 4,226 s | done; light scales 4.82, 3.90, 2.09, 1.58, 4.32, 5.15; pushed 4f54586 |
 | 2 | 2b: suburbs, traffic | albedo 79; AO 913; light 2,624 | 3,684 s | done; pushed 3f37d5b |
 | 2 | total | | 7,910 s (2.20 h; estimate 2.3 h) | the new batch (I, J, K, loop) took 1,198 s of light, more than estimated (600 s) |
+| 3 | 3a: ground_05, ground_06, ground_09, ground_10 (under the bowl and plazas) | albedo 80; light 2,625 | 2,751 s | done; pushed f4f1619 |
+| 3 | 3b: ground_00 to ground_04, ground_07, ground_08, ground_11 | albedo 176; light 5,802 | 6,026 s | done (run detached: one batch near the 2 h tool limit); pushed fda692e |
+| 3 | total | | 8,777 s (2.44 h; estimate 2.8 h) | |
