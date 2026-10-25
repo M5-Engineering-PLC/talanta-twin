@@ -145,3 +145,6 @@ wall clock on 4 CPU cores (Cycles uses all four). Branch `assets/web_hero_v2_bak
 | 1 | 1a: stadium_shell, stadium_fins, stadium_ornament, roof | albedo 81 + 53; AO 456 + 397; light 1,822 + 1,418 | 4,304 s | done; light scales 5.17, 3.58, 5.06, 3.63; pushed ce3c942 |
 | 1 | 1b: sport, roads (roads_final), site_built, forecourt | albedo 72 + 588; light 849 + 988 | 2,562 s | done; pushed ac10079 |
 | 1 | total | | 6,866 s (1.91 h; estimate 2.1 h) | about 20 % slower per batch than v1 (look-layer material wraps), within the margin |
+| 2 | 2a: site_layout, station, layout_pass_i, plaza_south, trace_sw, landmarks | albedo 807 + 124; AO 292 (landmarks); light 1,746 + 1,198 | 4,226 s | done; light scales 4.82, 3.90, 2.09, 1.58, 4.32, 5.15; pushed 4f54586 |
+| 2 | 2b: suburbs, traffic | albedo 79; AO 913; light 2,624 | 3,684 s | done; pushed 3f37d5b |
+| 2 | total | | 7,910 s (2.20 h; estimate 2.3 h) | the new batch (I, J, K, loop) took 1,198 s of light, more than estimated (600 s) |
