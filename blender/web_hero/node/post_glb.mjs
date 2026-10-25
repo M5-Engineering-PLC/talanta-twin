@@ -10,6 +10,10 @@
 //                 ao     -> occlusionTexture (stadium and roof groups)
 //                 albedo -> baseColorTexture (ground tiles, sport, roads: procedural surfaces)
 //   compression dedup, prune, meshopt (EXT_meshopt_compression, 16-bit positions)
+//   phone (with bundle=, G8 2026-10-25): talanta_hero_phone.glb and talanta_site_phone.glb in <bundle>/models_phone/
+//               and manifest_phone.json (phone tier 1): no AO maps, lightmaps at most PHONE_PX (ground meshes
+//               PHONE_GROUND_PX; the ground tiles carry the ground) in ETC1S, LOD0 only (no far LOD copies), tree
+//               sets as impostors only, seats as their LOD0 only
 // Writes app/public/models/talanta_hero.glb, talanta_site.glb and manifest.json (test: blender/out/web_hero/test/export/final).
 import fs from "node:fs";
 import crypto from "node:crypto";
@@ -30,7 +34,10 @@ const BASE = path.join(ROOT, "blender/out/web_hero", BASE_DIR || (TEST ? "test" 
 const STAGE = path.join(BASE, "export");
 const BUNDLE = (process.argv.find((a) => a.startsWith("bundle=")) || "").split("=")[1] || null;
 const BDIR = BUNDLE ? path.join(BASE, BUNDLE) : null;
-const DEST = BUNDLE ? path.join(BDIR, "models") : TEST ? path.join(STAGE, "final") : path.join(ROOT, "app/public/models");
+const PHONE = BUNDLE && process.argv.includes("phone");
+const PHONE_PX = 1024, PHONE_GROUND_PX = 256;
+const TREE_SETS = ["trees", "site_trees", "palms", "fc_retained_site_trees", "fc_retained_palms", "suburbs_trees"];
+const DEST = BUNDLE ? path.join(BDIR, PHONE ? "models_phone" : "models") : TEST ? path.join(STAGE, "final") : path.join(ROOT, "app/public/models");
 const ENV = path.join(ROOT, "app/public/env");
 fs.mkdirSync(DEST, { recursive: true });
 const stage = JSON.parse(fs.readFileSync(path.join(STAGE, "stage.json"), "utf8"));
@@ -67,14 +74,21 @@ async function fitTexels(buf) {
 async function ktx(doc, cache, group, kind) {
   const key = `${group}_${kind}`;
   if (cache.has(key)) return cache.get(key);
-  const fit = await fitTexels(fs.readFileSync(path.join(BASE, "maps", `${key}.png`))); const png = fit.buf;
+  const fit = await fitTexels(fs.readFileSync(path.join(BASE, "maps", `${key}.png`))); let png = fit.buf;
+  if (PHONE) {  // phone: smaller maps (texel density only; UVs are in [0, 1])
+    const m = await sharp(png).metadata(); const px = group.startsWith("ground_") ? PHONE_GROUND_PX : PHONE_PX;
+    if (Math.max(m.width, m.height) > px) {
+      const w = Math.round(m.width * px / Math.max(m.width, m.height)), h = Math.round(m.height * px / Math.max(m.width, m.height));
+      png = await sharp(png).resize(w, h, { kernel: "lanczos3" }).png().toBuffer(); fit.from = fit.from || [m.width, m.height]; fit.to = [w, h];
+    }
+  }
   const t0 = Date.now();
   // bundle: lightmaps (light, ao) as UASTC with RDO and zstd, colour (albedo) as ETC1S; otherwise ETC1S throughout
-  const uastc = BUNDLE && kind !== "albedo";
+  const uastc = BUNDLE && !PHONE && kind !== "albedo";
   const data = await encodeToKTX2(new Uint8Array(png), uastc
     ? { isUASTC: true, uastcLDRQualityLevel: 2, enableRDO: true, rdoQualityLevel: 1.0, needSupercompression: true, generateMipmap: true,
         isPerceptual: kind !== "ao", isSetKTX2SRGBTransferFunc: kind !== "ao", imageDecoder }
-    : { isUASTC: false, qualityLevel: 200, compressionLevel: 2, generateMipmap: true, isPerceptual: kind !== "ao",
+    : { isUASTC: false, qualityLevel: PHONE ? 255 : 200, compressionLevel: 2, generateMipmap: true, isPerceptual: kind !== "ao",
         isSetKTX2SRGBTransferFunc: kind !== "ao", imageDecoder });
   const tex = doc.createTexture(key).setImage(data).setMimeType("image/ktx2").setURI(`${key}.ktx2`);
   cache.set(key, tex);
@@ -88,7 +102,7 @@ const result = {};
 const SKIP_MODELS = process.argv.includes("skip_models");
 if (SKIP_MODELS) {
   for (const glb of ["hero", "site"]) {
-    const file = path.join(DEST, `talanta_${glb}.glb`);
+    const file = path.join(DEST, `talanta_${glb}${PHONE ? "_phone" : ""}.glb`);
     result[glb] = { file: path.relative(ROOT, file), bytes: fs.statSync(file).size, note: "kept from the previous post_glb run" };
   }
   const prev = BDIR && fs.existsSync(path.join(BDIR, "manifest.json")) ? JSON.parse(fs.readFileSync(path.join(BDIR, "manifest.json"), "utf8")) : null;
@@ -107,14 +121,18 @@ for (const glb of SKIP_MODELS ? [] : ["hero", "site"]) {
       const arr = new Float32Array(blob.buffer.slice(blob.byteOffset + a.offset, blob.byteOffset + a.offset + a.count * a.components * 4));
       acc[k] = doc.createAccessor(`${e.set}_${k}`).setType(a.components === 4 ? "VEC4" : "VEC3").setArray(arr).setBuffer(buffer);
     }
+    // phone: tree sets keep their impostor level only, every other set its LOD0 only
+    const phoneLods = PHONE ? (TREE_SETS.includes(e.set) ? e.lods.filter((x) => x.lod === Math.max(...e.lods.map((y) => y.lod))) : e.lods.filter((x) => x.lod === 0)) : null;
     for (const l of e.lods) {
       const proto = root.listNodes().find((n) => n.getName() === l.node);
       if (!proto) throw new Error(`proto node ${l.node} missing`);
+      if (phoneLods && !phoneLods.includes(l)) { proto.dispose(); continue; }
       const im = gpu.createInstancedMesh();
       for (const [k, a] of Object.entries(acc)) im.setAttribute(k, a);
       const node = doc.createNode(`${e.set}__${e.proto}__LOD${l.lod}`).setMesh(proto.getMesh())
         .setExtension("EXT_mesh_gpu_instancing", im)
-        .setExtras({ instanced_set: e.set, lod_group: `${e.set}__${e.proto}`, lod: l.lod, lod_switch_m: e.lods.map((x) => x.switch_m ?? LOD_D[x.lod]),
+        .setExtras({ instanced_set: e.set, lod_group: `${e.set}__${e.proto}`, lod: phoneLods ? 0 : l.lod,
+                     lod_switch_m: phoneLods ? [0] : e.lods.map((x) => x.switch_m ?? LOD_D[x.lod]), ...(phoneLods && l.lod > 0 ? { phone_impostor: true } : {}),
                      ...(e.max_m ? { lod_max_m: e.max_m } : {}), instances: e.count });
       scene.addChild(node); proto.dispose();
       sets.push({ set: e.set, proto: e.proto, lod: l.lod, instances: e.count, tris_each: l.tris, tris: e.count * l.tris });
@@ -129,7 +147,7 @@ for (const glb of SKIP_MODELS ? [] : ["hero", "site"]) {
     const scale = bake.groups[g].light_scale; const tc = ex.talanta_lightmap_texcoord ?? 0;
     mat.setEmissiveTexture(await ktx(doc, cache, g, "light")).setEmissiveFactor([0, 0, 0]);
     mat.getEmissiveTextureInfo().setTexCoord(tc);
-    if (AO_GROUPS(g)) { mat.setOcclusionTexture(await ktx(doc, cache, g, "ao")); mat.getOcclusionTextureInfo().setTexCoord(tc); }
+    if (AO_GROUPS(g) && !PHONE) { mat.setOcclusionTexture(await ktx(doc, cache, g, "ao")); mat.getOcclusionTextureInfo().setTexCoord(tc); }
     if (ex.talanta_alpha_mask) mat.setAlphaMode("MASK").setAlphaCutoff(0.5);
     if (ex.talanta_albedo_map) { mat.setBaseColorTexture(await ktx(doc, cache, g, "albedo")); mat.getBaseColorTextureInfo().setTexCoord(0); mat.setBaseColorFactor([1, 1, 1, 1]); }
     mat.setExtras({ talanta_bake_group: g, talanta_lightmap: { source: "emissiveTexture", texCoord: tc, intensity: +(scale * Math.PI).toFixed(4), color_space: "sRGB" } });
@@ -147,6 +165,13 @@ for (const glb of SKIP_MODELS ? [] : ["hero", "site"]) {
   for (const mat of root.listMaterials()) {
     const ex = mat.getExtras() || {};
     if (ex.talanta_alpha_mask && mat.getAlphaMode() !== "MASK") mat.setAlphaMode("MASK").setAlphaCutoff(0.5);
+  }
+  if (PHONE) {  // LOD0 only: the decimated LOD1 and LOD2 copies stay out of the phone files
+    for (const n of root.listNodes()) {
+      const ex = n.getExtras() || {};
+      if (n.getExtension("EXT_mesh_gpu_instancing") || ex.lod === undefined) continue;
+      if (ex.lod > 0) n.dispose(); else n.setExtras({ ...ex, lod_switch_m: [0] });
+    }
   }
   // ---------------------------------------------------------------- compression
   await doc.transform(dedup(), prune({ keepAttributes: true, keepLeaves: false }),
@@ -169,13 +194,31 @@ for (const glb of SKIP_MODELS ? [] : ["hero", "site"]) {
       if (have.length) tris[L] += lods[Math.max(...have)];
     }
   }
-  const file = path.join(DEST, `talanta_${glb}.glb`);
+  const file = path.join(DEST, `talanta_${glb}${PHONE ? "_phone" : ""}.glb`);
   await io.write(file, doc);
   result[glb] = { file: path.relative(ROOT, file), bytes: fs.statSync(file).size, triangles: { lod0: tris[0], lod1_300m: tris[1], lod2_1km: tris[2] },
                   textures: [...cache.keys()].length, instanced_sets: sets };
   console.log(glb, JSON.stringify({ bytes: result[glb].bytes, triangles: result[glb].triangles }));
 }
 
+// ---------------------------------------------------------------- phone: manifest_phone.json (phone tier 1)
+if (PHONE) {
+  const sha = (f) => crypto.createHash("sha256").update(fs.readFileSync(f)).digest("hex");
+  const entry = (f) => ({ file: path.relative(BDIR, f), bytes: fs.statSync(f).size, sha256: sha(f) });
+  const tiles = JSON.parse(fs.readFileSync(path.join(BDIR, "ground", "tiles.json"), "utf8")).tiles.filter((t) => t.level === 1);
+  const tier1 = [...["hero", "site"].map((g) => path.join(DEST, `talanta_${g}_phone.glb`)), path.join(BDIR, "ground", "tiles.json"),
+                 ...tiles.map((t) => path.join(BDIR, "ground", t.file)), path.join(BDIR, "env", "talanta_pano_0730_2048.hdr")].map(entry);
+  const total = tier1.reduce((a, f) => a + f.bytes, 0);
+  const man = { bundle: BUNDLE, variant: "phone", generated: new Date().toISOString(), tier1_files: tier1, tier1_bytes: total,
+    budget_bytes: 40e6, within_budget: total <= 40e6, models: result, textures: texLog,
+    rules: `no AO maps; lightmaps at most ${PHONE_PX} px (ground meshes ${PHONE_GROUND_PX} px; the level 1 ground tiles carry the ground) in KTX2 ETC1S; LOD0 only; tree sets as impostors only (two crossed quads, extras.phone_impostor); seats LOD0`,
+    labels: "Estimated geometry and colours (parameter ledger). Traffic and any people are Visualization. No reference frame is used as a texture." };
+  const lookFile = path.join(ROOT, "blender/web_hero/look_v2.json");
+  if (fs.existsSync(lookFile)) man.look = JSON.parse(fs.readFileSync(lookFile, "utf8"));
+  fs.writeFileSync(path.join(BDIR, "manifest_phone.json"), JSON.stringify(man, null, 1) + "\n");
+  console.log(JSON.stringify({ bundle: BUNDLE, variant: "phone", tier1_bytes: total, within_budget: man.within_budget }));
+  process.exit(0);
+}
 // ---------------------------------------------------------------- bundle: ground tiles, panoramas, manifest with sha256
 if (BUNDLE) {
   const gsrc = path.join(BASE, "ground_png", "ground"); const gdst = path.join(BDIR, "ground"); fs.mkdirSync(gdst, { recursive: true });
@@ -199,7 +242,7 @@ if (BUNDLE) {
       tiles: out }, null, 1) + "\n");
   }
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
-  const files = walk(BDIR).filter((f) => !f.endsWith("manifest.json")).sort().map((f) => {
+  const files = walk(BDIR).filter((f) => !f.endsWith("manifest.json") && !f.endsWith("manifest_phone.json") && !f.includes(`${path.sep}models_phone${path.sep}`)).sort().map((f) => {
     const buf = fs.readFileSync(f); return { file: path.relative(BDIR, f), bytes: buf.length, sha256: crypto.createHash("sha256").update(buf).digest("hex") };
   });
   const total = files.reduce((a, f) => a + f.bytes, 0);
