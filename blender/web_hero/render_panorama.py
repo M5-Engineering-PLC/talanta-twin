@@ -16,8 +16,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import ROOT, OUT, setup_morning, sun_vector_app, write_json
 
-args = [a for a in sys.argv[1:] if a.isdigit()]
-KW = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
+# script arguments only: under the blender binary they follow "--" (Blender's own, e.g. --python-exit-code 1, come first)
+ARGV = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
+args = [a for a in ARGV if a.isdigit()]
+KW = dict(a.split("=", 1) for a in ARGV if "=" in a)
 SAMPLES = int(args[0]) if args else 128
 W = int(args[1]) if len(args) > 1 else 4096
 PRESET = KW.get("preset", "morning_golden")
