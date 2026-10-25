@@ -216,6 +216,9 @@ if (BUNDLE) {
     lightmaps: "Baked materials carry extras.talanta_lightmap: move emissiveMap to lightMap (texture.channel = texCoord), emissive black, lightMapIntensity = intensity. KTX2Loader required.",
     labels: "Estimated geometry and colours (parameter ledger). Traffic and any people are Visualization. No reference frame is used as a texture.",
   };
+  // P1 (Cycles parity): the measured look of the stills (blender/web_hero/measure_look.py); the app grade reads it
+  const lookFile = path.join(ROOT, "blender/web_hero/look_v2.json");
+  if (fs.existsSync(lookFile)) man.look = JSON.parse(fs.readFileSync(lookFile, "utf8"));
   if (stage.unbaked) {
     Object.assign(man, { unbaked: true, source: `${bake.source} via blender/web_hero (stage_unbaked.py, export_web.py unbaked, node/post_glb.mjs); no bake`,
       purpose: "app testing only: not a release, not web_hero_v2",
