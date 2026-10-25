@@ -786,7 +786,8 @@ function heroLock() {
     heroWarmth.value = getGradePreset().warmth + dusk.gradeWarmth;
   }
   const manifest = parityFallback ? { ...hero.manifest, look: undefined } : hero.manifest;
-  if (parityMode || measuredLook(manifest)) scene.fog = null;
+  // The parity references have no haze; the product keeps it.
+  if (parityMode) scene.fog = null;
   else applyHeroHaze(scene, heroFog, dusk.panorama === 'evening' ? 'evening_golden' : undefined);
   heroExposure.value = lookExposure(manifest, focusId === 'lead06' ? 'L06' : 'L07');
   applyHeroToneMapping(renderer, manifest, focusId === 'lead06' ? 'L06' : 'L07');
