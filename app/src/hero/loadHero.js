@@ -4,7 +4,7 @@ import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
 /** Load the baked stadium hero models and their manifest, off-scene: the caller adds result.group when ready. */
-export async function loadHero({ renderer, scene, base = './models/' }) {
+export async function loadHero({ renderer, base = './models/', onProgress = () => {} }) {
   const ktx2 = new KTX2Loader().setTranscoderPath('./basis/').detectSupport(renderer);
   const loader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
   try {
@@ -20,11 +20,12 @@ export async function loadHero({ renderer, scene, base = './models/' }) {
     let triangleCount = 0;
     const modelEntries = Object.values(manifest.models);
     let loadedBytes = 0;
+    onProgress({ loaded: 0, total: modelEntries.length });
 
     for (const model of modelEntries) {
       if (!model?.file) throw new Error('manifest model file is missing');
       const file = model.file.split('/').at(-1);
-      const gltf = await loader.loadAsync(`${base}${file}`);
+      const gltf = await loadWithTimeout(loader, `${base}${file}`);
       const modelRoot = gltf.scene;
       const standalone = [];
 
@@ -78,6 +79,7 @@ export async function loadHero({ renderer, scene, base = './models/' }) {
         if (node.parent === modelRoot) group.add(node);
       }
       loadedBytes += model.bytes ?? 0;
+      onProgress({ loaded: modelEntries.indexOf(model) + 1, total: modelEntries.length });
     }
 
     for (const [name, entry] of lodGroups) {
@@ -103,4 +105,19 @@ export async function loadHero({ renderer, scene, base = './models/' }) {
     ktx2.dispose();
     return null;
   }
+}
+
+function loadWithTimeout(loader, url) {
+  return new Promise((resolve, reject) => {
+    let expired = false;
+    const timer = setTimeout(() => { expired = true; reject(new Error(`Model load timed out: ${url}`)); }, 180000);
+    loader.loadAsync(url).then((gltf) => {
+      clearTimeout(timer);
+      if (!expired) resolve(gltf);
+      else gltf.scene.traverse((node) => {
+        node.geometry?.dispose();
+        for (const material of Array.isArray(node.material) ? node.material : [node.material]) material?.dispose();
+      });
+    }, (error) => { clearTimeout(timer); reject(error); });
+  });
 }

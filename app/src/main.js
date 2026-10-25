@@ -11,16 +11,20 @@ import { sunPosition, eatDate, sunEvents, openingMinutes } from './sun.js';
 import { initLanding } from './ui/landing.js';
 import { lineChart } from './ui/charts.js';
 import { buildSite } from './world/site.js';
-import { pass, mrt, output, normalView, vec4 } from 'three/tsl';
+import { pass, mrt, output, normalView, vec4, uniform } from 'three/tsl';
 import { ao } from 'three/addons/tsl/display/GTAONode.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
-import { loadHero } from './hero/loadHero.js';
 import { loadEnvironment, limitEnvToSpecular, horizonFogColor } from './hero/environment.js';
 import { applyHeroToneMapping, heroGrade, applyHeroHaze } from './hero/heroLook.js';
 import { getGradePreset } from './hero/grade.js';
 import { initOverlay } from './hero/overlay.js';
 import CAMS from '../cameras/manifest.json';
 import { buildTraffic } from './hero/traffic.js';
+import { heroLoadDecision, scheduleHeroLoad } from './hero/loading.js';
+import { showOpeningPoster } from './ui/openingPoster.js';
+import { heroDuskParameters, installHeroLighting } from './hero/dusk.js';
+import { panoramaDevice, panoramaManifest } from './hero/environment.js';
+import { cameraPoseFromManifest } from './world/cameras.js';
 import { createTour, enableTouchUX } from './tour.js';
 import { detectTier, TIERS, createFpsMonitor, profileGeometry } from './perf.js';
 
@@ -30,6 +34,7 @@ const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const DAY = 86400000;
 
 // ---------------------------------------------------------------- boot
+const openingPoster = showOpeningPoster();
 let loaded = 0;
 const progress = () => { loaded++; $('#splash-bar').style.width = `${Math.min(100, (loaded / (TOTAL_FILES + 3)) * 100)}%`; };
 const D = await loadData(progress);
@@ -42,7 +47,10 @@ const stage = $('#stage');
 const params = new URLSearchParams(location.search);
 const LITE = params.has('lite'); // software-GPU test mode
 const renderer = new THREE.WebGPURenderer({ antialias: true, logarithmicDepthBuffer: true });
-await renderer.init();
+try { await renderer.init(); } catch (error) {
+  document.getElementById('landing-claim').textContent = '3D is unavailable on this device. Rendered from the twin model · Visualization.';
+  throw error;
+}
 // Quality tier (app/src/perf.js): ?lite = low, ?tier=<high|medium|low>, ?fps shows the readout.
 let tier = detectTier(renderer), quality = TIERS[tier];
 renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
@@ -232,7 +240,7 @@ function poseFrom({ target, az, el, d }) {
   return { target: T, pos: new THREE.Vector3(T.x + Math.sin(a) * Math.cos(e) * d, T.y + Math.sin(e) * d, T.z - Math.cos(a) * Math.cos(e) * d) };
 }
 function flyTo(pose, ms = 2000) {
-  fly = { t0: performance.now(), ms, p0: camera.position.clone(), t0v: controls.target.clone(), p1: pose.pos, t1: pose.target };
+  fly = { t0: performance.now(), ms, p0: camera.position.clone(), t0v: controls.target.clone(), p1: pose.pos, t1: pose.target, f0: camera.fov, f1: pose.fov ?? 42 };
 }
 function stepFly(now) {
   if (!fly) return;
@@ -241,6 +249,8 @@ function stepFly(now) {
   const lift = Math.sin(Math.PI * e) * 0.18 * fly.p0.distanceTo(fly.p1);
   camera.position.y += lift;
   controls.target.lerpVectors(fly.t0v, fly.t1, e);
+  camera.fov = THREE.MathUtils.lerp(fly.f0, fly.f1, e);
+  camera.updateProjectionMatrix();
   if (k >= 1) fly = null;
 }
 
@@ -273,7 +283,7 @@ function fitD(radius, margin = 1.15) {
 }
 const CENTRE = [0, PAD + 22, 0];
 // Critic cameras from app/cameras/manifest.json (review viewpoints, not real camera locations).
-function camPose(id) { const c = CAMS.cameras.find((k) => k.id === id); return { pos: new THREE.Vector3(...c.position), target: new THREE.Vector3(...c.target) }; }
+function camPose(id) { return cameraPoseFromManifest(CAMS, id); }
 const fitted = (az, el, k = 1) => () => poseFrom({ target: CENTRE, az, el, d: fitD(BOWL_R) * k });
 const FOCUS = [
   { id: 'overview', name: 'Overview', k: 'Whole bowl, centred, Ngong Hills behind', poseFn: fitted(40, 22), label: null, rings: [] },
@@ -397,6 +407,7 @@ const LAYERS = [
   { id: 'trees', name: 'Trees', claim: 'Estimated · Sentinel-2 NDVI', sw: 'radial-gradient(circle,#5c7a45 40%,#3f5a30 70%)', objs: [trees], mats: trees.userData.mats },
   { id: 'site', name: 'Site boundary', claim: 'Measured · W1b, Dec 2025', sw: 'repeating-linear-gradient(90deg,#fff 0 5px,#9a9285 5px 9px)', objs: [siteLine], mats: [siteLine.material] },
   { id: 'labels', name: 'Labels', claim: 'OSM names · GLO-30 heights', sw: 'linear-gradient(135deg,#efe9de,#cfc6b6)', slider: false },
+  { id: 'vehicles', name: 'Vehicles', claim: 'Visualization', sw: '#737b82', slider: false },
   { id: 'people', name: 'People for scale', claim: 'Visualization · not a crowd model', sw: 'radial-gradient(circle,#a3282a 30%,#2e7442 31% 60%,#e4dccb 61%)', objs: [site.crowd], slider: false },
   { id: 'crowd', name: 'Match-day crowd', claim: 'Visualization · phase 1', sw: 'radial-gradient(circle,#a3282a 30%,#2e7442 31% 60%,#e4dccb 61%)', disabled: true, slider: false },
 ];
@@ -654,52 +665,80 @@ function updateHud() {
   $('#sb-mid').textContent = f(nice / 2); $('#sb-end').textContent = f(nice);
 }
 
-// ---------------------------------------------------------------- web hero (?hero)
-// Baked Blender export (blender/web_hero, app/public/models + env). Lighting is baked for one moment
-// (manifest.time), so hero mode keeps that baked light while the UI clock remains independent.
-// It loads in the background: the procedural twin stays usable until the hero is ready, or if it never is.
+// ---------------------------------------------------------------- tier-1 baked twin
 let hero = null, heroHidden = [], heroFog = null, heroGradeOn = null;
+let heroLighting = null, heroEnvironment = null, heroLookKey = '';
 let heroImpostors = null, heroTreesUpdated = -Infinity;
-const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} timed out after ${ms / 1000} s`)), ms))]);
-async function loadPreferredHero() {
-  for (const base of ['./models/', './models/test/']) {
-    try {
-      const response = await fetch(`${base}manifest.json`);
-      if (!response.ok) continue;
-      const manifest = await response.json();
-      if (!manifest.models || typeof manifest.models !== 'object') continue;
-      return await loadHero({ renderer, scene, base });
-    } catch (error) { console.warn('hero manifest unavailable:', base, error); }
-  }
-  return null;
-}
-if (params.has('hero')) {
-  (async () => {
-    // A load that times out is cancelled: if it completes later, its result is dropped, never shown.
-    let late = false;
-    const h = await withTimeout(loadPreferredHero(), 180000, 'hero models').catch((e) => { late = true; console.warn(e); return null; });
-    if (!h) return;
-    let envLate = false;
-    const envP = loadEnvironment({ renderer, scene: new THREE.Scene(), manifest: h.manifest, preferSmall: quality.panoramaSize === '2048' }).then((e) => { if (envLate) { e?.dispose(); return null; } return e; });
-    const env = await withTimeout(envP, 120000, 'panorama').catch((e) => { envLate = true; console.warn(e); return null; });
-    if (late) return;
-    if (env) { scene.background = scene.environment = env.texture; scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation); }
-    scene.add(h.group);
+const heroStatus = document.createElement('div');
+heroStatus.id = 'hero-status'; heroStatus.setAttribute('role', 'status'); stage.append(heroStatus);
+const vehicleClaim = document.createElement('div');
+vehicleClaim.id = 'vehicle-claim'; vehicleClaim.textContent = 'Vehicles · Visualization'; stage.append(vehicleClaim);
+const device = panoramaDevice(renderer);
+const decision = (requested = false) => heroLoadDecision({ search: location.search, phone: device.phone,
+  supported: Boolean(renderer.backend?.isWebGPUBackend || renderer.backend?.gl), requested });
+let heroLoading = false;
+async function startHero() {
+  if (hero || heroLoading) return;
+  heroLoading = true;
+  heroStatus.textContent = 'Loading full scene…';
+  try {
+    // Import the loader only after tier 0 paints. A failed bake leaves the procedural twin usable.
+    const { loadHero } = await import('./hero/loadHero.js');
+    const h = await loadHero({ renderer, base: './models/', onProgress({ loaded, total }) {
+      heroStatus.textContent = `Loading full scene · ${Math.round(100 * loaded / total)}%`;
+    } });
+    if (!h) throw new Error('Baked scene unavailable');
     const { installTreeImpostors } = await import('./hero/impostors.js');
     heroImpostors = installTreeImpostors(h.group, camera);
     const { loadGroundTiles } = await import('./hero/groundTiles.js');
-    void loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768 });
-    limitEnvToSpecular(h.group, env?.texture);
+    void loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: device.phone });
     let hasGround = false; h.group.traverse((o) => { if (o.isMesh && /^ground/.test(o.name)) hasGround = true; });
     heroHidden = [bowl.group, pitch.group, sport.group, site.group, buildings, roads, trees, siteLine, blockout].filter(Boolean);
-    if (env) { heroHidden.push(sky, terrainHz, terrainFar); heroFog = horizonFogColor(env.texture); }
-    applyHeroHaze(scene, heroFog ?? scene.fog.color);
     if (hasGround) heroHidden.push(terrainSite);
+    heroLighting = installHeroLighting(h.group);
+    heroEnvironment = createHeroEnvironment(h);
+    scene.add(h.group);
     sun.castShadow = false; renderer.shadowMap.enabled = false;
-    // The UI keeps 07:30 or the user's choice; the lightmap retains its baked time.
     hero = h; heroGradeOn?.();
-    console.info('hero mode on:', h.manifest.time, env ? 'panorama loaded' : 'no panorama, procedural sky kept');
-  })();
+    heroStatus.textContent = '';
+    console.info('hero mode on:', h.manifest.bundle, h.manifest.time);
+  } catch (error) {
+    console.warn('Baked scene unavailable; keeping procedural scene:', error);
+    heroStatus.textContent = 'Full scene unavailable. Simplified scene shown.';
+  } finally { heroLoading = false; }
+}
+// Cache panoramas off-scene. A late response must never replace a newer time selection.
+function createHeroEnvironment(h) {
+  const cache = new Map();
+  let wanted = '', applied = null;
+  return (period) => {
+    wanted = period;
+    if (!cache.has(period)) {
+      const manifest = panoramaManifest(h.manifest, period);
+      cache.set(period, loadEnvironment({ renderer, scene: new THREE.Scene(), manifest,
+        preferSmall: quality.panoramaSize === '2048' }));
+    }
+    void cache.get(period).then((env) => {
+      if (!env || wanted !== period || applied === period) return;
+      applied = period;
+      scene.background = scene.environment = env.texture;
+      scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation);
+      limitEnvToSpecular(h.group, env.texture);
+      // Capture material baselines after node-material conversion.
+      heroLighting = installHeroLighting(h.group);
+      heroLighting.update(heroDuskParameters(state.minutes));
+      heroFog = horizonFogColor(env.texture);
+      for (const object of [sky, terrainHz, terrainFar]) if (!heroHidden.includes(object)) heroHidden.push(object);
+    });
+  };
+}
+const initialHero = decision();
+if (initialHero.load) void scheduleHeroLoad(openingPoster.ready, startHero);
+else if (initialHero.reason === 'phone') {
+  heroStatus.textContent = 'Simplified scene on phones. ';
+  const full = document.createElement('button'); full.type = 'button'; full.textContent = 'Load full scene (136 MB)';
+  full.onclick = () => { if (decision(true).load) void scheduleHeroLoad(openingPoster.ready, startHero); };
+  heroStatus.append(full);
 }
 // Keep procedural lights and geometry hidden when the time or layer controls change.
 function heroLock() {
@@ -711,12 +750,19 @@ function heroLock() {
   crowd?.setContactShadows?.(contactShadows);
   sun.intensity = 0; hemi.intensity = 0; for (const s of flood) s.intensity = 0;
   for (const o of heroHidden) o.visible = false;
-  applyHeroHaze(scene, heroFog);
+  const dusk = heroDuskParameters(state.minutes);
+  const lookKey = `${state.minutes}`;
+  if (lookKey !== heroLookKey) {
+    heroLookKey = lookKey; heroLighting?.update(dusk); heroEnvironment?.(dusk.panorama);
+    heroWarmth.value = getGradePreset().warmth + dusk.gradeWarmth;
+  }
+  applyHeroHaze(scene, heroFog, dusk.panorama === 'evening' ? 'evening_golden' : undefined);
   applyHeroToneMapping(renderer, hero.manifest);
 }
 initOverlay({ stage, camera, controls });
 
 // ---------------------------------------------------------------- post: ambient occlusion + bloom
+const heroWarmth = uniform(getGradePreset().warmth);
 let pipeline = null, bloomPass = null;
 if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost')) {
   try {
@@ -732,8 +778,8 @@ if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost'
     const look = getGradePreset();
     bloomPass = bloom(shaded, look.bloom.strength + night * 0.55, look.bloom.radius, look.bloom.threshold);
     bloomPass.setResolutionScale(TIERS.high.bloomResolutionScale);
-    pipeline.outputNode = heroGrade(shaded).add(bloomPass);
-    heroGradeOn = () => { pipeline.outputNode = heroGrade(shaded).add(bloomPass); pipeline.needsUpdate = true; };
+    pipeline.outputNode = heroGrade(shaded, { warmth: heroWarmth }).add(bloomPass);
+    heroGradeOn = () => { pipeline.outputNode = heroGrade(shaded, { warmth: heroWarmth }).add(bloomPass); pipeline.needsUpdate = true; };
   } catch (e) { console.warn('post-processing off:', e); pipeline = null; bloomPass = null; }
 }
 
@@ -808,6 +854,9 @@ renderer.setAnimationLoop((now) => {
   stepFly(now);
   if (!hero && site.group.visible) site.update(now / 1000, night);
   traffic?.update(dt);
+  if (traffic) traffic.group.visible = layerOn('vehicles');
+  heroLighting?.setVehiclesVisible(layerOn('vehicles'));
+  vehicleClaim.hidden = !layerOn('vehicles') || !traffic && !hero;
   shows?.update(dt);
   site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
   if (crowd) {
@@ -840,6 +889,6 @@ renderer.setAnimationLoop((now) => {
     try { pipeline.render(); } catch (e) { console.warn('post-processing failed, plain render from now on:', e); pipeline = null; bloomPass = null; renderer.render(scene, camera); }
   } else renderer.render(scene, camera);
 });
-setTimeout(() => $('#splash').classList.add('done'), 250);
+requestAnimationFrame(() => requestAnimationFrame(() => openingPoster.scenePainted()));
 $('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 design capacity · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.)`;
 window.__twin = { performanceProfile, scene, camera, controls, focus, state, FOCUS, get blockout() { return blockout; } };

@@ -226,3 +226,11 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--ke-green);
 }
 /* Full interface: keep the toggle in the top bar, clear of the layers panel. */
 body:not(.landing-mode) #landing-toggle { top: 7px; bottom: auto; right: 96px; padding: 6px 14px; box-shadow: none; }
+
+/* Tier-1 status and the mandatory vehicle claim stay visible over the poster and live scene. */
+#hero-status, #vehicle-claim { position: absolute; z-index: 4; left: 16px; max-width: calc(100% - 32px); padding: 5px 9px; background: rgba(249,247,241,.92); color: #333c37; border-radius: 4px; font-size: 12px; }
+#hero-status { top: 16px; }
+#hero-status:empty { display: none; }
+#hero-status button { margin-left: 6px; cursor: pointer; }
+#vehicle-claim { bottom: 70px; pointer-events: none; }
+#vehicle-claim[hidden] { display: none; }

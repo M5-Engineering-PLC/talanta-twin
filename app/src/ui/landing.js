@@ -18,7 +18,7 @@ export function initLanding({ views, focus, state, stopTour, setTime, setEvent, 
   const toggle = $('landing-toggle');
   const names = { lead06: 'Hillside', lead07: 'Cityside' };
   for (const entry of views) view.add(new Option(names[entry.id] ?? entry.name, entry.id));
-  view.value = views.some((v) => v.id === 'lead06') ? 'lead06' : 'overview';
+  view.value = views.some((v) => v.id === 'lead07') ? 'lead07' : 'overview';
   const still = $('landing-still'), claim = $('landing-claim');
   let touring = false;
   still.onload = () => { still.hidden = false; refreshStill(); };

@@ -149,3 +149,13 @@ export function horizonFogColor(texture) {
   }
   return new THREE.Color().setRGB(sum[0] / count, sum[1] / count, sum[2] / count, THREE.LinearSRGBColorSpace);
 }
+
+/** Select only the installed 17:30 panorama entries for the evening approximation. */
+export function panoramaManifest(manifest, period) {
+  if (period !== 'evening') return manifest;
+  const files = (manifest.files ?? []).map((entry) => entry.file);
+  const hdr = files.find((file) => /\/talanta_pano_1730_2048\.hdr$/.test(file));
+  const exr = files.find((file) => /\/talanta_pano_1730\.exr$/.test(file));
+  return { ...manifest, environment: { ...manifest.environment,
+    preset: 'evening_golden', file: hdr, file_2048: hdr, file_exr: exr } };
+}
