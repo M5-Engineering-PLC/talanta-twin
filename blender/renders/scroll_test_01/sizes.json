@@ -1,0 +1,33 @@
+{
+ "frames": 24,
+ "webp_1920": {
+  "total_bytes": 5734160,
+  "per_frame_bytes": 238923,
+  "quality": 82
+ },
+ "webp_960": {
+  "total_bytes": 1929428,
+  "per_frame_bytes": 80392,
+  "quality": 82
+ },
+ "avif_1920": {
+  "total_bytes": 3832990,
+  "per_frame_bytes": 159707,
+  "quality": 60
+ },
+ "avif_960": {
+  "total_bytes": 1327315,
+  "per_frame_bytes": 55304,
+  "quality": 60
+ },
+ "h264_intra": {
+  "total_bytes": 3972854,
+  "crf": 20,
+  "gop": 1
+ },
+ "h264_gop12": {
+  "total_bytes": 2190602,
+  "crf": 20,
+  "gop": 12
+ }
+}
