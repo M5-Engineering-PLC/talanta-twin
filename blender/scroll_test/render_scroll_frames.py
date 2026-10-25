@@ -46,7 +46,16 @@ log = {"camera": CAM, "preset": PRESET, "frames": N, "arc_deg": ARC, "resolution
        s.render.resolution_y * SCALE // 100], "samples": s.cycles.samples, "adaptive_threshold": s.cycles.adaptive_threshold,
        "denoiser": s.cycles.denoiser, "persistent_data": True, "seed": s.cycles.seed, "scene": os.environ.get("TALANTA_SITE_BLEND"),
        "setup_seconds": round(t_setup, 1), "frame_seconds": []}
-for i in range(N):
+# resume after a container restart: keep the frames already written and their times
+prev = out / "scroll_log.json"
+if prev.exists():
+    log["frame_seconds"] = json.loads(prev.read_text()).get("frame_seconds", [])
+done = 0
+while done < N and (out / f"frame_{done:03d}.png").exists():
+    done += 1
+log["frame_seconds"] = log["frame_seconds"][:done]
+log["resumed_at_frame"] = done if done else None
+for i in range(done, N):
     ang = math.radians(ARC * i / max(N - 1, 1))
     R = Matrix.Translation(pivot) @ Matrix.Rotation(ang, 4, "Z") @ Matrix.Translation(-pivot)
     cam.matrix_world = R @ M0

@@ -276,24 +276,148 @@ for glb, cols in (("hero", HERO_COLS), ("site", SITE_COLS)):
             lod_table.append(row)
 print("objects staged:", {k: len(v) for k, v in export.items()}, flush=True)
 
+# ---------------------------------------------------------------- tree albedo (G2, 2026-10-25)
+# The instanced tree protos have no lightmap and lose their UVs. Their source materials are node chains: the canopy
+# tint picks a flat tint (crown lobes, UV -1) or a black-background leaf JPG (cards) by UV, and the lookdev group
+# "Talanta photo surface" adds variation and dirt. So first_color() took a dark input, and the canopy kept its leaf
+# texture with no UVs to map it (glTF texCoord -1): the app drew the trees near black. Each tree material's albedo
+# is measured instead: an emission copy of the material (its Base Color input, cut by its Alpha) is rendered in
+# scene linear from three views and averaged over the covered pixels. The impostor atlas uses the same copies, so
+# it holds albedo and the app lights LOD0 and the impostors the same way.
+ALBEDO_PX = 96
+ALBEDO_VIEWS = ((0.0, 0.0), (90.0, 0.0), (45.0, 45.0))  # (azimuth, elevation) in degrees
+BARK = ("bark", "trunk")  # material names that are not crown
+_albedo = {}  # source material name -> linear rgb
+_emission = {}
+
+
+def emission_copy(m):
+    """A copy of m that emits its Base Color input (strength 1) and keeps its Alpha cut-out; holdout when m is None."""
+    key = m.name if m else None
+    if key in _emission: return _emission[key]
+    if m is None:
+        nm = bpy.data.materials.new("_albedo_holdout"); nt = nm.node_tree; nt.nodes.clear()
+        out = nt.nodes.new("ShaderNodeOutputMaterial"); nt.links.new(nt.nodes.new("ShaderNodeHoldout").outputs[0], out.inputs["Surface"])
+        _emission[key] = nm; return nm
+    nm = m.copy(); nm.name = "_albedo_" + m.name; nt = nm.node_tree
+    b = next((n for n in nt.nodes if n.type == "BSDF_PRINCIPLED"), None)
+    out = next(n for n in nt.nodes if n.type == "OUTPUT_MATERIAL" and n.is_active_output)
+    em = nt.nodes.new("ShaderNodeEmission"); em.inputs["Strength"].default_value = 1.0
+    mix = nt.nodes.new("ShaderNodeMixShader"); tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    if b is None:
+        em.inputs["Color"].default_value = m.diffuse_color; mix.inputs[0].default_value = 1.0
+    else:
+        for src, dst in ((b.inputs["Base Color"], em.inputs["Color"]), (b.inputs["Alpha"], mix.inputs[0])):
+            if src.is_linked: nt.links.new(src.links[0].from_socket, dst)
+            else: dst.default_value = src.default_value
+    nt.links.new(tr.outputs[0], mix.inputs[1]); nt.links.new(em.outputs[0], mix.inputs[2])
+    nt.links.new(mix.outputs[0], out.inputs["Surface"])
+    _emission[key] = nm
+    return nm
+
+
+_asc = {}
+def albedo_scene():
+    """Cycles scene with no lights and a black world: pixels are the emitted Base Color, written as linear EXR."""
+    if _asc: return _asc["scene"], _asc["cam"]
+    sc = bpy.data.scenes.new("albedo"); sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = 16
+    sc.cycles.use_denoising = False; sc.render.film_transparent = True
+    sc.render.image_settings.file_format = "OPEN_EXR"; sc.render.image_settings.color_mode = "RGBA"
+    sc.view_settings.view_transform = "Standard"; sc.view_settings.look = "None"; sc.view_settings.exposure = 0.0
+    w = bpy.data.worlds.new("albedo_black"); w.node_tree.nodes["Background"].inputs[1].default_value = 0.0; sc.world = w
+    cd = bpy.data.cameras.new("albedo_cam"); cd.type = "ORTHO"; cd.clip_end = 400.0
+    cam_ = bpy.data.objects.new("albedo_cam", cd); sc.collection.objects.link(cam_); sc.camera = cam_
+    _asc.update(scene=sc, cam=cam_)
+    return sc, cam_
+
+
+def render_emission(me, mats, res, views):
+    """Premultiplied linear RGBA renders (res x res) of mesh me with materials mats, one per (azimuth, elevation)
+    view, orthographic, framing the mesh's bounding box."""
+    from mathutils import Vector
+    sc, cam_ = albedo_scene(); sc.render.resolution_x = sc.render.resolution_y = res
+    m2 = me.copy()
+    for i, mm in enumerate(mats): m2.materials[i] = mm  # (materials.clear() would reset the face material indices)
+    o = bpy.data.objects.new("_albedo_obj", m2); sc.collection.objects.link(o)
+    co = np.array([v.co[:] for v in me.vertices]); lo, hi = co.min(0), co.max(0); c = Vector(((lo + hi) / 2).tolist())
+    cam_.data.ortho_scale = float(np.linalg.norm(hi - lo)) * 1.02 + 0.05
+    tmp = STAGE / "_albedo.exr"; outs = []
+    for az, el in views:
+        d = Vector((math.cos(math.radians(el)) * math.sin(math.radians(az)), -math.cos(math.radians(el)) * math.cos(math.radians(az)),
+                    math.sin(math.radians(el))))
+        cam_.location = c + d * 200.0; cam_.rotation_euler = (-d).to_track_quat("-Z", "Y").to_euler()
+        sc.render.filepath = str(tmp)
+        with bpy.context.temp_override(scene=sc): bpy.ops.render.render(write_still=True)
+        im = bpy.data.images.load(str(tmp)); px = np.array(im.pixels[:], np.float32).reshape(res, res, 4); bpy.data.images.remove(im)
+        outs.append(px)
+    sc.collection.objects.unlink(o); bpy.data.objects.remove(o); bpy.data.meshes.remove(m2)
+    return outs
+
+
+def tree_albedo(me):
+    """Measure the albedo of each material of a tree proto mesh (cached by material name)."""
+    for k, m in enumerate(me.materials):
+        if m is None or m.name in _albedo: continue
+        mats = [emission_copy(m) if i == k else emission_copy(None) for i in range(len(me.materials))]
+        px = np.stack(render_emission(me, mats, ALBEDO_PX, ALBEDO_VIEWS))
+        cover = px[..., 3].sum()
+        _albedo[m.name] = [float(x) for x in px[..., :3].reshape(-1, 3).sum(0) / cover] if cover > 4 else first_color(
+            next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED")).inputs["Base Color"]) or [0.1, 0.15, 0.08]
+        print("tree albedo", m.name, [round(x, 4) for x in _albedo[m.name]], "cover px", int(cover), flush=True)
+
+
+def proto_material(m):
+    """Plain opaque material for an instanced tree proto: the measured albedo, the source roughness, no texture."""
+    key = (m.name, "tree")
+    if key in new_mats: return new_mats[key]
+    _, rough, metal, _, _, _ = principled_values(m)
+    nm = bpy.data.materials.new(m.name.split("@")[0] + "@tree"); b = nm.node_tree.nodes["Principled BSDF"]
+    b.inputs["Base Color"].default_value = (*_albedo[m.name], 1.0); b.inputs["Roughness"].default_value = rough
+    b.inputs["Metallic"].default_value = metal
+    nm["talanta_tree_albedo"] = True; nm["talanta_foliage"] = not any(t in m.name.lower() for t in BARK)
+    nm.use_backface_culling = False
+    new_mats[key] = nm
+    return nm
+
+
+CROWN_BLEND = 0.75  # share of the outward direction from the crown centre in the crown normals
+def crown_normals(me):
+    """Soft crown shading: leaf-face normals turn towards the direction from the crown centre (the bounding-box centre
+    of the leaf vertices), so a 100-triangle crown shades as one rounded mass instead of facets. Bark keeps its own."""
+    leaf = [i for i, m in enumerate(me.materials) if m is not None and not any(t in m.name.lower() for t in BARK)]
+    if not leaf: return
+    co = np.array([v.co[:] for v in me.vertices]); vi = [v for p in me.polygons if p.material_index in leaf for v in p.vertices]
+    if not vi: return
+    lo, hi = co[vi].min(0), co[vi].max(0); centre = (lo + hi) / 2; ext = np.maximum(hi - lo, 1e-6)
+    cn = np.array([l.vector[:] for l in me.corner_normals]); out = cn.copy()
+    for p in me.polygons:
+        if p.material_index not in leaf: continue
+        fn = np.array(p.normal[:])
+        for li in p.loop_indices:
+            r = (co[me.loops[li].vertex_index] - centre) / ext  # ellipsoid-normalised
+            r = r / max(np.linalg.norm(r), 1e-6)
+            n = CROWN_BLEND * r + (1 - CROWN_BLEND) * fn; out[li] = n / max(np.linalg.norm(n), 1e-6)
+    for p in me.polygons: p.use_smooth = True
+    me.normals_split_custom_set(out.tolist())
+
+
 # ---------------------------------------------------------------- impostors
 ATLAS = {}  # proto mesh name -> (u0, v0, u1, v1) in the atlas
 
 
 def impostor_atlas(mesh_names):
-    """Side views (orthographic, alpha) of each proto mesh into one atlas, IMPOSTOR_CELL px per cell; morning sun from
-    behind the camera, sky fill. Writes <stage>/impostor_atlas.png and fills ATLAS."""
+    """Side views (orthographic, alpha) of each proto mesh into one atlas, IMPOSTOR_CELL px per cell. The views are
+    albedo (the emission copies of tree_albedo, Standard view transform, no light), so the app lights the impostors
+    like the LOD0 protos; until 2026-10-25 the cells were lit and tone-mapped, then lit again in the app (G2).
+    Writes <stage>/impostor_atlas.png and fills ATLAS."""
     if not mesh_names: return
     n = len(mesh_names); cols = int(math.ceil(math.sqrt(n))); rows = int(math.ceil(n / cols)); C_ = IMPOSTOR_CELL
     W_, H_ = cols * C_, rows * C_
     sc = bpy.data.scenes.new("impostor"); sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = 16
-    sc.cycles.use_denoising = True; sc.render.film_transparent = True; sc.render.resolution_x = sc.render.resolution_y = C_
+    sc.cycles.use_denoising = False; sc.render.film_transparent = True; sc.render.resolution_x = sc.render.resolution_y = C_
     sc.render.image_settings.file_format = "PNG"; sc.render.image_settings.color_mode = "RGBA"
-    sc.view_settings.view_transform = s.view_settings.view_transform; sc.view_settings.exposure = s.view_settings.exposure
-    w = bpy.data.worlds.new("impostor_sky"); w.use_nodes = True; w.node_tree.nodes["Background"].inputs[0].default_value = (0.55, 0.65, 0.8, 1)
-    w.node_tree.nodes["Background"].inputs[1].default_value = 0.6; sc.world = w
-    sun = bpy.data.objects.new("imp_sun", bpy.data.lights.new("imp_sun", "SUN")); sun.data.energy = 3.0
-    sun.rotation_euler = (math.radians(55), 0, math.radians(20)); sc.collection.objects.link(sun)
+    sc.view_settings.view_transform = "Standard"; sc.view_settings.look = "None"; sc.view_settings.exposure = 0.0
+    w = bpy.data.worlds.new("impostor_black"); w.node_tree.nodes["Background"].inputs[1].default_value = 0.0; sc.world = w
     cd = bpy.data.cameras.new("imp_cam"); cd.type = "ORTHO"; cam_ = bpy.data.objects.new("imp_cam", cd); sc.collection.objects.link(cam_); sc.camera = cam_
     atlas = np.zeros((H_, W_, 4), np.float32); tmp = STAGE / "_impostor_cell.png"
     for k, mn in enumerate(mesh_names):
@@ -302,7 +426,9 @@ def impostor_atlas(mesh_names):
         # of the same tree (same shape and proportions; the quads keep the bank mesh's size)
         base = mn.split("_far")[0].split("_high")[0].split(".")[0]; hi_o = bpy.data.objects.get(base + "_high")
         draw = hi_o.data if (base.startswith("canopy_") and hi_o is not None) else me
-        o = bpy.data.objects.new("_imp", draw); sc.collection.objects.link(o)
+        alb = draw.copy()
+        for i, mm in enumerate(draw.materials): alb.materials[i] = emission_copy(mm) if mm else emission_copy(None)
+        o = bpy.data.objects.new("_imp", alb); sc.collection.objects.link(o)
         co = np.array([v.co[:] for v in draw.vertices]); lo, hi = co.min(0), co.max(0); cx, cy = (lo[:2] + hi[:2]) / 2
         size = max(hi[0] - lo[0], hi[2] - lo[2], 0.05) * 1.04
         cd.ortho_scale = size; cam_.location = (cx, cy - 200.0, (lo[2] + hi[2]) / 2); cam_.rotation_euler = (math.radians(90), 0, 0)
@@ -313,7 +439,7 @@ def impostor_atlas(mesh_names):
         # quad UVs: the cell, trimmed to the mesh's own width/height inside the square view
         wv, hv = (hi[0] - lo[0]) * 1.0 / size, (hi[2] - lo[2]) / size
         u0 = (c_ + 0.5 - wv / 2) / cols; u1 = (c_ + 0.5 + wv / 2) / cols; v0 = (rows - 1 - r_ + 0.5 - hv / 2) / rows; v1 = (rows - 1 - r_ + 0.5 + hv / 2) / rows
-        ATLAS[mn] = (u0, v0, u1, v1); sc.collection.objects.unlink(o); bpy.data.objects.remove(o)
+        ATLAS[mn] = (u0, v0, u1, v1); sc.collection.objects.unlink(o); bpy.data.objects.remove(o); bpy.data.meshes.remove(alb)
     img = bpy.data.images.new("impostor_atlas", W_, H_, alpha=True); img.pixels.foreach_set(atlas.ravel())
     img.filepath_raw = str(STAGE / "impostor_atlas.png"); img.file_format = "PNG"; img.save()
     img.pack()  # the glTF exporter embeds it; post_glb.mjs turns it into KTX2 (ETC1S, alpha)
@@ -435,11 +561,18 @@ for (setname, meshname), Ms in sorted(inst.items()):
     for k, a in arrs.items():
         entry["attributes"][k] = {"offset": len(blob), "count": int(a.shape[0]), "components": int(a.shape[1])}
         blob += a.tobytes()
+    tree = setname in TREE_SETS
+    if tree:  # measure on the mesh LOD0 is made from: the canopy's web mesh (with its UVs), else the proto itself
+        tree_albedo(bpy.data.meshes.get(src.get("web_lod", "")) if recipes.get(0) == "web" else src)
     for lod, recipe in sorted(recipes.items()):
-        if setname in TREE_SETS and isinstance(recipe, float) and recipe < 1.0:
+        if tree and isinstance(recipe, float) and recipe < 1.0:
             recipe = min(recipe, TREE_PROTO_TRIS / max(tris(src), 1))
         me = lowpoly(src, recipe, f"proto__{setname}__{meshname}__LOD{lod}")
-        mats = [export_material(m, None, i) if m else None for i, m in enumerate(me.materials)]
+        if tree and recipe != "impostor":
+            crown_normals(me)
+            mats = [proto_material(m) if m else None for m in me.materials]
+        else:
+            mats = [export_material(m, None, i) if m else None for i, m in enumerate(me.materials)]
         for i, m in enumerate(mats):
             if m: me.materials[i] = m
         po = bpy.data.objects.new(me.name, me); s.collection.objects.link(po)
@@ -467,5 +600,7 @@ el, az = bake["sun_elevation_deg"], bake["sun_azimuth_deg"]
 write_json(STAGE / "stage.json", {"unbaked": UNBAKED, "instances": sets, "lod_table": lod_table, "bake": bake,
                                   "view": {"transform": s.view_settings.view_transform, "look": s.view_settings.look,
                                            "exposure": s.view_settings.exposure},
+                                  "tree_albedo": {k: [round(x, 5) for x in v] for k, v in sorted(_albedo.items())},
+                                  "impostor_atlas": "albedo (unlit, sRGB); light it like the LOD0 protos",
                                   "albedo_groups": [g for g in bake["groups"] if ALBEDO_GROUPS(g)]})
 print(json.dumps({"lod0_tris_meshes": {g: sum(r["lod0"] for r in lod_table if r["glb"] == g) for g in export}}))
