@@ -73,6 +73,8 @@ App rules (laptop, after the 10:30 set arrives):
 
 ## P3. Photo mode
 
+Paused on 2026-10-25 by engineering/lead_decision_2026-10-25_walkthrough.md. The walkthrough film does this job now. Do not start P3.
+
 - Use three-gpu-pathtracer (npm). It runs on WebGL2, so photo mode uses its own WebGLRenderer and canvas over the WebGPU canvas. It is a tier 2 module (dynamic import). It downloads only when the visitor opens photo mode.
 - Desktop only. It is off on phones and on devices without WebGL2 or with less than 4 GB of device memory (`navigator.deviceMemory` when it is available).
 - It starts when the camera has been still for 1 s. It stops at the first input. It shows a sample count and a "Photo mode, path traced in your browser" note.
@@ -91,7 +93,7 @@ App rules (laptop, after the 10:30 set arrives):
 
 1. Cloud: R3 steps 1 to 5 (the reel test and the render order), then G2, then P1 cloud items 1 and 2, then G8, then the P2 bakes in priority order. Stop after each bake set and report the time used.
 2. Laptop, Sol run 1: P1 laptop and P4.
-3. Laptop, Sol run 2: P3 photo mode.
+3. Laptop, Sol run 2: P3 photo mode. Paused (see P3).
 4. Laptop, Sol run 3: the P2 blend, after the 10:30 set arrives.
 5. Each Sol change gets a lead review of the diff and a visual check in Chromium.
 
