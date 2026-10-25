@@ -1,0 +1,16 @@
+{
+ "about": "Walkthrough film chapters 1 and 2 (engineering/lead_decision_2026-10-25_walkthrough.md). Camera paths in the app frame (x east, y up, z south, metres, origin at the pitch centre). blender/landing_reel/paths.py evaluates them; render_scroll_frames.py chapter=<id> renders them. The lens stays at the L07 focal length (38 mm, vfov 29.839 deg at 16:9).",
+ "fps": 24,
+ "end_camera": "L07",
+ "portrait": {"resolution": [720, 1280], "rule": "own camera moves: the same path and vertical field of view with the lens shifted to the 9:16 window the app uses for L07 on phones (app/src/ui/landing.js lead07 crop x 820 to 1427 of 1920, centre 0.585), so the last portrait frame is the phone L07 view"},
+ "chapters": [
+  {"id": "ch1_arrival", "seconds": 8, "light": "daylight_artistic (2026-01-15 10:30)",
+   "move": "starts on the L07 poster frame (the landing still comes alive), then a slow push towards the stadium along the view line: 12 % closer, 6 m lower, a 14 deg drift to the east round the target; ease out (preview 2026-10-25: 28 % closer cut the stadium at the frame edges)",
+   "from": "L07", "push": 0.12, "drop_m": 6.0, "orbit_deg": -14.0, "ease": "out"},
+  {"id": "ch2_orbit", "seconds": 10, "light": "daylight_artistic (2026-01-15 10:30)",
+   "move": "an orbit round the stadium from the east (over the east approach) through the south-east to the L07 view: 110 deg about the L07 target, from 130 m to the L07 height, radius from 540 m to the L07 radius; ease in and out; the last 12 frames hold on L07 for the crossfade into the live twin",
+   "to": "L07", "orbit_deg": 110.0, "start_height_m": 130.0, "start_radius_m": 540.0, "hold_frames": 12, "ease": "in_out"}
+ ],
+ "rules": ["No shot frames an exit, a control room or a camera position at close range (AGENTS.md rule 8): the nearest camera point is 426 m from the pitch centre (chapter 1, about 300 m from the facade) and both paths frame the whole stadium, no door or gate at close range.",
+           "People, vehicles and lighting are illustrative: the player shows the claim for the whole chapter."]
+}

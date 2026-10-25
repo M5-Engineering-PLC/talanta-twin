@@ -4,11 +4,14 @@ landing page that plays frames as the visitor scrolls. Test only: it measures ti
 Run from the repo root (TALANTA_SITE_BLEND=$PWD/blender/out/frozen_FK.blend):
   blender -b --factory-startup --python-exit-code 1 --python blender/scroll_test/render_scroll_frames.py -- \
       <out_dir> [frames=24] [arc_deg=30] [cam=L07] [preset=daylight_artistic] [scale=50]
-      [only=0-4] [samples=128] [haze=1] [persistent=1] [res=720x1280]
+      [only=0-4] [samples=128] [haze=1] [persistent=1] [res=720x1280] [chapter=ch1_arrival] [shift_x=0.151] [pick=0,48,96]
 Reel cost levers (R3 step 2, 2026-10-25): only renders a range of the frames-long orbit (same camera positions);
 samples overrides the sample count; haze=0 leaves out the volumetric haze box and its pass layer (passes_no_haze),
 so the look layer's compositor aerial haze (mist pass of the main layer) is the only haze; persistent=0 turns off
 persistent data; res sets the pixel size (portrait: the vertical field of view of the 16:9 frame is kept).
+Walkthrough chapters (2026-10-25): chapter=<id> takes the camera poses from blender/landing_reel/chapters.json
+(blender/landing_reel/paths.py) instead of the orbit, frames is then the chapter's frame count; shift_x shifts the lens
+(the portrait cut's 9:16 window of the L07 frame).
 The scene setup is render_cycles.py up to its render call (camera, sky preset, hero_artistic prepare, look layer and
 finish), so each frame matches the hero_artistic_04 still of that camera. The camera then orbits the camera target
 about the vertical by arc_deg over the frames (same height, distance and pitch), frame 0 being the camera itself.
@@ -23,6 +26,10 @@ out = ROOT / ARGV[0]
 kw = dict(a.split("=", 1) for a in ARGV[1:])
 N, ARC = int(kw.get("frames", 24)), float(kw.get("arc_deg", 30))
 CAM, PRESET, SCALE = kw.get("cam", "L07"), kw.get("preset", "daylight_artistic"), int(kw.get("scale", 50))
+CHAPTER = None
+if "chapter" in kw:
+    sys.path.insert(0, str(ROOT / "blender/landing_reel")); import paths
+    CHAPTER = paths.chapter(kw["chapter"]); N = paths.frames(CHAPTER); CAM = CHAPTER.get("from") or CHAPTER.get("to")
 ONLY = [int(x) for x in kw.get("only", f"0-{N - 1}").split("-")]
 HAZE, PERSIST = kw.get("haze", "1") == "1", kw.get("persistent", "1") == "1"
 out.mkdir(parents=True, exist_ok=True)
@@ -63,14 +70,19 @@ if "res" in kw:
     vfov = 2 * _m.atan(_m.tan(cam.data.angle / 2) * h0 / w0) if cam.data.sensor_fit != "VERTICAL" else cam.data.angle
     s.render.resolution_x, s.render.resolution_y = map(int, kw["res"].split("x")); s.render.resolution_percentage = 100
     cam.data.sensor_fit = "VERTICAL"; cam.data.angle = vfov
+if "shift_x" in kw: cam.data.shift_x = float(kw["shift_x"])
 bpy.context.view_layer.update()
 M0 = cam.matrix_world.copy()
+if CHAPTER is not None and CHAPTER.get("from") == CAM:  # check: frame 0 of a chapter that starts on a camera is that camera
+    (px, py, pz), (qx, qy, qz) = paths.pose(CHAPTER, 0); loc, aim = Vector((px, -pz, py)), Vector((qx, -qz, qy))
+    M = Matrix.Translation(loc) @ (aim - loc).to_track_quat("-Z", "Y").to_matrix().to_4x4()
+    print("chapter frame 0 vs camera", CAM, "max matrix difference", max(abs(M[r][c] - M0[r][c]) for r in range(4) for c in range(4)), flush=True)
 m = json.loads((ROOT / "app/cameras/manifest.json").read_text())
 tx, ty, tz = next(c for c in m["cameras"] if c["id"] == CAM)["target"]
 pivot = Vector((tx, -tz, ty))  # app (x, y, z) -> Blender (x, -z, y)
 
 pct = s.render.resolution_percentage
-log = {"camera": CAM, "preset": PRESET, "frames": N, "arc_deg": ARC, "resolution": [s.render.resolution_x * pct // 100,
+log = {"chapter": kw.get("chapter"), "camera": CAM, "preset": PRESET, "frames": N, "arc_deg": ARC, "resolution": [s.render.resolution_x * pct // 100,
        s.render.resolution_y * pct // 100], "samples": s.cycles.samples, "adaptive_threshold": s.cycles.adaptive_threshold,
        "denoiser": s.cycles.denoiser, "persistent_data": PERSIST, "haze_volume": HAZE, "only": ONLY,
        "view_layers": [v.name for v in s.view_layers], "seed": s.cycles.seed, "scene": os.environ.get("TALANTA_SITE_BLEND"),
@@ -84,10 +96,15 @@ while done <= ONLY[1] and (out / f"frame_{done:03d}.png").exists():
     done += 1
 log["frame_seconds"] = log["frame_seconds"][:done - ONLY[0]]
 log["resumed_at_frame"] = done if done > ONLY[0] else None
-for i in range(done, ONLY[1] + 1):
+PICK = [int(x) for x in kw["pick"].split(",")] if "pick" in kw else None  # preview strips: these frames only
+for i in (PICK if PICK else range(done, ONLY[1] + 1)):
     ang = math.radians(ARC * i / max(N - 1, 1))
     R = Matrix.Translation(pivot) @ Matrix.Rotation(ang, 4, "Z") @ Matrix.Translation(-pivot)
     cam.matrix_world = R @ M0
+    if CHAPTER is not None:  # the chapter's pose, app frame (x, y, z) -> Blender (x, -z, y)
+        (px, py, pz), (qx, qy, qz) = paths.pose(CHAPTER, i)
+        loc, aim = Vector((px, -pz, py)), Vector((qx, -qz, qy))
+        cam.matrix_world = Matrix.Translation(loc) @ (aim - loc).to_track_quat("-Z", "Y").to_matrix().to_4x4()
     s.render.filepath = str(out / f"frame_{i:03d}.png")
     t0 = time.time(); bpy.ops.render.render(write_still=True); dt = time.time() - t0
     log["frame_seconds"].append(round(dt, 1))
