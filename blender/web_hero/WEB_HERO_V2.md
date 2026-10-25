@@ -152,7 +152,7 @@ wall clock on 4 CPU cores (Cycles uses all four). Branch `assets/web_hero_v2_bak
 | 3 | 3b: ground_00 to ground_04, ground_07, ground_08, ground_11 | albedo 176; light 5,802 | 6,026 s | done (run detached: one batch near the 2 h tool limit); pushed fda692e |
 | 3 | total | | 8,777 s (2.44 h; estimate 2.8 h) | |
 | 4 | 4a: ground_12 to ground_15 | albedo 80; light 2,567 | 2,692 s | done; pushed bd1d310 |
-| 4 | 4b: ground_16 to ground_23 (outer tiles to +-1,500 m) | albedo 167; light 5,804 | 6,018 s | done (detached) |
+| 4 | 4b: ground_16 to ground_23 (outer tiles to +-1,500 m) | albedo 167; light 5,804 | 6,018 s | done (detached); pushed with the final run, 8e3534d |
 | 4 | total | | 8,710 s (2.42 h; estimate 3.0 h) | |
 | final | no `only=`: all 26 batches on disk, skipped; writes bake_log.json and talanta_web_baked.blend | | 44 s | pushed 8e3534d with the blend (49 MB) and bake_log.json |
 
@@ -161,3 +161,28 @@ Bake total: 32,307 s wall (8.97 h) in four parts of 1.9 to 2.4 h. Stage sums fro
 sub-run (about 45 s each). Estimate was 8.7 h (10 h with margin). `bake_log.json` `bake_seconds` shows 0 because the
 final run baked nothing; the per-batch times are in `stages`. 195 MB of maps (54 PNG plus stages.json); the bake
 branch holds 91 files, 253 MB, at 8e3534d.
+
+## W3. Panoramas, ground tiles and export
+
+All from `blender/out/frozen_FK.blend` (`TALANTA_SITE_BLEND`), finished state, look layer on (common.py), under the
+`blender` binary with `--python-exit-code 1`.
+
+| Step | Command (after `blender -b --factory-startup --python-exit-code 1 --python`) | Wall | Result |
+|---|---|---|---|
+| panorama 07:30 | `render_panorama.py -- 128 8192 preset=morning_golden near=800 out=blender/out/web_hero/web_hero_v2/env` | 1,131 s | 8192 x 4096 EXR (DWAB) and 2048 HDR; 1,574 objects hidden and 16 cut inside 800 m |
+| panorama 17:30 | the same with `preset=evening_golden` | 1,163 s | as above |
+| ground tiles | `ground_tiles.py -- blender/out/web_hero/ground_png 16` (run detached) | TILES_WALL | TILES_RESULT |
+| export | `export_web.py` | 359 s | 123 hero and 817 site objects staged; LOD0 mesh triangles 0.46M hero, 0.72M site (instances apart) |
+| post-process | `node blender/web_hero/node/post_glb.mjs bundle=web_hero_v2` | POST_WALL | POST_RESULT |
+
+Fixes found on the way:
+- `render_panorama.py` and `ground_tiles.py` read every argument after the program name, so under the `blender`
+  binary the `1` of `--python-exit-code 1` became the sample count and `128` the width: the first panorama run took
+  13 s and wrote a 128 px image. Both now read only the arguments after `--` (the v1 runs used the bpy module, which
+  has no Blender arguments). The two bad panoramas were deleted and rendered again.
+- `ground_tiles.py` treated as ground only the v1 list (terrain, pitch, sport, roads and markings, forecourt.py flat
+  meshes). The flat meshes of `site_layout_ge`, `finish_plaza`, `layout_pass_i`, `plaza_south_k` and
+  `trace_sw_finished` are now ground too (linked copies of flower and shrub prototypes stay shadow-only), and the
+  `_final` cut copies match by their base name (`road_markings_final`). 156 ground objects, 5,432 shadow-only. The
+  south plaza with its round and axial beds, the lens island and the south-west lawn and loop road are in the tiles.
+- `post_glb.mjs` names the real source scene in the manifest (`bake_log.json` `scene`).

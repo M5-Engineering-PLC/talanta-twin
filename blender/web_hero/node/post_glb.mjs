@@ -206,7 +206,7 @@ if (BUNDLE) {
   const pano = ["0730", "1730"].map((h) => path.join(BDIR, "env", `panorama_log_${h}.json`)).filter((f) => fs.existsSync(f)).map((f) => JSON.parse(fs.readFileSync(f, "utf8")));
   const man = {
     bundle: BUNDLE, generated: new Date().toISOString(),
-    source: "blender/out/talanta_site.blend via blender/web_hero (bake_lightmaps.py, ground_tiles.py, render_panorama.py, export_web.py, node/post_glb.mjs)",
+    source: `${bake.scene?.blend ?? "blender/out/talanta_site.blend"}${bake.scene ? ` (${bake.scene.state} state, look layer ${bake.scene.lookdev})` : ""} via blender/web_hero (bake_lightmaps.py, ground_tiles.py, render_panorama.py, export_web.py, node/post_glb.mjs)`,
     frame: "glTF y-up = app frame: x east, y up, z south, metres, origin at the pitch centre",
     sun: { date: bake.date, local: `${bake.time_eat} EAT`, elevation_deg: bake.sun_elevation_deg, azimuth_deg: bake.sun_azimuth_deg, direction_to_sun: bake.sun_dir_app },
     files, total_bytes: total, budget_bytes: 250e6, within_budget: total < 250e6,
