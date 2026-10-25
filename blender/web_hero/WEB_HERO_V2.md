@@ -151,3 +151,13 @@ wall clock on 4 CPU cores (Cycles uses all four). Branch `assets/web_hero_v2_bak
 | 3 | 3a: ground_05, ground_06, ground_09, ground_10 (under the bowl and plazas) | albedo 80; light 2,625 | 2,751 s | done; pushed f4f1619 |
 | 3 | 3b: ground_00 to ground_04, ground_07, ground_08, ground_11 | albedo 176; light 5,802 | 6,026 s | done (run detached: one batch near the 2 h tool limit); pushed fda692e |
 | 3 | total | | 8,777 s (2.44 h; estimate 2.8 h) | |
+| 4 | 4a: ground_12 to ground_15 | albedo 80; light 2,567 | 2,692 s | done; pushed bd1d310 |
+| 4 | 4b: ground_16 to ground_23 (outer tiles to +-1,500 m) | albedo 167; light 5,804 | 6,018 s | done (detached) |
+| 4 | total | | 8,710 s (2.42 h; estimate 3.0 h) | |
+| final | no `only=`: all 26 batches on disk, skipped; writes bake_log.json and talanta_web_baked.blend | | 44 s | pushed 8e3534d with the blend (49 MB) and bake_log.json |
+
+Bake total: 32,307 s wall (8.97 h) in four parts of 1.9 to 2.4 h. Stage sums from maps/stages.json: albedo 2,305 s
+(0.64 h), AO 2,058 s (0.57 h), light 27,444 s (7.62 h); 8.84 h of baking, the rest is scene load and UV packing per
+sub-run (about 45 s each). Estimate was 8.7 h (10 h with margin). `bake_log.json` `bake_seconds` shows 0 because the
+final run baked nothing; the per-batch times are in `stages`. 195 MB of maps (54 PNG plus stages.json); the bake
+branch holds 91 files, 253 MB, at 8e3534d.
