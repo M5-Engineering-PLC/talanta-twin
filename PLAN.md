@@ -100,6 +100,8 @@ Known weakness: the subjects for the 138 gap frames are generic (10 different su
 
 Status for all modules: planned. The phase numbers are in section 6.
 
+Scope decision 2026-10-25 (Munene): build the full catalog, loaded progressively. engineering/scope_decision_2026-10-25.md gives the build order (phases A to D), the loading tiers, the labels and the state of each module. It replaces the phases in section 6. OPS-01, PPL-04 and MOB-04 go only into a private client build.
+
 ### 5.1 Environment and weather
 
 | ID | Module | What it does | Phase |
@@ -201,6 +203,8 @@ Status for all modules: planned. The phase numbers are in section 6.
 | AMB-04 | Night city | City lights, street lights and car lights at night. | 2 |
 
 ## 6. Phases
+
+Replaced on 2026-10-25 by the phases A to D in engineering/scope_decision_2026-10-25.md. The table below is the original plan.
 
 | Phase | Name | Content | Done when |
 |---|---|---|---|
