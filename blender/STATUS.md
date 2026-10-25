@@ -52,6 +52,7 @@ then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `b
 | Pass K (cloud work order 2026-10-24, K1-K8) | done on step_FK (= step_FE + pass I, H, J steps with the K code + plaza_south_k + grass_k); 1080p checks pass (Enkang partly: real gpkg towers behind) | blender/renders/pass_k_check_01/README.md |
 | 4K hero_artistic L06, L07 (pass K) | done on step_FK; approved by Munene 2026-10-24; W re-bake ordered in engineering/cloud_web_hero_v2_2026-10-24.md | blender/renders/hero_artistic_04/README.md |
 | Environment pass web_hero_v1 | built, 148.95 MB of 250 MB; release upload blocked | blender/web_hero/WEB_HERO_V1.md, web_hero_v1_manifest.json |
+| Environment pass web_hero_v2 (passes I, J, K) | built, 164.57 MB of 250 MB; bundle on orphan branch assets/web_hero_v2 (3c936e7), maps on assets/web_hero_v2_bake (8e3534d); no release yet (laptop); car label on screen missing | blender/web_hero/WEB_HERO_V2.md, web_hero_v2_manifest.json, blender/renders/web_hero_v2_check/ |
 | Landing-page preview with the bundle | screenshot taken (Hillside, 07:30) | this file, "App preview" |
 | Landing pass 02 steps F and H (2026-10-23) | rendered; H gaps: grey facade at dusk, haze grain | blender/renders/landing_pass_02/README.md, sections F and H |
 | Seat count pass 01 (2026-10-23) | done; 61,039 places (+1.7 %); upper overhang and vomitories estimated | blender/renders/seat_count_01/README.md |

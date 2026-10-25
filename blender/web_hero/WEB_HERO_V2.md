@@ -188,3 +188,82 @@ Fixes found on the way:
 - The first `post_glb.mjs` run was stopped by the tool's 10 min limit for background commands while it encoded
   the site lightmaps, before it wrote anything; it was run again detached (the 2,778 s above).
 - `post_glb.mjs` names the real source scene in the manifest (`bake_log.json` `scene`).
+
+## W4. Bundle, staging and check shots
+
+### Where the files are
+
+| Item | Where |
+|---|---|
+| Bundle (models/, ground/, env/, manifest.json, README.md) | orphan branch `assets/web_hero_v2` at 3c936e7, 72 files |
+| Manifest copy | blender/web_hero/web_hero_v2_manifest.json (sha256 per file) |
+| Bake maps, baked blend, bake log | orphan branch `assets/web_hero_v2_bake` at 8e3534d |
+| Check shots and sheet | blender/renders/web_hero_v2_check/ (JPG, each under 1 MB) |
+
+No release was made and no pull request was opened; the laptop does both.
+
+### Size against the 250 MB limit
+
+| Part | Bytes |
+|---|---|
+| models/talanta_hero.glb | 34,215,928 |
+| models/talanta_site.glb | 89,237,732 |
+| ground/ (61 KTX2 tiles and tiles.json) | 8,282,082 |
+| env/ (two 8K EXR, two 2048 HDR, two logs) | 32,836,091 |
+| **Bundle total (manifest `total_bytes`)** | **164,571,833 of 250,000,000 (66 %)** |
+| What the app downloads in hero mode (two GLBs, the 07:30 2048 HDR, ground tiles) | 136,095,948 (`stage_app_preview.py`) |
+
+web_hero_v1 was 148.95 MB; v2 adds 15.6 MB (the pass I, J and K groups, the landmark towers with AO, and the
+parked cars). Hero mode is tier 1 in engineering/scope_decision_2026-10-25.md (loaded after the first view), so the
+136 MB does not count against the 30 MB first-view budget, but it is far above what a phone should fetch.
+
+### Load time in software GL
+
+Headless Chromium 1243 (Playwright), ANGLE on SwiftShader, 1920 x 1080, the app served by `npx vite` on the same
+machine (no network time). `?hero&mode=full`:
+
+| Shot | Hero mode on (GLBs parsed, panorama loaded) | Ground tiles | Screenshot done |
+|---|---|---|---|
+| L06 (key 2) | 46 s (42 s in the first run) | 61 of 61 | 256 s in all |
+| L07 (key 3) | 38 s (32 s in the first run) | 61 of 61 | 246 s in all |
+
+The app reports 1,580 meshes, 10.43 M triangles (instances included) and 942 LOD groups. A software frame takes tens
+of seconds, so these times measure CPU decode and SwiftShader, not a real GPU. They are not a section 8 measurement.
+
+Fixes found on the way:
+- `stage_app_preview.py` staged only the GLBs and the HDR, so the app never loaded the ground tiles (it needs
+  `ground.index` in the staged manifest). It now copies ground/ to app/public/ground/ and writes `ground.index`;
+  app/public/ground/ is in .git/info/exclude.
+- `shot_hero.mjs` had a fixed Chromium build path (1194) that this container does not have; it now uses
+  Playwright's installed browser (`PW_CHROME` overrides).
+- The app now opens on the landing page (stills and claim "Rendered from the twin model"), which covers the scene,
+  so the first pair of shots showed the landing still. The shots use `?hero&mode=full`.
+
+### Checks
+
+| Check | Result |
+|---|---|
+| South plaza shows | pass: L07, the paving with the round bed and the axial beds in front of the south face |
+| Lens island shows | pass: L06, the lens-shaped bed between the training pitch and the north-west paving |
+| Landmark towers show | pass: L07, the tower cluster on the skyline at the right, as in the Cycles still |
+| Grass loop shows | pass, weak: L07, the south-west lawn with its loop path shows; at this distance the loop path reads faintly in the ground tiles |
+| No west road, railway, station, footbridge or west car park | pass: L07 shows the west lawns empty apart from the training-pitch stand that is also in the Cycles still. The car park in L06 (right of the stadium, by Ngong Road) is the north car park of the site layout, not on the west lawns. |
+| People carry "Visualization" | pass: the layer rows "People for scale · Visualization · not a crowd model" and "Match-day crowd · Visualization · phase 1"; the seated crowd shows its own "Visualization" label when it loads |
+| Cars carry "Visualization" | **fail on screen**: traffic (app/src/hero/traffic.js) and the baked `layout_cars_visualization` carry the claim only in `userData` and in the GLB node names. No layer row or label shows "Visualization" for cars. Not fixed here (app code, outside this order); lead to decide (scope decision "Labels"). |
+
+### Gaps
+
+1. Car label on screen missing (above).
+2. Trees: the tree LOD0 crowns (decimated to 120 triangles, W3) render near black and faceted in the app, and the
+   planting reads much thinner than in the Cycles stills (L07 west lawns, L06 foreground). The 70,324-tree canopy is
+   also 7.88 M of the 8.89 M site LOD0 triangles. Needs a look at the crown material and normals and at an impostor
+   distance before a public build.
+3. Not exported: `trace_trees`, `context_l07_visualization` and the people (the Cycles stills show a crowd on the
+   plaza; the web build has none outside match day).
+4. Far terrain: pink-grey blotches in the ground tiles at the far edge (known from v1).
+5. Light: one bake, 07:30 sun. The app's time of day does not change the baked light; L06 shows the morning bake
+   under a 07:30 sky, not the approved sunset look. The 17:30 panorama is in the bundle but not used by the app.
+6. Framing: the app's L06 and L07 view chips sit lower and wider than the Cycles cameras, so the sheet is a
+   like-for-like check of content, not of composition.
+7. The facade reads grey-white in the app against the warm sunset still; the shields and the roof ring match.
+8. Size for phones: 136 MB in hero mode. A phone version (scope decision, tier 1) needs a smaller site GLB.
