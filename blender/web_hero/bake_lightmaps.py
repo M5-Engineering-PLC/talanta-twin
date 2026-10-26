@@ -147,74 +147,71 @@ def orient_outward(o):
     bm.to_mesh(o.data); bm.free(); o.data.update()
 
 
-# Shell fix (lead decision 2026-10-26, blender/kaggle/BAKE_ON_KAGGLE.md): the undersides of the shell bands touch other
-# parts above them. Turned up, their baked side is covered: black on the CPU, lit on the GPU (OptiX misses a cover that
-# touches the face). In stadium_shell, these parts keep the scene orientation, and a flat face whose top side has
-# other geometry within COVER_M above it (at its centre or near a corner) points down. The other groups are not changed.
-SHELL_KEEP = ("soffit", "base_band", "base_columns", "opening_trim")
+# Shell fix (lead decision 2026-10-26, blender/kaggle/BAKE_ON_KAGGLE.md). Black charts in stadium_shell:
+# - The soffit and the top of base_band (the ledge at the top of the 2 m base band, under the louvre fins) lie in one
+#   plane (distance 0). Each covers the other on both sides, so both bake black on the CPU (the GPU misses the touching
+#   cover and bakes them lit). The soffit faces in that plane are lifted 2 cm in the baked copy (it is the exported
+#   mesh too): the soffit is then the visible top of the ledge and bakes open; the base_band top below it is hidden.
+# - A flat face whose top side has other geometry within COVER_M above it (at more than half of its centre and corner
+#   points) points down.
+# - base_columns and opening_trim keep the scene orientation.
+# The other groups are not changed.
+SHELL_KEEP = ("base_columns", "opening_trim")
 COVER_M = 0.1
-_dg = bpy.context.evaluated_depsgraph_get()
-
-
-def covered_above(pts):
-    """True if a ray up from just under one of the points pts meets a surface within COVER_M of the face. The object
-    of the face is hidden while it is tested, so a cover that touches or cuts the face counts."""
-    for c in pts:
-        hit, loc, *_ = s.ray_cast(_dg, c - Vector((0, 0, 0.02)), Vector((0, 0, 1)), distance=COVER_M + 0.02)
-        if hit: return True
-    return False
-
-
-def orient_shell(o):
-    global _dg
-    if o.name not in SHELL_KEEP: orient_outward(o)
-    bm = bmesh.new(); bm.from_mesh(o.data)
-    R, M = o.matrix_world.to_3x3(), o.matrix_world; flip = []
-    o.hide_viewport = True; bpy.context.view_layer.update(); _dg = bpy.context.evaluated_depsgraph_get()
-    for f in bm.faces:  # the face centre and points 60 % of the way to its corners (large faces are partly covered)
-        if (R @ f.normal).z <= 0.5: continue
-        c = f.calc_center_median()
-        if covered_above([M @ c] + [M @ c.lerp(v.co, 0.6) for v in f.verts[:8]]): flip.append(f)
-    o.hide_viewport = False; bpy.context.view_layer.update()
-    bmesh.ops.reverse_faces(bm, faces=flip)
-    bm.to_mesh(o.data); bm.free(); o.data.update()
-    return len(flip)
-
-
 from mathutils import Vector
-SHELL_FLIPPED = {}
-for gname, (size, obs) in groups.items():
-    if gname.startswith("ground_"): continue
-    for o in obs:
-        if gname == "stadium_shell": SHELL_FLIPPED[o.name] = orient_shell(o)
-        else: orient_outward(o)
-print("shell fix: kept the scene orientation of", [o.name for o in groups["stadium_shell"][1] if o.name in SHELL_KEEP],
-      "; flat faces turned down (covered top side):", SHELL_FLIPPED, flush=True)
 
 
-# The down faces of base_band lie in the plane of the soffit (z-fighting, distance 0): a face covers the other on both
-# sides, so both bake black. Lift those base_band faces 2 cm in the baked copy (it is the exported mesh too): the soffit
-# is then the lower, visible underside and bakes open; the lifted faces are hidden behind it.
-def lift_coincident(o, under, dz=0.02):
-    if o is None or under is None: return 0
-    bm = bmesh.new(); bm.from_mesh(o.data); R, M = o.matrix_world.to_3x3(), o.matrix_world
-    o.hide_viewport = True; bpy.context.view_layer.update(); dg = bpy.context.evaluated_depsgraph_get()
-    lift = set()
-    for f in bm.faces:
-        if (R @ f.normal).z >= -0.5: continue
-        c = M @ f.calc_center_median()
-        hit, loc, _n, _i, ob, _m = s.ray_cast(dg, c + Vector((0, 0, 0.005)), Vector((0, 0, -1)), distance=0.01)
-        if hit and ob.name == under.name: lift.add(f)
+def _hidden_dg(o):
+    o.hide_viewport = True; bpy.context.view_layer.update(); return bpy.context.evaluated_depsgraph_get()
+
+
+def _shown(o):
     o.hide_viewport = False; bpy.context.view_layer.update()
+
+
+def lift_coplanar(o, other, dz=0.02):
+    """Lift the flat faces of o that lie in a face of other (within 5 mm) by dz."""
+    if o is None or other is None: return 0
+    bm = bmesh.new(); bm.from_mesh(o.data); R, M = o.matrix_world.to_3x3(), o.matrix_world
+    dg = _hidden_dg(o); lift = set()
+    for f in bm.faces:
+        if abs((R @ f.normal).z) <= 0.5: continue
+        hit, _l, _n, _i, ob, _m = s.ray_cast(dg, M @ f.calc_center_median() + Vector((0, 0, 0.005)), Vector((0, 0, -1)), distance=0.01)
+        if hit and ob.name == other.name: lift.add(f)
+    _shown(o)
     up = M.inverted().to_3x3() @ Vector((0, 0, dz))
     for v in {v for f in lift for v in f.verts}: v.co += up
     bm.to_mesh(o.data); bm.free(); o.data.update()
     return len(lift)
 
 
-if "stadium_shell" in groups:
-    _sh = {o.name: o for o in groups["stadium_shell"][1]}
-    print("shell fix: base_band faces lifted 2 cm off the soffit plane:", lift_coincident(_sh.get("base_band"), _sh.get("soffit")), flush=True)
+def orient_shell(o):
+    if o.name in SHELL_KEEP: return 0
+    orient_outward(o)
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    R, M = o.matrix_world.to_3x3(), o.matrix_world; flip = []
+    dg = _hidden_dg(o)  # the face's own object is hidden, so a cover that touches or cuts the face counts
+    for f in bm.faces:  # the face centre and points 60 % of the way to its corners (large faces are partly covered)
+        if (R @ f.normal).z <= 0.5: continue
+        c = f.calc_center_median(); pts = [M @ c] + [M @ c.lerp(v.co, 0.6) for v in f.verts[:8]]
+        hits = sum(s.ray_cast(dg, q - Vector((0, 0, 0.02)), Vector((0, 0, 1)), distance=COVER_M + 0.02)[0] for q in pts)
+        if hits * 2 > len(pts): flip.append(f)
+    _shown(o)
+    bmesh.ops.reverse_faces(bm, faces=flip)
+    bm.to_mesh(o.data); bm.free(); o.data.update()
+    return len(flip)
+
+
+_sh = {o.name: o for o in groups["stadium_shell"][1]}
+print("shell fix: soffit faces lifted 2 cm off the base_band top:", lift_coplanar(_sh.get("soffit"), _sh.get("base_band")), flush=True)
+SHELL_FLIPPED = {}
+for gname, (size, obs) in groups.items():
+    if gname.startswith("ground_"): continue
+    for o in obs:
+        if gname == "stadium_shell": SHELL_FLIPPED[o.name] = orient_shell(o)
+        else: orient_outward(o)
+print("shell fix: kept the scene orientation of", [n for n in SHELL_KEEP if n in _sh],
+      "; flat faces turned down (covered top side):", SHELL_FLIPPED, flush=True)
 
 # ---------------------------------------------------------------- UV sets: UV0 kept (or added), UV1 = "lightmap"
 def ensure_uvs(o):
