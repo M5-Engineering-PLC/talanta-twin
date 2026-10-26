@@ -1,0 +1,49 @@
+{
+ "parts": [
+  "concourse"
+ ],
+ "objects": {
+  "int_floor_inner": 585,
+  "int_soffit_inner": 522,
+  "int_fascia_front": 522,
+  "int_ducts_32": 2,
+  "int_ducts_25": 2,
+  "int_inner_fittings": 522,
+  "int_back_wall": 2396,
+  "int_entry_panels": 84,
+  "int_floor_outer": 585,
+  "int_plenum": 554,
+  "int_ceiling_slats": 9294,
+  "int_led_lines": 11160,
+  "int_columns_outer": 66,
+  "int_outer_wall": 1468,
+  "int_kiosk_shutters": 162,
+  "int_entry_block": 18,
+  "int_entry_lights": 12
+ },
+ "area_lights": 145,
+ "entry": {
+  "theta_deg": 62.87,
+  "aisle": 4,
+  "of_aisles": 27,
+  "entries": 14,
+  "wall_point_app_xz": [
+   46.46,
+   90.67
+  ],
+  "normal_out": [
+   0.44,
+   0.898
+  ],
+  "floor_y_pad": 12.5,
+  "pad": 6.12,
+  "r_front": 87.87,
+  "r_wall": 101.88,
+  "r_out": 113.08
+ },
+ "vip_arc_deg": [
+  182.2,
+  23.3
+ ],
+ "concourse_s": 1.8
+}
