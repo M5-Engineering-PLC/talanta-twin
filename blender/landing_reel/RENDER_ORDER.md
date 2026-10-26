@@ -1,6 +1,6 @@
 # Render order: walkthrough chapters 1 and 2 (for Munene's approval)
 
-Date: 2026-10-26. Status: waiting for approval. Nothing of the full render has started.
+Date: 2026-10-26. Status: version C approved by Munene 2026-10-26, without a full repeat pass. Next: C1 on Kaggle.
 Decisions: engineering/lead_decision_2026-10-25_walkthrough.md (chapters, GPU option), engineering/lead_decision_2026-10-25_reel_and_v2.md (R3 cost rules).
 Camera paths: blender/landing_reel/chapters.json, blender/landing_reel/paths.py; preview: blender/landing_reel/chapters_1_2_preview.jpg.
 Renderer: blender/scroll_test/render_scroll_frames.py `chapter=<id>` on blender/out/frozen_FK.blend (or the render pack, branch assets/render_pack).
@@ -66,12 +66,12 @@ Runs (GPU hours, with 355 s for each run):
 | C5 | ch1 portrait | 24 to 191 | 1.23 |
 | C6 | ch2 portrait | 0 to 239 | 1.71 |
 | First pass | | 864 frames, 6 runs | 10.02 |
-| Repeat pass | ch1 wide 0 to 191 (3.00), ch2 wide 0 to 239 (3.73), ch1 portrait 0 to 191 (1.39), ch2 portrait 0 to 239 (1.71) | 864 frames, 4 runs | 9.82 |
-| Total | | | 19.84 (limit 20 h; 30 h a week) |
+| Repeats | only the frames that the review rejects | as needed | 4.00 at most |
+| Budget for the week | | | 14.02 at most (limit 20 h; 30 h a week) |
 
 - The 24-frame tests (C1, C2) are frames 0 to 23 of the film; they are not rendered again in the first pass.
 - After C1 and C2: stop, measure the seconds per frame and update this table. If the wide frame takes more than 56 s, C4 is more than 3.8 h: split it into 0 to 119 and 120 to 239 (0.10 h more).
-- If the portrait frame takes more than 24.2 s, the total goes over 20 h; then the repeat pass renders only the frames that the review rejects.
+- The first draft had a full repeat pass (9.82 h, total 19.84 h). The approval removed it.
 - Stop the session after each run. An idle session uses GPU hours.
 
 Render pack and the G2 trees: pack 7e19362 does not need a rebuild.
@@ -108,7 +108,26 @@ Frames: Munene downloads the output of each run. Then the frames go to the orpha
 
 After each part: the frames go to the orphan branch `assets/landing_reel_frames` (not to wo/web-hero-v2), then the encodes (H.264 CRF 26, 2 s GOP; 1080p and 720 x 1280).
 
-## Decision needed
+## Approval and run gates (Munene, 2026-10-26)
 
-1. Approve version C. The first run is C1: 24 wide frames of chapter 1 (frames 0 to 23) on Kaggle.
-2. Versions A (paid GPU) and B (cloud CPU) stay as fallbacks.
+- Approved: version C. No full repeat pass. A repeat run renders only the frames that the review rejects.
+- GPU budget for the week: the first pass (about 10.0 h) plus 4 h of repeats at most.
+- C1 first: 24 wide frames of chapter 1 (frames 0 to 23). Then stop and report the seconds per frame, the GPU memory and the frame check (run_record.json: gpu_memory_max_mib, frame_check).
+- C2 next: the 24-frame portrait test, also with a stop and a report.
+- When C1 and C2 pass, C3 to C6 run without a new approval, if each run is less than 4 h and the week stays under 20 GPU h.
+- Set TEST_S_PER_FRAME in the notebook to the test result of that cut (C1 for wide, C2 for portrait). Stop if a frame is more than 10 % slower than the test (run_record.json: slow_frames).
+- Each run: Munene starts it on Kaggle ("Save Version", "Save & Run All (Commit)", private), downloads the output and sends run_record.json and scroll_log.json for the report. The frames then go to assets/landing_reel_frames.
+- The cloud session cannot start or see a Kaggle run. It continues with the interior model (item 2 of the lead order 2026-10-26).
+
+## Notebook settings for each run
+
+| Run | CHAPTER | CUT | FRAME_START | FRAME_END | TEST_S_PER_FRAME |
+|---|---|---|---|---|---|
+| C1 | ch1_arrival | wide | 0 | 23 | None |
+| C2 | ch1_arrival | portrait | 0 | 23 | None |
+| C3 | ch1_arrival | wide | 24 | 191 | C1 result |
+| C4 | ch2_orbit | wide | 0 | 239 | C1 result |
+| C5 | ch1_arrival | portrait | 24 | 191 | C2 result |
+| C6 | ch2_orbit | portrait | 0 | 239 | C2 result |
+
+SAMPLES = 128 and HAZE = 1 for all runs (stills quality).
