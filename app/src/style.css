@@ -240,3 +240,11 @@ body:not(.landing-mode) #landing-toggle { top: 7px; bottom: auto; right: 96px; p
 .cycles-still #landing-still { opacity: 1; }
 .cycles-still-claim #landing-claim { display: block; position: absolute; z-index: 5; bottom: 18px; left: 18px; max-width: calc(100% - 36px); border-radius: 20px; padding: 7px 14px; background: #f5f1e8ed; font-size: 11px; }
 @media (prefers-reduced-motion: reduce) { #landing-still { transition: none; } }
+
+/* On-demand event controls and mandatory claims. */
+#modes .event-mode { white-space: nowrap; }
+#event-hud { position: absolute; z-index: 6; right: 16px; top: 145px; width: min(340px, calc(100% - 32px)); padding: 10px 12px; background: rgba(24,25,30,.93); color: #fff; border-radius: 5px; pointer-events: none; }
+#event-hud[hidden] { display: none; }
+#event-hud > div { font-size: 13px; font-variant-numeric: tabular-nums; }
+#event-hud p { margin: 6px 0 0; font-size: 11px; line-height: 1.4; }
+@media (max-width: 767px) { #event-hud { top: 108px; right: 12px; width: min(300px, calc(100% - 80px)); } }
