@@ -13,4 +13,4 @@ and 4 paths), blender/ data, textures and CC0 assets, app/cameras, the ground im
 frames (AGENTS.md rules 1 and 2).
 Tested 2026-10-26 from a copy in an empty folder under strace, no file read outside the pack: a 4-sample bake (sport,
 10:30), chapter 3 frame 239 and chapter 1 frame 0 at 8 samples.
-Version 2025-10-25 (7e19362, the parent commit): frozen_FK.blend; used for the GPU test and C1, C2.
+Version 2026-10-25 (7e19362, the parent commit): frozen_FK.blend; used for the GPU test and C1, C2.
