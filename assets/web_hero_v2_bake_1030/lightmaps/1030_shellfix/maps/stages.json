@@ -1,0 +1,74 @@
+{
+ "key": {
+  "samples": 128,
+  "test": false,
+  "light": "daylight_artistic",
+  "state": "finished",
+  "lookdev": "day"
+ },
+ "done": {
+  "albedo:stadium_shell": {
+   "seconds": 70.1,
+   "samples": 4,
+   "at": "2026-10-26 15:54:39",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ]
+   ]
+  },
+  "ao:stadium_shell": {
+   "seconds": 255.6,
+   "samples": 64,
+   "at": "2026-10-26 15:58:56",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ]
+   ]
+  },
+  "light:stadium_shell": {
+   "seconds": 948.5,
+   "samples": 128,
+   "at": "2026-10-26 16:14:47",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ]
+   ]
+  },
+  "stadium_shell": {
+   "light_scale": 2.7054
+  }
+ }
+}
