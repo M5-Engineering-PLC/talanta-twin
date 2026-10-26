@@ -1,0 +1,1326 @@
+{
+ "key": {
+  "samples": 128,
+  "test": false,
+  "light": "morning_golden"
+ },
+ "done": {
+  "albedo:ground_16+ground_17+ground_18+ground_19+ground_20+ground_21+ground_22+ground_23": {
+   "seconds": 285.0,
+   "samples": 4,
+   "at": "2026-10-18 07:24:12",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_16"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_17"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_18"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_19"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_20"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_21"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_22"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_23"
+     ]
+    ]
+   ]
+  },
+  "ao:ground_16+ground_17+ground_18+ground_19+ground_20+ground_21+ground_22+ground_23": {
+   "seconds": 5798.0,
+   "samples": 64,
+   "at": "2026-10-18 11:40:20",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_16"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_17"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_18"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_19"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_20"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_21"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_22"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_23"
+     ]
+    ]
+   ]
+  },
+  "albedo:sport+roads+site_built+forecourt": {
+   "seconds": 747.4,
+   "samples": 4,
+   "at": "2026-10-18 15:32:40",
+   "sig": [
+    [
+     1024,
+     [
+      "pitch",
+      "pitch_apron",
+      "pitch_zone",
+      "track_sw",
+      "track_sw_infield",
+      "training_pitch_se_turf",
+      "warmup_track_ne",
+      "warmup_track_ne_infield"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ngong_barrier",
+      "ngong_road",
+      "roads"
+     ]
+    ],
+    [
+     1024,
+     [
+      "entrance_canopies",
+      "sign_frames"
+     ]
+    ],
+    [
+     2048,
+     [
+      "fc_axial_bed_north",
+      "fc_axial_bed_north_kerb",
+      "fc_axial_bed_north_plant_0",
+      "fc_axial_bed_north_plant_1",
+      "fc_axial_bed_north_plant_2",
+      "fc_axial_bed_north_plant_3",
+      "fc_axial_bed_north_plant_4",
+      "fc_axial_bed_south",
+      "fc_axial_bed_south_kerb",
+      "fc_axial_bed_south_plant_0",
+      "fc_axial_bed_south_plant_1",
+      "fc_axial_bed_south_plant_2",
+      "fc_axial_bed_south_plant_3",
+      "fc_axial_bed_south_plant_4",
+      "fc_base",
+      "fc_bench_line_east_0",
+      "fc_bench_line_east_1",
+      "fc_bench_line_east_2",
+      "fc_bench_line_west_0",
+      "fc_bench_line_west_1",
+      "fc_bench_line_west_2",
+      "fc_central_round_bed",
+      "fc_central_round_bed_kerb",
+      "fc_central_round_bed_plant_0",
+      "fc_central_round_bed_plant_1",
+      "fc_central_round_bed_plant_2",
+      "fc_central_round_bed_plant_3",
+      "fc_central_round_bed_plant_4",
+      "fc_east_lawn",
+      "fc_edge_bed_east",
+      "fc_edge_bed_east_kerb",
+      "fc_edge_bed_east_plant_0",
+      "fc_edge_bed_east_plant_1",
+      "fc_edge_bed_east_plant_2",
+      "fc_edge_bed_east_plant_3",
+      "fc_edge_bed_east_plant_4",
+      "fc_edge_bed_west",
+      "fc_edge_bed_west_kerb",
+      "fc_edge_bed_west_plant_0",
+      "fc_edge_bed_west_plant_1",
+      "fc_edge_bed_west_plant_2",
+      "fc_edge_bed_west_plant_3",
+      "fc_edge_bed_west_plant_4",
+      "fc_facade_apron",
+      "fc_mast_cluster_east_0",
+      "fc_mast_cluster_east_1",
+      "fc_mast_cluster_east_2",
+      "fc_mast_cluster_east_3",
+      "fc_mast_cluster_east_4",
+      "fc_mast_cluster_east_5",
+      "fc_mast_cluster_west_0",
+      "fc_mast_cluster_west_1",
+      "fc_mast_cluster_west_2",
+      "fc_mast_cluster_west_3",
+      "fc_mast_cluster_west_4",
+      "fc_mast_cluster_west_5",
+      "fc_path_east_cross",
+      "fc_path_east_cross_kerb_-1_0",
+      "fc_path_east_cross_kerb_-1_1",
+      "fc_path_east_cross_kerb_1_0",
+      "fc_path_east_cross_kerb_1_1",
+      "fc_path_east_diagonal",
+      "fc_path_east_diagonal_kerb_-1_0",
+      "fc_path_east_diagonal_kerb_-1_1",
+      "fc_path_east_diagonal_kerb_1_0",
+      "fc_path_east_diagonal_kerb_1_1",
+      "fc_path_east_outer",
+      "fc_path_east_outer_kerb_-1_0",
+      "fc_path_east_outer_kerb_-1_1",
+      "fc_path_east_outer_kerb_-1_2",
+      "fc_path_east_outer_kerb_1_0",
+      "fc_path_east_outer_kerb_1_1",
+      "fc_path_east_outer_kerb_1_2",
+      "fc_path_plaza_east_axis",
+      "fc_path_plaza_east_axis_kerb_-1_0",
+      "fc_path_plaza_east_axis_kerb_-1_1",
+      "fc_path_plaza_east_axis_kerb_1_0",
+      "fc_path_plaza_east_axis_kerb_1_1",
+      "fc_path_plaza_west_axis",
+      "fc_path_plaza_west_axis_kerb_-1_0",
+      "fc_path_plaza_west_axis_kerb_-1_1",
+      "fc_path_plaza_west_axis_kerb_1_0",
+      "fc_path_plaza_west_axis_kerb_1_1",
+      "fc_path_road_approach",
+      "fc_path_road_approach_kerb_-1_0",
+      "fc_path_road_approach_kerb_1_0",
+      "fc_path_west_connector",
+      "fc_path_west_connector_kerb_-1_0",
+      "fc_path_west_connector_kerb_-1_1",
+      "fc_path_west_connector_kerb_1_0",
+      "fc_path_west_connector_kerb_1_1",
+      "fc_path_west_cross",
+      "fc_path_west_cross_kerb_-1_0",
+      "fc_path_west_cross_kerb_-1_1",
+      "fc_path_west_cross_kerb_1_0",
+      "fc_path_west_cross_kerb_1_1",
+      "fc_path_west_diagonal",
+      "fc_path_west_diagonal_kerb_-1_0",
+      "fc_path_west_diagonal_kerb_-1_1",
+      "fc_path_west_diagonal_kerb_1_0",
+      "fc_path_west_diagonal_kerb_1_1",
+      "fc_plaza_edge",
+      "fc_plaza_edge_kerb",
+      "fc_plaza_ring_walk",
+      "fc_retained_planters",
+      "fc_roadside_lawn",
+      "fc_street_light_east_00_0",
+      "fc_street_light_east_00_head",
+      "fc_street_light_east_01_0",
+      "fc_street_light_east_01_head",
+      "fc_street_light_east_02_0",
+      "fc_street_light_east_02_head",
+      "fc_street_light_east_03_0",
+      "fc_street_light_east_03_head",
+      "fc_street_light_east_04_0",
+      "fc_street_light_east_04_head",
+      "fc_street_light_plaza_00_0",
+      "fc_street_light_plaza_00_head",
+      "fc_street_light_plaza_01_0",
+      "fc_street_light_plaza_01_head",
+      "fc_street_light_plaza_02_0",
+      "fc_street_light_plaza_02_head",
+      "fc_street_light_west_00_0",
+      "fc_street_light_west_00_head",
+      "fc_street_light_west_01_0",
+      "fc_street_light_west_01_head",
+      "fc_street_light_west_02_0",
+      "fc_street_light_west_02_head",
+      "fc_street_light_west_03_0",
+      "fc_street_light_west_03_head",
+      "fc_west_lawn"
+     ]
+    ]
+   ]
+  },
+  "ao:sport+roads+site_built+forecourt": {
+   "seconds": 996.7,
+   "samples": 64,
+   "at": "2026-10-18 16:07:32",
+   "sig": [
+    [
+     1024,
+     [
+      "pitch",
+      "pitch_apron",
+      "pitch_zone",
+      "track_sw",
+      "track_sw_infield",
+      "training_pitch_se_turf",
+      "warmup_track_ne",
+      "warmup_track_ne_infield"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ngong_barrier",
+      "ngong_road",
+      "roads"
+     ]
+    ],
+    [
+     1024,
+     [
+      "entrance_canopies",
+      "sign_frames"
+     ]
+    ],
+    [
+     2048,
+     [
+      "fc_axial_bed_north",
+      "fc_axial_bed_north_kerb",
+      "fc_axial_bed_north_plant_0",
+      "fc_axial_bed_north_plant_1",
+      "fc_axial_bed_north_plant_2",
+      "fc_axial_bed_north_plant_3",
+      "fc_axial_bed_north_plant_4",
+      "fc_axial_bed_south",
+      "fc_axial_bed_south_kerb",
+      "fc_axial_bed_south_plant_0",
+      "fc_axial_bed_south_plant_1",
+      "fc_axial_bed_south_plant_2",
+      "fc_axial_bed_south_plant_3",
+      "fc_axial_bed_south_plant_4",
+      "fc_base",
+      "fc_bench_line_east_0",
+      "fc_bench_line_east_1",
+      "fc_bench_line_east_2",
+      "fc_bench_line_west_0",
+      "fc_bench_line_west_1",
+      "fc_bench_line_west_2",
+      "fc_central_round_bed",
+      "fc_central_round_bed_kerb",
+      "fc_central_round_bed_plant_0",
+      "fc_central_round_bed_plant_1",
+      "fc_central_round_bed_plant_2",
+      "fc_central_round_bed_plant_3",
+      "fc_central_round_bed_plant_4",
+      "fc_east_lawn",
+      "fc_edge_bed_east",
+      "fc_edge_bed_east_kerb",
+      "fc_edge_bed_east_plant_0",
+      "fc_edge_bed_east_plant_1",
+      "fc_edge_bed_east_plant_2",
+      "fc_edge_bed_east_plant_3",
+      "fc_edge_bed_east_plant_4",
+      "fc_edge_bed_west",
+      "fc_edge_bed_west_kerb",
+      "fc_edge_bed_west_plant_0",
+      "fc_edge_bed_west_plant_1",
+      "fc_edge_bed_west_plant_2",
+      "fc_edge_bed_west_plant_3",
+      "fc_edge_bed_west_plant_4",
+      "fc_facade_apron",
+      "fc_mast_cluster_east_0",
+      "fc_mast_cluster_east_1",
+      "fc_mast_cluster_east_2",
+      "fc_mast_cluster_east_3",
+      "fc_mast_cluster_east_4",
+      "fc_mast_cluster_east_5",
+      "fc_mast_cluster_west_0",
+      "fc_mast_cluster_west_1",
+      "fc_mast_cluster_west_2",
+      "fc_mast_cluster_west_3",
+      "fc_mast_cluster_west_4",
+      "fc_mast_cluster_west_5",
+      "fc_path_east_cross",
+      "fc_path_east_cross_kerb_-1_0",
+      "fc_path_east_cross_kerb_-1_1",
+      "fc_path_east_cross_kerb_1_0",
+      "fc_path_east_cross_kerb_1_1",
+      "fc_path_east_diagonal",
+      "fc_path_east_diagonal_kerb_-1_0",
+      "fc_path_east_diagonal_kerb_-1_1",
+      "fc_path_east_diagonal_kerb_1_0",
+      "fc_path_east_diagonal_kerb_1_1",
+      "fc_path_east_outer",
+      "fc_path_east_outer_kerb_-1_0",
+      "fc_path_east_outer_kerb_-1_1",
+      "fc_path_east_outer_kerb_-1_2",
+      "fc_path_east_outer_kerb_1_0",
+      "fc_path_east_outer_kerb_1_1",
+      "fc_path_east_outer_kerb_1_2",
+      "fc_path_plaza_east_axis",
+      "fc_path_plaza_east_axis_kerb_-1_0",
+      "fc_path_plaza_east_axis_kerb_-1_1",
+      "fc_path_plaza_east_axis_kerb_1_0",
+      "fc_path_plaza_east_axis_kerb_1_1",
+      "fc_path_plaza_west_axis",
+      "fc_path_plaza_west_axis_kerb_-1_0",
+      "fc_path_plaza_west_axis_kerb_-1_1",
+      "fc_path_plaza_west_axis_kerb_1_0",
+      "fc_path_plaza_west_axis_kerb_1_1",
+      "fc_path_road_approach",
+      "fc_path_road_approach_kerb_-1_0",
+      "fc_path_road_approach_kerb_1_0",
+      "fc_path_west_connector",
+      "fc_path_west_connector_kerb_-1_0",
+      "fc_path_west_connector_kerb_-1_1",
+      "fc_path_west_connector_kerb_1_0",
+      "fc_path_west_connector_kerb_1_1",
+      "fc_path_west_cross",
+      "fc_path_west_cross_kerb_-1_0",
+      "fc_path_west_cross_kerb_-1_1",
+      "fc_path_west_cross_kerb_1_0",
+      "fc_path_west_cross_kerb_1_1",
+      "fc_path_west_diagonal",
+      "fc_path_west_diagonal_kerb_-1_0",
+      "fc_path_west_diagonal_kerb_-1_1",
+      "fc_path_west_diagonal_kerb_1_0",
+      "fc_path_west_diagonal_kerb_1_1",
+      "fc_plaza_edge",
+      "fc_plaza_edge_kerb",
+      "fc_plaza_ring_walk",
+      "fc_retained_planters",
+      "fc_roadside_lawn",
+      "fc_street_light_east_00_0",
+      "fc_street_light_east_00_head",
+      "fc_street_light_east_01_0",
+      "fc_street_light_east_01_head",
+      "fc_street_light_east_02_0",
+      "fc_street_light_east_02_head",
+      "fc_street_light_east_03_0",
+      "fc_street_light_east_03_head",
+      "fc_street_light_east_04_0",
+      "fc_street_light_east_04_head",
+      "fc_street_light_plaza_00_0",
+      "fc_street_light_plaza_00_head",
+      "fc_street_light_plaza_01_0",
+      "fc_street_light_plaza_01_head",
+      "fc_street_light_plaza_02_0",
+      "fc_street_light_plaza_02_head",
+      "fc_street_light_west_00_0",
+      "fc_street_light_west_00_head",
+      "fc_street_light_west_01_0",
+      "fc_street_light_west_01_head",
+      "fc_street_light_west_02_0",
+      "fc_street_light_west_02_head",
+      "fc_street_light_west_03_0",
+      "fc_street_light_west_03_head",
+      "fc_west_lawn"
+     ]
+    ]
+   ]
+  },
+  "light:sport+roads+site_built+forecourt": {
+   "seconds": 1688.8,
+   "samples": 128,
+   "at": "2026-10-18 16:43:53",
+   "sig": [
+    [
+     1024,
+     [
+      "pitch",
+      "pitch_apron",
+      "pitch_zone",
+      "track_sw",
+      "track_sw_infield",
+      "training_pitch_se_turf",
+      "warmup_track_ne",
+      "warmup_track_ne_infield"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ngong_barrier",
+      "ngong_road",
+      "roads"
+     ]
+    ],
+    [
+     1024,
+     [
+      "entrance_canopies",
+      "sign_frames"
+     ]
+    ],
+    [
+     2048,
+     [
+      "fc_axial_bed_north",
+      "fc_axial_bed_north_kerb",
+      "fc_axial_bed_north_plant_0",
+      "fc_axial_bed_north_plant_1",
+      "fc_axial_bed_north_plant_2",
+      "fc_axial_bed_north_plant_3",
+      "fc_axial_bed_north_plant_4",
+      "fc_axial_bed_south",
+      "fc_axial_bed_south_kerb",
+      "fc_axial_bed_south_plant_0",
+      "fc_axial_bed_south_plant_1",
+      "fc_axial_bed_south_plant_2",
+      "fc_axial_bed_south_plant_3",
+      "fc_axial_bed_south_plant_4",
+      "fc_base",
+      "fc_bench_line_east_0",
+      "fc_bench_line_east_1",
+      "fc_bench_line_east_2",
+      "fc_bench_line_west_0",
+      "fc_bench_line_west_1",
+      "fc_bench_line_west_2",
+      "fc_central_round_bed",
+      "fc_central_round_bed_kerb",
+      "fc_central_round_bed_plant_0",
+      "fc_central_round_bed_plant_1",
+      "fc_central_round_bed_plant_2",
+      "fc_central_round_bed_plant_3",
+      "fc_central_round_bed_plant_4",
+      "fc_east_lawn",
+      "fc_edge_bed_east",
+      "fc_edge_bed_east_kerb",
+      "fc_edge_bed_east_plant_0",
+      "fc_edge_bed_east_plant_1",
+      "fc_edge_bed_east_plant_2",
+      "fc_edge_bed_east_plant_3",
+      "fc_edge_bed_east_plant_4",
+      "fc_edge_bed_west",
+      "fc_edge_bed_west_kerb",
+      "fc_edge_bed_west_plant_0",
+      "fc_edge_bed_west_plant_1",
+      "fc_edge_bed_west_plant_2",
+      "fc_edge_bed_west_plant_3",
+      "fc_edge_bed_west_plant_4",
+      "fc_facade_apron",
+      "fc_mast_cluster_east_0",
+      "fc_mast_cluster_east_1",
+      "fc_mast_cluster_east_2",
+      "fc_mast_cluster_east_3",
+      "fc_mast_cluster_east_4",
+      "fc_mast_cluster_east_5",
+      "fc_mast_cluster_west_0",
+      "fc_mast_cluster_west_1",
+      "fc_mast_cluster_west_2",
+      "fc_mast_cluster_west_3",
+      "fc_mast_cluster_west_4",
+      "fc_mast_cluster_west_5",
+      "fc_path_east_cross",
+      "fc_path_east_cross_kerb_-1_0",
+      "fc_path_east_cross_kerb_-1_1",
+      "fc_path_east_cross_kerb_1_0",
+      "fc_path_east_cross_kerb_1_1",
+      "fc_path_east_diagonal",
+      "fc_path_east_diagonal_kerb_-1_0",
+      "fc_path_east_diagonal_kerb_-1_1",
+      "fc_path_east_diagonal_kerb_1_0",
+      "fc_path_east_diagonal_kerb_1_1",
+      "fc_path_east_outer",
+      "fc_path_east_outer_kerb_-1_0",
+      "fc_path_east_outer_kerb_-1_1",
+      "fc_path_east_outer_kerb_-1_2",
+      "fc_path_east_outer_kerb_1_0",
+      "fc_path_east_outer_kerb_1_1",
+      "fc_path_east_outer_kerb_1_2",
+      "fc_path_plaza_east_axis",
+      "fc_path_plaza_east_axis_kerb_-1_0",
+      "fc_path_plaza_east_axis_kerb_-1_1",
+      "fc_path_plaza_east_axis_kerb_1_0",
+      "fc_path_plaza_east_axis_kerb_1_1",
+      "fc_path_plaza_west_axis",
+      "fc_path_plaza_west_axis_kerb_-1_0",
+      "fc_path_plaza_west_axis_kerb_-1_1",
+      "fc_path_plaza_west_axis_kerb_1_0",
+      "fc_path_plaza_west_axis_kerb_1_1",
+      "fc_path_road_approach",
+      "fc_path_road_approach_kerb_-1_0",
+      "fc_path_road_approach_kerb_1_0",
+      "fc_path_west_connector",
+      "fc_path_west_connector_kerb_-1_0",
+      "fc_path_west_connector_kerb_-1_1",
+      "fc_path_west_connector_kerb_1_0",
+      "fc_path_west_connector_kerb_1_1",
+      "fc_path_west_cross",
+      "fc_path_west_cross_kerb_-1_0",
+      "fc_path_west_cross_kerb_-1_1",
+      "fc_path_west_cross_kerb_1_0",
+      "fc_path_west_cross_kerb_1_1",
+      "fc_path_west_diagonal",
+      "fc_path_west_diagonal_kerb_-1_0",
+      "fc_path_west_diagonal_kerb_-1_1",
+      "fc_path_west_diagonal_kerb_1_0",
+      "fc_path_west_diagonal_kerb_1_1",
+      "fc_plaza_edge",
+      "fc_plaza_edge_kerb",
+      "fc_plaza_ring_walk",
+      "fc_retained_planters",
+      "fc_roadside_lawn",
+      "fc_street_light_east_00_0",
+      "fc_street_light_east_00_head",
+      "fc_street_light_east_01_0",
+      "fc_street_light_east_01_head",
+      "fc_street_light_east_02_0",
+      "fc_street_light_east_02_head",
+      "fc_street_light_east_03_0",
+      "fc_street_light_east_03_head",
+      "fc_street_light_east_04_0",
+      "fc_street_light_east_04_head",
+      "fc_street_light_plaza_00_0",
+      "fc_street_light_plaza_00_head",
+      "fc_street_light_plaza_01_0",
+      "fc_street_light_plaza_01_head",
+      "fc_street_light_plaza_02_0",
+      "fc_street_light_plaza_02_head",
+      "fc_street_light_west_00_0",
+      "fc_street_light_west_00_head",
+      "fc_street_light_west_01_0",
+      "fc_street_light_west_01_head",
+      "fc_street_light_west_02_0",
+      "fc_street_light_west_02_head",
+      "fc_street_light_west_03_0",
+      "fc_street_light_west_03_head",
+      "fc_west_lawn"
+     ]
+    ]
+   ]
+  },
+  "sport": {
+   "light_scale": 1.5744
+  },
+  "roads": {
+   "light_scale": 1.862
+  },
+  "site_built": {
+   "light_scale": 4.657
+  },
+  "forecourt": {
+   "light_scale": 4.7053
+  },
+  "light:ground_16+ground_17+ground_18+ground_19+ground_20+ground_21+ground_22+ground_23": {
+   "seconds": 6154.5,
+   "samples": 128,
+   "at": "2026-10-18 18:26:29",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_16"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_17"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_18"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_19"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_20"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_21"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_22"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_23"
+     ]
+    ]
+   ]
+  },
+  "ground_16": {
+   "light_scale": 1.488
+  },
+  "ground_17": {
+   "light_scale": 1.7616
+  },
+  "ground_18": {
+   "light_scale": 1.895
+  },
+  "ground_19": {
+   "light_scale": 1.5165
+  },
+  "ground_20": {
+   "light_scale": 1.7201
+  },
+  "ground_21": {
+   "light_scale": 1.4932
+  },
+  "ground_22": {
+   "light_scale": 1.9788
+  },
+  "ground_23": {
+   "light_scale": 1.9466
+  },
+  "albedo:stadium_shell+stadium_fins": {
+   "seconds": 72.0,
+   "samples": 4,
+   "at": "2026-10-18 18:28:26",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ],
+    [
+     2048,
+     [
+      "louvre_fins"
+     ]
+    ]
+   ]
+  },
+  "albedo:stadium_ornament+roof": {
+   "seconds": 54.2,
+   "samples": 4,
+   "at": "2026-10-18 18:29:21",
+   "sig": [
+    [
+     2048,
+     [
+      "lattice",
+      "lattice_rings",
+      "shields",
+      "spears"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ring_beam",
+      "roof",
+      "roof_ribs"
+     ]
+    ]
+   ]
+  },
+  "albedo:ground_00+ground_01+ground_02+ground_03+ground_04+ground_05+ground_06+ground_07+ground_08+ground_09+ground_10+ground_11": {
+   "seconds": 267.8,
+   "samples": 4,
+   "at": "2026-10-18 18:33:51",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_00"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_01"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_02"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_03"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_04"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_05"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_06"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_07"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_08"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_09"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_10"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_11"
+     ]
+    ]
+   ]
+  },
+  "albedo:ground_12+ground_13+ground_14+ground_15": {
+   "seconds": 94.1,
+   "samples": 4,
+   "at": "2026-10-18 18:35:26",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_12"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_13"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_14"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_15"
+     ]
+    ]
+   ]
+  },
+  "ao:stadium_shell+stadium_fins": {
+   "seconds": 356.5,
+   "samples": 64,
+   "at": "2026-10-18 18:41:24",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ],
+    [
+     2048,
+     [
+      "louvre_fins"
+     ]
+    ]
+   ]
+  },
+  "ao:stadium_ornament+roof": {
+   "seconds": 352.3,
+   "samples": 64,
+   "at": "2026-10-18 18:47:18",
+   "sig": [
+    [
+     2048,
+     [
+      "lattice",
+      "lattice_rings",
+      "shields",
+      "spears"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ring_beam",
+      "roof",
+      "roof_ribs"
+     ]
+    ]
+   ]
+  },
+  "albedo:suburbs+traffic": {
+   "seconds": 79.1,
+   "samples": 4,
+   "at": "2026-10-18 20:12:09",
+   "sig": [
+    [
+     4096,
+     [
+      "suburbs_buildings"
+     ]
+    ],
+    [
+     2048,
+     [
+      "traffic_Visualization"
+     ]
+    ]
+   ]
+  },
+  "ao:suburbs+traffic": {
+   "seconds": 841.6,
+   "samples": 64,
+   "at": "2026-10-18 20:27:31",
+   "sig": [
+    [
+     4096,
+     [
+      "suburbs_buildings"
+     ]
+    ],
+    [
+     2048,
+     [
+      "traffic_Visualization"
+     ]
+    ]
+   ]
+  },
+  "ao:ground_00+ground_01+ground_02+ground_03+ground_04+ground_05+ground_06+ground_07+ground_08+ground_09+ground_10+ground_11": {
+   "seconds": 3444.3,
+   "samples": 64,
+   "at": "2026-10-18 21:24:56",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_00"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_01"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_02"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_03"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_04"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_05"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_06"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_07"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_08"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_09"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_10"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_11"
+     ]
+    ]
+   ]
+  },
+  "ao:ground_12+ground_13+ground_14+ground_15": {
+   "seconds": 1158.0,
+   "samples": 64,
+   "at": "2026-10-18 21:44:15",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_12"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_13"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_14"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_15"
+     ]
+    ]
+   ]
+  },
+  "light:stadium_shell+stadium_fins": {
+   "seconds": 1505.9,
+   "samples": 128,
+   "at": "2026-10-18 22:09:23",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ],
+    [
+     2048,
+     [
+      "louvre_fins"
+     ]
+    ]
+   ]
+  },
+  "stadium_shell": {
+   "light_scale": 5.0206
+  },
+  "stadium_fins": {
+   "light_scale": 3.3783
+  },
+  "light:stadium_ornament+roof": {
+   "seconds": 1553.7,
+   "samples": 128,
+   "at": "2026-10-18 22:35:19",
+   "sig": [
+    [
+     2048,
+     [
+      "lattice",
+      "lattice_rings",
+      "shields",
+      "spears"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ring_beam",
+      "roof",
+      "roof_ribs"
+     ]
+    ]
+   ]
+  },
+  "stadium_ornament": {
+   "light_scale": 5.1327
+  },
+  "roof": {
+   "light_scale": 4.4752
+  },
+  "light:suburbs+traffic": {
+   "seconds": 2694.2,
+   "samples": 128,
+   "at": "2026-10-18 23:20:22",
+   "sig": [
+    [
+     4096,
+     [
+      "suburbs_buildings"
+     ]
+    ],
+    [
+     2048,
+     [
+      "traffic_Visualization"
+     ]
+    ]
+   ]
+  },
+  "suburbs": {
+   "light_scale": 4.6433
+  },
+  "traffic": {
+   "light_scale": 4.6108
+  },
+  "light:ground_00+ground_01+ground_02+ground_03+ground_04+ground_05+ground_06+ground_07+ground_08+ground_09+ground_10+ground_11": {
+   "seconds": 8504.9,
+   "samples": 128,
+   "at": "2026-10-19 01:42:10",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_00"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_01"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_02"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_03"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_04"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_05"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_06"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_07"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_08"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_09"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_10"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_11"
+     ]
+    ]
+   ]
+  },
+  "ground_00": {
+   "light_scale": 1.5747
+  },
+  "ground_01": {
+   "light_scale": 1.5255
+  },
+  "ground_02": {
+   "light_scale": 1.8865
+  },
+  "ground_03": {
+   "light_scale": 1.8665
+  },
+  "ground_04": {
+   "light_scale": 1.5339
+  },
+  "ground_05": {
+   "light_scale": 1.55
+  },
+  "ground_06": {
+   "light_scale": 1.789
+  },
+  "ground_07": {
+   "light_scale": 1.8418
+  },
+  "ground_08": {
+   "light_scale": 1.5421
+  },
+  "ground_09": {
+   "light_scale": 1.8869
+  },
+  "ground_10": {
+   "light_scale": 2.0102
+  },
+  "ground_11": {
+   "light_scale": 2.0042
+  },
+  "light:ground_12+ground_13+ground_14+ground_15": {
+   "seconds": 2926.7,
+   "samples": 128,
+   "at": "2026-10-19 02:40:23",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_12"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_13"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_14"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_15"
+     ]
+    ]
+   ]
+  },
+  "ground_12": {
+   "light_scale": 1.5595
+  },
+  "ground_13": {
+   "light_scale": 1.7802
+  },
+  "ground_14": {
+   "light_scale": 1.9614
+  },
+  "ground_15": {
+   "light_scale": 2.0625
+  }
+ }
+}
