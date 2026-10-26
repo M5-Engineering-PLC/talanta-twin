@@ -35,6 +35,14 @@ const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const DAY = 86400000;
 
+for (const [mode, name] of [['concert', 'Concert'], ['football', 'Football']]) {
+  const button = document.createElement('button'); button.dataset.mode = mode; button.textContent = name;
+  button.className = 'event-mode'; $('#modes').append(button);
+  const option = document.createElement('option'); option.value = mode; option.textContent = name;
+  $('#landing-event')?.append(option);
+}
+// end event controls
+
 // ---------------------------------------------------------------- boot
 const openingPoster = showOpeningPoster();
 let loaded = 0;
@@ -602,10 +610,60 @@ function drawCharts() {
 
 // ---------------------------------------------------------------- modes and date
 // Night show (SHW-01 to SHW-03): loaded on demand, removed when another mode is chosen.
-let shows = null;
+let shows = null, liveEvent = null, eventMode = null, modeVersion = 0;
+const eventHUD = document.createElement('aside');
+eventHUD.id = 'event-hud'; eventHUD.hidden = true;
+const eventScore = document.createElement('div'), eventClaim = document.createElement('p');
+eventHUD.append(eventScore, eventClaim); stage.append(eventHUD);
+
+function stopEvent() {
+  if (eventMode) { crowd?.dispose(); crowd = null; }
+  liveEvent?.dispose(); liveEvent = null; eventMode = null; eventHUD.hidden = true;
+}
+async function startEvent(mode, version) {
+  eventMode = mode; eventHUD.hidden = false; eventScore.textContent = 'Loading event…'; eventClaim.textContent = '';
+  try {
+    const [module, registry] = await Promise.all([
+      mode === 'concert' ? import('./events/concert.js') : import('./events/match.js'),
+      import('./modules/registry.js'), ensureCrowd(),
+    ]);
+    if (version !== modeVersion) return;
+    const id = mode === 'concert' ? 'EVT-01' : 'SPT-01';
+    eventClaim.textContent = registry.MODULES.find(m => m.id === id).claim;
+    stopLiveClock(); stopPlay(); state.minutes = mode === 'concert' ? 1200 : 1050;
+    const timeControl = $('#landing-time'); if (timeControl) timeControl.value = String(state.minutes);
+    const install = mode === 'concert' ? module.installConcert : module.installMatch;
+    liveEvent = install({ scene, bearing: F.pitch_bearing_deg, pad: PAD, tier,
+      getCrowd: () => crowd,
+      onState(frame) {
+        const clock = `${Math.floor(frame.time)} / ${frame.duration} s`;
+        eventScore.textContent = mode === 'concert' ? `Fictional concert · ${frame.phase} · ${clock}`
+          : `Fictional home ${frame.score[0]} : ${frame.score[1]} Fictional away · ${frame.phase} · ${clock}`;
+      },
+    });
+    // Public crowd controls only. Reactions come from event cues.
+    crowd?.setPalette('#b92332', '#18733d');
+    if (import.meta.env.DEV) window.__event = liveEvent;
+  } catch (error) {
+    if (version !== modeVersion) return;
+    liveEvent?.dispose(); liveEvent = null; eventMode = null;
+    eventScore.textContent = 'Event unavailable. Select the event to retry.';
+    eventClaim.textContent = ''; console.warn('Event unavailable:', error);
+  }
+}
+function excludeEventsForShow() {
+  ++modeVersion;
+  stopEvent();
+  state.matchday = false;
+}
+// Keep the night-show entry point usable without the optional event host.
+startShow.excludeEvents = excludeEventsForShow;
 async function startShow() {
+  startShow.excludeEvents?.();
+  const version = startShow.version ?? 0;
   if (!shows) {
     const { installShows } = await import('./shows/index.js');
+    if (version !== (startShow.version ?? 0)) return;
     shows = installShows({ scene, camera, renderer, heroGroup: hero?.group, bowlGroup: bowl.group });
   }
   stopLiveClock(); state.minutes = 1200; const t = document.querySelector('#landing-time'); if (t) t.value = '1200';
@@ -618,6 +676,7 @@ async function startShow() {
   if (import.meta.env.DEV) window.__shows = shows;
 }
 function stopShow() {
+  startShow.version = (startShow.version ?? 0) + 1;
   shows?.dispose(); shows = null;
   if (startShow.savedFlood) {
     for (const { light, descriptor } of startShow.savedFlood) Object.defineProperty(light, 'intensity', descriptor);
@@ -626,13 +685,18 @@ function stopShow() {
 }
 document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   if (b.disabled) return;
+  const version = ++modeVersion;
+  stopEvent(); stopShow();
+  if (crowd) crowd.setFill(quality.crowdFraction);
+  viewStills?.dismiss();
   document.querySelectorAll('#modes button').forEach((x) => x.classList.toggle('on', x === b));
   state.mode = b.dataset.mode === 'construction' ? 'construction' : 'venue';
   state.matchday = b.dataset.mode === 'matchday'; if (state.matchday) ensureCrowd();
   stopPlay(); buildTimeline(); applyBuild();
   if (b.dataset.mode === 'construction') { state.build = Date.UTC(2023, 0, 8); focus('bowl'); }
   if (b.dataset.mode === 'weather') { $('#weather').scrollIntoView({ behavior: 'smooth' }); focus('overview'); }
-  if (b.dataset.mode === 'show') { focus('overview'); void startShow(); } else stopShow();
+  if (b.dataset.mode === 'show') { focus('overview'); void startShow(); }
+  if (['concert', 'football'].includes(b.dataset.mode)) { focus('pitch'); void startEvent(b.dataset.mode, version); }
 });
 $('#date').onchange = (e) => { if (e.target.value) { stopLiveClock(); state.day = e.target.value; wxKey = ''; buildTimeline(); } };
 
@@ -729,6 +793,7 @@ async function startHero() {
     scene.add(h.group);
     sun.castShadow = false; renderer.shadowMap.enabled = false;
     hero = h; configurePipeline();
+    if (state.matchday || eventMode) void ensureCrowd();
     heroStatus.textContent = '';
     console.info('hero mode on:', h.manifest.bundle, h.manifest.time);
   } catch (error) {
@@ -840,15 +905,25 @@ fetch('./data/traffic_lines.json').then((r) => r.json()).then((lines) => {
 // The crowd is heavy (92 triangles per near fan), so it is built only when Match day is first opened.
 let crowd = null;
 // Seated crowd (PPL-01, PPL-02, Visualization): one fan per seat place, with scripted reactions on match day.
-let crowdLoading = false, nextCheer = 20, nextWave = 45;
+let crowdLoading = null, nextCheer = 20, nextWave = 45;
 async function ensureCrowd() {
-  if (crowd || crowdLoading || !bowl.seats || quality.crowdFraction === 0) return;
-  crowdLoading = true;
-  const { installSeatedCrowd } = await import('./people/index.js');
-  crowd = installSeatedCrowd({ scene, camera, renderer, bowlGroup: bowl.group, heroGroup: hero?.group, quality: tier, features: F });
-  crowd.setFill(quality.crowdFraction); crowdLoading = false;
-  if (import.meta.env.DEV) window.__crowd = crowd;
+  if (crowdLoading) return crowdLoading;
+  if (crowd) { crowd.setFill(quality.crowdFraction || (eventMode ? .04 : 0)); return crowd; }
+  if (!bowl.seats || quality.crowdFraction === 0 && !eventMode) return;
+  crowd?.dispose(); crowd = null;
+  crowdLoading = (async () => {
+    const { installSeatedCrowd } = await import('./people/index.js');
+    if (!state.matchday && !eventMode) return null;
+    crowd = installSeatedCrowd({ scene, camera, renderer, bowlGroup: bowl.group, quality: tier, features: F });
+    // Preserve the drawn seat frame, including pad height, outside the baked model's lighting traversal.
+    scene.attach(crowd.group);
+    crowd.setFill(quality.crowdFraction || (eventMode ? .04 : 0));
+    if (import.meta.env.DEV) window.__crowd = crowd;
+    return crowd;
+  })();
+  try { return await crowdLoading; } finally { crowdLoading = null; }
 }
+
 const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   tier = next; quality = TIERS[tier];
   renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
@@ -859,8 +934,9 @@ const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   { const keep = quality.treeCount / Math.max(1, trees.children.reduce((n, m) => n + m.count, 0)); if (keep < 1) for (const m of trees.children) if (m.isInstancedMesh) m.count = Math.floor(m.count * keep); }
   traffic?.setLimit(quality.trafficCount);
   if (crowd && quality.crowdFraction < 1) {
-    crowd.dispose(); crowd = null; if (state.matchday) ensureCrowd();
+    crowd.dispose(); crowd = null; if (state.matchday || eventMode) void ensureCrowd();
   }
+  liveEvent?.setTier?.(tier);
   if (!quality.crowdFraction) site.crowd.visible = false;
 } });
 if (fpsMonitor.element) stage.appendChild(fpsMonitor.element);
@@ -916,13 +992,14 @@ renderer.setAnimationLoop((now) => {
   if (!parityMode) shows?.update(dt);
   site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
   if (crowd) {
-    crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible;
+    crowd.group.visible = Boolean((state.matchday || eventMode) && (hero || bowl.group.visible && bowl.seats.visible));
     if (crowd.group.visible) {
       const t = now / 1000; crowd.setNight(night); crowd.react('phones', { on: night }); crowd.update(dt, t);
-      if (t > nextWave) { crowd.react('wave', { speed: 12 }); nextWave = t + 75; nextCheer = t + 30; }
-      else if (t > nextCheer) { crowd.react('cheer'); nextCheer = t + 25; }
+      if (state.matchday && t > nextWave) { crowd.react('wave', { speed: 12 }); nextWave = t + 75; nextCheer = t + 30; }
+      else if (state.matchday && t > nextCheer) { crowd.react('cheer'); nextCheer = t + 25; }
     }
   }
+  if (!parityMode) { liveEvent?.setTier?.(tier); liveEvent?.update(dt); }
   fpsMonitor.update(now);
   controls.update();
   const timeKey = `${state.day}:${state.minutes}:${Boolean(hero)}`;
