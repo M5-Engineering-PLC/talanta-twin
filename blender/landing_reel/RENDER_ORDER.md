@@ -33,7 +33,7 @@ From blender/renders/scroll_test_01 (24 frames), blender/renders/scroll_test_02 
 | Portrait 720 x 1280, haze off, 48 samples | 92 | |
 | Lit dusk (L06 sunset_artistic, 128 samples, haze) | 1,050 | 1.5 times the day frame |
 
-Flicker over 24 frames: 128 samples with haze (scroll_test_01) and the lit dusk run (scroll_test_02) show no frame that stands out. 32 samples, haze off: pending (24-frame run queued after the G2 and phone builds; this line is updated with the result). Version C (stills quality, 128 samples) does not depend on this test; it applies to version B only.
+Flicker over 24 frames: 128 samples with haze (scroll_test_01) and the lit dusk run (scroll_test_02) show no frame that stands out. 32 samples, haze off (24 frames, 2026-10-26, blender/out/reel_levers/h0_s32_24): no frame stands out; the mean brightness steps between neighbouring frames are 0.15 of 255 (median) and 0.32 (largest), against 0.13 and 0.28 for the 128-sample haze run (scroll_test_01). The frame times in this run (about 270 s) are not a cost figure: other renders shared the CPU; 153 s (measured alone) stays. Version C (stills quality, 128 samples) does not depend on this test; it applies to version B only.
 
 File sizes (H.264, measured on the 24-frame day orbit, which moves 1.25 deg a frame, faster than chapters 1 and 2): 1080p CRF 26 with a 2 s GOP is 0.92 MB per second; the 720 x 1280 portrait 0.34 MB per second. So, at most: chapter 1 about 7 MB (portrait 2.7 MB), chapter 2 about 9 MB (portrait 3.4 MB).
 
