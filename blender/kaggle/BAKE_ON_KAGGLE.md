@@ -7,7 +7,7 @@ Order: engineering/lead_decision_2026-10-25_cycles_parity.md, P2.
 
 ## What is ready
 
-- Render pack 2026-10-26 on branch assets/render_pack (parts under 95 MB, sha256, README). Upload it as a new version of the private dataset talanta-render-pack. It holds:
+- Render pack 2026-10-26 on branch assets/render_pack at c14cc71: 219,340,800 bytes in 3 parts (talanta_render_pack.tar.000 to .002), sha256 file, README; tested from an empty folder under strace (no file read outside the pack). Upload it as a new version of the private dataset talanta-render-pack. It holds:
   - blender/out/frozen_FL.blend: frozen_FK.blend plus the seat re-check stand detail (seat v2, aisle step nosings, rail posts and rail ends in bowl_detail). The bakes and chapters 1 and 2 use it.
   - blender/out/frozen_FL_interior.blend: frozen_FL.blend plus the concourse, the entry and the roof grid (interior_* collections). Chapters 3 and 4 use it.
   - the scripts of wo/web-hero-v2 at the pack date, with the GPU hook (TALANTA_PRE) in bake_lightmaps.py and render_panorama.py, and the P2 options TALANTA_BAKE_PRESET and TALANTA_BAKE_OUT.

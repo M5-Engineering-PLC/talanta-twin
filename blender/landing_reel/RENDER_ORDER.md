@@ -133,7 +133,7 @@ After each part: the frames go to the orphan branch `assets/landing_reel_frames`
 ## Hold on C3 to C6 (Munene, 2026-10-26)
 
 - C3 to C6 do not start until these are done: the interior (chapters 3 and 4), the seat re-check, the P2 bakes (10:30, 18:05, 20:00) and the new render pack.
-- The new pack then becomes a new version of the Kaggle dataset talanta-render-pack. C3 to C6 run on it, with the same notebook settings.
+- The new pack (assets/render_pack c14cc71, 2026-10-26: frozen_FL.blend with the seat re-check stand detail, frozen_FL_interior.blend) becomes a new version of the Kaggle dataset talanta-render-pack; it is built before the bakes, because the P2 bakes run on the Kaggle GPU (Munene, 2026-10-26; blender/kaggle/BAKE_ON_KAGGLE.md). C3 to C6 run on it after the bakes, with the same notebook settings (the notebook takes frozen_FL.blend).
 - C1 and C2 (frames 0 to 23 of chapter 1) were rendered on pack 7e19362. If the new pack changes the stand that chapter 1 sees (for example the seat model), frames 0 to 23 of both cuts render again on the new pack (about 0.7 GPU h), so the chapter has one scene state.
 
 ## Notebook settings for each run
