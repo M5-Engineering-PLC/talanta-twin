@@ -147,9 +147,49 @@ def orient_outward(o):
     bm.to_mesh(o.data); bm.free(); o.data.update()
 
 
+# Shell fix (lead decision 2026-10-26, blender/kaggle/BAKE_ON_KAGGLE.md): the undersides of the shell bands touch other
+# parts above them. Turned up, their baked side is covered: black on the CPU, lit on the GPU (OptiX misses a cover that
+# touches the face). In stadium_shell, these parts keep the scene orientation, and a flat face whose top side has
+# other geometry within COVER_M above it (at its centre or near a corner) points down. The other groups are not changed.
+SHELL_KEEP = ("soffit", "base_band", "base_columns", "opening_trim")
+COVER_M = 0.1
+_dg = bpy.context.evaluated_depsgraph_get()
+
+
+def covered_above(pts):
+    """True if a ray up from just under one of the points pts meets a surface within COVER_M of the face. The object
+    of the face is hidden while it is tested, so a cover that touches or cuts the face counts."""
+    for c in pts:
+        hit, loc, *_ = s.ray_cast(_dg, c - Vector((0, 0, 0.02)), Vector((0, 0, 1)), distance=COVER_M + 0.02)
+        if hit: return True
+    return False
+
+
+def orient_shell(o):
+    global _dg
+    if o.name not in SHELL_KEEP: orient_outward(o)
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    R, M = o.matrix_world.to_3x3(), o.matrix_world; flip = []
+    o.hide_viewport = True; bpy.context.view_layer.update(); _dg = bpy.context.evaluated_depsgraph_get()
+    for f in bm.faces:  # the face centre and points 60 % of the way to its corners (large faces are partly covered)
+        if (R @ f.normal).z <= 0.5: continue
+        c = f.calc_center_median()
+        if covered_above([M @ c] + [M @ c.lerp(v.co, 0.6) for v in f.verts[:8]]): flip.append(f)
+    o.hide_viewport = False; bpy.context.view_layer.update()
+    bmesh.ops.reverse_faces(bm, faces=flip)
+    bm.to_mesh(o.data); bm.free(); o.data.update()
+    return len(flip)
+
+
+from mathutils import Vector
+SHELL_FLIPPED = {}
 for gname, (size, obs) in groups.items():
     if gname.startswith("ground_"): continue
-    for o in obs: orient_outward(o)
+    for o in obs:
+        if gname == "stadium_shell": SHELL_FLIPPED[o.name] = orient_shell(o)
+        else: orient_outward(o)
+print("shell fix: kept the scene orientation of", [o.name for o in groups["stadium_shell"][1] if o.name in SHELL_KEEP],
+      "; flat faces turned down (covered top side):", SHELL_FLIPPED, flush=True)
 
 # ---------------------------------------------------------------- UV sets: UV0 kept (or added), UV1 = "lightmap"
 def ensure_uvs(o):
