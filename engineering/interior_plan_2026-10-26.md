@@ -7,14 +7,15 @@ Order: lead order 2026-10-26, item 2. This plan does not wait for approval. The 
 
 ## 1. What the chapters show
 
-- Chapter 3 "Going in" (6 to 10 s): the camera starts in the lower concourse, under the middle tier. It moves along the concourse, turns into one spectator entry at the head of a lower-tier aisle, goes through the entry passage and comes out at the top of the lower tier. The last frame looks across the bowl to the far stand and the roof.
+- Chapter 3 "Going in" (6 to 10 s): the camera starts in the enclosed outer concourse (frame 000404.000: dark slatted ceiling with LED lines, white round columns). It moves along the concourse, turns into one spectator entry in the concourse back wall, goes through the entry passage into the open inner concourse (frame 002144.300: low soffit, exposed ducts, open to the bowl) and comes out at the head of a lower-tier aisle. The last frame looks across the bowl to the far stand and the roof.
 - Chapter 4 "A lap of the bowl" (6 to 10 s): one closed loop at stand height, at about the middle of the lower tier (row 8 of 15), with the camera above the seats and looking into the bowl. The last frame is the first frame, so the chapter can loop.
 - Chapter 3 ends at the top of the lower tier, and chapter 4 starts in the same stand, so the cut between them is short.
 
 ## 2. The entry for chapter 3
 
 - Side: south-east, about 120 deg round the bowl from the west side. The west side has the tunnel mouth and the VIP stand (placeholders, bowl.tunnel.side and bowl.vip.side). The entry is far from both.
-- The entry is a generic spectator entry from the concourse to a lower-tier aisle head, as in frame 000412.000 (walls on both sides, the bowl in front). No source marks it as an emergency exit, and the model does not mark it as one.
+- The entry is a generic spectator entry through the concourse back wall (the IT13 back wall line), on the axis of a lower-tier aisle. The same plain openings repeat at every second lower-tier aisle (14 round the bowl); only the chapter 3 entry has a full passage (3.0 m wide, 3.2 m high, 5.4 m long). No source marks it as an emergency exit, and the model does not mark it as one.
+- Frame 000412.000 (a passage at pitch level) is not used: it is near the players' area.
 - Rule 8: no shot frames an exit, an exit sign, a control room, a security room or a camera position. The model has no exit signs, no signs with text, no turnstiles, no gates, no CCTV, no doors to back-of-house rooms and no stair cores in the camera views. The concourse is generic where no frame shows it.
 - Not modelled: the player tunnel (only the existing dark mouth stays, and no shot frames it), the dressing rooms, the media offices, the toilets and any back-of-house space.
 
@@ -24,9 +25,10 @@ All new objects go in new collections. They are not in the web_hero_v2 twin expo
 
 | Collection | Contents | Seen in |
 |---|---|---|
-| interior_concourse | concourse floor (grey polished, tiled joints), dark slatted ceiling with linear LED strips, white round columns, pale wall panels on the back wall, closed kiosk shutters (generic, no text), bins, a low bowl-side edge with a steel rail | ch3; ch4 at distance |
-| interior_concourse_lights | the LED strips as emission plus Cycles area lights at the strips (real lights for the dusk and night looks) | ch3 |
-| interior_entry | the entry passage: two wall returns, a soffit, a floor ramp, wall lights, a plain blank panel (no text) above the opening on the bowl side | ch3 |
+| interior_concourse | inner concourse (open to the bowl): polished floor, a low concrete soffit, a pale fascia up to the middle tier, exposed ducts, linear fittings; the back wall with pale panels, the entries and blank panels (no text) | ch3; ch4 at distance |
+| interior_outer_concourse | outer concourse (enclosed): polished floor, dark slatted ceiling, white round columns, pale outer wall with closed kiosk shutters (generic, no text) | ch3 |
+| interior_concourse_lights | the LED lines and fittings as emission, plus Cycles area lights within 60 m of the entry (real lights for the dusk and night looks) | ch3 |
+| interior_entry | the chapter 3 entry passage: wall returns, a lintel, wall light lines | ch3 |
 | interior_stand | the lower-tier surfaces at close range: a new seat model, step nosings, aisle handrails, the rail at the aisle head, a tread edge strip | ch3, ch4 |
 | interior_roof_under | the roof underside as seen from the stands: secondary lattice members, cable clamps and the catwalk detail (the primaries, cables, catwalk and floodlights exist) | ch3 end, ch4 |
 
@@ -40,7 +42,6 @@ Facts: research/Talanta_design_facts_2026-10-16.md (seat colour gradient green, 
 |---|---|---|
 | concourse_interior | JWNowpO44rw 000404.000, 002600.000, 002144.300 (sheet 05 IT13); IF72 frames 002530.000, 002545.000, 002550.000 | concourse height, slatted ceiling with LED lines, white round columns, grey polished floor, pale walls |
 | concourse_interior | cyNgbyZv6BM 001002.000, 001118.000 | pale walls, closed roller shutter (kiosk front), polished floor |
-| concourse_interior | JWNowpO44rw 000412.000 | the entry passage: wall returns, opening onto the bowl |
 | bowl_seating | JWNowpO44rw 002714.067, 002746.867 (seat detail), 000751.000, 002427.667, 002637.467, 002320.200 | seat shape, aisle steps and rails, glass balustrade, tier fronts |
 | bowl_seating, roof_canopy | JWNowpO44rw 000155.599, 000200.000, 002828.467; IF22 and IF23 frames | roof underside lattice, membrane, speakers, catwalk |
 
@@ -60,15 +61,17 @@ Status: measured (from a plan or a survey), derived (from two or more frames), o
 | lower tier tread and riser (from the envelope) | 1.32 m and 0.75 m | estimated | 15 rows over the modelled depth; see section 8 |
 | concourse floor | at the top tread of the lower tier | estimated | sheet 06 IF74, ledger |
 | concourse depth under the middle tier | 10 m | estimated | ledger bowl.concourse.depth (+-3 m) |
-| concourse clear height at the bowl side | about 7 m (to the middle tier soffit, less a 0.6 m slab) | estimated | model geometry, frame 000404.000 |
+| concourse height to the middle tier underside | about 7.4 m at the front (the new soffit closes it at 4.4 m) | estimated | model geometry |
 | ceiling slats | 0.10 m wide, 0.30 m deep, at 0.40 m centres, dark grey | estimated | frames 000404.000, 002600.000 (IF72) |
 | LED strips | 0.08 m wide lines across the slats at about 3 m centres, about 4,000 K | estimated | frames 000404.000, 002600.000 |
 | concourse columns | white, round, 0.45 m radius, 8 m centres | estimated | ledger bowl.vip.column_*, frame 000404.000 |
 | back wall panels | pale grey-white, 1.2 m x 2.4 m with 10 mm joints | estimated | frames cyNgbyZv6BM 001002.000, JWNowpO44rw 002248.000 |
 | floor | grey polished concrete, 1.2 m joints | estimated | frames cyNgbyZv6BM 001002.000, 001118.000 |
 | kiosk fronts | 6 m wide closed roller shutters, about 3 m high, every 2nd column bay on the back wall, no text | estimated | frame cyNgbyZv6BM 001002.000 (shutter); sheet 06 gap list (no clear kiosk) |
-| entry passage | 3.0 m wide, 3.0 m high, 6 m long, from the concourse to the aisle head | estimated | frame 000412.000, ledger bowl.portals.* scale |
-| entry position | lower-tier aisle head at about 120 deg from the west centre line (south-east) | estimated | chosen (section 2) |
+| inner concourse clear height (to the new soffit) | 4.4 m | estimated | frame 002144.300 (about 2.5 person heights) |
+| outer concourse | 11 m deep behind a 0.4 m back wall, 4.6 m to the slats | estimated | frame 000404.000; generic |
+| entry passage | 3.0 m wide, 3.2 m high, 5.4 m long, through the back wall | estimated | ledger bowl.portals.* scale; generic |
+| entry position | the back wall on the axis of lower-tier aisle 4 of 27, at 62.9 deg from east towards south (about 117 deg from the west centre line) | estimated | chosen (section 2) |
 | seat | 0.44 m wide, pan at 0.42 m, back about 0.40 m above the pan, moulded shell with a rolled top edge, a number plate on the back (blank) | estimated | ledger bowl.seat.*, frames 002714.067, 002746.867 |
 | seat pitch along the row | 0.50 m | estimated | ledger bowl.seat_pitch |
 | aisle handrails | steel, 0.05 m tube, 0.9 m high, posts every 2 rows, one rail in the aisle centre | estimated | frames 000751.000, 002637.467 |
@@ -94,7 +97,7 @@ Render time: chapter 3 is lit by the concourse lights and the bowl daylight, so 
 - The new seat model replaces seat_proto in the bowl. The seat colours, rows and positions do not change. From the aerial views only the shading of the seat blocks changes a little.
 - Aisle handrails on every lower-tier aisle (new): thin steel lines, seen in the near-aerial views.
 - Step nosings on the lower-tier aisle steps (new): pale lines, seen in the near-aerial views.
-- The concourse bowl-side rail and the entry wall returns at the lower-tier aisle heads: under the middle tier overhang, probably not seen from the aerial cameras. The preview from L06 and L07 checks this.
+- The inner concourse soffit, the pale fascia above it and the pale back wall with its entries (it was dark): under the middle tier overhang, probably not seen from the aerial cameras. The preview from L06 and L07 checks this.
 - No change to the tier envelope, the row counts, the middle and upper tiers, the roof top surface or the facade.
 
 These changes go into the bake only if the lead approves them for the twin. Until then the twin export keeps the existing seats and aisles. The film uses the new parts.
