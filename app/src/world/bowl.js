@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { rayRadius, roundedRect } from './geom.js';
+import { seatPalette } from './seatPalette.js';
 
 // Talanta bowl, fully built state.
 // Plan: outer edge = OSM building r20072298; roof opening = rounded rectangle sized to the
@@ -26,6 +27,36 @@ export const BOWL_EST = {
   lattice: 24, // ledger bowl.profile.lattice_members_704 (2026-10-20): shields on every third V point
   N: 240,
 };
+
+function mulberry32(seed) {
+  return function random() {
+    let value = seed += 0x6D2B79F5;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function createSeatColorPicker(palette, seed = 303) {
+  const random = mulberry32(seed);
+  return (tierName, rowFraction) => {
+    const tier = palette[tierName];
+    if (!tier) return null;
+    const pick = random();
+    let cumulative = 0;
+    let toneIndex = tier.weights.length - 1;
+    for (let i = 0; i < tier.weights.length; i++) {
+      cumulative += tier.weights[i];
+      if (pick < cumulative) { toneIndex = i; break; }
+    }
+    const speckleChance = tierName === 'lower'
+      ? palette.mixLowerRedTop * Math.max(0, Math.min(1, (rowFraction - 0.6) / 0.4))
+      : tierName === 'middle' ? palette.mixMiddleGreen * 2 * (1 - rowFraction) : 0;
+    const speckled = random() < speckleChance;
+    const tone = tier.tones[toneIndex];
+    return { tone, color: speckled ? (tierName === 'lower' ? palette.redHex : palette.greenHex) : tone, speckled };
+  };
+}
 
 export function buildBowl(features, opts = {}) {
   const E = BOWL_EST, N = E.N;
@@ -235,10 +266,21 @@ export function buildBowl(features, opts = {}) {
   const seats = new THREE.InstancedMesh(seatGeo, new THREE.MeshStandardMaterial({ roughness: 0.6 }), seatList.length);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1), v3 = new THREE.Vector3(), yAx = new THREE.Vector3(0, 1, 0);
   const cA = new THREE.Color(), cB = new THREE.Color();
+  const pickSeatColor = createSeatColorPicker(seatPalette, 303);
+  const tierPalette = { lower: seatPalette.lower, middle: seatPalette.middle, upper: seatPalette.upper };
   seatList.forEach((s, k) => {
     q.setFromAxisAngle(yAx, -s.ang - Math.PI / 2);
     m4.compose(v3.set(s.x, s.y, s.z), q, one); seats.setMatrixAt(k, m4);
-    cA.set(s.tier.seat[0]).lerp(cB.set(s.tier.seat[1]), s.g); seats.setColorAt(k, cA);
+    const tierName = s.tier.name.startsWith('Lower') ? 'lower' : s.tier.name.startsWith('Middle') ? 'middle' : 'upper';
+    const palette = tierPalette[tierName];
+    if (palette) {
+      const row = Math.max(0, Math.min(s.tier.rows - 1, Math.round(((s.y - s.tier.y0) / (s.tier.y1 - s.tier.y0)) * s.tier.rows)));
+      const f = row / Math.max(s.tier.rows - 1, 1);
+      const selected = pickSeatColor(tierName, f);
+      cA.set(selected.color); seats.setColorAt(k, cA);
+    } else {
+      cA.set(s.tier.seat[0]).lerp(cB.set(s.tier.seat[1]), s.g); seats.setColorAt(k, cA);
+    }
   });
   seats.castShadow = false; seats.receiveShadow = true; seats.name = 'seats';
   group.add(seats);
