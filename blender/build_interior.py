@@ -20,16 +20,21 @@ import bpy
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-PARTS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["concourse"]
+_ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["concourse"]
+PARTS = [a for a in _ARGS if "=" not in a]
+KW = dict(a.split("=", 1) for a in _ARGS if "=" in a)  # src=, out= (repo paths), stand_coll= (default interior_stand)
 L = {r["name"]: r for r in csv.DictReader(open(ROOT / "gis/parameter_ledger.csv"))}
 V = lambda k: float(L[k + "_blockout"]["value"]) if k + "_blockout" in L else float(L[k]["value"])
 G = json.loads((ROOT / "blender/out/bowl_rings.json").read_text())
 N, PAD = G["N"], G["pad"]
 rIn, rBack = np.array(G["rIn"]), np.array(G["rBack"])
 TH = 2 * math.pi * np.arange(N) / N  # bowl_rings dirs are at uniform angles from east (app x) towards south (app z)
-OUT = ROOT / "blender/out/frozen_FK_interior.blend"
-SRC = ROOT / "blender/out/frozen_FK.blend"
-bpy.ops.wm.open_mainfile(filepath=str(OUT if OUT.exists() and "concourse" not in PARTS else SRC))
+OUT = ROOT / KW.get("out", "blender/out/frozen_FK_interior.blend")
+SRC = ROOT / KW.get("src", "blender/out/frozen_FK.blend")
+# 2026-10-26 (Munene, seat re-check): the stand part goes into the main scene too:
+#   -- stand src=blender/out/frozen_FK.blend out=blender/out/frozen_FL.blend stand_coll=bowl_detail
+#   -- concourse roof src=blender/out/frozen_FL.blend out=blender/out/frozen_FL_interior.blend
+bpy.ops.wm.open_mainfile(filepath=str(SRC if "src" in KW or "concourse" in PARTS or not OUT.exists() else OUT))
 scene = bpy.context.scene
 B = lambda x, y, z: (x, -z, y + PAD)  # app frame (pad-relative height) -> Blender
 LOG = {"parts": PARTS, "objects": {}}
@@ -427,7 +432,7 @@ def seat_mesh(name):
 
 def part_stand():
     t0 = time.time()
-    C_ST = "interior_stand"
+    C_ST = KW.get("stand_coll", "interior_stand")  # bowl_detail in the main scene (exported, seen by the bakes)
     NOSE = mat("int_step_nosing", "#DCDDD8", 0.6)
     STEEL = bpy.data.materials.get("rail_steel") or mat("int_rail_steel", "#8C8E90", 0.35, 0.8)
     PLATE = mat("int_seat_plate", "#E9E9E6", 0.4)
@@ -514,7 +519,9 @@ for c in [c for c in bpy.data.collections if c.name.startswith("interior_")]:
     c["claim"] = "interior for the walkthrough film (chapters 3 and 4); not in the web_hero_v2 twin export"
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT), compress=True)
 _lp = ROOT / "blender/out/interior_build_log.json"  # one log for all parts: later parts update it
-_prev = json.loads(_lp.read_text()) if _lp.exists() and "concourse" not in PARTS else {}
+_old = json.loads(_lp.read_text()) if _lp.exists() else {}
+_prev = _old if "concourse" not in PARTS else {"files": _old.get("files", {})}
+_prev.setdefault("files", {})[OUT.name] = {"src": SRC.name, "parts": PARTS, **({"stand_coll": KW["stand_coll"]} if "stand_coll" in KW else {})}
 _prev.setdefault("objects", {}).update(LOG.pop("objects")); _prev["parts"] = sorted(set(_prev.get("parts", [])) | set(LOG.pop("parts")))
 _prev.update(LOG); _lp.write_text(json.dumps(_prev, indent=1) + "\n")
 print("interior", json.dumps(LOG))

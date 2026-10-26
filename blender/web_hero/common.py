@@ -12,6 +12,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "blender/out/web_hero"
 MAPS = OUT / "maps"
+# P2 time-of-day bakes (2026-10-26): TALANTA_BAKE_OUT=blender/out/web_hero/lightmaps/<HHMM> puts the maps, stages.json,
+# bake_log.json and the baked blend of one set there (same layout as the 07:30 set: maps/ and the two files);
+# TALANTA_BAKE_PRESET picks the sky preset of blender/sky_hdri.py (default morning_golden, the 07:30 set).
+import os as _os
+BAKE_OUT = ROOT / _os.environ["TALANTA_BAKE_OUT"] if _os.environ.get("TALANTA_BAKE_OUT") else OUT
+BAKE_PRESET = _os.environ.get("TALANTA_BAKE_PRESET", "morning_golden")
+if _os.environ.get("TALANTA_BAKE_OUT"): MAPS = BAKE_OUT / "maps"
 MARK = "# ---- end of scene setup"
 
 

@@ -18,12 +18,12 @@ maps; the forecourt_context meshes (forecourt.py, which hides the old plaza and 
 import json, math, sys, time
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, OUT, MAPS, setup_morning, sun_vector_app, write_json
+from common import ROOT, OUT, MAPS, BAKE_OUT, BAKE_PRESET, setup_morning, sun_vector_app, write_json
 import lightmap_uv
 
 SAMPLES = int(sys.argv[-1]) if sys.argv[-1].isdigit() else 128
 TEST = "test" in sys.argv  # quarter-size atlases and few samples, for a quick pipeline check
-g = setup_morning()
+g = setup_morning(preset=BAKE_PRESET)
 import bpy, bmesh
 import numpy as np
 
@@ -314,6 +314,7 @@ log = {"scene": g["web_state"], "date": g["st"]["date"], "time_eat": g["st"]["ti
        "groups": {gname: {"size": size, "objects": [o.name for o in obs], "light_scale": scales[gname], "uv": uv_stats.get(gname, "planar tile")} for gname, (size, obs) in groups.items()},
        "encoding": "light png = sRGB(light / light_scale); multiply by light_scale to get linear light on a white diffuse surface"}
 if TEST: OUT = OUT / "test"
+OUT = BAKE_OUT if not TEST else OUT  # P2 sets: lightmaps/<HHMM>/ (common.py)
 write_json(OUT / "bake_log.json", log)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT / "talanta_web_baked.blend"), compress=True)
 print(json.dumps({"bake_seconds": times, "total_seconds": log["total_seconds"]}))
