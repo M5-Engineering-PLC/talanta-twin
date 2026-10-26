@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# git commit-msg hook (installed by commit-ownership). Works for every tool
+# that commits on this clone: Claude, Codex, Copilot, or a person.
+# - Removes AI co-author trailers, "Generated with <AI>" lines, and claude.ai
+#   session links from the message.
+# - Rejects the commit if the author or committer is an AI identity.
+# marker: commit-ownership
+
+msg="$1"
+ai='(claude|anthropic|codex|openai|chatgpt|gpt-[0-9]|copilot|gemini|cursor ?agent|devin)'
+
+tmp=$(mktemp)
+grep -viE "^co-authored-by:.*${ai}|generated (with|by) \\[?${ai}|^🤖|claude\\.ai/code/session" "$msg" > "$tmp"
+# Remove blank lines at the end that the removed lines leave behind.
+sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' "$tmp" > "$msg"
+rm -f "$tmp"
+
+for v in GIT_AUTHOR_IDENT GIT_COMMITTER_IDENT; do
+    id=$(git var "$v" 2>/dev/null)
+    id=${id% * *}
+    if printf '%s' "$id" | grep -qiE "@anthropic\.com|noreply@openai\.com|<[^>]*${ai}[^>]*>|^${ai}\b|\[bot\]"; then
+        echo "commit-ownership: $v is an AI identity ($id)." >&2
+        echo "Commit with the identity of the person who runs the session." >&2
+        exit 1
+    fi
+done
+exit 0

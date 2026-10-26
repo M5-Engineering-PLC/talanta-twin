@@ -1,0 +1,57 @@
+name: commit-ownership
+
+# Fails when a new commit has an AI author, an AI committer, or an AI
+# co-author trailer. The person who makes the change owns the commit.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check new commits
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            range="$PR_BASE..$PR_HEAD"
+          elif [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            range="$AFTER^!"
+          else
+            range="$BEFORE..$AFTER"
+          fi
+          ai='(claude|anthropic|codex|openai|chatgpt|gpt-[0-9]|copilot|gemini|cursor ?agent|devin)'
+          bad=0
+          for c in $(git rev-list --no-merges "$range"); do
+            who=$(git log -1 --format='%an <%ae>|%cn <%ce>' "$c")
+            trailers=$(git log -1 --format='%(trailers:key=Co-authored-by,valueonly)' "$c")
+            body=$(git log -1 --format='%B' "$c")
+            # GitHub signs web merges and squashes as noreply@github.com. That committer is allowed.
+            ids=$(printf '%s' "$who" | tr '|' '\n' | grep -v '<noreply@github.com>')
+            if printf '%s\n' "$ids" | grep -qiE "@anthropic\.com|noreply@openai\.com|<[^>]*${ai}[^>]*>|^${ai}\b|\[bot\]"; then
+              echo "::error::$c has an AI author or committer: $who"; bad=1
+            fi
+            if printf '%s' "$trailers" | grep -qiE "$ai"; then
+              echo "::error::$c has an AI co-author trailer: $trailers"; bad=1
+            fi
+            if printf '%s' "$body" | grep -qiE "generated (with|by) \[?${ai}"; then
+              echo "::error::$c has a \"Generated with <AI>\" line"; bad=1
+            fi
+          done
+          if [ "$bad" = 1 ]; then
+            echo "Rewrite these commits with the identity of the person who made the change, without AI trailers."
+            exit 1
+          fi
+          echo "All new commits are owned by people."
