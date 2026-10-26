@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 ARGV = sys.argv[sys.argv.index("--") + 1:]
 out, PART = ROOT / ARGV[0], ARGV[1]
+ONLY = ARGV[2].split(",") if len(ARGV) > 2 else None  # pose names to render
 out.mkdir(parents=True, exist_ok=True)
 E = json.loads((ROOT / "blender/out/interior_build_log.json").read_text())["entry"]
 PAD, yF = E["pad"], E["floor_y_pad"]
@@ -23,12 +24,13 @@ Bp = lambda x, z, h: (x, -z, h)  # app (x, z) and Blender height -> Blender
 at_n = lambda n, t=0.0: (px + nx * n + tx * t, pz + nz * n + tz * t)
 POSES = {
     "concourse": [
-        ("p1_outer_along", Bp(*at_n(5.6 + 5.0, 18.0), EYE), Bp(*at_n(5.6 + 3.0, 0.0), EYE - 0.3), 0.0),
+        ("p1_outer_along", Bp(*at_n(5.6 + 1.0, 14.0), EYE), Bp(*at_n(5.6 + 1.5, 0.0), EYE - 0.3), 0.0),
         ("p2_outer_to_entry", Bp(*at_n(5.6 + 4.8, 0.0), EYE), Bp(*at_n(-10.0), EYE - 0.6), 0.0),
         ("p3_inner_from_entry", Bp(*at_n(-1.0), EYE), Bp(*at_n(-30.0), EYE - 3.0), 0.0),
         ("p4_aisle_head", Bp(*at_n(-(E["r_wall"] - E["r_front"]) + 0.8), EYE), (0.0, 0.0, PAD + 2.0), 0.0),
-        ("p5_bowl_to_concourse", Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 11.0, -14.0), PAD + 8.5), Bp(*at_n(0.0), PAD + yF + 2.5), 0.0),
+        ("p5_bowl_to_concourse", Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 11.0, -14.0), PAD + 12.0), Bp(*at_n(0.0), PAD + yF + 2.5), 0.0),
     ],
+    "stand": "computed after the scene setup (heights by ray cast)",
 }[PART]
 
 src = (ROOT / "blender/render_cycles.py").read_text()
@@ -53,8 +55,29 @@ if pl is not None:
 s.cycles.samples = 16; s.render.resolution_x, s.render.resolution_y, s.render.resolution_percentage = 960, 540, 100
 s.render.use_persistent_data = True; s.render.image_settings.file_format = "PNG"
 cam = s.camera; ev0 = s.view_settings.exposure
+if PART == "stand":  # lap camera points: mid lower tier (t 0.19), 3 m above the stand surface, looking ahead and inwards
+    import numpy as np
+    G = json.loads((ROOT / "blender/out/bowl_rings.json").read_text()); N = G["N"]
+    TH = 2 * math.pi * np.arange(N + 1) / N
+    rof = lambda arr, th: float(np.interp(th % (2 * math.pi), TH, np.append(arr, arr[0])))
+    dg = bpy.context.evaluated_depsgraph_get()
+    def surf(x, y):
+        hit, loc, *_ = s.ray_cast(dg, Vector((x, y, PAD + 30.0)), Vector((0, 0, -1)))
+        return loc.z if hit else PAD
+    def lap(th, h=3.0, look=50.0, dn=10.0, t=0.19):
+        r = rof(G["rIn"], th) + (rof(G["rBack"], th) - rof(G["rIn"], th)) * t
+        x, z = math.cos(th) * r, math.sin(th) * r; zc = surf(x, -z) + h
+        a = th + math.pi / 2 + math.radians(look)  # direction of travel (increasing th) turned inwards
+        d = (math.cos(a), math.sin(a))
+        return Bp(x, z, zc), Bp(x + 20 * d[0], z + 20 * d[1], zc - 20 * math.tan(math.radians(dn)))
+    th_e = math.atan2(pz, px)
+    POSES = [("s1_lap_east", *lap(math.radians(10)), 0.0), ("s2_lap_south", *lap(math.radians(95)), 0.0),
+             ("s3_lap_north_low", *lap(math.radians(275), h=1.9, look=70, dn=6), 0.0),
+             ("s4_aisle_head_down", Bp(*at_n(-(E["r_wall"] - E["r_front"]) + 0.8, 1.5), EYE), Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 12.0, -3.0), PAD + 6.0), 0.0),
+             ("s5_seats_close", Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 0.3, 4.0), EYE - 0.3), Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 5.0, 6.5), PAD + yF - 2.0), 0.0)]
 log = {"part": PART, "scene": str(Path(bpy.data.filepath).name), "samples": 16, "resolution": [960, 540], "frames": []}
 for name, pos, aim, dev in POSES:
+    if ONLY and name not in ONLY: continue
     loc, tgt = Vector(pos), Vector(aim)
     cam.matrix_world = Matrix.Translation(loc) @ (tgt - loc).to_track_quat("-Z", "Y").to_matrix().to_4x4()
     s.view_settings.exposure = ev0 + dev
@@ -62,4 +85,4 @@ for name, pos, aim, dev in POSES:
     t0 = time.time(); bpy.ops.render.render(write_still=True); dt = round(time.time() - t0, 1)
     log["frames"].append({"name": name, "pos": [round(x, 2) for x in pos], "aim": [round(x, 2) for x in aim], "ev": dev, "seconds": dt})
     print("preview", name, dt, "s", flush=True)
-(out / f"preview_log_{PART}.json").write_text(json.dumps(log, indent=1) + "\n")
+(out / f"preview_log_{PART}{'_' + '_'.join(ONLY) if ONLY else ''}.json").write_text(json.dumps(log, indent=1) + "\n")

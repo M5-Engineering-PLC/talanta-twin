@@ -475,5 +475,8 @@ if "stand" in PARTS: part_stand()
 for c in [c for c in bpy.data.collections if c.name.startswith("interior_")]:
     c["claim"] = "interior for the walkthrough film (chapters 3 and 4); not in the web_hero_v2 twin export"
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT), compress=True)
-(ROOT / "blender/out/interior_build_log.json").write_text(json.dumps(LOG, indent=1) + "\n")
+_lp = ROOT / "blender/out/interior_build_log.json"  # one log for all parts: later parts update it
+_prev = json.loads(_lp.read_text()) if _lp.exists() and "concourse" not in PARTS else {}
+_prev.setdefault("objects", {}).update(LOG.pop("objects")); _prev["parts"] = sorted(set(_prev.get("parts", [])) | set(LOG.pop("parts")))
+_prev.update(LOG); _lp.write_text(json.dumps(_prev, indent=1) + "\n")
 print("interior", json.dumps(LOG))
