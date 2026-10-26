@@ -4,6 +4,7 @@ Run from the repo root:
   blender -b --factory-startup --python-exit-code 1 --python blender/build_interior.py -- <part> [<part> ...]
   parts: concourse (part 1: the inner and outer concourse, their lights, the chapter 3 entry)
          stand (part 2: the seat model, aisle step nosings, rail posts and rail ends)
+         roof (part 3: the secondary steel grid under the roof membrane)
 The first part opens blender/out/frozen_FK.blend; later parts open blender/out/frozen_FK_interior.blend. The result is
 saved as blender/out/frozen_FK_interior.blend. frozen_FK.blend is not changed (the twin export and the bakes use it).
 All new objects go in interior_* collections, which export_web.py does not read. Old objects that the interior replaces
@@ -470,8 +471,45 @@ def part_stand():
     LOG["stand_s"] = round(time.time() - t0, 1)
 
 
+def part_roof():
+    """Part 3: the roof underside seen from the stands. The primaries, cables, struts, 9 purlin rings, the catwalk and
+    the IT10 diagonals exist (build_bowl_detail section C). Added: a secondary steel grid hung under the membrane,
+    3 secondary ribs between neighbouring primaries, 27 secondary rings and one diagonal in each cell, so the underside
+    reads as the dense triangulated lattice of frames 000155.599, 000200.000 and IF22 (by eye; estimated)."""
+    t0 = time.time()
+    PROF, JF = G["prof"], G["j_facade"]; NP = len(PROF[0])
+    def surf(theta, jf, down=0.0):
+        fi = (theta / (2 * math.pi)) % 1 * N; i0 = int(fi) % N; i1 = (i0 + 1) % N; fi -= int(fi)
+        j0 = min(int(jf), NP - 2); fj = jf - j0
+        r = sum(PROF[i][j][0] * wi * wj for i, wi in ((i0, 1 - fi), (i1, fi)) for j, wj in ((j0, 1 - fj), (j0 + 1, fj)))
+        y = sum(PROF[i][j][1] * wi * wj for i, wi in ((i0, 1 - fi), (i1, fi)) for j, wj in ((j0, 1 - fj), (j0 + 1, fj)))
+        return B(math.cos(theta) * r, y - down, math.sin(theta) * r)
+    STEEL = bpy.data.materials.get("roof_steel_white") or mat("int_roof_steel", "#E3E3DF", 0.4, 0.1)
+    KR, dr = int(V("bowl.roofsteel.ribs")), V("bowl.roofsteel.drop")
+    J0, J1 = JF + 1.0, NP - 1.3
+    SUB, NRING = 4, 28           # secondary ribs: every quarter bay; secondary rings: 28 across the roof depth (estimated)
+    DROP = 0.55                  # secondary grid below the membrane (estimated; the primaries hang 1.2 m)
+    js = np.linspace(J0, J1, NRING)
+    ribs, rings, diag = [], [], []
+    for k in range(KR * SUB):
+        if k % SUB == 0: continue  # the primaries are already there
+        th = 2 * math.pi * k / (KR * SUB); ribs.append([surf(th, j, DROP) for j in js])
+    for j in js:
+        rings.append([surf(2 * math.pi * i / (KR * SUB * 2), j, DROP) for i in range(KR * SUB * 2 + 1)])
+    for k in range(KR * SUB):
+        ta, tb = 2 * math.pi * k / (KR * SUB), 2 * math.pi * (k + 1) / (KR * SUB)
+        for q in range(NRING - 1):
+            a_, b_ = (ta, tb) if (k + q) % 2 == 0 else (tb, ta)
+            diag.append([surf(a_, js[q], DROP), surf(b_, js[q + 1], DROP)])
+    tube_obj("int_roof_sub_ribs", "interior_roof_under", ribs, 0.07, STEEL, "estimated (secondary ribs; 000155.599, 000200.000, IF22)", res=1)
+    tube_obj("int_roof_sub_rings", "interior_roof_under", rings, 0.06, STEEL, "estimated (secondary rings; IF22)", res=1)
+    tube_obj("int_roof_sub_diagonals", "interior_roof_under", diag, 0.05, STEEL, "estimated (one diagonal per cell; IF22 triangular grid)", res=1)
+    LOG["roof_s"] = round(time.time() - t0, 1)
+
+
 if "concourse" in PARTS: part_concourse()
 if "stand" in PARTS: part_stand()
+if "roof" in PARTS: part_roof()
 for c in [c for c in bpy.data.collections if c.name.startswith("interior_")]:
     c["claim"] = "interior for the walkthrough film (chapters 3 and 4); not in the web_hero_v2 twin export"
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT), compress=True)
