@@ -1,6 +1,6 @@
 # Render order: walkthrough chapters 1 and 2 (for Munene's approval)
 
-Date: 2026-10-26. Status: version C approved by Munene 2026-10-26, without a full repeat pass. C1 and C2 passed 2026-10-26. Next: C3 to C6 on Kaggle under the approval (each run less than 4 h, the week less than 20 GPU h).
+Date: 2026-10-26. Status: version C approved by Munene 2026-10-26, without a full repeat pass. C1 and C2 passed 2026-10-26. C3 to C6 are on hold (Munene, 2026-10-26) until the interior, the seat re-check and the P2 bakes are done and the render pack is rebuilt.
 Decisions: engineering/lead_decision_2026-10-25_walkthrough.md (chapters, GPU option), engineering/lead_decision_2026-10-25_reel_and_v2.md (R3 cost rules).
 Camera paths: blender/landing_reel/chapters.json, blender/landing_reel/paths.py; preview: blender/landing_reel/chapters_1_2_preview.jpg.
 Renderer: blender/scroll_test/render_scroll_frames.py `chapter=<id>` on blender/out/frozen_FK.blend (or the render pack, branch assets/render_pack).
@@ -129,6 +129,12 @@ After each part: the frames go to the orphan branch `assets/landing_reel_frames`
 - C1 is 2 % faster than the GPU test (54.4 s). C4 stays one run (3.65 h, less than 4 h); no split.
 - TEST_S_PER_FRAME for the wide runs (C3, C4) is 53.2.
 - C2: the portrait frame is 24 % slower than the pixel-count estimate (fixed costs per frame: scene sync, compositor, denoiser). TEST_S_PER_FRAME for the portrait runs (C5, C6) is 30.1. C3 to C6 together: about 9.8 GPU h.
+
+## Hold on C3 to C6 (Munene, 2026-10-26)
+
+- C3 to C6 do not start until these are done: the interior (chapters 3 and 4), the seat re-check, the P2 bakes (10:30, 18:05, 20:00) and the new render pack.
+- The new pack then becomes a new version of the Kaggle dataset talanta-render-pack. C3 to C6 run on it, with the same notebook settings.
+- C1 and C2 (frames 0 to 23 of chapter 1) were rendered on pack 7e19362. If the new pack changes the stand that chapter 1 sees (for example the seat model), frames 0 to 23 of both cuts render again on the new pack (about 0.7 GPU h), so the chapter has one scene state.
 
 ## Notebook settings for each run
 
