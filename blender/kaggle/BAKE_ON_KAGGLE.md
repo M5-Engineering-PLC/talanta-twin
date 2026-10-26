@@ -15,6 +15,16 @@ Order: engineering/lead_decision_2026-10-25_cycles_parity.md, P2.
 - blender/kaggle/compare_maps.py: compares two bakes of the same groups (GPU against CPU).
 - blender/kaggle/talanta_chapter_render.ipynb: now finds frozen_FL.blend in the new pack (frozen_FK.blend in pack 7e19362); chapters 3 and 4 take frozen_FL_interior.blend, haze 0 and no lens shift.
 
+## Cloud CPU bake of 10:30 (runs until the GPU maps arrive)
+
+| Sub-run | Groups | Wall time | Branch commit |
+|---|---|---|---|
+| 1a | stadium_shell, stadium_fins, stadium_ornament, roof | 4,805 s (1.33 h) | b95cdc5 |
+| 1b | sport, roads, site_built, forecourt | 2,704 s (0.75 h) | 66727ab |
+| 2a | site_layout, station, layout_pass_i, plaza_south, trace_sw, landmarks | running (container restart at 10:26 UTC cost about 0.5 h) | |
+
+The maps of sub-run 1a (assets/web_hero_v2_bake_1030, lightmaps/1030/maps/) are the CPU side of the GPU test comparison.
+
 ## Steps
 
 1. Upload the new pack as a dataset version (keep it private).
