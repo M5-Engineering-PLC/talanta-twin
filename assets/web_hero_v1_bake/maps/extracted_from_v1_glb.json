@@ -1,0 +1,349 @@
+{
+ "note": "decoded from web_hero_v1 GLB KTX2 textures (lossy); not original bakes",
+ "maps": [
+  {
+   "name": "stadium_shell_light",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 5451522
+  },
+  {
+   "name": "stadium_shell_ao",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 2531424
+  },
+  {
+   "name": "stadium_ornament_light",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 3308002
+  },
+  {
+   "name": "stadium_ornament_ao",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 1692827
+  },
+  {
+   "name": "stadium_ornament_albedo",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "ETC1S",
+   "png_bytes": 306913
+  },
+  {
+   "name": "stadium_fins_light",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 7157397
+  },
+  {
+   "name": "stadium_fins_ao",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 3992173
+  },
+  {
+   "name": "sport_light",
+   "glb": "talanta_hero.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1047578
+  },
+  {
+   "name": "sport_albedo",
+   "glb": "talanta_hero.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "ETC1S",
+   "png_bytes": 194209
+  },
+  {
+   "name": "roof_light",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 4140594
+  },
+  {
+   "name": "roof_ao",
+   "glb": "talanta_hero.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 1131660
+  },
+  {
+   "name": "site_built_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 767134
+  },
+  {
+   "name": "forecourt_light",
+   "glb": "talanta_site.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 3153938
+  },
+  {
+   "name": "ground_00_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1550995
+  },
+  {
+   "name": "ground_01_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2162846
+  },
+  {
+   "name": "ground_02_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1799969
+  },
+  {
+   "name": "ground_03_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1768212
+  },
+  {
+   "name": "ground_04_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2085950
+  },
+  {
+   "name": "ground_05_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2014403
+  },
+  {
+   "name": "ground_06_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1631631
+  },
+  {
+   "name": "ground_07_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1832575
+  },
+  {
+   "name": "ground_08_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2143774
+  },
+  {
+   "name": "ground_09_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1725047
+  },
+  {
+   "name": "ground_10_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1579831
+  },
+  {
+   "name": "ground_11_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1833285
+  },
+  {
+   "name": "ground_12_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1803725
+  },
+  {
+   "name": "ground_13_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1820180
+  },
+  {
+   "name": "ground_14_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1777814
+  },
+  {
+   "name": "ground_15_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1804818
+  },
+  {
+   "name": "ground_16_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2366839
+  },
+  {
+   "name": "ground_17_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1975931
+  },
+  {
+   "name": "ground_18_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1995627
+  },
+  {
+   "name": "ground_19_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2357396
+  },
+  {
+   "name": "ground_20_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2126554
+  },
+  {
+   "name": "ground_21_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2390872
+  },
+  {
+   "name": "ground_22_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 1750560
+  },
+  {
+   "name": "ground_23_light",
+   "glb": "talanta_site.glb",
+   "width": 1024,
+   "height": 1024,
+   "codec": "UASTC",
+   "png_bytes": 2078911
+  },
+  {
+   "name": "roads_light",
+   "glb": "talanta_site.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 5376051
+  },
+  {
+   "name": "roads_albedo",
+   "glb": "talanta_site.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "ETC1S",
+   "png_bytes": 806623
+  },
+  {
+   "name": "suburbs_light",
+   "glb": "talanta_site.glb",
+   "width": 3072,
+   "height": 3072,
+   "codec": "UASTC",
+   "png_bytes": 14447061
+  },
+  {
+   "name": "suburbs_ao",
+   "glb": "talanta_site.glb",
+   "width": 3072,
+   "height": 3072,
+   "codec": "UASTC",
+   "png_bytes": 7869200
+  },
+  {
+   "name": "traffic_light",
+   "glb": "talanta_site.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 5299877
+  },
+  {
+   "name": "traffic_ao",
+   "glb": "talanta_site.glb",
+   "width": 2048,
+   "height": 2048,
+   "codec": "UASTC",
+   "png_bytes": 2980444
+  }
+ ]
+}

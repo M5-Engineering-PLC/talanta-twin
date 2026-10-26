@@ -1,0 +1,2053 @@
+{
+ "bundle": "web_hero_v1",
+ "generated": "2026-10-19T06:17:19.622Z",
+ "source": "blender/out/talanta_site.blend via blender/web_hero (bake_lightmaps.py, ground_tiles.py, render_panorama.py, export_web.py, node/post_glb.mjs)",
+ "frame": "glTF y-up = app frame: x east, y up, z south, metres, origin at the pitch centre",
+ "sun": {
+  "date": "2026-01-15",
+  "local": "07:30 EAT",
+  "elevation_deg": 11.59,
+  "azimuth_deg": 111.31,
+  "direction_to_sun": [
+   0.91266,
+   0.20092,
+   0.35593
+  ]
+ },
+ "files": [
+  {
+   "file": "env/panorama_log_0730.json",
+   "bytes": 2186,
+   "sha256": "0736daa1db5ca53135865b20668804454b16d01a989f13b454c0915138550d7c"
+  },
+  {
+   "file": "env/panorama_log_1730.json",
+   "bytes": 2187,
+   "sha256": "7f9c80cb83f965623a98286efdab152f894c75c32dc3541335e68da24f0dfb3d"
+  },
+  {
+   "file": "env/talanta_pano_0730.exr",
+   "bytes": 12134999,
+   "sha256": "34f6a2c5f734d680e9a28bfbc667a5ffcca3c9536d544087ab36b8fafa3fa5e9"
+  },
+  {
+   "file": "env/talanta_pano_0730_2048.hdr",
+   "bytes": 4361176,
+   "sha256": "a2432769c292c2823c2170ccc21f24bc47a38a1ede5b45767f035fde6d9ba068"
+  },
+  {
+   "file": "env/talanta_pano_1730.exr",
+   "bytes": 12387785,
+   "sha256": "97a4a6a8a3eeb047e8019f83a8b986e9a1f5d4ff301905b423da7968258aa7db"
+  },
+  {
+   "file": "env/talanta_pano_1730_2048.hdr",
+   "bytes": 4570837,
+   "sha256": "8113fb5468c17e3b5e1ab614434040117bd3555b5c0643733c76ff443828b65b"
+  },
+  {
+   "file": "ground/L0_0_0.ktx2",
+   "bytes": 144788,
+   "sha256": "84eb80ba1538ec287de43248b7e2a30783be4706878964994ddf78de8e7ec2c1"
+  },
+  {
+   "file": "ground/L0_0_1.ktx2",
+   "bytes": 142097,
+   "sha256": "36309331edc89fd684ae93ff7f2866b0ff7469c71dd7e18f0cea8afcd543234f"
+  },
+  {
+   "file": "ground/L0_0_2.ktx2",
+   "bytes": 117325,
+   "sha256": "009de885ad1f92337c596bf5a83b353595f0c6020878022e2b78d6b8cb04433f"
+  },
+  {
+   "file": "ground/L0_0_3.ktx2",
+   "bytes": 126046,
+   "sha256": "be9e6a3da3b7d23370e8db6b792453b9f38e558cdf3fdb4bb24561655ea86ec4"
+  },
+  {
+   "file": "ground/L0_0_4.ktx2",
+   "bytes": 107671,
+   "sha256": "9ea2d7917eb8f8cdacd7fac3ae6c83d112d093fa33233846fa6b5139553d9622"
+  },
+  {
+   "file": "ground/L0_1_0.ktx2",
+   "bytes": 146191,
+   "sha256": "bc4e851bba8973a7b5d4bec24cf4860fbf2db211c4f9e37744beef7426d7d931"
+  },
+  {
+   "file": "ground/L0_1_1.ktx2",
+   "bytes": 141284,
+   "sha256": "b843e9c837a2fc545c6a20227458f7d762c8f10a356d15cf262e9ef0f902f7db"
+  },
+  {
+   "file": "ground/L0_1_2.ktx2",
+   "bytes": 129772,
+   "sha256": "70dec0ac83990de5720b00eb9d05626a1f079d3c2ed5af26c8ddd86ac502f580"
+  },
+  {
+   "file": "ground/L0_1_3.ktx2",
+   "bytes": 136202,
+   "sha256": "d089d0a4cd13c985ca97e1a210a0585cb3c9441a590632ccd11909aa8d8a1dca"
+  },
+  {
+   "file": "ground/L0_1_4.ktx2",
+   "bytes": 123132,
+   "sha256": "10093917236f7e831289fc79930efe2d1ad9d9db20dd93a7fd182e7ffa69cc8a"
+  },
+  {
+   "file": "ground/L0_2_0.ktx2",
+   "bytes": 149336,
+   "sha256": "274f4ff433074f9d462c8fa6cee9c985356cb0b27f2795b736a0c3253ae309c4"
+  },
+  {
+   "file": "ground/L0_2_1.ktx2",
+   "bytes": 138040,
+   "sha256": "34216588d82f5e0dfa40b2e551022f008bb45b037402722831c87b66129ffd58"
+  },
+  {
+   "file": "ground/L0_2_2.ktx2",
+   "bytes": 89305,
+   "sha256": "72b579b4baf41e96ff121e2001f8c2dce85daf9ad0604a3a9a05abba8b0ce2c1"
+  },
+  {
+   "file": "ground/L0_2_3.ktx2",
+   "bytes": 160420,
+   "sha256": "674e30c09679fc78f9614fa2c360ba8c7b4c892a0e713eed92bb9e5af316aea2"
+  },
+  {
+   "file": "ground/L0_2_4.ktx2",
+   "bytes": 104717,
+   "sha256": "c38ca07a36c15d59d173de306eceffaabf253a2a5d99e267eb9a4c697fc12053"
+  },
+  {
+   "file": "ground/L0_3_0.ktx2",
+   "bytes": 153211,
+   "sha256": "9555c399cc955e72be9b7f903e83c8b48033033259fa7090614a83dbf48015dd"
+  },
+  {
+   "file": "ground/L0_3_1.ktx2",
+   "bytes": 149924,
+   "sha256": "2881af647c03fda602beaae1bea476ae711fa24d4d8c3a85911e0fce3ecfbf88"
+  },
+  {
+   "file": "ground/L0_3_2.ktx2",
+   "bytes": 147382,
+   "sha256": "dcf17cd51daaff526e37a1343be9b7c34d43d91a2cd362d1924d735830eaf86b"
+  },
+  {
+   "file": "ground/L0_3_3.ktx2",
+   "bytes": 128652,
+   "sha256": "b5edeb2b357ee1b0c96345e8fb1a8cd1e763f844206f8c45128a721c9584f0f5"
+  },
+  {
+   "file": "ground/L0_3_4.ktx2",
+   "bytes": 100806,
+   "sha256": "63fae501675f60fdd0f80538c94ba1d89d3e550a458bd2df988d4039320458cf"
+  },
+  {
+   "file": "ground/L0_4_0.ktx2",
+   "bytes": 153261,
+   "sha256": "33e72da55896773f734ec3df0f5cfa61fe1558cfe67b2046676a88d3952ea4f4"
+  },
+  {
+   "file": "ground/L0_4_1.ktx2",
+   "bytes": 138885,
+   "sha256": "6c6f1046f99d5aa2c486626dbb09b351a40903d45a0028fb47e2a76376456aa7"
+  },
+  {
+   "file": "ground/L0_4_2.ktx2",
+   "bytes": 152757,
+   "sha256": "1620324abb3acb876d4725e73b3ebf0a1f777f1ccfb13f654054168ccf157418"
+  },
+  {
+   "file": "ground/L0_4_3.ktx2",
+   "bytes": 138482,
+   "sha256": "557c85fd35c8c93604187ce1466caf8b0bd96b89afa4e14f23818db926b7cbb2"
+  },
+  {
+   "file": "ground/L0_4_4.ktx2",
+   "bytes": 107793,
+   "sha256": "663cd81c95f57af5b11461c46e069a82b8c8bc2d4cdf0fd7eea19b712f9e11f0"
+  },
+  {
+   "file": "ground/L1_0_0.ktx2",
+   "bytes": 160873,
+   "sha256": "ceda70cfa8499bb9fc6e0c84b4eac61ad9fbd7f0aba62b2ae303128f5301dd8a"
+  },
+  {
+   "file": "ground/L1_0_1.ktx2",
+   "bytes": 156308,
+   "sha256": "670cd213e00ac0a732748c649c0317b8befe0648042d26b7d25827c4f46737a3"
+  },
+  {
+   "file": "ground/L1_0_2.ktx2",
+   "bytes": 160747,
+   "sha256": "fd5957667031805379b6f9b469216b5508637d8875fe2bf4536923a71716c346"
+  },
+  {
+   "file": "ground/L1_0_3.ktx2",
+   "bytes": 161080,
+   "sha256": "07b271611f4960b74f273e052073f6ea3e91ee5c6d0f59501267af78a5dbd612"
+  },
+  {
+   "file": "ground/L1_0_4.ktx2",
+   "bytes": 123907,
+   "sha256": "e9406bb81eddf67a39a778bce6802570284e1e87045b5e67b80f2cc5caed14fc"
+  },
+  {
+   "file": "ground/L1_0_5.ktx2",
+   "bytes": 104157,
+   "sha256": "33ef9290e56f6f78e0d5bc815b6659cdea776255af86bfd6246049e16f8408f7"
+  },
+  {
+   "file": "ground/L1_1_0.ktx2",
+   "bytes": 169541,
+   "sha256": "64540ae6aa7aa6800d92a39b1fcecb3504409c21711f3d8b849b0867e6417a3e"
+  },
+  {
+   "file": "ground/L1_1_1.ktx2",
+   "bytes": 169831,
+   "sha256": "69bf320721c2b5f78f02015398a4171589d18623e9b8a0c5a90b2914363a800d"
+  },
+  {
+   "file": "ground/L1_1_2.ktx2",
+   "bytes": 173049,
+   "sha256": "6ce2699910302fa7703535d779a1cccc0084672f6c7f8e173724e9ed003af5fe"
+  },
+  {
+   "file": "ground/L1_1_3.ktx2",
+   "bytes": 154051,
+   "sha256": "854fbff4a8d3c2dcebd9b351259eb8bc3ccf6b13cfb55c818eed80ad6efee50d"
+  },
+  {
+   "file": "ground/L1_1_4.ktx2",
+   "bytes": 144196,
+   "sha256": "d0efbc6a411e6cdcff2d5f27098670c4c963c9cef488cc564c34c6b2e8bd11c8"
+  },
+  {
+   "file": "ground/L1_1_5.ktx2",
+   "bytes": 115040,
+   "sha256": "f9fdb48770f827c88f67fcf46b0e73325073d0601ead2e41acfcffcb1d6c05d7"
+  },
+  {
+   "file": "ground/L1_2_0.ktx2",
+   "bytes": 162588,
+   "sha256": "16a56cd0beb95621751673d9a9ed6cea5aa209d8f5dbe7677193c57094a014b9"
+  },
+  {
+   "file": "ground/L1_2_1.ktx2",
+   "bytes": 177548,
+   "sha256": "4c8bc388a683d156f3956768b33567910e2cc34d6e4a0ceaeee581c9d24d1d10"
+  },
+  {
+   "file": "ground/L1_2_2.ktx2",
+   "bytes": 166787,
+   "sha256": "73843582b140075aff63b6389098e80a680c5a68801beb49a6bfc82ac7ddeb2f"
+  },
+  {
+   "file": "ground/L1_2_3.ktx2",
+   "bytes": 160594,
+   "sha256": "c2ea7b1e94a077aa009cd37b653606cd48cf5d4c1100b95956a2b817ce349a82"
+  },
+  {
+   "file": "ground/L1_2_4.ktx2",
+   "bytes": 149145,
+   "sha256": "dfd63772e53fd5f9fb8e928791f726ee081b4c6cffc2bbf87b24f90485327820"
+  },
+  {
+   "file": "ground/L1_2_5.ktx2",
+   "bytes": 113367,
+   "sha256": "4ddaf8f8773a450b1b7bd32a7c43ea596fc47bce324ffb7b597fa41fc01eca37"
+  },
+  {
+   "file": "ground/L1_3_0.ktx2",
+   "bytes": 151803,
+   "sha256": "28306821ab336a57c7651419dc2703afae12217b3047ff87605a01edb5b2080d"
+  },
+  {
+   "file": "ground/L1_3_1.ktx2",
+   "bytes": 184221,
+   "sha256": "947f875c3f81be8671317b3249a0ec4dcb687fc416298bb73d5f25deac782149"
+  },
+  {
+   "file": "ground/L1_3_2.ktx2",
+   "bytes": 183466,
+   "sha256": "9beee5514b93b1f680356aad77ff87ac973b3213de2609d4fe9dc632e1855028"
+  },
+  {
+   "file": "ground/L1_3_3.ktx2",
+   "bytes": 162941,
+   "sha256": "3ad5c85aa7945928f1dd56d4c6481b9a6aaa48e96b7f4fc893cbe4595e59e39f"
+  },
+  {
+   "file": "ground/L1_3_4.ktx2",
+   "bytes": 131443,
+   "sha256": "48941f960d3b48daa75abb8657672b0ef23d1a8486395908dce8d347c357666c"
+  },
+  {
+   "file": "ground/L1_3_5.ktx2",
+   "bytes": 117302,
+   "sha256": "1f722b4f05ef785c8c1a9f4772b8b09b085ca6e08eb24ea2792795d0dd789d9d"
+  },
+  {
+   "file": "ground/L1_4_0.ktx2",
+   "bytes": 144978,
+   "sha256": "e40a44216378a942851146cd9bff0ca583a6698ef8e0357870ed63d9dc86fbdc"
+  },
+  {
+   "file": "ground/L1_4_1.ktx2",
+   "bytes": 181946,
+   "sha256": "455130e05b89311d6ece9a30e1e598481bb8ab791ac2dac0d30a48ade9bff572"
+  },
+  {
+   "file": "ground/L1_4_2.ktx2",
+   "bytes": 177408,
+   "sha256": "3fe0d555d3125c29b232ec7413e8833ff354944d133cee8ba39920a8ec3ea822"
+  },
+  {
+   "file": "ground/L1_4_3.ktx2",
+   "bytes": 157180,
+   "sha256": "b183271471a31128fa6843a1f1c9a6aeed35537f6b5e63394ce4b7356f423f90"
+  },
+  {
+   "file": "ground/L1_4_4.ktx2",
+   "bytes": 134722,
+   "sha256": "c73551b7a19c99fc41741b4f2f9ab6469b1b91b0ade39948a1de4fee27bccbb1"
+  },
+  {
+   "file": "ground/L1_4_5.ktx2",
+   "bytes": 113043,
+   "sha256": "333deb72411fce693b4bcd584b4a634f549a9ac6fec535dd3a43ac2356680f08"
+  },
+  {
+   "file": "ground/L1_5_0.ktx2",
+   "bytes": 141200,
+   "sha256": "0fbf83647ab6d350bc5460e971042ef3b53c42985d110a1e0fce4a726d036f63"
+  },
+  {
+   "file": "ground/L1_5_1.ktx2",
+   "bytes": 156296,
+   "sha256": "6ca3f4cb3efa46d21389de2ac7b4bbd594d0c1a1b27fd6dae94605bf1eeefdfa"
+  },
+  {
+   "file": "ground/L1_5_2.ktx2",
+   "bytes": 153926,
+   "sha256": "f3c7019558d2b4f9422673d35b955bcd187e50f86f071a505b415a7aeecab7a7"
+  },
+  {
+   "file": "ground/L1_5_3.ktx2",
+   "bytes": 173066,
+   "sha256": "f565ae5b33d41eda014aaa5603628b385d6865d19ac7342f20ab563f0b6495a9"
+  },
+  {
+   "file": "ground/L1_5_4.ktx2",
+   "bytes": 127995,
+   "sha256": "51377f850e8b3059be9bfb6f27dcf2dff155da03de0b99a238ee0e50825a935e"
+  },
+  {
+   "file": "ground/L1_5_5.ktx2",
+   "bytes": 109522,
+   "sha256": "8a205d3e6faec873adbc0646de38ea3b742143e0ee56229f5ba4ae652c591894"
+  },
+  {
+   "file": "ground/tiles.json",
+   "bytes": 7375,
+   "sha256": "ccb3a9efe7fada62c7d0d025c4eeed11410e25387db3933f6e186b8fbb4bbc4e"
+  },
+  {
+   "file": "models/talanta_hero.glb",
+   "bytes": 32653480,
+   "sha256": "7b55ad9e96ad57969dde57c35c5a0f31e9c11a12270c6838706fbdfac116a05e"
+  },
+  {
+   "file": "models/talanta_site.glb",
+   "bytes": 74077296,
+   "sha256": "c5b37ca70a81c2a3764d6febf2ea8b90f879a8221f7a455366b0b1374c76fdaa"
+  }
+ ],
+ "total_bytes": 148950067,
+ "budget_bytes": 250000000,
+ "within_budget": true,
+ "models": {
+  "hero": {
+   "file": "blender/out/web_hero/web_hero_v1/models/talanta_hero.glb",
+   "bytes": 32653480,
+   "triangles": {
+    "lod0": 714927,
+    "lod1_300m": 331733,
+    "lod2_1km": 36012
+   },
+   "textures": 11,
+   "instanced_sets": [
+    {
+     "set": "seats",
+     "proto": "seat_proto",
+     "lod": 0,
+     "instances": 63107,
+     "tris_each": 4,
+     "tris": 252428
+    },
+    {
+     "set": "seats",
+     "proto": "seat_proto",
+     "lod": 1,
+     "instances": 63107,
+     "tris_each": 2,
+     "tris": 126214
+    },
+    {
+     "set": "vip_seats",
+     "proto": "vip_seat_proto",
+     "lod": 0,
+     "instances": 218,
+     "tris_each": 84,
+     "tris": 18312
+    }
+   ]
+  },
+  "site": {
+   "file": "blender/out/web_hero/web_hero_v1/models/talanta_site.glb",
+   "bytes": 74077296,
+   "triangles": {
+    "lod0": 4358489,
+    "lod1_300m": 422968,
+    "lod2_1km": 266178
+   },
+   "textures": 32,
+   "instanced_sets": [
+    {
+     "set": "fc_retained_bollards",
+     "proto": "bo_bollard",
+     "lod": 0,
+     "instances": 7,
+     "tris_each": 28,
+     "tris": 196
+    },
+    {
+     "set": "fc_retained_flag_masts",
+     "proto": "fm_flagmast",
+     "lod": 0,
+     "instances": 1,
+     "tris_each": 44,
+     "tris": 44
+    },
+    {
+     "set": "fc_retained_light_masts",
+     "proto": "lm_lightmast",
+     "lod": 0,
+     "instances": 25,
+     "tris_each": 48,
+     "tris": 1200
+    },
+    {
+     "set": "fc_retained_palms",
+     "proto": "sp_0_palm",
+     "lod": 0,
+     "instances": 261,
+     "tris_each": 113,
+     "tris": 29493
+    },
+    {
+     "set": "fc_retained_palms",
+     "proto": "sp_0_palm",
+     "lod": 1,
+     "instances": 261,
+     "tris_each": 4,
+     "tris": 1044
+    },
+    {
+     "set": "fc_retained_path_lights",
+     "proto": "pl_pathlight",
+     "lod": 0,
+     "instances": 83,
+     "tris_each": 40,
+     "tris": 3320
+    },
+    {
+     "set": "fc_retained_shrubs",
+     "proto": "sh_0_green",
+     "lod": 0,
+     "instances": 249,
+     "tris_each": 20,
+     "tris": 4980
+    },
+    {
+     "set": "fc_retained_shrubs",
+     "proto": "sh_1_red",
+     "lod": 0,
+     "instances": 209,
+     "tris_each": 20,
+     "tris": 4180
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_0_round",
+     "lod": 0,
+     "instances": 572,
+     "tris_each": 57,
+     "tris": 32604
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_0_round",
+     "lod": 1,
+     "instances": 572,
+     "tris_each": 4,
+     "tris": 2288
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_1_acacia",
+     "lod": 0,
+     "instances": 232,
+     "tris_each": 57,
+     "tris": 13224
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_1_acacia",
+     "lod": 1,
+     "instances": 232,
+     "tris_each": 4,
+     "tris": 928
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_3_jacaranda",
+     "lod": 0,
+     "instances": 19,
+     "tris_each": 57,
+     "tris": 1083
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_3_jacaranda",
+     "lod": 1,
+     "instances": 19,
+     "tris_each": 4,
+     "tris": 76
+    },
+    {
+     "set": "jets",
+     "proto": "je_jet",
+     "lod": 0,
+     "instances": 60,
+     "tris_each": 20,
+     "tris": 1200
+    },
+    {
+     "set": "suburbs_tanks",
+     "proto": "suburbs_tank",
+     "lod": 0,
+     "instances": 171,
+     "tris_each": 40,
+     "tris": 6840
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_broad",
+     "lod": 0,
+     "instances": 1767,
+     "tris_each": 25,
+     "tris": 44175
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_broad",
+     "lod": 1,
+     "instances": 1767,
+     "tris_each": 4,
+     "tris": 7068
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_eucalyptus",
+     "lod": 0,
+     "instances": 280,
+     "tris_each": 25,
+     "tris": 7000
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_eucalyptus",
+     "lod": 1,
+     "instances": 280,
+     "tris_each": 4,
+     "tris": 1120
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_jacaranda",
+     "lod": 0,
+     "instances": 377,
+     "tris_each": 25,
+     "tris": 9425
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_jacaranda",
+     "lod": 1,
+     "instances": 377,
+     "tris_each": 4,
+     "tris": 1508
+    },
+    {
+     "set": "track_masts",
+     "proto": "tm_trackmast",
+     "lod": 0,
+     "instances": 12,
+     "tris_each": 40,
+     "tris": 480
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.003",
+     "lod": 0,
+     "instances": 1719,
+     "tris_each": 112,
+     "tris": 192528
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.003",
+     "lod": 1,
+     "instances": 1719,
+     "tris_each": 4,
+     "tris": 6876
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.004",
+     "lod": 0,
+     "instances": 684,
+     "tris_each": 112,
+     "tris": 76608
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.004",
+     "lod": 1,
+     "instances": 684,
+     "tris_each": 4,
+     "tris": 2736
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.005",
+     "lod": 0,
+     "instances": 1477,
+     "tris_each": 112,
+     "tris": 165424
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.005",
+     "lod": 1,
+     "instances": 1477,
+     "tris_each": 4,
+     "tris": 5908
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.004",
+     "lod": 0,
+     "instances": 1754,
+     "tris_each": 112,
+     "tris": 196448
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.004",
+     "lod": 1,
+     "instances": 1754,
+     "tris_each": 4,
+     "tris": 7016
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.005",
+     "lod": 0,
+     "instances": 685,
+     "tris_each": 112,
+     "tris": 76720
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.005",
+     "lod": 1,
+     "instances": 685,
+     "tris_each": 4,
+     "tris": 2740
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.006",
+     "lod": 0,
+     "instances": 1483,
+     "tris_each": 112,
+     "tris": 166096
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.006",
+     "lod": 1,
+     "instances": 1483,
+     "tris_each": 4,
+     "tris": 5932
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.004",
+     "lod": 0,
+     "instances": 1739,
+     "tris_each": 112,
+     "tris": 194768
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.004",
+     "lod": 1,
+     "instances": 1739,
+     "tris_each": 4,
+     "tris": 6956
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.005",
+     "lod": 0,
+     "instances": 671,
+     "tris_each": 112,
+     "tris": 75152
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.005",
+     "lod": 1,
+     "instances": 671,
+     "tris_each": 4,
+     "tris": 2684
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.006",
+     "lod": 0,
+     "instances": 1534,
+     "tris_each": 112,
+     "tris": 171808
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.006",
+     "lod": 1,
+     "instances": 1534,
+     "tris_each": 4,
+     "tris": 6136
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.004",
+     "lod": 0,
+     "instances": 1661,
+     "tris_each": 112,
+     "tris": 186032
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.004",
+     "lod": 1,
+     "instances": 1661,
+     "tris_each": 4,
+     "tris": 6644
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.005",
+     "lod": 0,
+     "instances": 686,
+     "tris_each": 112,
+     "tris": 76832
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.005",
+     "lod": 1,
+     "instances": 686,
+     "tris_each": 4,
+     "tris": 2744
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.006",
+     "lod": 0,
+     "instances": 1494,
+     "tris_each": 112,
+     "tris": 167328
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.006",
+     "lod": 1,
+     "instances": 1494,
+     "tris_each": 4,
+     "tris": 5976
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.004",
+     "lod": 0,
+     "instances": 1704,
+     "tris_each": 112,
+     "tris": 190848
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.004",
+     "lod": 1,
+     "instances": 1704,
+     "tris_each": 4,
+     "tris": 6816
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.005",
+     "lod": 0,
+     "instances": 708,
+     "tris_each": 112,
+     "tris": 79296
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.005",
+     "lod": 1,
+     "instances": 708,
+     "tris_each": 4,
+     "tris": 2832
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.006",
+     "lod": 0,
+     "instances": 1520,
+     "tris_each": 112,
+     "tris": 170240
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.006",
+     "lod": 1,
+     "instances": 1520,
+     "tris_each": 4,
+     "tris": 6080
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.004",
+     "lod": 0,
+     "instances": 1726,
+     "tris_each": 112,
+     "tris": 193312
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.004",
+     "lod": 1,
+     "instances": 1726,
+     "tris_each": 4,
+     "tris": 6904
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.005",
+     "lod": 0,
+     "instances": 728,
+     "tris_each": 112,
+     "tris": 81536
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.005",
+     "lod": 1,
+     "instances": 728,
+     "tris_each": 4,
+     "tris": 2912
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.006",
+     "lod": 0,
+     "instances": 1566,
+     "tris_each": 112,
+     "tris": 175392
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.006",
+     "lod": 1,
+     "instances": 1566,
+     "tris_each": 4,
+     "tris": 6264
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.004",
+     "lod": 0,
+     "instances": 1794,
+     "tris_each": 112,
+     "tris": 200928
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.004",
+     "lod": 1,
+     "instances": 1794,
+     "tris_each": 4,
+     "tris": 7176
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.005",
+     "lod": 0,
+     "instances": 691,
+     "tris_each": 112,
+     "tris": 77392
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.005",
+     "lod": 1,
+     "instances": 691,
+     "tris_each": 4,
+     "tris": 2764
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.006",
+     "lod": 0,
+     "instances": 1539,
+     "tris_each": 112,
+     "tris": 172368
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.006",
+     "lod": 1,
+     "instances": 1539,
+     "tris_each": 4,
+     "tris": 6156
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.001",
+     "lod": 0,
+     "instances": 315,
+     "tris_each": 112,
+     "tris": 35280
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.001",
+     "lod": 1,
+     "instances": 315,
+     "tris_each": 4,
+     "tris": 1260
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.002",
+     "lod": 0,
+     "instances": 52,
+     "tris_each": 112,
+     "tris": 5824
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.002",
+     "lod": 1,
+     "instances": 52,
+     "tris_each": 4,
+     "tris": 208
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.003",
+     "lod": 0,
+     "instances": 1775,
+     "tris_each": 112,
+     "tris": 198800
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.003",
+     "lod": 1,
+     "instances": 1775,
+     "tris_each": 4,
+     "tris": 7100
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.001",
+     "lod": 0,
+     "instances": 322,
+     "tris_each": 112,
+     "tris": 36064
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.001",
+     "lod": 1,
+     "instances": 322,
+     "tris_each": 4,
+     "tris": 1288
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.002",
+     "lod": 0,
+     "instances": 37,
+     "tris_each": 112,
+     "tris": 4144
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.002",
+     "lod": 1,
+     "instances": 37,
+     "tris_each": 4,
+     "tris": 148
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.003",
+     "lod": 0,
+     "instances": 1880,
+     "tris_each": 112,
+     "tris": 210560
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.003",
+     "lod": 1,
+     "instances": 1880,
+     "tris_each": 4,
+     "tris": 7520
+    }
+   ]
+  }
+ },
+ "textures": [
+  {
+   "map": "stadium_shell_light",
+   "png_bytes": 5634090,
+   "ktx2_bytes": 3342507,
+   "seconds": 110.574,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_shell_ao",
+   "png_bytes": 2958049,
+   "ktx2_bytes": 2824018,
+   "seconds": 111.065,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_ornament_light",
+   "png_bytes": 3449118,
+   "ktx2_bytes": 2085302,
+   "seconds": 76.234,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_ornament_ao",
+   "png_bytes": 1826399,
+   "ktx2_bytes": 1942399,
+   "seconds": 88.186,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_ornament_albedo",
+   "png_bytes": 408578,
+   "ktx2_bytes": 175270,
+   "seconds": 11.581,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "stadium_fins_light",
+   "png_bytes": 6857768,
+   "ktx2_bytes": 4019612,
+   "seconds": 128.368,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_fins_ao",
+   "png_bytes": 4048367,
+   "ktx2_bytes": 3797506,
+   "seconds": 146.462,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "sport_light",
+   "png_bytes": 1113695,
+   "ktx2_bytes": 733031,
+   "seconds": 22.82,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "sport_albedo",
+   "png_bytes": 681468,
+   "ktx2_bytes": 135652,
+   "seconds": 5.756,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "roof_light",
+   "png_bytes": 4892774,
+   "ktx2_bytes": 2508788,
+   "seconds": 107.024,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "roof_ao",
+   "png_bytes": 1435036,
+   "ktx2_bytes": 1514259,
+   "seconds": 80.477,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "shield",
+   "png_bytes": 23816,
+   "ktx2_bytes": 29135,
+   "seconds": 2.096,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "site_built_light",
+   "png_bytes": 814936,
+   "ktx2_bytes": 424757,
+   "seconds": 18.103,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "forecourt_light",
+   "png_bytes": 4466364,
+   "ktx2_bytes": 2620191,
+   "seconds": 124.184,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_00_light",
+   "png_bytes": 1649949,
+   "ktx2_bytes": 782636,
+   "seconds": 29.618,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_01_light",
+   "png_bytes": 1922496,
+   "ktx2_bytes": 1124868,
+   "seconds": 32.325,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_02_light",
+   "png_bytes": 1638281,
+   "ktx2_bytes": 1004287,
+   "seconds": 28.478,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_03_light",
+   "png_bytes": 1599684,
+   "ktx2_bytes": 993842,
+   "seconds": 27.785,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_04_light",
+   "png_bytes": 1862517,
+   "ktx2_bytes": 1090111,
+   "seconds": 30.91,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_05_light",
+   "png_bytes": 1786206,
+   "ktx2_bytes": 1080248,
+   "seconds": 29.832,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_06_light",
+   "png_bytes": 1533147,
+   "ktx2_bytes": 922749,
+   "seconds": 26.298,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_07_light",
+   "png_bytes": 1646317,
+   "ktx2_bytes": 1016006,
+   "seconds": 27.557,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_08_light",
+   "png_bytes": 1922197,
+   "ktx2_bytes": 1087384,
+   "seconds": 31.995,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_09_light",
+   "png_bytes": 1689606,
+   "ktx2_bytes": 914621,
+   "seconds": 28.701,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_10_light",
+   "png_bytes": 1483840,
+   "ktx2_bytes": 875778,
+   "seconds": 26.516,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_11_light",
+   "png_bytes": 1691114,
+   "ktx2_bytes": 1033044,
+   "seconds": 30.431,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_12_light",
+   "png_bytes": 1773762,
+   "ktx2_bytes": 910636,
+   "seconds": 31.61,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_13_light",
+   "png_bytes": 1765334,
+   "ktx2_bytes": 887763,
+   "seconds": 30.828,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_14_light",
+   "png_bytes": 1715678,
+   "ktx2_bytes": 880009,
+   "seconds": 30.814,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_15_light",
+   "png_bytes": 1696902,
+   "ktx2_bytes": 995968,
+   "seconds": 31.78,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_16_light",
+   "png_bytes": 2070551,
+   "ktx2_bytes": 1260936,
+   "seconds": 32.716,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_17_light",
+   "png_bytes": 1925835,
+   "ktx2_bytes": 1139151,
+   "seconds": 33.496,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_18_light",
+   "png_bytes": 1950159,
+   "ktx2_bytes": 1146328,
+   "seconds": 32.163,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_19_light",
+   "png_bytes": 2092155,
+   "ktx2_bytes": 1264822,
+   "seconds": 32.984,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_20_light",
+   "png_bytes": 2128850,
+   "ktx2_bytes": 1220785,
+   "seconds": 34.114,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_21_light",
+   "png_bytes": 2094452,
+   "ktx2_bytes": 1283718,
+   "seconds": 32.841,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_22_light",
+   "png_bytes": 1855402,
+   "ktx2_bytes": 967106,
+   "seconds": 32.964,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_23_light",
+   "png_bytes": 1951780,
+   "ktx2_bytes": 1153014,
+   "seconds": 33.819,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "roads_light",
+   "png_bytes": 5896915,
+   "ktx2_bytes": 3906677,
+   "seconds": 135.568,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "roads_albedo",
+   "png_bytes": 3030911,
+   "ktx2_bytes": 523537,
+   "seconds": 15.831,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "suburbs_light",
+   "png_bytes": 17896573,
+   "ktx2_bytes": 9155100,
+   "seconds": 310.602,
+   "codec": "UASTC+zstd",
+   "resized_from": [
+    4096,
+    4096
+   ],
+   "resized_to": [
+    3072,
+    3072
+   ]
+  },
+  {
+   "map": "suburbs_ao",
+   "png_bytes": 10617218,
+   "ktx2_bytes": 7972576,
+   "seconds": 372.639,
+   "codec": "UASTC+zstd",
+   "resized_from": [
+    4096,
+    4096
+   ],
+   "resized_to": [
+    3072,
+    3072
+   ]
+  },
+  {
+   "map": "traffic_light",
+   "png_bytes": 5543188,
+   "ktx2_bytes": 3278065,
+   "seconds": 129.721,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "traffic_ao",
+   "png_bytes": 3130961,
+   "ktx2_bytes": 3087688,
+   "seconds": 146.263,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_site",
+   "png_bytes": 528011,
+   "ktx2_bytes": 97650,
+   "seconds": 1.763,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "impostor_atlas",
+   "png_bytes": 288595,
+   "ktx2_bytes": 92411,
+   "seconds": 1.93,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "island_tree_02_leaves_diff_1k",
+   "png_bytes": 471115,
+   "ktx2_bytes": 80956,
+   "seconds": 1.592,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "jacaranda_tree_trunk_diff_1k",
+   "png_bytes": 1875311,
+   "ktx2_bytes": 230572,
+   "seconds": 4.599,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_0_0.ktx2",
+   "png_bytes": 1109799,
+   "ktx2_bytes": 144788,
+   "seconds": 4.114,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_0_1.ktx2",
+   "png_bytes": 1146692,
+   "ktx2_bytes": 142097,
+   "seconds": 3.527,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_0_2.ktx2",
+   "png_bytes": 1051884,
+   "ktx2_bytes": 117325,
+   "seconds": 2.75,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_0_3.ktx2",
+   "png_bytes": 1023598,
+   "ktx2_bytes": 126046,
+   "seconds": 2.857,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_0_4.ktx2",
+   "png_bytes": 984841,
+   "ktx2_bytes": 107671,
+   "seconds": 2.829,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_1_0.ktx2",
+   "png_bytes": 1138737,
+   "ktx2_bytes": 146191,
+   "seconds": 3.24,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_1_1.ktx2",
+   "png_bytes": 1175655,
+   "ktx2_bytes": 141284,
+   "seconds": 3.738,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_1_2.ktx2",
+   "png_bytes": 1144366,
+   "ktx2_bytes": 129772,
+   "seconds": 2.911,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_1_3.ktx2",
+   "png_bytes": 1125629,
+   "ktx2_bytes": 136202,
+   "seconds": 2.934,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_1_4.ktx2",
+   "png_bytes": 1018354,
+   "ktx2_bytes": 123132,
+   "seconds": 3.052,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_2_0.ktx2",
+   "png_bytes": 1157236,
+   "ktx2_bytes": 149336,
+   "seconds": 3.51,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_2_1.ktx2",
+   "png_bytes": 1255816,
+   "ktx2_bytes": 138040,
+   "seconds": 4.38,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_2_2.ktx2",
+   "png_bytes": 1012014,
+   "ktx2_bytes": 89305,
+   "seconds": 2.941,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_2_3.ktx2",
+   "png_bytes": 1246865,
+   "ktx2_bytes": 160420,
+   "seconds": 3.979,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_2_4.ktx2",
+   "png_bytes": 982320,
+   "ktx2_bytes": 104717,
+   "seconds": 2.749,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_3_0.ktx2",
+   "png_bytes": 1188109,
+   "ktx2_bytes": 153211,
+   "seconds": 3.694,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_3_1.ktx2",
+   "png_bytes": 1201046,
+   "ktx2_bytes": 149924,
+   "seconds": 3.92,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_3_2.ktx2",
+   "png_bytes": 1268402,
+   "ktx2_bytes": 147382,
+   "seconds": 3.929,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_3_3.ktx2",
+   "png_bytes": 1025692,
+   "ktx2_bytes": 128652,
+   "seconds": 3.212,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_3_4.ktx2",
+   "png_bytes": 961585,
+   "ktx2_bytes": 100806,
+   "seconds": 2.952,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_4_0.ktx2",
+   "png_bytes": 1202391,
+   "ktx2_bytes": 153261,
+   "seconds": 4.19,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_4_1.ktx2",
+   "png_bytes": 1063341,
+   "ktx2_bytes": 138885,
+   "seconds": 3.459,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_4_2.ktx2",
+   "png_bytes": 1154794,
+   "ktx2_bytes": 152757,
+   "seconds": 3.712,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_4_3.ktx2",
+   "png_bytes": 1035106,
+   "ktx2_bytes": 138482,
+   "seconds": 3.341,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L0_4_4.ktx2",
+   "png_bytes": 970921,
+   "ktx2_bytes": 107793,
+   "seconds": 2.935,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_0_0.ktx2",
+   "png_bytes": 1235857,
+   "ktx2_bytes": 160873,
+   "seconds": 3.545,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_0_1.ktx2",
+   "png_bytes": 1187516,
+   "ktx2_bytes": 156308,
+   "seconds": 3.545,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_0_2.ktx2",
+   "png_bytes": 1161634,
+   "ktx2_bytes": 160747,
+   "seconds": 3.444,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_0_3.ktx2",
+   "png_bytes": 1198334,
+   "ktx2_bytes": 161080,
+   "seconds": 4.083,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_0_4.ktx2",
+   "png_bytes": 1043326,
+   "ktx2_bytes": 123907,
+   "seconds": 2.839,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_0_5.ktx2",
+   "png_bytes": 974581,
+   "ktx2_bytes": 104157,
+   "seconds": 2.398,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_1_0.ktx2",
+   "png_bytes": 1273520,
+   "ktx2_bytes": 169541,
+   "seconds": 3.527,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_1_1.ktx2",
+   "png_bytes": 1243693,
+   "ktx2_bytes": 169831,
+   "seconds": 3.405,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_1_2.ktx2",
+   "png_bytes": 1254837,
+   "ktx2_bytes": 173049,
+   "seconds": 3.591,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_1_3.ktx2",
+   "png_bytes": 1117711,
+   "ktx2_bytes": 154051,
+   "seconds": 3.079,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_1_4.ktx2",
+   "png_bytes": 1087146,
+   "ktx2_bytes": 144196,
+   "seconds": 3.162,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_1_5.ktx2",
+   "png_bytes": 987523,
+   "ktx2_bytes": 115040,
+   "seconds": 2.489,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_2_0.ktx2",
+   "png_bytes": 1232777,
+   "ktx2_bytes": 162588,
+   "seconds": 3.551,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_2_1.ktx2",
+   "png_bytes": 1282460,
+   "ktx2_bytes": 177548,
+   "seconds": 3.96,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_2_2.ktx2",
+   "png_bytes": 1296835,
+   "ktx2_bytes": 166787,
+   "seconds": 3.855,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_2_3.ktx2",
+   "png_bytes": 1227188,
+   "ktx2_bytes": 160594,
+   "seconds": 3.654,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_2_4.ktx2",
+   "png_bytes": 1094325,
+   "ktx2_bytes": 149145,
+   "seconds": 3.079,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_2_5.ktx2",
+   "png_bytes": 987255,
+   "ktx2_bytes": 113367,
+   "seconds": 2.606,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_3_0.ktx2",
+   "png_bytes": 1163442,
+   "ktx2_bytes": 151803,
+   "seconds": 3.514,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_3_1.ktx2",
+   "png_bytes": 1332542,
+   "ktx2_bytes": 184221,
+   "seconds": 3.898,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_3_2.ktx2",
+   "png_bytes": 1405465,
+   "ktx2_bytes": 183466,
+   "seconds": 4.405,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_3_3.ktx2",
+   "png_bytes": 1190902,
+   "ktx2_bytes": 162941,
+   "seconds": 4.026,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_3_4.ktx2",
+   "png_bytes": 1038285,
+   "ktx2_bytes": 131443,
+   "seconds": 2.774,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_3_5.ktx2",
+   "png_bytes": 1009810,
+   "ktx2_bytes": 117302,
+   "seconds": 2.541,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_4_0.ktx2",
+   "png_bytes": 1123236,
+   "ktx2_bytes": 144978,
+   "seconds": 3.434,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_4_1.ktx2",
+   "png_bytes": 1351675,
+   "ktx2_bytes": 181946,
+   "seconds": 5.686,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_4_2.ktx2",
+   "png_bytes": 1250561,
+   "ktx2_bytes": 177408,
+   "seconds": 4.468,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_4_3.ktx2",
+   "png_bytes": 1145630,
+   "ktx2_bytes": 157180,
+   "seconds": 4.484,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_4_4.ktx2",
+   "png_bytes": 1045857,
+   "ktx2_bytes": 134722,
+   "seconds": 2.852,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_4_5.ktx2",
+   "png_bytes": 990996,
+   "ktx2_bytes": 113043,
+   "seconds": 2.72,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_5_0.ktx2",
+   "png_bytes": 1089496,
+   "ktx2_bytes": 141200,
+   "seconds": 3.504,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_5_1.ktx2",
+   "png_bytes": 1185946,
+   "ktx2_bytes": 156296,
+   "seconds": 4.149,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_5_2.ktx2",
+   "png_bytes": 1140254,
+   "ktx2_bytes": 153926,
+   "seconds": 3.277,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_5_3.ktx2",
+   "png_bytes": 1241230,
+   "ktx2_bytes": 173066,
+   "seconds": 4.202,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_5_4.ktx2",
+   "png_bytes": 1036330,
+   "ktx2_bytes": 127995,
+   "seconds": 2.764,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground/L1_5_5.ktx2",
+   "png_bytes": 991031,
+   "ktx2_bytes": 109522,
+   "seconds": 2.191,
+   "codec": "ETC1S"
+  }
+ ],
+ "panoramas": [
+  {
+   "file": "blender/out/web_hero/web_hero_v1/env/talanta_pano_0730.exr",
+   "file_2048": "blender/out/web_hero/web_hero_v1/env/talanta_pano_0730_2048.hdr",
+   "preset": "morning_golden",
+   "resolution": [
+    8192,
+    4096
+   ],
+   "samples": 128,
+   "seconds": 1334.1,
+   "near_cut_m": 800,
+   "near_cut_objects": {
+    "hidden": 915,
+    "cut": 14
+   },
+   "camera_app": [
+    0,
+    156.12,
+    0
+   ],
+   "centre_of_image_looks": "north (-z app)",
+   "projection": "equirectangular",
+   "sun_elevation_deg": 11.59,
+   "sun_azimuth_deg": 111.31,
+   "sun_dir_app": [
+    0.91266,
+    0.20092,
+    0.35593
+   ],
+   "colour": "linear Rec.709, no exposure, no tone mapping (render_cycles uses AgX at -1 EV for the morning look)",
+   "hidden": [
+    "aisle_rails",
+    "aisle_steps",
+    "base_band",
+    "base_columns",
+    "base_recess",
+    "facade",
+    "facade_backing",
+    "lattice",
+    "lattice_rings",
+    "louvre_fins",
+    "night_fascia_points",
+    "night_opening_row",
+    "night_shield_0",
+    "night_shield_1",
+    "night_shield_2",
+    "night_shield_3",
+    "night_shield_4",
+    "night_shield_5",
+    "night_shield_6",
+    "night_shield_7",
+    "night_wash_000",
+    "night_wash_001",
+    "night_wash_002",
+    "night_wash_003",
+    "night_wash_004",
+    "night_wash_005",
+    "night_wash_006",
+    "night_wash_007",
+    "night_wash_008",
+    "night_wash_009",
+    "night_wash_010",
+    "night_wash_011",
+    "night_wash_012",
+    "night_wash_013",
+    "night_wash_014",
+    "night_wash_015",
+    "night_wash_016",
+    "night_wash_017",
+    "night_wash_018",
+    "night_wash_019",
+    "night_wash_020",
+    "night_wash_021",
+    "night_wash_022",
+    "night_wash_023",
+    "night_wash_024",
+    "night_wash_025",
+    "night_wash_026",
+    "night_wash_027",
+    "night_wash_028",
+    "night_wash_029",
+    "night_wash_030",
+    "night_wash_031",
+    "night_wash_032",
+    "night_wash_033",
+    "night_wash_034",
+    "night_wash_035",
+    "night_wash_036",
+    "night_wash_037",
+    "night_wash_038",
+    "night_wash_039",
+    "night_wash_040",
+    "night_wash_041",
+    "night_wash_042",
+    "night_wash_043",
+    "pitch",
+    "pitch_markings",
+    "pitch_zone",
+    "plinth",
+    "roof_cables",
+    "roof_ribs",
+    "roof_ribs_under",
+    "seat_proto",
+    "seats",
+    "soffit",
+    "tier_lower",
+    "tier_middle",
+    "tier_upper",
+    "vip_seat_proto",
+    "vip_seats"
+   ]
+  },
+  {
+   "file": "blender/out/web_hero/web_hero_v1/env/talanta_pano_1730.exr",
+   "file_2048": "blender/out/web_hero/web_hero_v1/env/talanta_pano_1730_2048.hdr",
+   "preset": "evening_golden",
+   "resolution": [
+    8192,
+    4096
+   ],
+   "samples": 128,
+   "seconds": 1379.5,
+   "near_cut_m": 800,
+   "near_cut_objects": {
+    "hidden": 915,
+    "cut": 14
+   },
+   "camera_app": [
+    0,
+    156.12,
+    0
+   ],
+   "centre_of_image_looks": "north (-z app)",
+   "projection": "equirectangular",
+   "sun_elevation_deg": 17.35,
+   "sun_azimuth_deg": 248.33,
+   "sun_dir_app": [
+    -0.88704,
+    0.29823,
+    0.35245
+   ],
+   "colour": "linear Rec.709, no exposure, no tone mapping (render_cycles uses AgX at -1 EV for the morning look)",
+   "hidden": [
+    "aisle_rails",
+    "aisle_steps",
+    "base_band",
+    "base_columns",
+    "base_recess",
+    "facade",
+    "facade_backing",
+    "lattice",
+    "lattice_rings",
+    "louvre_fins",
+    "night_fascia_points",
+    "night_opening_row",
+    "night_shield_0",
+    "night_shield_1",
+    "night_shield_2",
+    "night_shield_3",
+    "night_shield_4",
+    "night_shield_5",
+    "night_shield_6",
+    "night_shield_7",
+    "night_wash_000",
+    "night_wash_001",
+    "night_wash_002",
+    "night_wash_003",
+    "night_wash_004",
+    "night_wash_005",
+    "night_wash_006",
+    "night_wash_007",
+    "night_wash_008",
+    "night_wash_009",
+    "night_wash_010",
+    "night_wash_011",
+    "night_wash_012",
+    "night_wash_013",
+    "night_wash_014",
+    "night_wash_015",
+    "night_wash_016",
+    "night_wash_017",
+    "night_wash_018",
+    "night_wash_019",
+    "night_wash_020",
+    "night_wash_021",
+    "night_wash_022",
+    "night_wash_023",
+    "night_wash_024",
+    "night_wash_025",
+    "night_wash_026",
+    "night_wash_027",
+    "night_wash_028",
+    "night_wash_029",
+    "night_wash_030",
+    "night_wash_031",
+    "night_wash_032",
+    "night_wash_033",
+    "night_wash_034",
+    "night_wash_035",
+    "night_wash_036",
+    "night_wash_037",
+    "night_wash_038",
+    "night_wash_039",
+    "night_wash_040",
+    "night_wash_041",
+    "night_wash_042",
+    "night_wash_043",
+    "pitch",
+    "pitch_markings",
+    "pitch_zone",
+    "plinth",
+    "roof_cables",
+    "roof_ribs",
+    "roof_ribs_under",
+    "seat_proto",
+    "seats",
+    "soffit",
+    "tier_lower",
+    "tier_middle",
+    "tier_upper",
+    "vip_seat_proto",
+    "vip_seats"
+   ]
+  }
+ ],
+ "codecs": {
+  "geometry": "EXT_meshopt_compression (16-bit positions)",
+  "lightmaps": "KTX2 UASTC + RDO + zstd (light: sRGB, ao: linear)",
+  "colour": "KTX2 ETC1S (albedo maps, shield paint, impostor atlas, ground tiles)",
+  "panorama": "OpenEXR half float, DWAB (8K); Radiance HDR (2048)"
+ },
+ "lightmaps": "Baked materials carry extras.talanta_lightmap: move emissiveMap to lightMap (texture.channel = texCoord), emissive black, lightMapIntensity = intensity. KTX2Loader required.",
+ "labels": "Estimated geometry and colours (parameter ledger). Traffic and any people are Visualization. No reference frame is used as a texture."
+}
