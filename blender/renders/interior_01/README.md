@@ -56,4 +56,4 @@ No reference frame is in these images (AGENTS.md rule 2).
 - Under the middle tier overhang, probably not seen from the aerial cameras: the inner concourse soffit at 4.4 m, its pale fascia, the pale back wall with 14 entries (it was dark), the outer concourse.
 - The secondary roof grid hangs under the membrane: not seen from above.
 - No change to the tier envelope, the row counts, the roof top surface or the facade.
-- These changes are in frozen_FK_interior.blend only. frozen_FK.blend, the twin export and the bakes do not have them until the lead decides (the seat re-check).
+- Seat re-check (Munene, 2026-10-26): the stand detail goes into everything; the lower tier is kept as it is. blender/out/frozen_FL.blend = frozen_FK.blend plus the seat v2, nosings, rail posts and rail ends in bowl_detail (the twin export reads it; the bakes see it in shading and shadow; the baked groups and their UVs are unchanged). blender/out/frozen_FL_interior.blend = frozen_FL.blend plus the concourse, entry and roof grid (interior_* collections, film only). The P2 bakes and chapters 1 to 4 use these two scenes.

@@ -12,7 +12,7 @@ persistent data; res sets the pixel size (portrait: the vertical field of view o
 Walkthrough chapters (2026-10-25): chapter=<id> takes the camera poses from blender/landing_reel/chapters.json
 (blender/landing_reel/paths.py) instead of the orbit, frames is then the chapter's frame count; shift_x shifts the lens
 (the portrait cut's 9:16 window of the L07 frame). Chapters 3 and 4 (interior, waypoint splines) take the lens of
-lens_camera and need TALANTA_SITE_BLEND=blender/out/frozen_FK_interior.blend and haze=0 (the haze box spans the bowl).
+lens_camera and need TALANTA_SITE_BLEND=blender/out/frozen_FL_interior.blend and haze=0 (the haze box spans the bowl).
 The scene setup is render_cycles.py up to its render call (camera, sky preset, hero_artistic prepare, look layer and
 finish), so each frame matches the hero_artistic_04 still of that camera. The camera then orbits the camera target
 about the vertical by arc_deg over the frames (same height, distance and pitch), frame 0 being the camera itself.

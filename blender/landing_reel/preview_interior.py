@@ -1,7 +1,7 @@
 """16-sample previews of the interior (engineering/interior_plan_2026-10-26.md) from the planned chapter 3 and 4 camera
 points, in the hero_artistic day look of L07 (10:30, daylight_artistic), haze volume off.
 
-Run from the repo root (TALANTA_SITE_BLEND=$PWD/blender/out/frozen_FK_interior.blend):
+Run from the repo root (TALANTA_SITE_BLEND=$PWD/blender/out/frozen_FL_interior.blend):
   blender -b --factory-startup --python-exit-code 1 --python blender/landing_reel/preview_interior.py -- <out_dir> <part>
 The poses come from blender/out/interior_build_log.json (the chapter 3 entry) until part 4 writes the chapter paths.
 Each pose: Blender position, Blender aim point, exposure change in EV. Internal check images only. People, vehicles

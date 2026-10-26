@@ -1,7 +1,7 @@
 """Write the camera waypoints of walkthrough chapters 3 and 4 into blender/landing_reel/chapters.json.
 
 Run from the repo root:
-  blender -b blender/out/frozen_FK_interior.blend --factory-startup --python-exit-code 1 \
+  blender -b blender/out/frozen_FL_interior.blend --factory-startup --python-exit-code 1 \
       --python blender/landing_reel/make_interior_paths.py
 Chapter 3 "Going in": waypoints in the local frame of the chapter 3 entry (blender/out/interior_build_log.json): along
 the outer concourse, a turn into the entry passage, through it, across the inner concourse to the aisle head, then a
