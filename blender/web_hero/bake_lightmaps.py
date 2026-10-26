@@ -191,6 +191,31 @@ for gname, (size, obs) in groups.items():
 print("shell fix: kept the scene orientation of", [o.name for o in groups["stadium_shell"][1] if o.name in SHELL_KEEP],
       "; flat faces turned down (covered top side):", SHELL_FLIPPED, flush=True)
 
+
+# The down faces of base_band lie in the plane of the soffit (z-fighting, distance 0): a face covers the other on both
+# sides, so both bake black. Lift those base_band faces 2 cm in the baked copy (it is the exported mesh too): the soffit
+# is then the lower, visible underside and bakes open; the lifted faces are hidden behind it.
+def lift_coincident(o, under, dz=0.02):
+    if o is None or under is None: return 0
+    bm = bmesh.new(); bm.from_mesh(o.data); R, M = o.matrix_world.to_3x3(), o.matrix_world
+    o.hide_viewport = True; bpy.context.view_layer.update(); dg = bpy.context.evaluated_depsgraph_get()
+    lift = set()
+    for f in bm.faces:
+        if (R @ f.normal).z >= -0.5: continue
+        c = M @ f.calc_center_median()
+        hit, loc, _n, _i, ob, _m = s.ray_cast(dg, c + Vector((0, 0, 0.005)), Vector((0, 0, -1)), distance=0.01)
+        if hit and ob.name == under.name: lift.add(f)
+    o.hide_viewport = False; bpy.context.view_layer.update()
+    up = M.inverted().to_3x3() @ Vector((0, 0, dz))
+    for v in {v for f in lift for v in f.verts}: v.co += up
+    bm.to_mesh(o.data); bm.free(); o.data.update()
+    return len(lift)
+
+
+if "stadium_shell" in groups:
+    _sh = {o.name: o for o in groups["stadium_shell"][1]}
+    print("shell fix: base_band faces lifted 2 cm off the soffit plane:", lift_coincident(_sh.get("base_band"), _sh.get("soffit")), flush=True)
+
 # ---------------------------------------------------------------- UV sets: UV0 kept (or added), UV1 = "lightmap"
 def ensure_uvs(o):
     if not o.data.uv_layers: o.data.uv_layers.new(name="UVMap")
