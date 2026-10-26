@@ -81,6 +81,8 @@ cam.rotation_euler = (math.radians(90), 0.0, 0.0)
 s.camera = cam
 s.render.resolution_x, s.render.resolution_y, s.render.resolution_percentage = W, W // 2, 100
 c = s.cycles; c.samples = SAMPLES; c.use_adaptive_sampling = True; c.use_denoising = True; c.denoiser = "OPENIMAGEDENOISE"
+if __import__("os").environ.get("TALANTA_PRE"):  # GPU runs (Kaggle): blender/kaggle/gpu_pre.py sets the Cycles device to GPU
+    _pre = __import__("os").environ["TALANTA_PRE"]; exec(compile(open(_pre).read(), _pre, "exec"), {"bpy": bpy, "s": s, "ROOT": ROOT})
 s.view_settings.view_transform = "Standard"; s.view_settings.exposure = 0.0; s.view_settings.look = "None"
 s.render.image_settings.file_format = "HDR"
 if "out" in KW:  # bundle: the full panorama as half-float OpenEXR (DWAB), far smaller than Radiance HDR at 8K

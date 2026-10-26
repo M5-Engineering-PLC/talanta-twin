@@ -223,6 +223,8 @@ bpy.ops.object.select_all(action="DESELECT")
 for o in all_obs: o.select_set(True)
 bpy.context.view_layer.objects.active = all_obs[0]
 c = s.cycles; c.device = "CPU"; c.use_adaptive_sampling = False; c.use_denoising = False
+if __import__("os").environ.get("TALANTA_PRE"):  # GPU runs (Kaggle): blender/kaggle/gpu_pre.py sets the Cycles device to GPU
+    _pre = __import__("os").environ["TALANTA_PRE"]; exec(compile(open(_pre).read(), _pre, "exec"), {"bpy": bpy, "s": s, "ROOT": ROOT})
 s.render.bake.margin = 2; s.render.bake.margin_type = "EXTEND"; s.render.bake.target = "IMAGE_TEXTURES"
 s.world.light_settings.distance = 2.0
 # ---------------------------------------------------------------- encode and save (8-bit sRGB PNG)
