@@ -25,6 +25,17 @@ Order: engineering/lead_decision_2026-10-25_cycles_parity.md, P2.
 
 The maps of sub-run 1a (assets/web_hero_v2_bake_1030, lightmaps/1030/maps/) are the CPU side of the GPU test comparison.
 
+## GPU test result: stadium_shell differs (diagnosis 2026-10-26)
+
+The lead chat found: roof, fins and ornament match; in stadium_shell, whole charts in the top quarter of the atlas are black in the CPU AO and light maps (sub-run 1a) and lit in the GPU maps. UVs and albedo are identical.
+
+1. Scene files. Sub-run 1a read blender/out/frozen_FL.blend in the cloud repo: 42,182,611 bytes, sha256 91b647485b26216da7e2b1e8c4b8d63400cd14a304d8a16c72d26ca34c03930f, written 07:37:41 UTC; 1a started 07:52:17, so the file was not rebuilt after the start. The pack file (42,182,462 bytes, d6c59e4b...) is a copy of it saved at 08:35 with the image paths made relative. After the bake set-up, both give the same scene: 5,756 objects, the same visible objects and instances, the same hidden objects.
+2. The charts. 441 faces: soffit 240, base_band 107, opening_trim 83, base_columns 11. In the scene these faces point down (undersides; about half of the soffit points up). The bake's orient_outward() turns every flat face of an open sheet to point up, so the bake records their top side. That side is covered: 93 base_band faces have the soffit within 5 cm above them, 60 soffit faces have base_band within 5 cm, the opening_trim faces look up into the ring beam. The new stand parts are not involved: the same 441 faces are black in the 07:30 set too (baked from frozen_FK.blend, before the stand detail).
+3. Which bake is right. On the side that the bake records, the CPU result (black) is the correct one: that side is covered. The GPU (OptiX) result is lit because its rays do not detect surfaces that touch or nearly touch the face (self-intersection offset), so it bakes the open sky through the cover. But the recorded side is the wrong side for these faces: in the app they are seen from below. Neither map is right for display: the CPU map makes the undersides black, the GPU map gives them sky light.
+4. Check. A CPU bake of stadium_shell from the pack's frozen_FL.blend (the same file as the GPU run; AO at the script's 64 samples, light at 16) matches the CPU map, not the GPU map: AO identical (mean difference 0.0 of 255 over the atlas; 429 of the 441 faces below 8 of 255); light differs only by the sample noise (16 against 128 samples). So the difference is the device (Embree on the CPU against OptiX on the GPU) on covered faces, not the scene.
+
+Proposed fix (not applied; it changes the stadium_shell maps of every time, 07:30 included): in bake_lightmaps.py orient_outward(), keep a flat face pointing down when a short ray up from it hits other geometry within 0.1 m (covered top side), and keep the scene orientation of soffit, base_band, base_columns and opening_trim. Then the bake records the open underside and the CPU and the GPU agree. Re-bake stadium_shell for 07:30 and for each P2 time (on the GPU: minutes). Until the fix, compare the GPU test on roof, fins and ornament only.
+
 ## Steps
 
 1. Upload the new pack as a dataset version (keep it private).
