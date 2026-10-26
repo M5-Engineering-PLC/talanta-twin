@@ -31,6 +31,7 @@ POSES = {
         ("p5_bowl_to_concourse", Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 11.0, -14.0), PAD + 12.0), Bp(*at_n(0.0), PAD + yF + 2.5), 0.0),
     ],
     "stand": "computed after the scene setup (heights by ray cast)",
+    "roof": "computed after the scene setup (heights by ray cast)",
 }[PART]
 
 src = (ROOT / "blender/render_cycles.py").read_text()
@@ -55,7 +56,7 @@ if pl is not None:
 s.cycles.samples = 16; s.render.resolution_x, s.render.resolution_y, s.render.resolution_percentage = 960, 540, 100
 s.render.use_persistent_data = True; s.render.image_settings.file_format = "PNG"
 cam = s.camera; ev0 = s.view_settings.exposure
-if PART == "stand":  # lap camera points: mid lower tier (t 0.19), 3 m above the stand surface, looking ahead and inwards
+if PART in ("stand", "roof"):  # lap camera points: mid lower tier (t 0.19), 3 m above the stand surface, looking ahead and inwards
     import numpy as np
     G = json.loads((ROOT / "blender/out/bowl_rings.json").read_text()); N = G["N"]
     TH = 2 * math.pi * np.arange(N + 1) / N
@@ -75,6 +76,11 @@ if PART == "stand":  # lap camera points: mid lower tier (t 0.19), 3 m above the
              ("s3_lap_north_low", *lap(math.radians(275), h=1.9, look=70, dn=6), 0.0),
              ("s4_aisle_head_down", Bp(*at_n(-(E["r_wall"] - E["r_front"]) + 0.8, 1.5), EYE), Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 12.0, -3.0), PAD + 6.0), 0.0),
              ("s5_seats_close", Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 0.3, 4.0), EYE - 0.3), Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 5.0, 6.5), PAD + yF - 2.0), 0.0)]
+    if PART == "roof":  # the roof underside from the stands
+        pe, _ = lap(math.radians(10)); pw = lap(math.radians(190))[0]
+        POSES = [("r1_up_across", pe, (pw[0] * 0.6, pw[1] * 0.6, PAD + 42.0), 0.0),
+                 ("r2_up_overhead", pe, (pe[0] * 0.75, pe[1] * 0.75, pe[2] + 30.0), 0.0),
+                 ("r3_ch3_end_high", Bp(*at_n(-(E["r_wall"] - E["r_front"]) + 0.8), EYE), (-px * 0.5, pz * 0.5, PAD + 22.0), 0.0)]
 log = {"part": PART, "scene": str(Path(bpy.data.filepath).name), "samples": 16, "resolution": [960, 540], "frames": []}
 for name, pos, aim, dev in POSES:
     if ONLY and name not in ONLY: continue
