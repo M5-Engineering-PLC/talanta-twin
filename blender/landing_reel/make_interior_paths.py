@@ -48,8 +48,16 @@ def outer_n(t, frac=0.81, h=EYE):
     puts the camera between the column line (0.62 of the depth) and the outer wall."""
     o = Vector((px + nx * 5.6 + tx * t, -(pz + nz * 5.6 + tz * t), h))
     d_out, d_in = Vector((nx, -nz, 0)), Vector((-nx, nz, 0))
-    hit_o, lo, *_ = s.ray_cast(dg, o, d_out, distance=30); hit_i, li, *_ = s.ray_cast(dg, o, d_in, distance=30)
-    n_o = 5.6 + ((lo - o).length if hit_o else 5.6); n_i = 5.6 - ((li - o).length if hit_i else 5.4)
+    def to_wall(d, names):  # distance to the first hit on one of the named walls (columns and fittings are skipped)
+        q = o.copy()
+        for _ in range(20):
+            hit, loc, nor, idx, ob, _m = s.ray_cast(dg, q, d, distance=30)
+            if not hit: return None
+            if ob.name in names: return (loc - o).length
+            q = loc + d * 0.01
+        return None
+    do, di = to_wall(d_out, ("int_outer_wall",)), to_wall(d_in, ("int_back_wall", "int_entry_block"))
+    n_o = 5.6 + (do if do else 5.6); n_i = 5.6 - (di if di else 5.4)
     return n_i + (n_o - n_i) * frac
 
 
