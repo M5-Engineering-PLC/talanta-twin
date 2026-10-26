@@ -1,9 +1,10 @@
 # Render order: walkthrough chapters 1 and 2 (for Munene's approval)
 
-Date: 2026-10-26. Status: **waiting for approval. Nothing of the full render has started.**
+Date: 2026-10-26. Status: waiting for approval. Nothing of the full render has started.
 Decisions: engineering/lead_decision_2026-10-25_walkthrough.md (chapters, GPU option), engineering/lead_decision_2026-10-25_reel_and_v2.md (R3 cost rules).
 Camera paths: blender/landing_reel/chapters.json, blender/landing_reel/paths.py; preview: blender/landing_reel/chapters_1_2_preview.jpg.
 Renderer: blender/scroll_test/render_scroll_frames.py `chapter=<id>` on blender/out/frozen_FK.blend (or the render pack, branch assets/render_pack).
+Kaggle result: engineering/kaggle_gpu_test_2026-10-25.md (058f9ce).
 Claim on screen for both chapters: "Visualization: people, vehicles and lighting are illustrative".
 
 ## Shot list
@@ -38,9 +39,49 @@ File sizes (H.264, measured on the 24-frame day orbit, which moves 1.25 deg a fr
 
 Parallel rendering (R3 step 3): yes. A second cloud session in the TALANTA environment runs at the same time on its own machine (probe 2026-10-25: 4 cores, 15 GB, Blender 5.2.3, 29 GB disk). The frames do not depend on each other, so N sessions divide the wall time by N; the CPU hours stay the same. Each session needs the render pack (assets/render_pack, 175 MB in 2 parts).
 
-Interpolation (R3 step 4): not used. Both versions below render every frame at 24 fps.
+Interpolation (R3 step 4): not used. All versions below render every frame at 24 fps.
 
-## Version A: rented RTX 4090 (recommended)
+## Version C: Kaggle GPU (recommended)
+
+| Item | Value |
+|---|---|
+| Machine | Kaggle notebook, GPU T4 x2 (2 x Tesla T4, 16 GB each), OptiX, Blender 5.2.2; free, 30 GPU hours a week |
+| Input | the private dataset talanta-render-pack (render pack 7e19362); the notebook stays private |
+| Settings | stills quality: 128 samples, haze volume and its pass layer, persistent data, OpenImageDenoise; 1920 x 1080 and the 720 x 1280 portrait |
+| Seconds per frame | wide 54.4 s (measured, 2026-10-25, L07 day orbit); portrait about 24.2 s, from the pixel count (0.92 of 2.07 megapixels; the CPU ratio was 92 to 224 s), to measure |
+| Frames | 432 wide plus 432 portrait |
+| Render time of one pass | wide 432 x 54.4 s = 6.53 h; portrait 432 x 24.2 s = 2.90 h (to measure) |
+| Cost per run | about 355 s more: the first frame of each Blender process takes about 229 s (OptiX kernels, 175 s more than a frame), plus an estimated 180 s for the Blender download and the pack copy |
+| Notebook | blender/kaggle/talanta_chapter_render.ipynb; the first code cell sets CHAPTER, CUT (wide or portrait), FRAME_START, FRAME_END, SAMPLES and HAZE; it writes the inline gpu_pre.py of the test notebook |
+| How | one Blender process for each run, many frames for each run, each run less than 4 h; "Save Version", then "Save & Run All (Commit)", private; the run continues in the background and the frames stay as the version's output (frames/<run>/ with scroll_log.json and run_record.json with a sha256 for each frame) |
+
+Runs (GPU hours, with 355 s for each run):
+
+| Run | Chapter, cut | Frames | GPU hours |
+|---|---|---|---|
+| C1 test | ch1 wide | 0 to 23 | 0.46 |
+| C2 test | ch1 portrait | 0 to 23 | 0.26 |
+| C3 | ch1 wide | 24 to 191 | 2.64 |
+| C4 | ch2 wide | 0 to 239 | 3.73 |
+| C5 | ch1 portrait | 24 to 191 | 1.23 |
+| C6 | ch2 portrait | 0 to 239 | 1.71 |
+| First pass | | 864 frames, 6 runs | 10.02 |
+| Repeat pass | ch1 wide 0 to 191 (3.00), ch2 wide 0 to 239 (3.73), ch1 portrait 0 to 191 (1.39), ch2 portrait 0 to 239 (1.71) | 864 frames, 4 runs | 9.82 |
+| Total | | | 19.84 (limit 20 h; 30 h a week) |
+
+- The 24-frame tests (C1, C2) are frames 0 to 23 of the film; they are not rendered again in the first pass.
+- After C1 and C2: stop, measure the seconds per frame and update this table. If the wide frame takes more than 56 s, C4 is more than 3.8 h: split it into 0 to 119 and 120 to 239 (0.10 h more).
+- If the portrait frame takes more than 24.2 s, the total goes over 20 h; then the repeat pass renders only the frames that the review rejects.
+- Stop the session after each run. An idle session uses GPU hours.
+
+Render pack and the G2 trees: pack 7e19362 does not need a rebuild.
+- The G2 defect (dark, faceted trees) was in the web export only: the canopy set lost its UVs in the exported mesh, and the other tree sets got the colour of the darkest node of their material. The fix (740638e) changes blender/web_hero/export_web.py and the glTF bundle. It does not change the Blender scene.
+- The Cycles scene uses the tree materials and UVs of frozen_FK.blend. That file has not changed since 2026-10-24 14:51 UTC; the pack (built 2026-10-25 15:34) has the same scene, with relative image paths. Its frame 0 is pixel-identical to scroll_test_01 frame 0.
+- The pack's render_scroll_frames.py, chapters.json and paths.py are the same files as on wo/web-hero-v2 (checked byte for byte 2026-10-26), so `chapter=` works from the pack.
+
+Frames: Munene downloads the output of each run. Then the frames go to the orphan branch assets/landing_reel_frames (not to wo/web-hero-v2), then the encodes (H.264 CRF 26, 2 s GOP; 1080p and 720 x 1280).
+
+## Version A: rented RTX 4090 (paid fallback)
 
 | Item | Value |
 |---|---|
@@ -53,7 +94,7 @@ Interpolation (R3 step 4): not used. Both versions below render every frame at 2
 | Test first | 24 frames of chapter 1 (frames 0 to 23), wide; measure the seconds per frame, GPU memory and cost; stop and report |
 | How | the render pack (assets/render_pack); RENDER_PACK.md; set the Cycles device to GPU (OptiX) with a TALANTA_PRE file; data-centre machine, read-only deploy key, delete the machine and disk after the render (walkthrough decision, conditions). Munene sets up the account; no agent enters payment details |
 
-## Version B: the 4-core cloud CPU, 30 h or less
+## Version B: the 4-core cloud CPU, 30 h or less (fallback without a GPU)
 
 | Item | Value |
 |---|---|
@@ -69,5 +110,5 @@ After each part: the frames go to the orphan branch `assets/landing_reel_frames`
 
 ## Decision needed
 
-1. Version A (GPU, stills quality, about 1 to 4 USD) or version B (cloud CPU, 26 h, lower settings).
-2. For version A: the 24-frame GPU test first, on an account Munene sets up.
+1. Approve version C. The first run is C1: 24 wide frames of chapter 1 (frames 0 to 23) on Kaggle.
+2. Versions A (paid GPU) and B (cloud CPU) stay as fallbacks.
