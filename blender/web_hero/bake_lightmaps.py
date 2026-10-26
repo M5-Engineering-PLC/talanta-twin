@@ -194,7 +194,7 @@ def orient_shell(o):
     for f in bm.faces:  # the face centre and points 60 % of the way to its corners (large faces are partly covered)
         if (R @ f.normal).z <= 0.5: continue
         c = f.calc_center_median(); pts = [M @ c] + [M @ c.lerp(v.co, 0.6) for v in f.verts[:8]]
-        hits = sum(s.ray_cast(dg, q - Vector((0, 0, 0.02)), Vector((0, 0, 1)), distance=COVER_M + 0.02)[0] for q in pts)
+        hits = sum(s.ray_cast(dg, q - Vector((0, 0, 0.005)), Vector((0, 0, 1)), distance=COVER_M + 0.005)[0] for q in pts)  # from 5 mm under the face (less than the 2 cm lift)
         if hits * 2 > len(pts): flip.append(f)
     _shown(o)
     bmesh.ops.reverse_faces(bm, faces=flip)
