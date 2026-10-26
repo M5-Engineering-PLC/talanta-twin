@@ -33,7 +33,7 @@ app = lambda n, t, h: r2([px + nx * n + tx * t, h, pz + nz * n + tz * t])
 # wide into the passage axis (preview 2026-10-26: at n 6.6 the camera met a column and the side of the entry block)
 ch3 = [((9.0, 17.0, EYE), (8.6, 5.0, EYE - 0.2)),
        ((9.0, 6.0, EYE), (4.0, 0.0, EYE - 0.3)),
-       ((7.6, 0.6, EYE), (-6.0, 0.0, EYE - 0.4)),
+       ((7.6, 0.0, EYE), (-6.0, 0.0, EYE - 0.4)),  # n set by ray cast below
        ((2.7, 0.0, EYE), (-14.0, 0.0, EYE - 0.8)),
        ((-2.0, 0.0, EYE), (-22.0, 0.0, EYE - 2.5)),
        ((-DW + 2.5, 0.0, EYE), None),
@@ -54,7 +54,8 @@ def outer_n(t, frac=0.81, h=EYE):
 
 
 ch3[0] = ((outer_n(17.0), 17.0, EYE), (outer_n(5.0), 5.0, EYE - 0.2))
-ch3[1] = ((outer_n(6.0), 6.0, EYE), ch3[1][1])
+ch3[1] = ((outer_n(6.0), 6.0, EYE), (5.4, 0.0, EYE - 0.2))  # aim at the passage mouth
+ch3[2] = ((outer_n(0.0, 0.78), 0.0, EYE), ch3[2][1])  # on the passage axis, about 3.5 m before the mouth
 pos3 = [app(*c) for c, _ in ch3]
 aim3 = [app(*a) if a else far for _, a in ch3]
 

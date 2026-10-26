@@ -351,10 +351,10 @@ def part_concourse():
     v, f, uv = [], [], []
     p, tg, nn = ring_w.frame(s_e)
     for sgn in (-1, 1):
-        box_local(v, f, uv, p, tg, nn, sgn * EW / 2 if sgn > 0 else -EW / 2 - 2.0, EW / 2 + 2.0 if sgn > 0 else -EW / 2,
+        box_local(v, f, uv, p, tg, nn, sgn * EW / 2 if sgn > 0 else -EW / 2 - 0.6, EW / 2 + 0.6 if sgn > 0 else -EW / 2,
                   WALL_T / 2, WALL_T / 2 + 5.0, yF, yF + H_OUT + 0.7)
     box_local(v, f, uv, p, tg, nn, -EW / 2, EW / 2, WALL_T / 2, WALL_T / 2 + 5.0, yF + EH, yF + H_OUT + 0.7)
-    mesh_obj("int_entry_block", C_EN, v, f, WALL, "estimated (generic entry passage, 3.0 m x 3.2 m x 5.4 m)", uv)
+    mesh_obj("int_entry_block", C_EN, v, f, WALL, "estimated (generic entry passage, 3.0 m x 3.2 m x 5.4 m, 0.6 m wall returns; preview: 2 m returns hid the opening)", uv)
     v, f, uv = [], [], []
     for sgn in (-1, 1):
         box_local(v, f, uv, p, tg, nn, sgn * (EW / 2 - 0.03) - 0.02, sgn * (EW / 2 - 0.03) + 0.02, 0.0, WALL_T / 2 + 5.0, yF + 2.6, yF + 2.66)

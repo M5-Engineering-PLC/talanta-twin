@@ -1,9 +1,4 @@
 {
- "parts": [
-  "concourse",
-  "roof",
-  "stand"
- ],
  "objects": {
   "int_floor_inner": 585,
   "int_soffit_inner": 522,
@@ -29,6 +24,11 @@
   "int_roof_sub_rings": 28,
   "int_roof_sub_diagonals": 6480
  },
+ "parts": [
+  "concourse",
+  "roof",
+  "stand"
+ ],
  "area_lights": 145,
  "entry": {
   "theta_deg": 62.87,
@@ -53,8 +53,8 @@
   182.2,
   23.3
  ],
- "concourse_s": 1.8,
+ "concourse_s": 1.6,
  "seat_triangles": 616,
- "stand_s": 0.5,
- "roof_s": 0.3
+ "stand_s": 0.3,
+ "roof_s": 0.2
 }
