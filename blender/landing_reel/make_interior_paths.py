@@ -29,19 +29,36 @@ r2 = lambda v: [round(float(c), 2) for c in v]
 app = lambda n, t, h: r2([px + nx * n + tx * t, h, pz + nz * n + tz * t])
 
 # chapter 3: (camera n, t, height), (aim n, t, height) in the entry frame (n outwards from the back wall, t along it)
-ch3 = [((6.6, 16.0, EYE), (6.4, 4.0, EYE - 0.2)),
-       ((6.6, 7.0, EYE), (3.0, -1.0, EYE - 0.3)),
-       ((6.0, 1.2, EYE), (-6.0, 0.0, EYE - 0.4)),
+# the outer concourse leg runs at n 9.0, between the column line (n about 7.0) and the outer wall (n 11.6), then turns
+# wide into the passage axis (preview 2026-10-26: at n 6.6 the camera met a column and the side of the entry block)
+ch3 = [((9.0, 17.0, EYE), (8.6, 5.0, EYE - 0.2)),
+       ((9.0, 6.0, EYE), (4.0, 0.0, EYE - 0.3)),
+       ((7.6, 0.6, EYE), (-6.0, 0.0, EYE - 0.4)),
        ((2.7, 0.0, EYE), (-14.0, 0.0, EYE - 0.8)),
        ((-2.0, 0.0, EYE), (-22.0, 0.0, EYE - 2.5)),
        ((-DW + 2.5, 0.0, EYE), None),
        ((-DW + 0.7, 0.0, EYE), None)]
 far = r2([0.0, PAD + 12.0, -60.0])  # the north stand, across the pitch
+s = bpy.context.scene; dg = bpy.context.evaluated_depsgraph_get()
+
+
+def outer_n(t, frac=0.81, h=EYE):
+    """n of the point at fraction frac across the outer concourse at tangent offset t: the back wall and the outer wall
+    are found by ray casts along the wall normal, because the ring curves away from the straight tangent line. 0.81
+    puts the camera between the column line (0.62 of the depth) and the outer wall."""
+    o = Vector((px + nx * 5.6 + tx * t, -(pz + nz * 5.6 + tz * t), h))
+    d_out, d_in = Vector((nx, -nz, 0)), Vector((-nx, nz, 0))
+    hit_o, lo, *_ = s.ray_cast(dg, o, d_out, distance=30); hit_i, li, *_ = s.ray_cast(dg, o, d_in, distance=30)
+    n_o = 5.6 + ((lo - o).length if hit_o else 5.6); n_i = 5.6 - ((li - o).length if hit_i else 5.4)
+    return n_i + (n_o - n_i) * frac
+
+
+ch3[0] = ((outer_n(17.0), 17.0, EYE), (outer_n(5.0), 5.0, EYE - 0.2))
+ch3[1] = ((outer_n(6.0), 6.0, EYE), ch3[1][1])
 pos3 = [app(*c) for c, _ in ch3]
 aim3 = [app(*a) if a else far for _, a in ch3]
 
 # chapter 4: the lap
-s = bpy.context.scene; dg = bpy.context.evaluated_depsgraph_get()
 TH = 2 * math.pi * np.arange(N + 1) / N
 rof = lambda arr, th: float(np.interp(th % (2 * math.pi), TH, np.append(arr, arr[0])))
 T_LAP, H_LAP, LOOK, DOWN, K = 0.19, 3.0, 50.0, 10.0, 960
