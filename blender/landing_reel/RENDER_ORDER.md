@@ -1,6 +1,6 @@
 # Render order: walkthrough chapters 1 and 2 (for Munene's approval)
 
-Date: 2026-10-26. Status: version C approved by Munene 2026-10-26, without a full repeat pass. C1 passed 2026-10-26. Next: C2 (portrait test) on Kaggle.
+Date: 2026-10-26. Status: version C approved by Munene 2026-10-26, without a full repeat pass. C1 and C2 passed 2026-10-26. Next: C3 to C6 on Kaggle under the approval (each run less than 4 h, the week less than 20 GPU h).
 Decisions: engineering/lead_decision_2026-10-25_walkthrough.md (chapters, GPU option), engineering/lead_decision_2026-10-25_reel_and_v2.md (R3 cost rules).
 Camera paths: blender/landing_reel/chapters.json, blender/landing_reel/paths.py; preview: blender/landing_reel/chapters_1_2_preview.jpg.
 Renderer: blender/scroll_test/render_scroll_frames.py `chapter=<id>` on blender/out/frozen_FK.blend (or the render pack, branch assets/render_pack).
@@ -48,7 +48,7 @@ Interpolation (R3 step 4): not used. All versions below render every frame at 24
 | Machine | Kaggle notebook, GPU T4 x2 (2 x Tesla T4, 16 GB each), OptiX, Blender 5.2.2; free, 30 GPU hours a week |
 | Input | the private dataset talanta-render-pack (render pack 7e19362); the notebook stays private |
 | Settings | stills quality: 128 samples, haze volume and its pass layer, persistent data, OpenImageDenoise; 1920 x 1080 and the 720 x 1280 portrait |
-| Seconds per frame | wide 54.4 s (measured, 2026-10-25, L07 day orbit); portrait about 24.2 s, from the pixel count (0.92 of 2.07 megapixels; the CPU ratio was 92 to 224 s), to measure |
+| Seconds per frame | wide 54.4 s (GPU test, 2026-10-25), 53.2 s (C1); portrait 30.1 s (C2; the pixel-count estimate was 24.2 s) |
 | Frames | 432 wide plus 432 portrait |
 | Render time of one pass | wide 432 x 54.4 s = 6.53 h; portrait 432 x 24.2 s = 2.90 h (to measure) |
 | Cost per run | about 355 s more: the first frame of each Blender process takes about 229 s (OptiX kernels, 175 s more than a frame), plus an estimated 180 s for the Blender download and the pack copy |
@@ -60,14 +60,14 @@ Runs (GPU hours, with 355 s for each run):
 | Run | Chapter, cut | Frames | GPU hours |
 |---|---|---|---|
 | C1 test | ch1 wide | 0 to 23 | 0.43 (measured: 1,534.7 s) |
-| C2 test | ch1 portrait | 0 to 23 | 0.26 |
+| C2 test | ch1 portrait | 0 to 23 | 0.29 (measured: 224.3 s + 23 x 30.1 s, plus setup) |
 | C3 | ch1 wide | 24 to 191 | 2.58 (at 53.2 s) |
 | C4 | ch2 wide | 0 to 239 | 3.65 (at 53.2 s) |
-| C5 | ch1 portrait | 24 to 191 | 1.23 |
-| C6 | ch2 portrait | 0 to 239 | 1.71 |
-| First pass | | 864 frames, 6 runs | 9.88 |
+| C5 | ch1 portrait | 24 to 191 | 1.50 (at 30.1 s) |
+| C6 | ch2 portrait | 0 to 239 | 2.11 (at 30.1 s) |
+| First pass | | 864 frames, 6 runs | 10.56 |
 | Repeats | only the frames that the review rejects | as needed | 4.00 at most |
-| Budget for the week | | | 13.88 at most (limit 20 h; 30 h a week) |
+| Budget for the week | | | 14.56 at most (limit 20 h; 30 h a week) |
 
 - The 24-frame tests (C1, C2) are frames 0 to 23 of the film; they are not rendered again in the first pass.
 - After C1 and C2: stop, measure the seconds per frame and update this table. If the wide frame takes more than 56 s, C4 is more than 3.8 h: split it into 0 to 119 and 120 to 239 (0.10 h more).
@@ -124,10 +124,11 @@ After each part: the frames go to the orphan branch `assets/landing_reel_frames`
 | Run | Result | Seconds per frame | First frame | GPU memory (max) | Frame check | Slow frames | Run time |
 |---|---|---|---|---|---|---|---|
 | C1 (ch1 wide 0 to 23) | passed 2026-10-26 | 53.2 s | 228.7 s | 1.8 GB of 15 GB on each T4 | pass | none | 1,534.7 s (0.43 h) |
-| C2 (ch1 portrait 0 to 23) | next | | | | | | |
+| C2 (ch1 portrait 0 to 23) | passed 2026-10-26 | 30.1 s (estimate 24.2 s) | 224.3 s | 1.7 GB of 15 GB | pass (luma step 0.3) | none | about 0.29 h |
 
 - C1 is 2 % faster than the GPU test (54.4 s). C4 stays one run (3.65 h, less than 4 h); no split.
 - TEST_S_PER_FRAME for the wide runs (C3, C4) is 53.2.
+- C2: the portrait frame is 24 % slower than the pixel-count estimate (fixed costs per frame: scene sync, compositor, denoiser). TEST_S_PER_FRAME for the portrait runs (C5, C6) is 30.1. C3 to C6 together: about 9.8 GPU h.
 
 ## Notebook settings for each run
 
@@ -137,7 +138,7 @@ After each part: the frames go to the orphan branch `assets/landing_reel_frames`
 | C2 | ch1_arrival | portrait | 0 | 23 | None |
 | C3 | ch1_arrival | wide | 24 | 191 | 53.2 |
 | C4 | ch2_orbit | wide | 0 | 239 | 53.2 |
-| C5 | ch1_arrival | portrait | 24 | 191 | C2 result |
-| C6 | ch2_orbit | portrait | 0 | 239 | C2 result |
+| C5 | ch1_arrival | portrait | 24 | 191 | 30.1 |
+| C6 | ch2_orbit | portrait | 0 | 239 | 30.1 |
 
 SAMPLES = 128 and HAZE = 1 for all runs (stills quality).
