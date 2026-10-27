@@ -1,0 +1,1569 @@
+{
+ "key": {
+  "samples": 128,
+  "test": false,
+  "light": "sunset_artistic",
+  "state": "finished",
+  "lookdev": "day"
+ },
+ "done": {
+  "albedo:stadium_shell+stadium_fins": {
+   "seconds": 243.6,
+   "samples": 4,
+   "at": "2026-10-26 16:57:09",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ],
+    [
+     2048,
+     [
+      "louvre_fins"
+     ]
+    ]
+   ]
+  },
+  "albedo:stadium_ornament+roof": {
+   "seconds": 45.0,
+   "samples": 4,
+   "at": "2026-10-26 16:57:56",
+   "sig": [
+    [
+     2048,
+     [
+      "lattice",
+      "shields",
+      "spears"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ring_beam",
+      "roof",
+      "roof_ribs"
+     ]
+    ]
+   ]
+  },
+  "albedo:sport+roads+site_built": {
+   "seconds": 71.8,
+   "samples": 4,
+   "at": "2026-10-26 16:59:08",
+   "sig": [
+    [
+     1024,
+     [
+      "pitch",
+      "pitch_apron",
+      "pitch_zone",
+      "training_pitch_se_turf",
+      "warmup_track_ne",
+      "warmup_track_ne_infield"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ngong_barrier",
+      "ngong_road",
+      "roads_final"
+     ]
+    ],
+    [
+     1024,
+     [
+      "entrance_canopies",
+      "sign_frames"
+     ]
+    ]
+   ]
+  },
+  "albedo:forecourt": {
+   "seconds": 952.3,
+   "samples": 4,
+   "at": "2026-10-26 17:15:01",
+   "sig": [
+    [
+     2048,
+     [
+      "fc_axial_bed_north",
+      "fc_axial_bed_north_kerb",
+      "fc_axial_bed_north_plant_0",
+      "fc_axial_bed_north_plant_1",
+      "fc_axial_bed_north_plant_2",
+      "fc_axial_bed_north_plant_3",
+      "fc_axial_bed_north_plant_4",
+      "fc_axial_bed_south",
+      "fc_axial_bed_south_kerb",
+      "fc_axial_bed_south_plant_0",
+      "fc_axial_bed_south_plant_1",
+      "fc_axial_bed_south_plant_2",
+      "fc_axial_bed_south_plant_3",
+      "fc_axial_bed_south_plant_4",
+      "fc_base",
+      "fc_bench_line_east_0",
+      "fc_bench_line_east_1",
+      "fc_bench_line_east_2",
+      "fc_bench_line_west_0",
+      "fc_bench_line_west_1",
+      "fc_bench_line_west_2",
+      "fc_central_round_bed",
+      "fc_central_round_bed_kerb",
+      "fc_central_round_bed_plant_0",
+      "fc_central_round_bed_plant_1",
+      "fc_central_round_bed_plant_2",
+      "fc_central_round_bed_plant_3",
+      "fc_central_round_bed_plant_4",
+      "fc_east_lawn",
+      "fc_edge_bed_east",
+      "fc_edge_bed_east_kerb",
+      "fc_edge_bed_east_plant_0",
+      "fc_edge_bed_east_plant_1",
+      "fc_edge_bed_east_plant_2",
+      "fc_edge_bed_east_plant_3",
+      "fc_edge_bed_east_plant_4",
+      "fc_edge_bed_west",
+      "fc_edge_bed_west_kerb",
+      "fc_edge_bed_west_plant_0",
+      "fc_edge_bed_west_plant_1",
+      "fc_edge_bed_west_plant_2",
+      "fc_edge_bed_west_plant_3",
+      "fc_edge_bed_west_plant_4",
+      "fc_facade_apron",
+      "fc_mast_cluster_east_0",
+      "fc_mast_cluster_east_1",
+      "fc_mast_cluster_east_2",
+      "fc_mast_cluster_east_3",
+      "fc_mast_cluster_east_4",
+      "fc_mast_cluster_east_5",
+      "fc_mast_cluster_west_0",
+      "fc_mast_cluster_west_1",
+      "fc_mast_cluster_west_2",
+      "fc_mast_cluster_west_3",
+      "fc_mast_cluster_west_4",
+      "fc_mast_cluster_west_5",
+      "fc_path_east_cross",
+      "fc_path_east_cross_kerb_-1_0",
+      "fc_path_east_cross_kerb_-1_1",
+      "fc_path_east_cross_kerb_1_0",
+      "fc_path_east_cross_kerb_1_1",
+      "fc_path_east_diagonal",
+      "fc_path_east_diagonal_kerb_-1_0",
+      "fc_path_east_diagonal_kerb_-1_1",
+      "fc_path_east_diagonal_kerb_1_0",
+      "fc_path_east_diagonal_kerb_1_1",
+      "fc_path_east_outer",
+      "fc_path_east_outer_kerb_-1_0",
+      "fc_path_east_outer_kerb_-1_1",
+      "fc_path_east_outer_kerb_-1_2",
+      "fc_path_east_outer_kerb_1_0",
+      "fc_path_east_outer_kerb_1_1",
+      "fc_path_east_outer_kerb_1_2",
+      "fc_path_plaza_east_axis",
+      "fc_path_plaza_east_axis_kerb_-1_0",
+      "fc_path_plaza_east_axis_kerb_-1_1",
+      "fc_path_plaza_east_axis_kerb_1_0",
+      "fc_path_plaza_east_axis_kerb_1_1",
+      "fc_path_plaza_west_axis",
+      "fc_path_plaza_west_axis_kerb_-1_0",
+      "fc_path_plaza_west_axis_kerb_-1_1",
+      "fc_path_plaza_west_axis_kerb_1_0",
+      "fc_path_plaza_west_axis_kerb_1_1",
+      "fc_path_road_approach",
+      "fc_path_road_approach_kerb_-1_0",
+      "fc_path_road_approach_kerb_1_0",
+      "fc_path_west_connector",
+      "fc_path_west_connector_kerb_-1_0",
+      "fc_path_west_connector_kerb_-1_1",
+      "fc_path_west_connector_kerb_1_0",
+      "fc_path_west_connector_kerb_1_1",
+      "fc_path_west_cross",
+      "fc_path_west_cross_kerb_-1_0",
+      "fc_path_west_cross_kerb_-1_1",
+      "fc_path_west_cross_kerb_1_0",
+      "fc_path_west_cross_kerb_1_1",
+      "fc_path_west_diagonal",
+      "fc_path_west_diagonal_kerb_-1_0",
+      "fc_path_west_diagonal_kerb_-1_1",
+      "fc_path_west_diagonal_kerb_1_0",
+      "fc_path_west_diagonal_kerb_1_1",
+      "fc_plaza_edge",
+      "fc_plaza_edge_kerb",
+      "fc_plaza_ring_walk",
+      "fc_retained_planters",
+      "fc_roadside_lawn",
+      "fc_street_light_east_00_0",
+      "fc_street_light_east_00_head",
+      "fc_street_light_east_01_0",
+      "fc_street_light_east_01_head",
+      "fc_street_light_east_02_0",
+      "fc_street_light_east_02_head",
+      "fc_street_light_east_03_0",
+      "fc_street_light_east_03_head",
+      "fc_street_light_east_04_0",
+      "fc_street_light_east_04_head",
+      "fc_street_light_plaza_00_0",
+      "fc_street_light_plaza_00_head",
+      "fc_street_light_plaza_01_0",
+      "fc_street_light_plaza_01_head",
+      "fc_street_light_plaza_02_0",
+      "fc_street_light_plaza_02_head",
+      "fc_street_light_west_00_0",
+      "fc_street_light_west_00_head",
+      "fc_street_light_west_01_0",
+      "fc_street_light_west_01_head",
+      "fc_street_light_west_02_0",
+      "fc_street_light_west_02_head",
+      "fc_street_light_west_03_0",
+      "fc_street_light_west_03_head",
+      "fc_west_lawn"
+     ]
+    ]
+   ]
+  },
+  "albedo:site_layout+station": {
+   "seconds": 1335.8,
+   "samples": 4,
+   "at": "2026-10-26 17:37:18",
+   "sig": [
+    [
+     2048,
+     [
+      "fp_beds",
+      "fp_lamp_001",
+      "fp_lamp_002",
+      "fp_lamp_003",
+      "fp_lamp_004",
+      "fp_lamp_005",
+      "fp_lamp_006",
+      "fp_lamp_007",
+      "fp_lamp_008",
+      "fp_lamp_009",
+      "fp_lamp_010",
+      "fp_lamp_011",
+      "fp_lamp_018",
+      "fp_lamp_019",
+      "fp_lamp_020",
+      "fp_lamp_021",
+      "fp_lamp_022",
+      "fp_lamp_023",
+      "fp_lamp_024",
+      "fp_lamp_025",
+      "fp_lamp_026",
+      "fp_lamp_027",
+      "fp_lamp_028",
+      "fp_lamp_029",
+      "fp_lamp_030",
+      "fp_lamp_031",
+      "fp_lamp_032",
+      "fp_lamp_033",
+      "fp_lamp_034",
+      "fp_lamp_035",
+      "fp_lamp_036",
+      "fp_lamp_037",
+      "fp_lamp_038",
+      "fp_lamp_039",
+      "fp_lamp_040",
+      "fp_lamp_041",
+      "fp_lamp_042",
+      "fp_lamp_043",
+      "fp_lamp_044",
+      "fp_lamp_045",
+      "fp_paths",
+      "fp_plaza",
+      "ge_apron_lamp_000",
+      "ge_apron_lamp_001",
+      "ge_apron_lamp_002",
+      "ge_apron_lamp_003",
+      "ge_apron_lamp_004",
+      "ge_apron_lamp_005",
+      "ge_apron_lamp_006",
+      "ge_apron_lamp_007",
+      "ge_apron_lamp_008",
+      "ge_apron_lamp_009",
+      "ge_apron_lamp_010",
+      "ge_apron_lamp_011",
+      "ge_apron_lamp_012",
+      "ge_apron_lamp_013",
+      "ge_apron_lamp_014",
+      "ge_apron_lamp_015",
+      "ge_apron_lamp_016",
+      "ge_apron_lamp_017",
+      "ge_apron_lamp_018",
+      "ge_apron_lamp_019",
+      "ge_apron_lamp_020",
+      "ge_apron_lamp_021",
+      "ge_apron_lamp_022",
+      "ge_apron_lamp_023",
+      "ge_apron_lamp_024",
+      "ge_apron_lamp_025",
+      "ge_apron_lamp_026",
+      "ge_apron_lamp_027",
+      "ge_apron_lamp_028",
+      "ge_apron_lamp_029",
+      "ge_apron_lamp_030",
+      "ge_apron_lamp_031",
+      "ge_apron_lamp_032",
+      "ge_apron_lamp_033",
+      "ge_apron_lamp_034",
+      "ge_apron_lamp_035",
+      "ge_apron_lamp_036",
+      "ge_apron_lamp_037",
+      "ge_apron_lamp_038",
+      "ge_apron_lamp_039",
+      "ge_apron_lamp_040",
+      "ge_apron_lamp_041",
+      "ge_apron_lamp_042",
+      "ge_apron_lamp_043",
+      "ge_apron_lamp_044",
+      "ge_apron_lamp_045",
+      "ge_apron_lamp_046",
+      "ge_apron_lamp_047",
+      "ge_apron_lamp_048",
+      "ge_apron_lamp_049",
+      "ge_apron_lamp_050",
+      "ge_apron_lamp_051",
+      "ge_apron_lamp_052",
+      "ge_apron_lamp_053",
+      "ge_apron_lamp_054",
+      "ge_apron_lamp_055",
+      "ge_apron_lamp_056",
+      "ge_apron_lamp_057",
+      "ge_apron_lamp_058",
+      "ge_apron_lamp_059",
+      "ge_apron_ring",
+      "ge_east_building_a",
+      "ge_east_building_b",
+      "ge_east_hardstanding",
+      "ge_east_hardstanding_bayline_+01",
+      "ge_east_hardstanding_bayline_+03",
+      "ge_east_hardstanding_bayline_+05",
+      "ge_east_hardstanding_bayline_+07",
+      "ge_east_hardstanding_bayline_-01",
+      "ge_east_hardstanding_bayline_-03",
+      "ge_east_hardstanding_bayline_-05",
+      "ge_east_hardstanding_island_+00",
+      "ge_east_hardstanding_island_+02",
+      "ge_east_hardstanding_island_+04",
+      "ge_east_hardstanding_island_+06",
+      "ge_east_hardstanding_island_-02",
+      "ge_east_hardstanding_island_-04",
+      "ge_east_hardstanding_island_-06",
+      "ge_east_hardstanding_lamp_000",
+      "ge_east_hardstanding_lamp_001",
+      "ge_east_hardstanding_lamp_002",
+      "ge_east_hardstanding_lamp_003",
+      "ge_east_hardstanding_lamp_004",
+      "ge_east_hardstanding_lamp_005",
+      "ge_east_hardstanding_lamp_006",
+      "ge_east_hardstanding_lamp_007",
+      "ge_east_hardstanding_lamp_008",
+      "ge_east_hardstanding_lamp_009",
+      "ge_east_hardstanding_lamp_010",
+      "ge_east_hardstanding_lamp_011",
+      "ge_east_hardstanding_lamp_012",
+      "ge_east_hardstanding_lamp_013",
+      "ge_east_hardstanding_lamp_014",
+      "ge_east_hardstanding_lamp_015",
+      "ge_east_hardstanding_lamp_016",
+      "ge_road_north_east",
+      "ge_road_north_east_lamp_000",
+      "ge_road_north_east_lamp_001",
+      "ge_road_north_east_lamp_002",
+      "ge_road_north_east_lamp_003",
+      "ge_road_north_east_lamp_004",
+      "ge_road_north_east_lamp_005",
+      "ge_road_north_east_lamp_006",
+      "ge_road_north_east_lamp_007",
+      "ge_road_north_east_lamp_008",
+      "ge_road_north_east_lamp_009",
+      "ge_road_north_east_lamp_010",
+      "ge_road_north_east_lamp_011",
+      "ge_road_north_east_lamp_012",
+      "ge_road_north_east_lamp_013",
+      "ge_road_north_east_lamp_014",
+      "ge_road_north_east_lamp_015",
+      "ge_road_north_east_lamp_016",
+      "ge_road_north_east_lamp_017",
+      "ge_road_north_east_lamp_018",
+      "ge_road_north_east_lamp_019",
+      "ge_road_north_east_lamp_020",
+      "ge_road_north_east_lamp_021",
+      "ge_road_north_east_lamp_022",
+      "ge_road_north_east_lamp_023",
+      "ge_road_north_east_lamp_024",
+      "ge_road_north_east_lamp_025",
+      "ge_road_north_east_lamp_030",
+      "ge_road_north_east_lamp_031",
+      "ge_road_north_east_lamp_032",
+      "ge_road_north_east_lamp_033"
+     ]
+    ],
+    [
+     1024,
+     [
+      "rubis_canopy_roof",
+      "rubis_canopy_soffit",
+      "rubis_column_0",
+      "rubis_column_1",
+      "rubis_column_2",
+      "rubis_dispenser_0_0",
+      "rubis_dispenser_0_1",
+      "rubis_dispenser_1_0",
+      "rubis_dispenser_1_1",
+      "rubis_dispenser_2_0",
+      "rubis_dispenser_2_1",
+      "rubis_forecourt",
+      "rubis_island_0",
+      "rubis_island_1",
+      "rubis_island_2",
+      "rubis_pylon_post"
+     ]
+    ]
+   ]
+  },
+  "albedo:layout_pass_i+plaza_south+trace_sw+landmarks": {
+   "seconds": 195.3,
+   "samples": 4,
+   "at": "2026-10-26 17:40:34",
+   "sig": [
+    [
+     1024,
+     [
+      "pi_east_approach",
+      "pi_east_approach_island",
+      "pi_east_approach_island_kerb"
+     ]
+    ],
+    [
+     1024,
+     [
+      "pk_axial_bed_north",
+      "pk_axial_bed_north_kerb",
+      "pk_axial_bed_south",
+      "pk_axial_bed_south_kerb",
+      "pk_round_bed_planting",
+      "pk_round_bed_ring",
+      "pk_round_bed_ring_kerb",
+      "pk_south_plaza",
+      "pk_south_plaza_kerb"
+     ]
+    ],
+    [
+     1024,
+     [
+      "sw_lawn",
+      "sw_loop_road",
+      "sw_stand_columns",
+      "sw_stand_rake",
+      "sw_stand_roof"
+     ]
+    ],
+    [
+     2048,
+     [
+      "lm_alba",
+      "lm_denali",
+      "lm_enkang_a",
+      "lm_enkang_b",
+      "lm_enkang_c",
+      "lm_junction_0",
+      "lm_junction_1",
+      "lm_kmd",
+      "lm_liberty_centre",
+      "lm_ngando_flats",
+      "lm_racecourse_gardens",
+      "lm_white_village"
+     ]
+    ]
+   ]
+  },
+  "albedo:suburbs+traffic": {
+   "seconds": 24.0,
+   "samples": 4,
+   "at": "2026-10-26 17:41:02",
+   "sig": [
+    [
+     4096,
+     [
+      "suburbs_buildings"
+     ]
+    ],
+    [
+     2048,
+     [
+      "layout_cars_visualization"
+     ]
+    ]
+   ]
+  },
+  "albedo:ground_05+ground_06+ground_09+ground_10": {
+   "seconds": 25.0,
+   "samples": 4,
+   "at": "2026-10-26 17:41:28",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_05"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_06"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_09"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_10"
+     ]
+    ]
+   ]
+  },
+  "albedo:ground_00+ground_01+ground_02+ground_03+ground_04+ground_07+ground_08+ground_11": {
+   "seconds": 49.5,
+   "samples": 4,
+   "at": "2026-10-26 17:42:19",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_00"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_01"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_02"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_03"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_04"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_07"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_08"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_11"
+     ]
+    ]
+   ]
+  },
+  "albedo:ground_12+ground_13+ground_14+ground_15": {
+   "seconds": 24.9,
+   "samples": 4,
+   "at": "2026-10-26 17:42:44",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_12"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_13"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_14"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_15"
+     ]
+    ]
+   ]
+  },
+  "albedo:ground_16+ground_17+ground_18+ground_19+ground_20+ground_21+ground_22+ground_23": {
+   "seconds": 49.9,
+   "samples": 4,
+   "at": "2026-10-26 17:43:35",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_16"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_17"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_18"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_19"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_20"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_21"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_22"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_23"
+     ]
+    ]
+   ]
+  },
+  "ao:stadium_shell+stadium_fins": {
+   "seconds": 76.3,
+   "samples": 64,
+   "at": "2026-10-26 17:44:53",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ],
+    [
+     2048,
+     [
+      "louvre_fins"
+     ]
+    ]
+   ]
+  },
+  "ao:stadium_ornament+roof": {
+   "seconds": 56.8,
+   "samples": 64,
+   "at": "2026-10-26 17:45:51",
+   "sig": [
+    [
+     2048,
+     [
+      "lattice",
+      "shields",
+      "spears"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ring_beam",
+      "roof",
+      "roof_ribs"
+     ]
+    ]
+   ]
+  },
+  "ao:landmarks": {
+   "seconds": 96.4,
+   "samples": 64,
+   "at": "2026-10-26 17:47:27",
+   "sig": [
+    [
+     2048,
+     [
+      "lm_alba",
+      "lm_denali",
+      "lm_enkang_a",
+      "lm_enkang_b",
+      "lm_enkang_c",
+      "lm_junction_0",
+      "lm_junction_1",
+      "lm_kmd",
+      "lm_liberty_centre",
+      "lm_ngando_flats",
+      "lm_racecourse_gardens",
+      "lm_white_village"
+     ]
+    ]
+   ]
+  },
+  "ao:suburbs+traffic": {
+   "seconds": 39.9,
+   "samples": 64,
+   "at": "2026-10-26 17:48:10",
+   "sig": [
+    [
+     4096,
+     [
+      "suburbs_buildings"
+     ]
+    ],
+    [
+     2048,
+     [
+      "layout_cars_visualization"
+     ]
+    ]
+   ]
+  },
+  "light:stadium_shell+stadium_fins": {
+   "seconds": 136.3,
+   "samples": 128,
+   "at": "2026-10-26 17:50:28",
+   "sig": [
+    [
+     2048,
+     [
+      "base_band",
+      "base_columns",
+      "base_recess",
+      "facade",
+      "facade_backing",
+      "opening_trim",
+      "plinth",
+      "soffit"
+     ]
+    ],
+    [
+     2048,
+     [
+      "louvre_fins"
+     ]
+    ]
+   ]
+  },
+  "stadium_shell": {
+   "light_scale": 8.2437
+  },
+  "stadium_fins": {
+   "light_scale": 5.9318
+  },
+  "light:stadium_ornament+roof": {
+   "seconds": 110.0,
+   "samples": 128,
+   "at": "2026-10-26 17:52:20",
+   "sig": [
+    [
+     2048,
+     [
+      "lattice",
+      "shields",
+      "spears"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ring_beam",
+      "roof",
+      "roof_ribs"
+     ]
+    ]
+   ]
+  },
+  "stadium_ornament": {
+   "light_scale": 15.0153
+  },
+  "roof": {
+   "light_scale": 6.2028
+  },
+  "light:sport+roads+site_built": {
+   "seconds": 97.5,
+   "samples": 128,
+   "at": "2026-10-26 17:54:00",
+   "sig": [
+    [
+     1024,
+     [
+      "pitch",
+      "pitch_apron",
+      "pitch_zone",
+      "training_pitch_se_turf",
+      "warmup_track_ne",
+      "warmup_track_ne_infield"
+     ]
+    ],
+    [
+     2048,
+     [
+      "ngong_barrier",
+      "ngong_road",
+      "roads_final"
+     ]
+    ],
+    [
+     1024,
+     [
+      "entrance_canopies",
+      "sign_frames"
+     ]
+    ]
+   ]
+  },
+  "sport": {
+   "light_scale": 2.2114
+  },
+  "roads": {
+   "light_scale": 2.0963
+  },
+  "site_built": {
+   "light_scale": 7.1221
+  },
+  "light:forecourt": {
+   "seconds": 995.4,
+   "samples": 128,
+   "at": "2026-10-26 18:10:36",
+   "sig": [
+    [
+     2048,
+     [
+      "fc_axial_bed_north",
+      "fc_axial_bed_north_kerb",
+      "fc_axial_bed_north_plant_0",
+      "fc_axial_bed_north_plant_1",
+      "fc_axial_bed_north_plant_2",
+      "fc_axial_bed_north_plant_3",
+      "fc_axial_bed_north_plant_4",
+      "fc_axial_bed_south",
+      "fc_axial_bed_south_kerb",
+      "fc_axial_bed_south_plant_0",
+      "fc_axial_bed_south_plant_1",
+      "fc_axial_bed_south_plant_2",
+      "fc_axial_bed_south_plant_3",
+      "fc_axial_bed_south_plant_4",
+      "fc_base",
+      "fc_bench_line_east_0",
+      "fc_bench_line_east_1",
+      "fc_bench_line_east_2",
+      "fc_bench_line_west_0",
+      "fc_bench_line_west_1",
+      "fc_bench_line_west_2",
+      "fc_central_round_bed",
+      "fc_central_round_bed_kerb",
+      "fc_central_round_bed_plant_0",
+      "fc_central_round_bed_plant_1",
+      "fc_central_round_bed_plant_2",
+      "fc_central_round_bed_plant_3",
+      "fc_central_round_bed_plant_4",
+      "fc_east_lawn",
+      "fc_edge_bed_east",
+      "fc_edge_bed_east_kerb",
+      "fc_edge_bed_east_plant_0",
+      "fc_edge_bed_east_plant_1",
+      "fc_edge_bed_east_plant_2",
+      "fc_edge_bed_east_plant_3",
+      "fc_edge_bed_east_plant_4",
+      "fc_edge_bed_west",
+      "fc_edge_bed_west_kerb",
+      "fc_edge_bed_west_plant_0",
+      "fc_edge_bed_west_plant_1",
+      "fc_edge_bed_west_plant_2",
+      "fc_edge_bed_west_plant_3",
+      "fc_edge_bed_west_plant_4",
+      "fc_facade_apron",
+      "fc_mast_cluster_east_0",
+      "fc_mast_cluster_east_1",
+      "fc_mast_cluster_east_2",
+      "fc_mast_cluster_east_3",
+      "fc_mast_cluster_east_4",
+      "fc_mast_cluster_east_5",
+      "fc_mast_cluster_west_0",
+      "fc_mast_cluster_west_1",
+      "fc_mast_cluster_west_2",
+      "fc_mast_cluster_west_3",
+      "fc_mast_cluster_west_4",
+      "fc_mast_cluster_west_5",
+      "fc_path_east_cross",
+      "fc_path_east_cross_kerb_-1_0",
+      "fc_path_east_cross_kerb_-1_1",
+      "fc_path_east_cross_kerb_1_0",
+      "fc_path_east_cross_kerb_1_1",
+      "fc_path_east_diagonal",
+      "fc_path_east_diagonal_kerb_-1_0",
+      "fc_path_east_diagonal_kerb_-1_1",
+      "fc_path_east_diagonal_kerb_1_0",
+      "fc_path_east_diagonal_kerb_1_1",
+      "fc_path_east_outer",
+      "fc_path_east_outer_kerb_-1_0",
+      "fc_path_east_outer_kerb_-1_1",
+      "fc_path_east_outer_kerb_-1_2",
+      "fc_path_east_outer_kerb_1_0",
+      "fc_path_east_outer_kerb_1_1",
+      "fc_path_east_outer_kerb_1_2",
+      "fc_path_plaza_east_axis",
+      "fc_path_plaza_east_axis_kerb_-1_0",
+      "fc_path_plaza_east_axis_kerb_-1_1",
+      "fc_path_plaza_east_axis_kerb_1_0",
+      "fc_path_plaza_east_axis_kerb_1_1",
+      "fc_path_plaza_west_axis",
+      "fc_path_plaza_west_axis_kerb_-1_0",
+      "fc_path_plaza_west_axis_kerb_-1_1",
+      "fc_path_plaza_west_axis_kerb_1_0",
+      "fc_path_plaza_west_axis_kerb_1_1",
+      "fc_path_road_approach",
+      "fc_path_road_approach_kerb_-1_0",
+      "fc_path_road_approach_kerb_1_0",
+      "fc_path_west_connector",
+      "fc_path_west_connector_kerb_-1_0",
+      "fc_path_west_connector_kerb_-1_1",
+      "fc_path_west_connector_kerb_1_0",
+      "fc_path_west_connector_kerb_1_1",
+      "fc_path_west_cross",
+      "fc_path_west_cross_kerb_-1_0",
+      "fc_path_west_cross_kerb_-1_1",
+      "fc_path_west_cross_kerb_1_0",
+      "fc_path_west_cross_kerb_1_1",
+      "fc_path_west_diagonal",
+      "fc_path_west_diagonal_kerb_-1_0",
+      "fc_path_west_diagonal_kerb_-1_1",
+      "fc_path_west_diagonal_kerb_1_0",
+      "fc_path_west_diagonal_kerb_1_1",
+      "fc_plaza_edge",
+      "fc_plaza_edge_kerb",
+      "fc_plaza_ring_walk",
+      "fc_retained_planters",
+      "fc_roadside_lawn",
+      "fc_street_light_east_00_0",
+      "fc_street_light_east_00_head",
+      "fc_street_light_east_01_0",
+      "fc_street_light_east_01_head",
+      "fc_street_light_east_02_0",
+      "fc_street_light_east_02_head",
+      "fc_street_light_east_03_0",
+      "fc_street_light_east_03_head",
+      "fc_street_light_east_04_0",
+      "fc_street_light_east_04_head",
+      "fc_street_light_plaza_00_0",
+      "fc_street_light_plaza_00_head",
+      "fc_street_light_plaza_01_0",
+      "fc_street_light_plaza_01_head",
+      "fc_street_light_plaza_02_0",
+      "fc_street_light_plaza_02_head",
+      "fc_street_light_west_00_0",
+      "fc_street_light_west_00_head",
+      "fc_street_light_west_01_0",
+      "fc_street_light_west_01_head",
+      "fc_street_light_west_02_0",
+      "fc_street_light_west_02_head",
+      "fc_street_light_west_03_0",
+      "fc_street_light_west_03_head",
+      "fc_west_lawn"
+     ]
+    ]
+   ]
+  },
+  "forecourt": {
+   "light_scale": 5.4717
+  },
+  "light:site_layout+station": {
+   "seconds": 1423.0,
+   "samples": 128,
+   "at": "2026-10-26 18:34:20",
+   "sig": [
+    [
+     2048,
+     [
+      "fp_beds",
+      "fp_lamp_001",
+      "fp_lamp_002",
+      "fp_lamp_003",
+      "fp_lamp_004",
+      "fp_lamp_005",
+      "fp_lamp_006",
+      "fp_lamp_007",
+      "fp_lamp_008",
+      "fp_lamp_009",
+      "fp_lamp_010",
+      "fp_lamp_011",
+      "fp_lamp_018",
+      "fp_lamp_019",
+      "fp_lamp_020",
+      "fp_lamp_021",
+      "fp_lamp_022",
+      "fp_lamp_023",
+      "fp_lamp_024",
+      "fp_lamp_025",
+      "fp_lamp_026",
+      "fp_lamp_027",
+      "fp_lamp_028",
+      "fp_lamp_029",
+      "fp_lamp_030",
+      "fp_lamp_031",
+      "fp_lamp_032",
+      "fp_lamp_033",
+      "fp_lamp_034",
+      "fp_lamp_035",
+      "fp_lamp_036",
+      "fp_lamp_037",
+      "fp_lamp_038",
+      "fp_lamp_039",
+      "fp_lamp_040",
+      "fp_lamp_041",
+      "fp_lamp_042",
+      "fp_lamp_043",
+      "fp_lamp_044",
+      "fp_lamp_045",
+      "fp_paths",
+      "fp_plaza",
+      "ge_apron_lamp_000",
+      "ge_apron_lamp_001",
+      "ge_apron_lamp_002",
+      "ge_apron_lamp_003",
+      "ge_apron_lamp_004",
+      "ge_apron_lamp_005",
+      "ge_apron_lamp_006",
+      "ge_apron_lamp_007",
+      "ge_apron_lamp_008",
+      "ge_apron_lamp_009",
+      "ge_apron_lamp_010",
+      "ge_apron_lamp_011",
+      "ge_apron_lamp_012",
+      "ge_apron_lamp_013",
+      "ge_apron_lamp_014",
+      "ge_apron_lamp_015",
+      "ge_apron_lamp_016",
+      "ge_apron_lamp_017",
+      "ge_apron_lamp_018",
+      "ge_apron_lamp_019",
+      "ge_apron_lamp_020",
+      "ge_apron_lamp_021",
+      "ge_apron_lamp_022",
+      "ge_apron_lamp_023",
+      "ge_apron_lamp_024",
+      "ge_apron_lamp_025",
+      "ge_apron_lamp_026",
+      "ge_apron_lamp_027",
+      "ge_apron_lamp_028",
+      "ge_apron_lamp_029",
+      "ge_apron_lamp_030",
+      "ge_apron_lamp_031",
+      "ge_apron_lamp_032",
+      "ge_apron_lamp_033",
+      "ge_apron_lamp_034",
+      "ge_apron_lamp_035",
+      "ge_apron_lamp_036",
+      "ge_apron_lamp_037",
+      "ge_apron_lamp_038",
+      "ge_apron_lamp_039",
+      "ge_apron_lamp_040",
+      "ge_apron_lamp_041",
+      "ge_apron_lamp_042",
+      "ge_apron_lamp_043",
+      "ge_apron_lamp_044",
+      "ge_apron_lamp_045",
+      "ge_apron_lamp_046",
+      "ge_apron_lamp_047",
+      "ge_apron_lamp_048",
+      "ge_apron_lamp_049",
+      "ge_apron_lamp_050",
+      "ge_apron_lamp_051",
+      "ge_apron_lamp_052",
+      "ge_apron_lamp_053",
+      "ge_apron_lamp_054",
+      "ge_apron_lamp_055",
+      "ge_apron_lamp_056",
+      "ge_apron_lamp_057",
+      "ge_apron_lamp_058",
+      "ge_apron_lamp_059",
+      "ge_apron_ring",
+      "ge_east_building_a",
+      "ge_east_building_b",
+      "ge_east_hardstanding",
+      "ge_east_hardstanding_bayline_+01",
+      "ge_east_hardstanding_bayline_+03",
+      "ge_east_hardstanding_bayline_+05",
+      "ge_east_hardstanding_bayline_+07",
+      "ge_east_hardstanding_bayline_-01",
+      "ge_east_hardstanding_bayline_-03",
+      "ge_east_hardstanding_bayline_-05",
+      "ge_east_hardstanding_island_+00",
+      "ge_east_hardstanding_island_+02",
+      "ge_east_hardstanding_island_+04",
+      "ge_east_hardstanding_island_+06",
+      "ge_east_hardstanding_island_-02",
+      "ge_east_hardstanding_island_-04",
+      "ge_east_hardstanding_island_-06",
+      "ge_east_hardstanding_lamp_000",
+      "ge_east_hardstanding_lamp_001",
+      "ge_east_hardstanding_lamp_002",
+      "ge_east_hardstanding_lamp_003",
+      "ge_east_hardstanding_lamp_004",
+      "ge_east_hardstanding_lamp_005",
+      "ge_east_hardstanding_lamp_006",
+      "ge_east_hardstanding_lamp_007",
+      "ge_east_hardstanding_lamp_008",
+      "ge_east_hardstanding_lamp_009",
+      "ge_east_hardstanding_lamp_010",
+      "ge_east_hardstanding_lamp_011",
+      "ge_east_hardstanding_lamp_012",
+      "ge_east_hardstanding_lamp_013",
+      "ge_east_hardstanding_lamp_014",
+      "ge_east_hardstanding_lamp_015",
+      "ge_east_hardstanding_lamp_016",
+      "ge_road_north_east",
+      "ge_road_north_east_lamp_000",
+      "ge_road_north_east_lamp_001",
+      "ge_road_north_east_lamp_002",
+      "ge_road_north_east_lamp_003",
+      "ge_road_north_east_lamp_004",
+      "ge_road_north_east_lamp_005",
+      "ge_road_north_east_lamp_006",
+      "ge_road_north_east_lamp_007",
+      "ge_road_north_east_lamp_008",
+      "ge_road_north_east_lamp_009",
+      "ge_road_north_east_lamp_010",
+      "ge_road_north_east_lamp_011",
+      "ge_road_north_east_lamp_012",
+      "ge_road_north_east_lamp_013",
+      "ge_road_north_east_lamp_014",
+      "ge_road_north_east_lamp_015",
+      "ge_road_north_east_lamp_016",
+      "ge_road_north_east_lamp_017",
+      "ge_road_north_east_lamp_018",
+      "ge_road_north_east_lamp_019",
+      "ge_road_north_east_lamp_020",
+      "ge_road_north_east_lamp_021",
+      "ge_road_north_east_lamp_022",
+      "ge_road_north_east_lamp_023",
+      "ge_road_north_east_lamp_024",
+      "ge_road_north_east_lamp_025",
+      "ge_road_north_east_lamp_030",
+      "ge_road_north_east_lamp_031",
+      "ge_road_north_east_lamp_032",
+      "ge_road_north_east_lamp_033"
+     ]
+    ],
+    [
+     1024,
+     [
+      "rubis_canopy_roof",
+      "rubis_canopy_soffit",
+      "rubis_column_0",
+      "rubis_column_1",
+      "rubis_column_2",
+      "rubis_dispenser_0_0",
+      "rubis_dispenser_0_1",
+      "rubis_dispenser_1_0",
+      "rubis_dispenser_1_1",
+      "rubis_dispenser_2_0",
+      "rubis_dispenser_2_1",
+      "rubis_forecourt",
+      "rubis_island_0",
+      "rubis_island_1",
+      "rubis_island_2",
+      "rubis_pylon_post"
+     ]
+    ]
+   ]
+  },
+  "site_layout": {
+   "light_scale": 84.9413
+  },
+  "station": {
+   "light_scale": 11.0695
+  },
+  "light:layout_pass_i+plaza_south+trace_sw+landmarks": {
+   "seconds": 243.0,
+   "samples": 128,
+   "at": "2026-10-26 18:38:25",
+   "sig": [
+    [
+     1024,
+     [
+      "pi_east_approach",
+      "pi_east_approach_island",
+      "pi_east_approach_island_kerb"
+     ]
+    ],
+    [
+     1024,
+     [
+      "pk_axial_bed_north",
+      "pk_axial_bed_north_kerb",
+      "pk_axial_bed_south",
+      "pk_axial_bed_south_kerb",
+      "pk_round_bed_planting",
+      "pk_round_bed_ring",
+      "pk_round_bed_ring_kerb",
+      "pk_south_plaza",
+      "pk_south_plaza_kerb"
+     ]
+    ],
+    [
+     1024,
+     [
+      "sw_lawn",
+      "sw_loop_road",
+      "sw_stand_columns",
+      "sw_stand_rake",
+      "sw_stand_roof"
+     ]
+    ],
+    [
+     2048,
+     [
+      "lm_alba",
+      "lm_denali",
+      "lm_enkang_a",
+      "lm_enkang_b",
+      "lm_enkang_c",
+      "lm_junction_0",
+      "lm_junction_1",
+      "lm_kmd",
+      "lm_liberty_centre",
+      "lm_ngando_flats",
+      "lm_racecourse_gardens",
+      "lm_white_village"
+     ]
+    ]
+   ]
+  },
+  "layout_pass_i": {
+   "light_scale": 1.6575
+  },
+  "plaza_south": {
+   "light_scale": 6.1966
+  },
+  "trace_sw": {
+   "light_scale": 6.3776
+  },
+  "landmarks": {
+   "light_scale": 6.9904
+  },
+  "light:suburbs+traffic": {
+   "seconds": 97.6,
+   "samples": 128,
+   "at": "2026-10-26 18:40:08",
+   "sig": [
+    [
+     4096,
+     [
+      "suburbs_buildings"
+     ]
+    ],
+    [
+     2048,
+     [
+      "layout_cars_visualization"
+     ]
+    ]
+   ]
+  },
+  "suburbs": {
+   "light_scale": 6.3105
+  },
+  "traffic": {
+   "light_scale": 7.2585
+  },
+  "light:ground_05+ground_06+ground_09+ground_10": {
+   "seconds": 78.5,
+   "samples": 128,
+   "at": "2026-10-26 18:41:27",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_05"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_06"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_09"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_10"
+     ]
+    ]
+   ]
+  },
+  "ground_05": {
+   "light_scale": 2.5381
+  },
+  "ground_06": {
+   "light_scale": 2.5639
+  },
+  "ground_09": {
+   "light_scale": 2.2702
+  },
+  "ground_10": {
+   "light_scale": 2.1518
+  },
+  "light:ground_00+ground_01+ground_02+ground_03+ground_04+ground_07+ground_08+ground_11": {
+   "seconds": 161.3,
+   "samples": 128,
+   "at": "2026-10-26 18:44:10",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_00"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_01"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_02"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_03"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_04"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_07"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_08"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_11"
+     ]
+    ]
+   ]
+  },
+  "ground_00": {
+   "light_scale": 2.0084
+  },
+  "ground_01": {
+   "light_scale": 1.9874
+  },
+  "ground_02": {
+   "light_scale": 1.9807
+  },
+  "ground_03": {
+   "light_scale": 1.9542
+  },
+  "ground_04": {
+   "light_scale": 1.9982
+  },
+  "ground_07": {
+   "light_scale": 1.9907
+  },
+  "ground_08": {
+   "light_scale": 1.9304
+  },
+  "ground_11": {
+   "light_scale": 1.9999
+  },
+  "light:ground_12+ground_13+ground_14+ground_15": {
+   "seconds": 74.4,
+   "samples": 128,
+   "at": "2026-10-26 18:45:26",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_12"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_13"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_14"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_15"
+     ]
+    ]
+   ]
+  },
+  "ground_12": {
+   "light_scale": 2.0097
+  },
+  "ground_13": {
+   "light_scale": 2.0998
+  },
+  "ground_14": {
+   "light_scale": 2.1221
+  },
+  "ground_15": {
+   "light_scale": 2.1921
+  },
+  "light:ground_16+ground_17+ground_18+ground_19+ground_20+ground_21+ground_22+ground_23": {
+   "seconds": 161.1,
+   "samples": 128,
+   "at": "2026-10-26 18:48:09",
+   "sig": [
+    [
+     1024,
+     [
+      "ground_16"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_17"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_18"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_19"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_20"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_21"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_22"
+     ]
+    ],
+    [
+     1024,
+     [
+      "ground_23"
+     ]
+    ]
+   ]
+  },
+  "ground_16": {
+   "light_scale": 1.9008
+  },
+  "ground_17": {
+   "light_scale": 2.021
+  },
+  "ground_18": {
+   "light_scale": 2.0848
+  },
+  "ground_19": {
+   "light_scale": 1.9394
+  },
+  "ground_20": {
+   "light_scale": 1.9244
+  },
+  "ground_21": {
+   "light_scale": 1.9146
+  },
+  "ground_22": {
+   "light_scale": 2.2055
+  },
+  "ground_23": {
+   "light_scale": 2.2032
+  }
+ }
+}
