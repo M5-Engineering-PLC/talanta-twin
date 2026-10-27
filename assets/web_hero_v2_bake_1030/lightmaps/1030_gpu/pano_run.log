@@ -1,0 +1,20 @@
+00:00.700  blend            | Read blend: "/tmp/talanta/pack/talanta_render_pack/blender/out/frozen_FL.blend"
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit
+Traceback (most recent call last):
+  File "/tmp/talanta/pack/talanta_render_pack/blender/web_hero/render_panorama.py", line 77, in <module>
+    PAD = json.loads((ROOT / "app/public/data/manifest.json").read_text())["features"]["site_pad_y"]
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/talanta/blender/5.2/python/lib/python3.13/pathlib/_local.py", line 546, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/talanta/blender/5.2/python/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/talanta/blender/5.2/python/lib/python3.13/pathlib/_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/talanta/pack/talanta_render_pack/app/public/data/manifest.json'
+
+Error: script failed, file: '/tmp/talanta/pack/talanta_render_pack/blender/web_hero/render_panorama.py', exiting.
