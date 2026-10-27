@@ -58,7 +58,9 @@ export function heroGrade(inputNode, opts = {}) {
   rgb = vec3(rgb.r.add(rgb.r.mul(fringe)), rgb.g, rgb.b.sub(rgb.b.mul(fringe)));
 
   const corner = uv.sub(0.5).length().mul(Math.SQRT2).pow(2).mul(vignette);
-  const pixel = screenCoordinate.floor().add(float(opts.time ?? time).mul(37));
+  // opts.time from a grade preset is a clock label such as '07:30', not a grain seed: animate with the TSL time node.
+  const seed = typeof opts.grainSeed === 'number' ? float(opts.grainSeed) : time;
+  const pixel = screenCoordinate.floor().add(seed.mul(37));
   const noise = pixel.dot(vec2(12.9898, 78.233)).sin().mul(43758.5453).fract().sub(0.5).mul(2);
   rgb = rgb.mul(float(1).sub(corner).mul(noise.mul(grainStrength).add(1)));
   return vec4(rgb, color.a);
