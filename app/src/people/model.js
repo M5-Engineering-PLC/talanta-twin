@@ -1,3 +1,5 @@
+import { ShapeUtils, Vector2 } from 'three/webgpu';
+
 // Visualization only. These functions describe animation, not human behavior.
 export const clampFill = (value) => Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
 export const drawLimit = (count, width) => Math.min(count, width < 768 ? 15000 : count);
@@ -17,7 +19,8 @@ export function selectSeats(seats, fraction, width = 1024, order = occupancyOrde
   return Array.from({ length: count }, (_, i) => occupied[Math.floor(i * occupied.length / count)]);
 }
 
-// CPU mirror of people/index.js TSL animation. All values use parent-local metres.
+// Legacy reaction envelope for offline bridge exports. Values use parent-local meters.
+// The runtime uses these reaction uniforms with baked human poses.
 // elapsed=max(0,t-start), active=(elapsed<duration), travel=elapsed*speed/perimeter*2*pi.
 // delta=acos(clamp(cos(angle-travel),-1,1)), wave=1-smoothstep(.06,.20,delta).
 // lift=max(wave*waveFlag,cheer,goal*step(0,fan.end*end))*active.
@@ -79,4 +82,56 @@ export function reactionAt(cues, t, { perimeter = 600, night = 0 } = {}) {
     u.speed = Number.isFinite(params.speed) ? params.speed : 12;
   }
   return u;
+}
+
+export function crowdTier(quality, width = 1024) {
+  const tier = typeof quality === 'string' ? quality : quality.tier ?? 'high';
+  return width < 768 || tier === 'low' ? 'low' : tier === 'medium' ? 'medium' : 'high';
+}
+
+// Keep detailed fans near the viewer. Each nonempty batch uses one draw call.
+export function partitionCrowd(seats, picked, tier, camera, distance = 60) {
+  if (tier === 'low') return [[], picked];
+  const limit = tier === 'high' ? 384 : 128;
+  const nearby = picked.map(i => ({ i, d: Math.hypot(seats[i].x - camera.x, seats[i].y - camera.y, seats[i].z - camera.z) }))
+    .filter(s => s.d < distance).sort((a, b) => a.d - b.d).slice(0, limit).map(s => s.i);
+  const near = new Set(nearby);
+  return [nearby, picked.filter(i => !near.has(i))];
+}
+
+export function fanVariation(index) {
+  const hash = seed => { const n = Math.sin(index * 17.13 + seed * 91.7) * 43758.5; return n - Math.floor(n); };
+  const skins = ['#382218', '#4e3023', '#68412d', '#80563b', '#976849', '#ac7b56'];
+  const trousers = ['#20232b', '#293b50', '#3a3530', '#44464b', '#26382c'];
+  return { random: hash(0), skin: skins[Math.floor(hash(1) * skins.length)], trousers: trousers[Math.floor(hash(2) * trousers.length)],
+    scale: [.93 + hash(3) * .14, .96 + hash(4) * .08], clap: hash(5) };
+}
+
+// Rectangles use { x, z, width, depth, y?, facing_deg? }.
+// Polygons use [[x, z], ...] or { polygon: [[x, z], ...], y?, facing_deg? }.
+export function standingPlaces(area, count) {
+  if (!Number.isInteger(count) || count < 0) throw new Error('Crowd count must be a nonnegative integer');
+  if (!area) throw new Error('A crowd area is required');
+  const source = Array.isArray(area) ? area : area.polygon;
+  const points = source ? source.map(p => new Vector2(p.x ?? p[0], p.z ?? p[1])) : [
+    new Vector2(area.x, area.z), new Vector2(area.x + area.width, area.z),
+    new Vector2(area.x + area.width, area.z + area.depth), new Vector2(area.x, area.z + area.depth),
+  ];
+  if (points.length < 3 || points.some(p => !Number.isFinite(p.x) || !Number.isFinite(p.y))) throw new Error('Crowd area coordinates are invalid');
+  if (points[0].equals(points.at(-1))) points.pop();
+  const triangles = ShapeUtils.triangulateShape(points, []).map(ids => {
+    const [a, b, c] = ids.map(i => points[i]);
+    return { a, b, c, area: Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) / 2 };
+  });
+  const total = triangles.reduce((n, t) => n + t.area, 0);
+  if (!Number.isFinite(total) || total <= 0) throw new Error('Crowd area must have positive area');
+  const hash = n => { const v = Math.sin(n * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+  return Array.from({ length: count }, (_, i) => {
+    let choice = hash(i * 3) * total, triangle = triangles.at(-1);
+    for (const t of triangles) { choice -= t.area; if (choice <= 0) { triangle = t; break; } }
+    const a = Math.sqrt(hash(i * 3 + 1)), b = hash(i * 3 + 2), { a: p, b: q, c: r } = triangle;
+    return { x: (1 - a) * p.x + a * (1 - b) * q.x + a * b * r.x,
+      z: (1 - a) * p.y + a * (1 - b) * q.y + a * b * r.y,
+      y: area.y ?? 0, facing_deg: area.facing_deg ?? 0, tier: 0, row: 0 };
+  });
 }

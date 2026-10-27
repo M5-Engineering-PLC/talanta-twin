@@ -6,7 +6,12 @@ import * as THREE from 'three/webgpu';
 import { generateSeats } from '../src/people/seats.js';
 import { selectSeats, occupancyOrder, waveDistance } from '../src/people/model.js';
 import { installSeatedCrowd } from '../src/people/index.js';
+import { decodeCrowdAssets } from '../src/people/geometry.js';
 import { build } from 'vite';
+
+const crowdManifest = JSON.parse(await readFile(new URL('../public/people/crowd.json', import.meta.url)));
+const crowdBinary = await readFile(new URL('../public/people/animation.bin', import.meta.url));
+decodeCrowdAssets(crowdManifest, crowdBinary.buffer.slice(crowdBinary.byteOffset, crowdBinary.byteOffset + crowdBinary.byteLength));
 
 const { features } = JSON.parse(await readFile(new URL('../public/data/manifest.json', import.meta.url)));
 const seats = generateSeats(features);
@@ -19,11 +24,11 @@ const make = (configuration = {}) => {
 test('generator is deterministic and every generated seat has one fan at full fill', () => {
   assert.deepEqual(generateSeats(features), seats);
   const { crowd } = make();
-  const mesh = crowd.group.children[0];
-  assert.equal(mesh.count, seats.length);
+  const meshes = crowd.group.children;
+  assert.equal(meshes.reduce((n, mesh) => n + mesh.count, 0), seats.length);
   const positions = new Set();
   const matrix = new THREE.Matrix4();
-  for (let i = 0; i < mesh.count; i++) { mesh.getMatrixAt(i, matrix); positions.add([matrix.elements[12], matrix.elements[13], matrix.elements[14]].join(',')); }
+  for (const mesh of meshes) for (let i = 0; i < mesh.count; i++) { mesh.getMatrixAt(i, matrix); positions.add([matrix.elements[12], matrix.elements[13], matrix.elements[14]].join(',')); }
   assert.equal(positions.size, seats.length);
   console.log(`Generated ${seats.length} unique occupied seat places`);
   crowd.dispose();
@@ -73,10 +78,10 @@ test('wave travels at the selected speed and wraps around the circumference', ()
   crowd.dispose();
 });
 
-test('phones use only cards, cap the drawn fans, and preserve full occupancy on desktop', () => {
+test('phones use only LOD1, cap the drawn fans, and preserve full occupancy on desktop', () => {
   const { crowd } = make({ width: 767 });
   assert.equal(crowd.group.children.length, 1);
-  assert.equal(crowd.group.children[0].name, 'crowd-cards');
+  assert.equal(crowd.group.children[0].name, 'crowd-lod1');
   assert.equal(crowd.group.children[0].count, 15000);
   crowd.setFill(.1); assert.equal(crowd.group.children[0].count, Math.round(seats.length * .1));
   crowd.dispose();
@@ -99,9 +104,11 @@ test('reactions, palettes, LOD selection, label, and disposal work through the p
     assert.ok(crowd.group.children[0].geometry.attributes.fanShirt.array.some((v) => v === 1));
     camera.position.set(0, 0, 600); crowd.update(1, 1);
     assert.equal(crowd.group.children.filter((m) => m.visible).length, 1);
-    assert.equal(crowd.group.children.find((m) => m.visible).name, 'crowd-cards');
+    assert.equal(crowd.group.children.find((m) => m.visible).name, 'crowd-lod1');
     camera.position.set(0, 100, 200); crowd.update(1, 2);
-    assert.equal(crowd.group.children.find((m) => m.visible).name, 'crowd-figures');
+    assert.ok(crowd.group.children.every(m => m.userData.lod === 1), 'No detailed fans beyond the near range');
+    camera.position.set(seats[0].x, seats[0].y + 3, seats[0].z); crowd.update(1, 2.5);
+    assert.ok(crowd.group.children.some(m => m.name === 'crowd-figures'));
     crowd.setFill(0); assert.equal(labels[0].hidden, true);
     crowd.setFill(1); scene.visible = false; crowd.update(1, 3); assert.equal(labels[0].hidden, true);
     crowd.dispose(); crowd.dispose(); assert.equal(labels[0].removed, true); assert.equal(scene.children.length, 0);
@@ -117,11 +124,17 @@ test('crowd module bundles with its TSL imports', async () => {
 
 test('report geometry budgets and CPU update timing for 60000 fans', () => {
   const sample = Array.from({ length: 60000 }, (_, i) => ({ ...seats[i % seats.length] }));
-  const { crowd } = make({ seats: sample });
+  const { crowd, camera } = make({ seats: sample });
+  camera.position.set(sample[0].x, sample[0].y + 3, sample[0].z); crowd.update(0, 0);
+  assert.equal(crowd.group.children.length, 2);
+  let triangleTotal = 0;
   for (const mesh of crowd.group.children) {
     const triangles = (mesh.geometry.index?.count ?? mesh.geometry.attributes.position.count) / 3;
+    triangleTotal += triangles * mesh.count;
     console.log(`${mesh.name}: 1 draw call, ${triangles} triangles/fan, ${triangles * mesh.count} triangles at ${mesh.count} fans`);
   }
+  assert.ok(triangleTotal < 6_000_000, 'Detailed plus distant fans retain the previous near-view triangle cost');
+  console.log(`Software high-tier total: ${triangleTotal} triangles in 2 draw calls`);
   crowd.react('wave');
   for (let i = 0; i < 100; i++) crowd.update(1 / 60, i / 60);
   const start = performance.now();
