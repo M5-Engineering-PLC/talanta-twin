@@ -1,19 +1,15 @@
 import { contactShadowBatch } from './contactShadows.js';
+import { createVehicleGeometry, VEHICLE_SPECS } from './vehicles.js';
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { instanceColor, mx_noise_float, sin, uv, vec2, vec3 } from 'three/tsl';
+import { attribute, instanceColor, mix, mx_noise_float, sin, uniform, uv, vec2, vec3 } from 'three/tsl';
 
 // Nganya model credit: app/public/vehicles/CREDITS.md
-const CAR_PAINT = [0xf1f1ed, 0xf1f1ed, 0xd9dde0, 0xd9dde0, 0x242629, 0x242629, 0xb8443c, 0x315b91];
+const CAR_PAINT = [[0xf1f1ed, .34], [0xbac0c4, .20], [0x686c70, .18], [0x202124, .18], [0x76283b, .05], [0x315b91, .05]];
 const NGANYA_PAINT = [0xf6f4ee, 0x572b8f, 0x18191c, 0x7fd338, 0xff1687, 0xf27c19];
 const NEON = [0x39ff72, 0x9d46ff, 0xff36ba, 0x26e9ff, 0xff354c];
-const CAR_SPECS = [
-  { name: 'saloon', weight: 0.48, length: 4.45, width: 1.82, height: 1.25, wheelR: 0.34, ground: 0.69 },
-  { name: 'estate', weight: 0.18, length: 4.35, width: 1.82, height: 1.48, wheelR: 0.34, ground: 0.69 },
-  { name: 'suv', weight: 0.22, length: 4.75, width: 1.95, height: 1.72, wheelR: 0.42, ground: 0.82 },
-  { name: 'pickup', weight: 0.12, length: 5.15, width: 1.95, height: 1.62, wheelR: 0.4, ground: 0.78 },
-];
+const CAR_SPECS = VEHICLE_SPECS;
 const BUS = { length: 11, width: 2.5, height: 3.15, wheelR: 0.5, ground: 1.05 };
 const BODA = { length: 2, width: 0.78, height: 1.05, wheelR: 0.34, ground: 0.65 };
 const rngOf = (seed) => () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -60,6 +56,8 @@ function addBatch(group, instances, geometry, material, colorOf) {
 function carMeshes(group, spec, instances) {
   if (!instances.length) return [];
   const L = spec.length, W = spec.width, H = spec.height;
+  // The far box geometry uses its original approximate ground and wheel dimensions.
+  spec = { ...spec, ground: .18, wheelR: .32 };
   const body = new THREE.BoxGeometry(L, H * 0.58, W);
   body.translate(0, spec.ground + H * 0.29, 0);
   const cabinLength = spec.name === 'estate' ? 0.62 : spec.name === 'pickup' ? 0.43 : 0.52;
@@ -155,10 +153,12 @@ function prepareNganya(scene) {
 /** Build instanced traffic for the supplied lane polylines. */
 export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistance = 350 } = {}) {
   const group = new THREE.Group(); group.name = 'traffic'; group.userData.claim = 'Visualization';
+  const night = uniform(0);
+  const setNight = (value) => { night.value = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0; };
   const random = rngOf(0x51a7a);
   const rawLanes = Array.isArray(lines) ? lines.map((lane) => [lane.name, lane]) : (lines?.roads || []).flatMap((road) => (road.lanes || []).map((lane) => [road.name, lane]));
   const lanes = rawLanes.map(([name, raw]) => makeLane(raw, name)).filter((lane) => lane.points.length > 1 && lane.length > 30);
-  if (!lanes.length || count <= 0) return { group, update() {}, setLimit() {} };
+  if (!lanes.length || count <= 0) return { group, update() {}, setLimit() {}, setNight };
   const laneTotal = lanes.reduce((sum, lane) => sum + lane.length, 0);
   const weightedLane = () => {
     let n = random() * laneTotal;
@@ -182,7 +182,7 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
       const v = vehicles[index++]; v.kind = entry.kind;
       if (v.kind === 'car') {
         let pick = random(); v.spec = CAR_SPECS.find((spec) => (pick -= spec.weight) < 0) || CAR_SPECS[0];
-        v.color = CAR_PAINT[Math.floor(random() * CAR_PAINT.length)]; cars.get(v.spec).push(v);
+        let paint = random(); v.color = (CAR_PAINT.find((entry) => (paint -= entry[1]) < 0) || CAR_PAINT[0])[0]; cars.get(v.spec).push(v);
       } else if (v.kind === 'nganya') {
         v.color = new THREE.Color(NGANYA_PAINT[Math.floor(random() * NGANYA_PAINT.length)]).multiplyScalar(0.9 + random() * 0.2).getHex();
         v.neon = NEON[Math.floor(random() * NEON.length)]; nganyas.push(v);
@@ -224,6 +224,20 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
   }
   const carMeshesBySpec = new Map([...cars].map(([spec, vehicles]) => [spec, carMeshes(group, spec, vehicles)]));
   const carMeshesAll = [...carMeshesBySpec.values()].flat();
+  const partColor = attribute('color', 'vec3');
+  const paintMask = attribute('paintMask', 'float');
+  const lightMask = attribute('lightMask', 'float');
+  const carMaterial = new THREE.MeshStandardNodeMaterial({ roughness: .7, flatShading: true });
+  // NodeMaterial multiplies instanceColor after colorNode, so cancel that multiplication on fixed-color parts.
+  carMaterial.colorNode = mix(partColor.div(instanceColor.max(vec3(.00001))), vec3(1), paintMask);
+  carMaterial.emissiveNode = partColor.mul(lightMask).mul(night.mul(2).add(.15));
+  carMaterial.userData.nightUniform = night;
+  const detailedCars = new Map([...cars].map(([spec, vehicles]) => {
+    const mesh = addBatch(group, vehicles, createVehicleGeometry(spec), carMaterial, (v) => new THREE.Color(v.color));
+    if (mesh) mesh.name = `near-car-${spec.name}`;
+    return [spec, mesh];
+  }));
+
   const busMeshesAll = busMeshes(group, buses), bodaMeshesAll = bodaMeshes(group, bodas);
 
   const proxyGeo = new THREE.BoxGeometry(7, 2.5, 2.25); proxyGeo.translate(0, 1.28, 0);
@@ -247,7 +261,7 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
           ]);
           for (const [name, geometry] of geometries) {
             const material = materialOf.get(name);
-            if (name === 'LIGHTS' || name === 'LIGT') material.emissiveNode = instanceColor;
+            if (name === 'LIGHTS' || name === 'LIGT') material.emissiveNode = instanceColor.mul(night.mul(.75).add(.25));
             const mesh = new THREE.InstancedMesh(geometry, material, nganyas.length);
             mesh.count = 0; mesh.visible = false; mesh.castShadow = true; mesh.receiveShadow = true; mesh.userData.claim = 'Visualization';
             mesh.frustumCulled = false; group.add(mesh); modelMeshes.push({ name, mesh });
@@ -311,9 +325,13 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
       const matrix = v.order < limit && v.distance >= 0 ? vehicleMatrix(v) : hidden;
       // Each car style has its own batch; v.index is the vehicle's slot in that batch.
       const meshes = v.kind === 'car' ? carMeshesBySpec.get(v.spec) : v.kind === 'bus' ? busMeshesAll : bodaMeshesAll;
-      for (const mesh of meshes) mesh.setMatrixAt(v.index, matrix);
+      if (v.kind === 'car') {
+        const near = matrix !== hidden && (!camera?.position || camera.position.distanceToSquared(position) <= proxyDistance * proxyDistance);
+        for (const mesh of meshes) mesh.setMatrixAt(v.index, near ? hidden : matrix);
+        detailedCars.get(v.spec)?.setMatrixAt(v.index, near ? matrix : hidden);
+      } else for (const mesh of meshes) mesh.setMatrixAt(v.index, matrix);
     }
-    for (const mesh of [...carMeshesAll, ...busMeshesAll, ...bodaMeshesAll]) mesh.instanceMatrix.needsUpdate = true;
+    for (const mesh of [...carMeshesAll, ...busMeshesAll, ...bodaMeshesAll, ...[...detailedCars.values()].filter(Boolean)]) mesh.instanceMatrix.needsUpdate = true;
     if (contact?.enabled) {
       let n = 0;
       for (const v of fleet) if (v.order < limit && v.distance >= 0) {
@@ -352,5 +370,5 @@ export function buildTraffic({ lines, groundAt, camera, count = 400, proxyDistan
     ngong: countRoadTypes(fleet.filter((v) => v.lane.name?.toLowerCase() === 'ngong road')),
     other: countRoadTypes(fleet.filter((v) => v.lane.name?.toLowerCase() !== 'ngong road')),
   };
-  return { group, update, setLimit, setContactShadows };
+  return { group, update, setLimit, setContactShadows, setNight };
 }

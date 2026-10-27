@@ -1006,6 +1006,7 @@ renderer.setAnimationLoop((now) => {
   }
   stepFly(now);
   if (!hero && site.group.visible) site.update(now / 1000, night);
+  traffic?.setNight?.(night);
   if (!parityMode) traffic?.update(dt);
   if (traffic) traffic.group.visible = !parityMode && layerOn('vehicles');
   heroLighting?.setVehiclesVisible(!parityMode && layerOn('vehicles'));
