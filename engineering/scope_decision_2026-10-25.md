@@ -4,6 +4,7 @@ Date: 2026-10-25
 Project: Talanta twin (M5)
 Decision by: Munene, 2026-10-25
 Status: decided. This file replaces the phases in PLAN.md section 6. The module tables in PLAN.md section 5 stay.
+Update 2026-10-27 (Munene): keep both plans. Phase A is the base. The PLAN.md section 7 hero slice is the first demo milestone, built on phase A (see "Demo milestone: the hero slice").
 Basis: a read-only review by Sol of all PLAN.md section 5 modules against pitch/Talanta_value_proposition_2026-10-18.md (2026-10-25).
 
 ## Decision
@@ -62,6 +63,29 @@ The modules already built are marked "built". "Partial" means that part of the m
 | CAM-02 | Free orbit | Turn and zoom around the venue | Built |
 | AMB-02 | Trees and planting | The landscaped grounds | Partial |
 | AMB-03 | City skyline | Nairobi and the Ngong Hills on the horizon | Partial |
+
+### Demo milestone: the hero slice (added 2026-10-27)
+
+The first demo is phase A plus the 90-second hero slice from PLAN.md section 7. The hero slice runs on the phase A base and its module loader. It is also recorded as a video for people who do not open the link.
+
+These items move forward from phases B and C into the milestone. Only the parts that the script uses are in scope. The rest of each module stays in its phase.
+
+| ID | Module | Part in the milestone | From phase |
+|---|---|---|---|
+| ENV-02 | Sunshine and clouds | Clear and overcast skies for the golden hour and the rain beat | C |
+| ENV-03 | Rain | Rain on and off, wet seats and concourse that reflect the floodlights | C |
+| SPT-01 | Football match | One scripted goal and the crowd reaction (PPL-02) | B |
+| CAM-01 | Cinematic fly-in | The full directed sequence of PLAN.md section 7, steps 1 to 7 | A (partial) |
+
+Script (PLAN.md section 7): fly-in over Ngong Road at golden hour, the roof catches the last sun, sunset and floodlights on, the stands fill, the viewer toggles rain, a goal and the crowd reaction, pull back to the night city.
+
+Done when:
+- Phase A meets its own acceptance and the section 8 budgets.
+- The 90-second sequence plays end to end in the browser on a named laptop and a named phone.
+- The recorded video of the sequence exists.
+- A review panel accepts the build.
+
+The labels in "Labels" apply. The rendered crowd is a Visualization and does not show the capacity of the venue.
 
 ### Phase B: the headline events
 
