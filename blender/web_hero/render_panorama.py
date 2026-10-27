@@ -105,8 +105,10 @@ pv = bpy.data.images.load(str(prev_dir / f"{stem}_preview.jpg")); pv.scale(2048,
 im = bpy.data.images.load(str(full)); im.scale(2048, 1024)
 im.filepath_raw = str(env / f"{stem}_2048.hdr"); im.file_format = "HDR"; im.save()
 el, az = g["el"], g["az"]
+# out= can be outside the repo (Kaggle writes to /kaggle/working), so record such paths as they are.
+rel = lambda p: str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
 write_json((env if "out" in KW else OUT) / f"panorama_log{'_' + hhmm if 'out' in KW else ''}.json", {
-    "file": str(full.relative_to(ROOT)), "file_2048": str((env / f"{stem}_2048.hdr").relative_to(ROOT)),
+    "file": rel(full), "file_2048": rel(env / f"{stem}_2048.hdr"),
     "preset": PRESET, "resolution": [W, W // 2], "samples": SAMPLES, "seconds": round(sec, 1),
     "near_cut_m": NEAR, "near_cut_objects": {"hidden": cut[0], "cut": cut[1]} if cut else None,
     "camera_app": [0.0, PAD + 150.0, 0.0], "centre_of_image_looks": "north (-z app)", "projection": "equirectangular",
