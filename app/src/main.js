@@ -862,13 +862,34 @@ initOverlay({ stage, camera, controls });
 // ---------------------------------------------------------------- post: ambient occlusion + bloom
 const heroWarmth = uniform(getGradePreset().warmth);
 let pipeline = null, bloomPass = null;
+let ultraModule = null, ultraLoading = null, ultraFailed = false;
 function configurePipeline() {
   const manifest = hero && (parityFallback ? { ...hero.manifest, look: undefined } : hero.manifest);
   const measured = manifest && measuredLook(manifest);
   const effects = quality.postProcessing && !params.has('nopost');
   pipeline?.dispose(); pipeline = null; bloomPass = null;
   if (!effects && !measured) return;
+  if (tier === 'ultra' && effects && !ultraModule && !ultraLoading && !ultraFailed) {
+    ultraLoading = import('./hero/ultra.js').then(module => {
+      ultraModule = module;
+      if (tier === 'ultra') configurePipeline();
+    }).catch(error => { ultraFailed = true; console.warn('ultra unavailable; keeping high:', error); });
+  }
   try {
+    if (tier === 'ultra' && effects && ultraModule && !ultraFailed) {
+      pipeline = ultraModule.createUltraPipeline({
+        settings: ultraModule.parseUltraSettings(location.search), renderer, scene, camera, sun,
+        look: manifest ? manifestGrade(manifest) : getGradePreset(), measured, manifest,
+        warmth: heroWarmth, exposure: heroExposure, minutes: () => state.minutes,
+        onFailure: () => { ultraFailed = true; configurePipeline(); },
+        onSettings: () => {
+          // Retain console edits when rebuilding the graph.
+          const settings = { ...globalThis.ultra.settings };
+          ultraModule = { ...ultraModule, parseUltraSettings: () => settings }; configurePipeline();
+        },
+      });
+      if (pipeline) { bloomPass = pipeline.bloomPass; return; }
+    }
     pipeline = new THREE.RenderPipeline(renderer);
     const scenePass = pass(scene, camera);
     let shaded = scenePass.getTextureNode('output');
@@ -930,7 +951,7 @@ const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   renderer.shadowMap.enabled = quality.shadows && !hero;
   applyShadowQuality(); bowl.setTier(tier);
   // Apply the rest of the tier to what already exists: post-processing off, fewer trees, cheaper traffic.
-  if (!quality.postProcessing) configurePipeline();
+  if (!quality.postProcessing || pipeline?.isUltraPipeline) configurePipeline();
   { const keep = quality.treeCount / Math.max(1, trees.children.reduce((n, m) => n + m.count, 0)); if (keep < 1) for (const m of trees.children) if (m.isInstancedMesh) m.count = Math.floor(m.count * keep); }
   traffic?.setLimit(quality.trafficCount);
   if (crowd && quality.crowdFraction < 1) {

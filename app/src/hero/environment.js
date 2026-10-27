@@ -114,6 +114,7 @@ export function limitEnvToSpecular(root, envTexture) {
       const physical = source.isMeshPhysicalMaterial || source.isMeshPhysicalNodeMaterial;
       const Material = physical ? SpecularPhysicalMaterial : SpecularStandardMaterial;
       const material = source instanceof Material ? source : new Material().copy(source);
+      material.userData.ultraBaked = true;
       material.envMap = envTexture;
       material.envMapRotation.y = NORTH_YAW;
       material.needsUpdate = true;
