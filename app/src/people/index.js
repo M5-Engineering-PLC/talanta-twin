@@ -1,14 +1,14 @@
 import * as THREE from 'three/webgpu';
-import { uniform, attribute, positionGeometry, vec3, float, sin, cos, abs, max, min, smoothstep, mix, uv, step, color, cameraWorldMatrix, modelWorldMatrixInverse } from 'three/tsl';
-import { figureGeometry } from './geometry.js';
+import { uniform, attribute, vec2, vec3, float, sin, cos, abs, max, smoothstep, mix, step, texture, floor, fract, select } from 'three/tsl';
+import { figureGeometry, crowdAssets, loadCrowdAssets } from './geometry.js';
 import { generateSeats } from './seats.js';
-import { clampFill, occupancyOrder, selectSeats } from './model.js';
+import { clampFill, occupancyOrder, selectSeats, crowdTier, partitionCrowd, standingPlaces, fanVariation } from './model.js';
 
 // PPL-01 / PPL-02. Visualization only, not a validated safety simulation.
 // quality can be a tier string or { seats, features, width, farDistance }.
 // seats accepts the future Blender seats.json schema in parent-local metres.
 export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGroup, quality = 'high', seats: seatList, features }) {
-  // Seats and features may come as options or, for older callers, inside a quality object.
+  // Accept the existing options and the older quality object.
   const config = { ...(typeof quality === 'object' ? quality : {}), ...(seatList ? { seats: seatList } : {}), ...(features ? { features } : {}) };
   const root = new THREE.Group();
   root.name = 'seated-crowd'; root.userData.claim = 'Visualization';
@@ -24,6 +24,12 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
   root.userData.animation = u;
   const width = () => config.width ?? globalThis.innerWidth ?? 1024;
   let lastWidth = width();
+  const tier = () => crowdTier(quality, width());
+  const localCamera = new THREE.Vector3(), lastCamera = new THREE.Vector3(Infinity, Infinity, Infinity);
+  function cameraPosition() {
+    if (!camera) return localCamera.set(0, 0, 0);
+    camera.getWorldPosition(localCamera); root.worldToLocal(localCamera); return localCamera;
+  }
   let label;
   if (globalThis.document) {
     label = document.createElement('div');
@@ -32,54 +38,55 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
       background: 'rgba(0,0,0,.78)', padding: '5px 9px', borderRadius: '3px', font: '12px sans-serif', pointerEvents: 'none' });
     (renderer?.domElement?.parentElement || document.body).appendChild(label);
   }
-  function material(cards) {
-    const mat = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide, alphaTest: .5 });
+  function material(lod) {
+    const { manifest, texture: animation } = crowdAssets();
+    const mat = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide });
     const phase = attribute('fanPhase', 'float'), angle = attribute('fanAngle', 'float');
-    const origin = attribute('fanOrigin', 'vec3');
     const elapsed = max(0, u.time.sub(u.start));
     const active = float(1).sub(step(u.duration, elapsed));
     const travel = elapsed.mul(u.speed).div(u.perimeter).mul(Math.PI * 2);
     const delta = cos(angle.sub(travel)).clamp(-1, 1).acos();
-    const wave = float(1).sub(smoothstep(.06, .20, delta)).mul(u.wave);
+    const wave = float(1).sub(smoothstep(.06, .20, delta)).mul(u.wave).mul(active);
     const endMatch = step(0, attribute('fanEnd', 'float').mul(u.end));
-    const lift = max(wave, max(u.cheer, u.goal.mul(endMatch))).mul(active);
+    const cheer = max(u.cheer, u.goal.mul(endMatch)).mul(active);
     const scarf = u.scarves.mul(active), phone = u.phones.mul(u.night);
-    const raised = max(lift, scarf);
-    const bob = sin(u.time.mul(1.7).add(phase)).mul(.012);
-    const turn = sin(u.time.mul(.7).add(phase)).mul(.035);
-    const shirt = attribute('fanShirt', 'vec3');
-    if (cards) {
-      const p = uv(), x = abs(p.x.sub(.5)), y = p.y;
-      const head = float(1).sub(step(.1, p.sub(vec3(.5, .78, 0).xy).length()));
-      const body = float(1).sub(step(.24, x)).mul(step(.18, y)).mul(float(1).sub(step(.68, y)));
-      const arms = step(.28, x).mul(float(1).sub(step(.43, x))).mul(step(mix(.32, .60, raised), y)).mul(float(1).sub(step(mix(.6, .92, raised), y)));
-      const scarfMask = step(.9, y).mul(scarf);
-      const phoneMask = step(.85, y).mul(step(.35, p.x.sub(.5))).mul(phone);
-      mat.opacityNode = max(max(head, body), max(arms, max(scarfMask, phoneMask)));
-      mat.colorNode = mix(mix(shirt, color('#95633f'), head), color('#ffffff'), phoneMask);
-      const local = positionGeometry.mul(vec3(1, mix(1.25, 1.95, raised), 1));
-      // Convert camera axes to parent-local axes, then undo the instance yaw.
-      // Card matrices carry translation only.
-      const right = modelWorldMatrixInverse.mul(cameraWorldMatrix.element(0)).xyz.normalize();
-      const up = modelWorldMatrixInverse.mul(cameraWorldMatrix.element(1)).xyz.normalize();
-      mat.positionNode = origin.add(right.mul(local.x)).add(up.mul(local.y.add(bob)));
-    } else {
-      const kind = attribute('kind', 'float');
-      const isScarf = float(1).sub(step(.1, abs(kind.sub(3))));
-      const isPhone = float(1).sub(step(.1, abs(kind.sub(4))));
-      const visible = mix(float(1), scarf, isScarf).mul(mix(float(1), phone, isPhone));
-      // positionNode runs AFTER Three.js instancing. Deform the raw figure,
-      // then apply yaw and origin exactly once instead of rotating seat positions.
-      const p = positionGeometry.mul(visible);
-      const yaw = attribute('fanYaw', 'float').add(turn);
-      const leg = float(1).sub(step(.1, abs(kind.sub(2))));
-      const y = p.y.add(attribute('rise', 'float').mul(raised)).add(p.y.mul(raised).mul(leg)).add(bob);
-      const z = p.z.mul(float(1).sub(raised.mul(leg)));
-      mat.positionNode = origin.add(vec3(p.x.mul(cos(yaw)).add(z.mul(sin(yaw))), y, z.mul(cos(yaw)).sub(p.x.mul(sin(yaw)))));
-      const skin = float(1).sub(step(.1, abs(kind.sub(1))));
-      const legs = float(1).sub(step(.1, abs(kind.sub(2))));
-      mat.colorNode = mix(mix(mix(shirt, color('#95633f'), skin), color('#292934'), legs), color('#ffffff').mul(3), isPhone);
+    const standing = config.standing === true;
+    const slot = name => manifest.clips.find(c => c.name === name).slot;
+    const clip = select(wave.greaterThan(.01), float(slot(standing ? 'cheer' : 'wave')),
+      select(max(cheer, scarf).greaterThan(0), float(slot('cheer')),
+        select(attribute('fanClap', 'float').greaterThan(.86), float(slot(standing ? 'Dance_Loop' : 'clap')), float(slot(standing ? 'Idle_Loop' : 'Sitting_Idle_Loop')))));
+    // Uniform clip slots let replacement clips retain the runtime interface.
+    let duration = float(manifest.clips[0].duration);
+    for (const c of manifest.clips.slice(1)) duration = select(clip.equal(c.slot), float(c.duration), duration);
+    const loop = fract(u.time.add(phase).div(duration));
+    const waveProgress = standing ? float(.6) : float(.2).sub(sin(angle.sub(travel))).div(.4).clamp(0, 1);
+    const reactionProgress = elapsed.div(2).min(.6).add(sin(u.time.mul(7).add(phase)).mul(.025).mul(elapsed.clamp(0, 1)));
+    const progress = select(wave.greaterThan(.01), waveProgress, select(max(cheer, scarf).greaterThan(0), standing ? reactionProgress.max(.4) : reactionProgress, loop));
+    const frame = progress.mul(manifest.framesPerClip - 1);
+    const row = clip.add(lod * manifest.clips.length).mul(manifest.framesPerClip).add(floor(frame));
+    const x = attribute('fanVertex', 'float').add(.5).div(manifest.width);
+    const sample = r => texture(animation, vec2(x, r.add(.5).div(manifest.height))).level(0).xyz;
+    let animated = mix(sample(row), sample(row.add(1).min(clip.add(lod * manifest.clips.length + 1).mul(manifest.framesPerClip).sub(1))), fract(frame));
+    if (standing) {
+      // Blend standing reactions from an idle stance without a seated pose.
+      const idle = manifest.clips[slot('Idle_Loop')];
+      const baseFrame = fract(u.time.add(phase).div(idle.duration)).mul(manifest.framesPerClip - 1);
+      const baseRow = floor(baseFrame).add((lod * manifest.clips.length + idle.slot) * manifest.framesPerClip);
+      const base = mix(sample(baseRow), sample(baseRow.add(1)), fract(baseFrame));
+      const blend = max(wave, max(cheer, scarf)).mul(elapsed.div(.25).clamp(0, 1));
+      animated = mix(animated, mix(base, animated, blend), max(wave, max(cheer, scarf)));
     }
+    const kind = attribute('kind', 'float');
+    const isScarf = abs(kind.sub(3)).lessThan(.1), isPhone = abs(kind.sub(4)).lessThan(.1);
+    const visible = select(isScarf, scarf, select(isPhone, phone, float(1)));
+    const p = animated.mul(vec3(attribute('fanScale', 'vec2').x, attribute('fanScale', 'vec2').y, 1)).mul(visible);
+    const yaw = attribute('fanYaw', 'float');
+    // positionNode replaces the instanced position. Apply the origin once.
+    mat.positionNode = attribute('fanOrigin', 'vec3').add(vec3(p.x.mul(cos(yaw)).add(p.z.mul(sin(yaw))), p.y, p.z.mul(cos(yaw)).sub(p.x.mul(sin(yaw)))));
+    const skin = attribute('fanSkin', 'vec3'), trousers = attribute('fanTrousers', 'vec3');
+    const shirt = attribute('fanShirt', 'vec3');
+    mat.colorNode = select(isPhone, vec3(3), select(kind.equal(1), skin, select(kind.equal(2), trousers, shirt)));
+    mat.userData.bakedAnimation = true;
     return mat;
   }
   function clearMeshes() {
@@ -87,35 +94,39 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     meshes = [];
   }
   function rebuild() {
+    if (dead || !crowdAssets()) return;
     clearMeshes();
-    const picked = selectSeats(seats, fill, width(), order);
-    if (!picked.length) { syncLabel(); return; }
+    const picked = selectSeats(seats, fill, tier() === 'low' ? 767 : width(), order);
+    const batches = partitionCrowd(seats, picked, tier(), cameraPosition(), config.farDistance ?? 60);
+    lastCamera.copy(localCamera);
     const colors = [new THREE.Color(home), new THREE.Color(away), new THREE.Color('#ded9cc'), new THREE.Color('#292934')];
-    for (const cards of width() < 768 ? [true] : [false, true]) {
-      const geometry = cards ? new THREE.PlaneGeometry(.8, 1).translate(0, .5, 0) : figureGeometry();
-      const phase = [], angles = [], ends = [], shirts = [], origins = [], yaws = [];
-      const mesh = new THREE.InstancedMesh(geometry, material(cards), picked.length);
+    for (const [lod, indices] of batches.entries()) {
+      if (!indices.length) continue;
+      const geometry = figureGeometry(lod);
+      const values = { fanOrigin: [], fanYaw: [], fanPhase: [], fanAngle: [], fanEnd: [], fanShirt: [], fanSkin: [], fanTrousers: [], fanScale: [], fanClap: [] };
+      const mesh = new THREE.InstancedMesh(geometry, material(lod), indices.length);
       const transform = new THREE.Object3D();
-      picked.forEach((index, j) => {
-        const seat = seats[index];
+      indices.forEach((index, j) => {
+        const seat = seats[index], variation = fanVariation(index);
         transform.position.set(seat.x, seat.y + .02, seat.z);
-        transform.rotation.set(0, cards ? 0 : seat.facing_deg * Math.PI / 180, 0);
+        transform.rotation.set(0, seat.facing_deg * Math.PI / 180, 0);
         transform.updateMatrix(); mesh.setMatrixAt(j, transform.matrix);
-        origins.push(seat.x, seat.y + .02, seat.z); yaws.push(seat.facing_deg * Math.PI / 180);
+        values.fanOrigin.push(seat.x, seat.y + .02, seat.z); values.fanYaw.push(seat.facing_deg * Math.PI / 180);
         const end = seat.z >= 0 ? 1 : -1;
-        const rand = (Math.sin(index * 17.13) * 43758.5 % 1 + 1) % 1;
+        const rand = variation.random;
         const team = rand < .72 ? (end > 0 ? 0 : 1) : rand < .88 ? 2 : 3;
-        colors[team].toArray(shirts, j * 3);
-        phase.push(rand * Math.PI * 2); angles.push(waveAngle((Math.atan2(seat.z, seat.x) + Math.PI * 2) % (Math.PI * 2))); ends.push(end);
+        colors[team].toArray(values.fanShirt, j * 3);
+        new THREE.Color(variation.skin).toArray(values.fanSkin, j * 3);
+        new THREE.Color(variation.trousers).toArray(values.fanTrousers, j * 3);
+        values.fanScale.push(...variation.scale); values.fanClap.push(variation.clap);
+        values.fanPhase.push(rand * Math.PI * 2); values.fanAngle.push(waveAngle((Math.atan2(seat.z, seat.x) + Math.PI * 2) % (Math.PI * 2))); values.fanEnd.push(end);
       });
-      geometry.setAttribute('fanOrigin', new THREE.InstancedBufferAttribute(new Float32Array(origins), 3));
-      geometry.setAttribute('fanYaw', new THREE.InstancedBufferAttribute(new Float32Array(yaws), 1));
-      geometry.setAttribute('fanPhase', new THREE.InstancedBufferAttribute(new Float32Array(phase), 1));
-      geometry.setAttribute('fanAngle', new THREE.InstancedBufferAttribute(new Float32Array(angles), 1));
-      geometry.setAttribute('fanEnd', new THREE.InstancedBufferAttribute(new Float32Array(ends), 1));
-      geometry.setAttribute('fanShirt', new THREE.InstancedBufferAttribute(new Float32Array(shirts), 3));
-      mesh.name = cards ? 'crowd-cards' : 'crowd-figures'; mesh.userData.cards = cards;
-      mesh.frustumCulled = false; mesh.visible = cards === (width() < 768);
+      for (const [name, value] of Object.entries(values)) {
+        const size = ['fanOrigin', 'fanShirt', 'fanSkin', 'fanTrousers'].includes(name) ? 3 : name === 'fanScale' ? 2 : 1;
+        geometry.setAttribute(name, new THREE.InstancedBufferAttribute(new Float32Array(value), size));
+      }
+      mesh.name = lod === 0 ? 'crowd-figures' : 'crowd-lod1'; mesh.userData.lod = lod;
+      mesh.frustumCulled = false;
       root.add(mesh); meshes.push(mesh);
     }
     syncLabel();
@@ -131,7 +142,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
   }
   function accept(data) {
     if (dead) return;
-    if (!Array.isArray(data) || !data.length || data.some((s) => !['x', 'y', 'z', 'facing_deg'].every((k) => Number.isFinite(s[k])))) throw new Error('Crowd seat data is invalid');
+    if (!Array.isArray(data) || data.some((s) => !['x', 'y', 'z', 'facing_deg'].every((k) => Number.isFinite(s[k])))) throw new Error('Crowd seat data is invalid');
     seats = data.map((s) => ({ ...s, tier: s.tier ?? 0, row: s.row ?? 0 }));
     order = occupancyOrder(seats);
     // Map each azimuth onto arc length along a representative row.
@@ -169,6 +180,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     return result;
   }
   const initial = fromMesh(bowlGroup) || fromMesh(heroGroup) || config.seats || (config.features && generateSeats(config.features));
+  const installedWithAssets = Boolean(crowdAssets());
   let ready;
   if (initial) { accept(initial); ready = Promise.resolve(); }
   else ready = (async () => {
@@ -181,10 +193,10 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
       if (!response.ok) throw new Error('Crowd manifest is unavailable');
       accept(generateSeats((await response.json()).features));
     }
-  })().catch((error) => { failure = error; root.userData.error = error.message; if (label) { label.textContent = 'Visualization unavailable'; label.hidden = false; } throw error; });
+  })();
+  ready = Promise.all([ready, loadCrowdAssets()]).then(() => { if (!installedWithAssets) rebuild(); }).catch((error) => { failure = error; root.userData.error = error.message; if (label) { label.textContent = 'Visualization unavailable'; label.hidden = false; } throw error; });
   // Prevent an unhandled rejection when the host does not consume ready.
   ready.catch(() => {});
-  const position = new THREE.Vector3(), center = new THREE.Vector3();
   return {
     ready, group: root,
     setFill(fraction) { fill = clampFill(fraction); if (!dead) rebuild(); },
@@ -202,12 +214,22 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
       if (dead || failure) return;
       u.time.value = Number.isFinite(timeSeconds) ? timeSeconds : u.time.value + Math.max(0, dtSeconds || 0);
       if (width() !== lastWidth) { lastWidth = width(); rebuild(); }
-      camera.getWorldPosition(position); root.getWorldPosition(center);
-      const far = width() < 768 || quality === 'low' || position.distanceTo(center) > (config.farDistance ?? 300);
-      for (const mesh of meshes) mesh.visible = mesh.userData.cards === far;
+      if (tier() !== 'low' && cameraPosition().distanceTo(lastCamera) > 15) rebuild();
       syncLabel();
     },
     setNight(on) { u.night.value = Number(Boolean(on)); },
     dispose() { if (dead) return; dead = true; clearMeshes(); root.removeFromParent(); label?.remove(); },
   };
+}
+
+// Ground positions use the same figure, texture, controls, and claim label.
+export function installStandingCrowd({ parent, area, count, quality = 'high', colours = {} }) {
+  const places = standingPlaces(area, count);
+  const crowd = installSeatedCrowd({ scene: parent, quality: { ...(typeof quality === 'object' ? quality : { tier: quality }),
+    seats: places, standing: true } });
+  crowd.group.name = 'standing-crowd';
+  const home = Array.isArray(colours) ? colours[0] : colours.home;
+  const away = Array.isArray(colours) ? colours[1] : colours.away;
+  if (home || away) crowd.setPalette(home ?? '#b92332', away ?? '#18733d');
+  return crowd;
 }

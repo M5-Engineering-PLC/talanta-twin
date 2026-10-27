@@ -1,24 +1,50 @@
 import * as THREE from 'three/webgpu';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-export function figureGeometry() {
-  const parts = [];
-  function part(g, x, y, z, rise, kind) {
-    g.translate(x, y, z);
-    const n = g.attributes.position.count;
-    g.setAttribute('rise', new THREE.Float32BufferAttribute(new Float32Array(n).fill(rise), 1));
-    g.setAttribute('kind', new THREE.Float32BufferAttribute(new Float32Array(n).fill(kind), 1));
-    g.deleteAttribute('uv');
-    parts.push(g.index ? g.toNonIndexed() : g.clone());
-    g.dispose();
+let assets, pending;
+
+// Decode once. The shader samples positions without a runtime skeleton.
+export function decodeCrowdAssets(manifest, buffer) {
+  if (manifest.version !== 1 || manifest.format !== 'RGBA16F' || buffer.byteLength !== manifest.width * manifest.height * 8) {
+    throw new Error('Crowd animation asset dimensions are invalid');
   }
-  part(new THREE.BoxGeometry(.32, .48, .22), 0, .77, 0, .5, 0);
-  part(new THREE.OctahedronGeometry(.12), 0, 1.13, 0, .5, 1);
-  for (const x of [-.1, .1]) part(new THREE.BoxGeometry(.12, .48, .14), x, .25, .22, 0, 2);
-  for (const x of [-.21, .21]) part(new THREE.BoxGeometry(.09, .4, .1), x, .77, 0, .95, 0);
-  part(new THREE.BoxGeometry(.65, .08, .025), 0, 1.95, 0, 0, 3);
-  part(new THREE.BoxGeometry(.035, .055, .015), .22, 1.8, .06, 0, 4);
-  const merged = mergeGeometries(parts);
-  parts.forEach((g) => g.dispose());
-  return merged;
+  const data = new Uint16Array(buffer.slice(0));
+  const texture = new THREE.DataTexture(data, manifest.width, manifest.height, THREE.RGBAFormat, THREE.HalfFloatType);
+  texture.magFilter = texture.minFilter = THREE.NearestFilter;
+  texture.generateMipmaps = false; texture.needsUpdate = true;
+  assets = { manifest, texture };
+  return assets;
+}
+
+export function crowdAssets() { return assets; }
+
+export function loadCrowdAssets() {
+  if (assets) return Promise.resolve(assets);
+  if (!pending) pending = (async () => {
+    if (globalThis.process?.versions?.node) {
+      // Node consumers include the existing offline bridge exporter.
+      const moduleName = 'node:fs/promises';
+      const { readFile } = await import(/* @vite-ignore */ moduleName);
+      const directory = new URL(/* @vite-ignore */ '../../public/people/', import.meta.url);
+      const [json, bytes] = await Promise.all([readFile(new URL('crowd.json', directory)), readFile(new URL('animation.bin', directory))]);
+      return decodeCrowdAssets(JSON.parse(json), bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+    }
+    const [manifest, buffer] = await Promise.all([
+      fetch('/people/crowd.json').then(r => { if (!r.ok) throw new Error('Crowd geometry is unavailable'); return r.json(); }),
+      fetch('/people/animation.bin').then(r => { if (!r.ok) throw new Error('Crowd animation is unavailable'); return r.arrayBuffer(); }),
+    ]);
+    return decodeCrowdAssets(manifest, buffer);
+  })().catch(error => { pending = null; throw error; });
+  return pending;
+}
+
+export function figureGeometry(lod = 0) {
+  if (!assets) throw new Error('Load crowd assets before creating a figure');
+  const data = assets.manifest.lods[lod];
+  const geometry = new THREE.BufferGeometry();
+  geometry.setIndex(data.index);
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.position, 3));
+  geometry.setAttribute('kind', new THREE.Float32BufferAttribute(data.kind, 1));
+  geometry.setAttribute('fanVertex', new THREE.Float32BufferAttribute(data.kind.map((_, i) => i), 1));
+  geometry.userData.lod = lod;
+  return geometry;
 }
