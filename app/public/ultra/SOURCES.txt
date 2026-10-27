@@ -9,6 +9,7 @@ Retrieved: 2026-10-26
 The source file retains its BEGA and Copyright LUMCat V notices.
 The repository provides an MIT license. The profile contains no separate license grant.
 The lead must review that embedded notice before distribution.
+Decision 2026-10-27 (Munene): keep and use this profile. The embedded BEGA/LUMCat notice stays in the file.
 This representative optical shape is a Visualization. It does not describe the installed stadium floodlights.
 The app uses an artistic intensity scale. It makes no measured illuminance claim.
 
