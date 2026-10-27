@@ -1,9 +1,10 @@
 // Bloom estimate: one bright pass, ten blur passes, and one composite pass at half resolution or smaller.
 // The 2 ms high-tier target needs device timing. Medium and low create no post passes.
-const TIER_ORDER = ['high', 'medium', 'low'];
+const TIER_ORDER = ['ultra', 'high', 'medium', 'low'];
 
 // These fields control renderer.setPixelRatio, shadowMap.enabled, the RenderPipeline, makeTrees count at the "trees" line, crowd and traffic counts, and loadEnvironment preferSmall.
 export const TIERS = {
+  ultra: { pixelRatio: 1, shadowSize: 2048, shadowExtent: 420, shadowFar: 2600, shadows: true, postProcessing: true, bloomResolutionScale: 0.5, treeCount: 60000, crowdFraction: 1, trafficCount: 1200, panoramaSize: '4096' },
   high: { pixelRatio: 1.5, shadowSize: 2048, shadowExtent: 420, shadowFar: 2600, shadows: true, postProcessing: true, bloomResolutionScale: 0.5, treeCount: 60000, crowdFraction: 1, trafficCount: 1200, panoramaSize: '4096' },
   medium: { pixelRatio: 1.25, shadowSize: 1024, shadowExtent: 300, shadowFar: 2300, shadows: true, postProcessing: false, treeCount: 18000, crowdFraction: 0.25, trafficCount: 180, panoramaSize: '2048' },
   low: { pixelRatio: 1, shadowSize: 512, shadowExtent: 240, shadowFar: 2100, shadows: false, postProcessing: false, treeCount: 4000, crowdFraction: 0, trafficCount: 40, panoramaSize: '2048' },
@@ -44,8 +45,8 @@ export function detectTier(renderer) {
 /** Create a four-second FPS readout and a one-way quality downgrade monitor. */
 export function createFpsMonitor({ onDowngrade, tier = 'high' }) {
   const visible = new URLSearchParams(location.search).has('fps');
-  // An explicit ?tier= pins the tier: no automatic downgrade.
-  if (new URLSearchParams(location.search).has('tier')) onDowngrade = () => {};
+  // Explicit legacy tiers stay pinned. Ultra can step down to high.
+  if (new URLSearchParams(location.search).has('tier') && tier !== 'ultra') onDowngrade = () => {};
   const element = document.createElement('div');
   Object.assign(element.style, {
     position: 'fixed', right: '12px', bottom: '12px', zIndex: '10000',
@@ -110,7 +111,7 @@ export function profileGeometry(root) {
 // Software-derived snapshot from the bundled data, 2026-10-18. Counts precede culling and exclude extra passes.
 const seats = 56972;
 export const PROFILE_BY_TIER = Object.fromEntries(Object.entries(TIERS).map(([tier, quality]) => {
-  const low = tier === 'low', high = tier === 'high';
+  const low = tier === 'low', high = tier === 'high' || tier === 'ultra';
   return [tier, {
     claim: 'derived',
     seats: { drawCalls: 1, triangles: seats * (high ? 36 : low ? 2 : 24), cpuPerFrame: 'No matrix writes; static instances.' },
