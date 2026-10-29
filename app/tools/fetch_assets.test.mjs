@@ -171,3 +171,37 @@ test('a manifest path outside models/, env/ or ground/ is refused', () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /unexpected file path in manifest/);
 });
+
+test('ENV-01: tod sets, phone models and manifest_phone.json are installed from a --from tree', () => {
+  const t = setup();
+  const extra = { 'lightmaps/1805/roof_light.ktx2': Buffer.from('k1805'), 'lightmaps/2000/roof_light.ktx2': Buffer.from('k2000'),
+    'lightmaps_phone/1805/roof_light.ktx2': Buffer.from('p1805'), 'models_phone/talanta_hero_phone.glb': Buffer.from('phone hero') };
+  for (const [file, buf] of Object.entries(extra)) { fs.mkdirSync(path.join(t.tree, path.dirname(file)), { recursive: true }); fs.writeFileSync(path.join(t.tree, file), buf); }
+  const ent = (f) => ({ file: f, bytes: extra[f].length, sha256: sha(extra[f]) });
+  const man = { ...t.manifest, tod: { base: '0730', times: ['0730', '1805', '2000'], dir: 'lightmaps' }, tod_files: ['lightmaps/1805/roof_light.ktx2', 'lightmaps/2000/roof_light.ktx2'].map(ent) };
+  fs.writeFileSync(t.manifestFile, JSON.stringify(man));
+  const phone = { variant: 'phone', tier1_files: [ent('models_phone/talanta_hero_phone.glb')], tod: { base: '0730', times: ['0730', '1805'], dir: 'lightmaps_phone' },
+    tod_files: [ent('lightmaps_phone/1805/roof_light.ktx2')], models: { hero: { file: 'blender/out/x/models_phone/talanta_hero_phone.glb', bytes: 10 } } };
+  fs.writeFileSync(t.manifestFile.replace(/manifest\.json$/, 'x_manifest_phone.json'), JSON.stringify(phone));
+  const r = run(t, '--from', path.join(t.root, 'tree'), '--manifest-phone', t.manifestFile.replace(/manifest\.json$/, 'x_manifest_phone.json'));
+  assert.equal(r.code, 0, r.out);
+  assert.deepEqual(fs.readFileSync(path.join(t.pub, 'lightmaps/1805/roof_light.ktx2')), extra['lightmaps/1805/roof_light.ktx2']);
+  assert.deepEqual(fs.readFileSync(path.join(t.pub, 'lightmaps/2000/roof_light.ktx2')), extra['lightmaps/2000/roof_light.ktx2'], 'same basename in another time folder');
+  assert.deepEqual(fs.readFileSync(path.join(t.pub, 'lightmaps_phone/1805/roof_light.ktx2')), extra['lightmaps_phone/1805/roof_light.ktx2']);
+  assert.ok(fs.existsSync(path.join(t.pub, 'models/talanta_hero_phone.glb')));
+  const app = JSON.parse(fs.readFileSync(path.join(t.pub, 'models', 'manifest.json'), 'utf8'));
+  const pm = JSON.parse(fs.readFileSync(path.join(t.pub, 'models', 'manifest_phone.json'), 'utf8'));
+  assert.equal(app.tod.dir, 'lightmaps'); assert.equal(pm.tod.dir, 'lightmaps_phone');
+  assert.equal(pm.models.hero.file, 'app/public/models/talanta_hero_phone.glb'); assert.equal(pm.models.hero.bytes, 10);
+  assert.equal(app.models.hero.file, 'app/public/models/talanta_hero.glb');
+});
+
+test('ENV-01: a bundle without panorama logs gets its environment from the env files', () => {
+  const t = setup();
+  const m = { ...t.manifest, panoramas: [] };
+  fs.writeFileSync(t.manifestFile, JSON.stringify(m));
+  assert.equal(run(t).code, 0);
+  const app = JSON.parse(fs.readFileSync(path.join(t.pub, 'models', 'manifest.json'), 'utf8'));
+  assert.equal(app.environment.file_2048, 'app/public/env/talanta_pano_0730_2048.hdr');
+  assert.equal(app.environment.file_exr, 'app/public/env/talanta_pano_0730.exr');
+});

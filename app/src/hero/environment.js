@@ -45,7 +45,10 @@ const SpecularPhysicalMaterial = specularEnvironmentMaterial(THREE.MeshPhysicalN
 export function choosePanorama(manifest, { desktopGPU = false, maxTextureSize = 0, memoryGB = 0, phone = true, preferSmall = false } = {}) {
   const env = manifest.environment ?? {};
   const files = (manifest.files ?? []).map(f => f.file).filter(f => f.startsWith('app/public/env/'));
-  const hdr = [env.file_2048, env.file].find(f => files.includes(f) && /\.hdr$/i.test(f));
+  // A bundle without panorama logs has no manifest.environment: take the base-time panorama named in the file list.
+  const time = (manifest.tod?.base ?? String(manifest.sun?.local ?? manifest.time?.local ?? '').replace(/\D/g, '').slice(0, 4)) || '0730';
+  const byName = (re) => files.find(f => re.test(f));
+  const hdr = [env.file_2048, env.file, byName(new RegExp(`/talanta_pano_${time}_2048\\.hdr$`))].find(f => files.includes(f) && /\.hdr$/i.test(f));
   const stem = hdr?.replace(/_2048\.hdr$/i, '');
   const exr = [env.file_exr, env.file, ...files.filter(f => f === `${stem}.exr`)].find(f => files.includes(f) && /\.exr$/i.test(f));
   const large = !preferSmall && !phone && desktopGPU && memoryGB >= 8 && maxTextureSize >= (env.resolution?.[0] ?? 8192);

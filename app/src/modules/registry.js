@@ -6,7 +6,7 @@ const CROWD = 'Visualization. Illustrative crowd behaviour, not validated safety
 const SHOW = 'Illustrative event concept. Installed equipment and operational feasibility are not confirmed.';
 export const MODULES = [
   // Phase A: base
-  { id: 'ENV-01', name: 'Time of day', phase: 'A', status: 'partial', claim: 'Simulation', note: 'Real sun path at the pitch centre; the web_hero_v2 light is baked at 07:30 only' },
+  { id: 'ENV-01', name: 'Time of day', phase: 'A', status: 'partial', claim: 'Simulation', note: 'Real sun path at the pitch centre; the baked hero switches between four Kaggle GPU light sets (07:30, 10:30, 18:05, 20:00; src/hero/timeOfDay.js) with the nearest set held by hysteresis; times between sets are not interpolated' },
   { id: 'PPL-01', name: 'Seated crowd', phase: 'A', status: 'done', claim: CROWD, note: 'One fan per drawn seat place, loads with Match day' },
   { id: 'PPL-02', name: 'Crowd reactions', phase: 'A', status: 'done', claim: CROWD, note: 'Cheer, goal, wave, scarves, phone lights' },
   { id: 'SHW-01', name: 'Floodlight show', phase: 'A', status: 'done', claim: SHOW, note: 'Night show mode' },

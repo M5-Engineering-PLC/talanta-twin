@@ -3,12 +3,16 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
-/** Load the baked stadium hero models and their manifest, off-scene: the caller adds result.group when ready. */
-export async function loadHero({ renderer, base = './models/', onProgress = () => {} }) {
+/** Load the baked stadium hero models and their manifest, off-scene: the caller adds result.group when ready.
+ *  phone (a phone or the low tier): manifest_phone.json and the *_phone.glb files; if it is missing, the full manifest. */
+export async function loadHero({ renderer, base = './models/', onProgress = () => {}, phone = false }) {
   const ktx2 = new KTX2Loader().setTranscoderPath('./basis/').detectSupport(renderer);
   const loader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
   try {
-    const response = await fetch(`${base}manifest.json`);
+    let response = phone ? await fetch(`${base}manifest_phone.json`).catch(() => null) : null;
+    const usePhone = Boolean(response?.ok);
+    if (phone && !usePhone) console.warn('manifest_phone.json unavailable; loading the full hero models');
+    if (!usePhone) response = await fetch(`${base}manifest.json`);
     if (!response.ok) throw new Error(`manifest request failed: ${response.status}`);
     const manifest = await response.json();
     if (!manifest.models || typeof manifest.models !== 'object') throw new Error('manifest.models is missing');
@@ -99,7 +103,7 @@ export async function loadHero({ renderer, base = './models/', onProgress = () =
     const fileSizes = modelEntries.map((model) => ({ file: model.file.split('/').at(-1), bytes: model.bytes ?? 0 }));
     console.info('web hero loaded:', { files: fileSizes, totalBytes: loadedBytes, meshes: meshCount, triangles: Math.round(triangleCount), lodGroups: lodGroups.size });
     ktx2.dispose();
-    return { group, manifest };
+    return { group, manifest, phone: usePhone };
   } catch (error) {
     console.warn('web hero unavailable; keeping procedural scene:', error);
     ktx2.dispose();
