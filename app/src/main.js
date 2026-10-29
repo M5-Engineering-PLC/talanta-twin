@@ -212,7 +212,7 @@ function applyTime() {
   bowl.shieldMat.emissiveIntensity = 0.22 + night * 0.25;
   if (bloomPass) {
     const measured = hero && !parityFallback && measuredLook(hero.manifest);
-    bloomPass.strength.value = measured ? manifestGrade(hero.manifest).bloom.strength : getGradePreset().bloom.strength + night * 0.55;
+    bloomPass.strength.value = measured ? manifestGrade(hero.manifest).bloom.strength : getGradePreset(hero?.tod?.preset(heroTodTime)).bloom.strength + night * 0.55;
   }
   for (const s of flood) s.intensity = night * 9000;
   renderer.toneMappingExposure = 1.0 + night * 0.25;
@@ -760,7 +760,7 @@ function updateHud() {
 
 // ---------------------------------------------------------------- tier-1 baked twin
 let hero = null, heroHidden = [], heroFog = null;
-let heroLighting = null, heroEnvironment = null, heroLookKey = '';
+let heroLighting = null, heroEnvironment = null, heroLookKey = '', heroTodTime = null;
 let heroImpostors = null, heroTreesUpdated = -Infinity;
 const heroStatus = document.createElement('div');
 heroStatus.id = 'hero-status'; heroStatus.setAttribute('role', 'status'); stage.append(heroStatus);
@@ -777,7 +777,7 @@ async function startHero() {
   try {
     // Import the loader only after tier 0 paints. A failed bake leaves the procedural twin usable.
     const { loadHero } = await import('./hero/loadHero.js');
-    const h = await loadHero({ renderer, base: './models/', onProgress({ loaded, total }) {
+    const h = await loadHero({ renderer, base: './models/', phone: device.phone || tier === 'low', onProgress({ loaded, total }) {
       heroStatus.textContent = `Loading full scene · ${Math.round(100 * loaded / total)}%`;
     } });
     if (!h) throw new Error('Baked scene unavailable');
@@ -790,6 +790,15 @@ async function startHero() {
     if (hasGround) heroHidden.push(terrainSite);
     heroLighting = installHeroLighting(h.group);
     heroEnvironment = createHeroEnvironment(h);
+    if (h.manifest.tod && params.get('tod') !== '0') {  // ENV-01: the baked light sets (lightmaps/<HHMM>) replace the analytic dusk
+      const { createTimeOfDay } = await import('./hero/timeOfDay.js');
+      h.tod = createTimeOfDay({ group: h.group, renderer, scene, base: './', manifest: h.manifest, phone: h.phone,
+        onEnvironment({ texture }) {
+          limitEnvToSpecular(h.group, texture); heroLighting = installHeroLighting(h.group); heroFog = horizonFogColor(texture); heroLookKey = '';
+          for (const object of [sky, terrainHz, terrainFar]) if (!heroHidden.includes(object)) heroHidden.push(object);
+        } });
+      h.groundReady.then(() => h.tod.refresh());
+    }
     scene.add(h.group);
     sun.castShadow = false; renderer.shadowMap.enabled = false;
     hero = h; configurePipeline();
@@ -834,6 +843,21 @@ else if (initialHero.reason === 'phone') {
   full.onclick = () => { if (decision(true).load) void scheduleHeroLoad(openingPoster.ready, startHero); };
   heroStatus.append(full);
 }
+// ENV-01: pick the nearest baked time (hysteresis in nearest), swap its set, preload the next one when idle.
+function heroTodStep(dusk) {
+  const tod = hero.tod, want = tod.nearest(parityMode ? 450 : state.minutes);
+  if (want !== heroTodTime) {
+    heroTodTime = want;
+    hero.environmentReady = tod.setTime(want).then((ok) => {
+      if (!ok || heroTodTime !== want) return;
+      hero.environmentPeriod = want === '1805' || want === '2000' ? 'evening' : 'day'; heroLookKey = '';
+      const next = tod.times[(tod.times.indexOf(want) + 1) % tod.times.length];
+      (globalThis.requestIdleCallback ?? setTimeout)(() => tod.preload(next), { timeout: 4000 });
+    });
+  }
+  heroLighting?.update({ ...dusk, lightMapIntensity: 1, tint: [1, 1, 1], gradeWarmth: 0 });
+  heroWarmth.value = getGradePreset(tod.preset(want)).warmth;
+}
 // Keep procedural lights and geometry hidden when the time or layer controls change.
 function heroLock() {
   if (performance.now() - heroTreesUpdated > 100) {
@@ -847,13 +871,14 @@ function heroLock() {
   const dusk = heroDuskParameters(parityMode ? 450 : state.minutes);
   const lookKey = `${state.minutes}`;
   if (lookKey !== heroLookKey) {
-    heroLookKey = lookKey; heroLighting?.update(dusk); heroEnvironment?.(dusk.panorama);
-    heroWarmth.value = getGradePreset().warmth + dusk.gradeWarmth;
+    heroLookKey = lookKey;
+    if (hero.tod) heroTodStep(dusk);
+    else { heroLighting?.update(dusk); heroEnvironment?.(dusk.panorama); heroWarmth.value = getGradePreset().warmth + dusk.gradeWarmth; }
   }
   const manifest = parityFallback ? { ...hero.manifest, look: undefined } : hero.manifest;
   // The parity references have no haze; the product keeps it.
   if (parityMode) scene.fog = null;
-  else applyHeroHaze(scene, heroFog, dusk.panorama === 'evening' ? 'evening_golden' : undefined);
+  else applyHeroHaze(scene, heroFog, hero.tod && heroTodTime ? hero.tod.preset(heroTodTime) : dusk.panorama === 'evening' ? 'evening_golden' : undefined);
   heroExposure.value = lookExposure(manifest, focusId === 'lead06' ? 'L06' : 'L07');
   applyHeroToneMapping(renderer, manifest, focusId === 'lead06' ? 'L06' : 'L07');
 }
@@ -1006,7 +1031,7 @@ renderer.setAnimationLoop((now) => {
   }
   stepFly(now);
   if (!hero && site.group.visible) site.update(now / 1000, night);
-  traffic?.setNight?.(night);
+  traffic?.setNight?.(hero?.tod && heroTodTime ? (heroTodTime === '2000' ? 1 : 0) : night);
   if (!parityMode) traffic?.update(dt);
   if (traffic) traffic.group.visible = !parityMode && layerOn('vehicles');
   heroLighting?.setVehiclesVisible(!parityMode && layerOn('vehicles'));

@@ -19,12 +19,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
-import { ALL_EXTENSIONS, EXTMeshGPUInstancing, KHRTextureBasisu } from "@gltf-transform/extensions";
-import { dedup, prune, meshopt } from "@gltf-transform/functions";
-import { MeshoptEncoder, MeshoptDecoder } from "meshoptimizer";
-import { encodeToKTX2 } from "ktx2-encoder";
-import sharp from "sharp";
+import * as T from "./tod_lib.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const TEST = process.argv.includes("test");
@@ -35,10 +30,99 @@ const STAGE = path.join(BASE, "export");
 const BUNDLE = (process.argv.find((a) => a.startsWith("bundle=")) || "").split("=")[1] || null;
 const BDIR = BUNDLE ? path.join(BASE, BUNDLE) : null;
 const PHONE = BUNDLE && process.argv.includes("phone");
-const PHONE_PX = 1024, PHONE_GROUND_PX = 256;
+const { PHONE_PX, PHONE_GROUND_PX } = T;
 const TREE_SETS = ["trees", "site_trees", "palms", "fc_retained_site_trees", "fc_retained_palms", "suburbs_trees"];
 const DEST = BUNDLE ? path.join(BDIR, PHONE ? "models_phone" : "models") : TEST ? path.join(STAGE, "final") : path.join(ROOT, "app/public/models");
 const ENV = path.join(ROOT, "app/public/env");
+// ---------------------------------------------------------------- ENV-01 time of day: tod=<HHMM> and reindex (no Blender, no GLB work)
+//   node blender/web_hero/node/post_glb.mjs tod=1805 base=<set dir> bundle=<name> [phone] [out=<bundle dir>] [ref=<base-time set dir>] [dry]
+//     base=<set dir>  a Kaggle GPU set (maps/, bake_log.json, env/), absolute or relative to the repo root
+//     out=<dir>       the bundle folder (default assets/<bundle>); manifest.json there gives the base time
+//     ref=<dir>       the set of the bundle's base time; only needed when the manifest has no tod_base (bundles before ENV-01)
+//     writes only <bundle>/lightmaps[_phone]/<HHMM>/<group>_light.ktx2 and tod.json; dry prints the plan and encodes nothing
+//   node blender/web_hero/node/post_glb.mjs reindex bundle=<name> [out=<dir>]
+//     lists the tod sets in manifest.json and manifest_phone.json (tod, tod_files); changes nothing else
+const argv = process.argv.slice(2);
+const opt = (k) => argv.find((a) => a.startsWith(`${k}=`))?.slice(k.length + 1) ?? null;
+const TOD = opt("tod"), REINDEX = argv.includes("reindex");
+if (TOD || REINDEX) {
+  const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
+  const rd = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
+  const bundleDir = path.resolve(ROOT, opt("out") || path.join("assets", opt("bundle") || (() => { throw new Error("bundle=<name> or out=<dir> is needed"); })()));
+  if (REINDEX) {
+    for (const [mf, dir] of [["manifest.json", "lightmaps"], ["manifest_phone.json", "lightmaps_phone"]]) {
+      const mp = path.join(bundleDir, mf); if (!fs.existsSync(mp)) continue;
+      const man = rd(mp), root = path.join(bundleDir, dir), times = [], tod_files = [];
+      for (const t of fs.existsSync(root) ? fs.readdirSync(root).sort() : []) {
+        const tp = path.join(root, t, "tod.json"); if (!fs.existsSync(tp)) continue;
+        const tod = T.validateTod(rd(tp)); times.push(t);
+        for (const [g, e] of Object.entries(tod.groups)) {
+          const f = path.join(root, t, e.file), buf = fs.readFileSync(f);
+          if (buf.length !== e.bytes || sha(buf) !== e.sha256) throw new Error(`${dir}/${t}/${e.file} differs from tod.json`);
+          tod_files.push({ file: `${dir}/${t}/${e.file}`, bytes: e.bytes, sha256: e.sha256 });
+        }
+        const tb = fs.statSync(tp); tod_files.push({ file: `${dir}/${t}/tod.json`, bytes: tb.size, sha256: sha(fs.readFileSync(tp)) });
+      }
+      const base = hhmmOf(man);
+      if (times.length) man.tod = { base, times: [...new Set([base, ...times])].sort(), dir }; else delete man.tod;
+      man.tod_files = tod_files; man.tod_bytes = tod_files.reduce((a, f) => a + f.bytes, 0);
+      fs.writeFileSync(mp, JSON.stringify(man, null, 1) + "\n");
+      console.log(JSON.stringify({ reindex: mf, times, files: tod_files.length, bytes: man.tod_bytes }));
+    }
+    process.exit(0);
+  }
+  function hhmmOf(man) { return T.hhmmFromEat(man.sun?.local ?? man.tod?.base ?? "0730"); }
+  const PH = argv.includes("phone"), DRY = argv.includes("dry"), hhmm = T.checkHHMM(TOD);
+  const setDir = path.resolve(ROOT, opt("base") || (() => { throw new Error("base=<set dir> is needed"); })());
+  const log = rd(path.join(setDir, "bake_log.json")), readSet = (dir) => (g) => fs.readFileSync(path.join(dir, "maps", `${g}_light.png`));
+  const man = rd(path.join(bundleDir, "manifest.json")), baseTime = hhmmOf(man);
+  let bi = man.tod_base;
+  if (!bi) {
+    const ref = opt("ref"); if (!ref) throw new Error("manifest.json has no tod_base: pass ref=<dir of the base-time set>");
+    const rdir = path.resolve(ROOT, ref), rlog = rd(path.join(rdir, "bake_log.json"));
+    if (T.hhmmFromEat(rlog.time_eat) !== baseTime) throw new Error(`ref set is ${rlog.time_eat}, the bundle base is ${baseTime}`);
+    bi = T.baseInfo(rlog, readSet(rdir));
+  }
+  if (bi.time !== baseTime) throw new Error(`tod_base time ${bi.time} differs from the manifest ${baseTime}`);
+  if (T.hhmmFromEat(log.time_eat) !== hhmm && !(hhmm === "2000" && log.light_preset === "night")) throw new Error(`bake_log time ${log.time_eat} does not match tod=${hhmm}`);
+  if (log.light_preset !== T.TOD_PRESETS[hhmm]) throw new Error(`bake_log preset ${log.light_preset} is not ${T.TOD_PRESETS[hhmm]}`);
+  const setSizes = Object.fromEntries(Object.keys(log.groups).sort().map((g) => [g, T.pngSize(readSet(setDir)(g))]));
+  const problems = T.checkAgainstBase(bi.groups, setSizes);
+  if (problems.length) { console.error(`REFUSED: set ${hhmm} does not match the bundle base set:\n  ${problems.join("\n  ")}`); process.exit(2); }
+  const lum = T.groundLuminance(log.groups, readSet(setDir)), gain = T.groundTileGain(lum, bi.ground_luminance);
+  const envDir = path.join(setDir, "env"), pano = T.panoramaNames(fs.existsSync(envDir) ? fs.readdirSync(envDir) : []);
+  const outDir = path.join(bundleDir, PH ? "lightmaps_phone" : "lightmaps", hhmm);
+  const plan = Object.keys(setSizes).map((g) => ({ group: g, png: setSizes[g], encoded: T.encodedSize(...setSizes[g], g, PH), intensity: +(log.groups[g].light_scale * Math.PI).toFixed(4) }));
+  console.log(JSON.stringify({ tod: hhmm, preset: log.light_preset, variant: PH ? "phone" : "desktop", base: baseTime, groups: plan.length, ground_tile_gain: gain,
+    panorama: pano, out: path.relative(ROOT, outDir), dry: DRY, maps: plan.map((p) => `${p.group} ${p.png.join("x")}${p.encoded[0] !== p.png[0] ? ` -> ${p.encoded.join("x")}` : ""}`) }, null, 1));
+  if (DRY) process.exit(0);
+  const sharp = (await import("sharp")).default, { encodeToKTX2 } = await import("ktx2-encoder");
+  const imageDecoder = async (buf) => { const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true }); return { data: new Uint8Array(data), width: info.width, height: info.height }; };
+  fs.mkdirSync(outDir, { recursive: true });
+  const groups = {};
+  for (const p of plan) {
+    let png = readSet(setDir)(p.group);
+    if (p.encoded[0] !== p.png[0] || p.encoded[1] !== p.png[1]) png = await sharp(png).resize(p.encoded[0], p.encoded[1], { kernel: "lanczos3" }).png().toBuffer();
+    const data = await encodeToKTX2(new Uint8Array(png), { ...T.ktxOptions("light", PH), imageDecoder });
+    const file = `${p.group}_light.ktx2`; fs.writeFileSync(path.join(outDir, file), data);
+    groups[p.group] = { file, bytes: data.length, sha256: sha(data), intensity: p.intensity };
+    console.log(file, data.length);
+  }
+  const tod = { time: hhmm, bake_time_eat: log.time_eat, preset: log.light_preset, variant: PH ? "phone" : "desktop", base_time: baseTime,
+    sun: { date: log.date, elevation_deg: log.sun_elevation_deg, azimuth_deg: log.sun_azimuth_deg, direction_to_sun: log.sun_dir_app },
+    groups, panorama: pano, ground_tile_gain: gain, codec: PH ? "KTX2 ETC1S, sRGB, mipmaps" : "KTX2 UASTC+RDO+zstd, sRGB, mipmaps",
+    note: "light only; AO and albedo do not change with time. intensity = light_scale x pi (material.lightMapIntensity)." };
+  T.validateTod(tod);
+  fs.writeFileSync(path.join(outDir, "tod.json"), JSON.stringify(tod, null, 1) + "\n");
+  console.log(JSON.stringify({ wrote: path.relative(ROOT, outDir), maps: plan.length, bytes: Object.values(groups).reduce((a, g) => a + g.bytes, 0) }));
+  process.exit(0);
+}
+const { NodeIO } = await import("@gltf-transform/core");
+const { ALL_EXTENSIONS, EXTMeshGPUInstancing, KHRTextureBasisu } = await import("@gltf-transform/extensions");
+const { dedup, prune, meshopt } = await import("@gltf-transform/functions");
+const { MeshoptEncoder, MeshoptDecoder } = await import("meshoptimizer");
+const { encodeToKTX2 } = await import("ktx2-encoder");
+const sharp = (await import("sharp")).default;
 fs.mkdirSync(DEST, { recursive: true });
 const stage = JSON.parse(fs.readFileSync(path.join(STAGE, "stage.json"), "utf8"));
 const blob = fs.readFileSync(path.join(STAGE, "instances.bin"));
@@ -84,12 +168,8 @@ async function ktx(doc, cache, group, kind) {
   }
   const t0 = Date.now();
   // bundle: lightmaps (light, ao) as UASTC with RDO and zstd, colour (albedo) as ETC1S; otherwise ETC1S throughout
-  const uastc = BUNDLE && !PHONE && kind !== "albedo";
-  const data = await encodeToKTX2(new Uint8Array(png), uastc
-    ? { isUASTC: true, uastcLDRQualityLevel: 2, enableRDO: true, rdoQualityLevel: 1.0, needSupercompression: true, generateMipmap: true,
-        isPerceptual: kind !== "ao", isSetKTX2SRGBTransferFunc: kind !== "ao", imageDecoder }
-    : { isUASTC: false, qualityLevel: PHONE ? 255 : 200, compressionLevel: 2, generateMipmap: true, isPerceptual: kind !== "ao",
-        isSetKTX2SRGBTransferFunc: kind !== "ao", imageDecoder });
+  const uastc = !PHONE && kind !== "albedo";
+  const data = await encodeToKTX2(new Uint8Array(png), { ...T.ktxOptions(kind, PHONE), imageDecoder });
   const tex = doc.createTexture(key).setImage(data).setMimeType("image/ktx2").setURI(`${key}.ktx2`);
   cache.set(key, tex);
   texLog.push({ map: key, png_bytes: png.length, ktx2_bytes: data.length, seconds: (Date.now() - t0) / 1000, codec: uastc ? "UASTC+zstd" : "ETC1S",
@@ -242,7 +322,7 @@ if (BUNDLE) {
       tiles: out }, null, 1) + "\n");
   }
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
-  const files = walk(BDIR).filter((f) => !f.endsWith("manifest.json") && !f.endsWith("manifest_phone.json") && !f.includes(`${path.sep}models_phone${path.sep}`)).sort().map((f) => {
+  const files = walk(BDIR).filter((f) => !f.endsWith("manifest.json") && !f.endsWith("manifest_phone.json") && !/[\\/](models_phone|lightmaps|lightmaps_phone)[\\/]/.test(f)).sort().map((f) => {
     const buf = fs.readFileSync(f); return { file: path.relative(BDIR, f), bytes: buf.length, sha256: crypto.createHash("sha256").update(buf).digest("hex") };
   });
   const total = files.reduce((a, f) => a + f.bytes, 0);
@@ -262,6 +342,8 @@ if (BUNDLE) {
   // P1 (Cycles parity): the measured look of the stills (blender/web_hero/measure_look.py); the app grade reads it
   const lookFile = path.join(ROOT, "blender/web_hero/look_v2.json");
   if (fs.existsSync(lookFile)) man.look = JSON.parse(fs.readFileSync(lookFile, "utf8"));
+  // ENV-01: the base set (time, light map sizes, mean ground light) that tod mode checks every other set against
+  if (!stage.unbaked && fs.existsSync(path.join(BASE, "maps"))) man.tod_base = T.baseInfo(bake, (g) => fs.readFileSync(path.join(BASE, "maps", `${g}_light.png`)));
   if (stage.unbaked) {
     Object.assign(man, { unbaked: true, source: `${bake.source} via blender/web_hero (stage_unbaked.py, export_web.py unbaked, node/post_glb.mjs); no bake`,
       purpose: "app testing only: not a release, not web_hero_v2",

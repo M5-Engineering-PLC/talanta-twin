@@ -16,6 +16,27 @@ export const GRADE_PRESETS = Object.freeze({
     bloom: { threshold: 0.9, strength: 0.075, radius: 0.35 },
     fog: { color: 0xbeb29c, near: 1600, far: 12500, horizonMix: 0.7 },
   },
+  daylight_artistic: {
+    time: '10:30', warmth: 0.015, shadowCool: 0.012,
+    whiteBalance: [1.0, 1, 0.995], saturation: 1.04, contrast: 1.03,
+    greenery: 0.02, vignette: 0.03, dispersion: 0, grain: 0.006,
+    bloom: { threshold: 1.0, strength: 0.04, radius: 0.25 },
+    fog: { color: 0xd2d8d6, near: 2200, far: 16000, horizonMix: 0.55 },
+  },
+  sunset_artistic: {
+    time: '18:05', warmth: 0.08, shadowCool: 0.03,
+    whiteBalance: [1.03, 1, 0.965], saturation: 1.05, contrast: 1.045,
+    greenery: 0.008, vignette: 0.045, dispersion: 0, grain: 0.008,
+    bloom: { threshold: 0.85, strength: 0.09, radius: 0.38 },
+    fog: { color: 0xc9a98a, near: 1500, far: 11500, horizonMix: 0.75 },
+  },
+  night: {
+    time: '20:00', warmth: 0.02, shadowCool: 0.04,
+    whiteBalance: [0.985, 1, 1.03], saturation: 0.92, contrast: 1.06,
+    greenery: 0, vignette: 0.06, dispersion: 0, grain: 0.012,
+    bloom: { threshold: 0.7, strength: 0.14, radius: 0.45 },
+    fog: { color: 0x1d2330, near: 1200, far: 9000, horizonMix: 0.8 },
+  },
   neutral: {
     time: null, warmth: 0, shadowCool: 0,
     whiteBalance: [1, 1, 1], saturation: 1, contrast: 1,
