@@ -1,11 +1,12 @@
 // Pitch-local metres: x across, y up, z south. The host applies -pitch_bearing_deg.
 export const EVENT_FRAME = 'pitch-local x across, y up, z south, m; origin pitch centre; 105 x 68 m assumed';
 export const concert_cues = [
-  { start: 0, duration: 10, module: 'EVT-01', params: { mode: 'dark intro', bpm: 120, energy: .08, color: [0.12, .16, .8], reaction: 'phones' } },
-  { start: 10, duration: 14, module: 'EVT-01', params: { mode: 'build', bpm: 120, energy: .4, color: [.6, .08, .8] } },
-  { start: 24, duration: 12, module: 'EVT-01', params: { mode: 'drop', bpm: 120, energy: 1, color: [.08, .75, 1], reaction: 'cheer' } },
-  { start: 36, duration: 16, module: 'EVT-01', params: { mode: 'chorus', bpm: 120, energy: .8, color: [1, .18, .4], reaction: 'wave' } },
-  { start: 52, duration: 8, module: 'EVT-01', params: { mode: 'outro', bpm: 120, energy: .15, color: [.2, .3, .8], reaction: 'phones' } },
+  // pattern: LED content index in concert-led.js (0 wash, 1 rising bars, 2 pulse, 3 sweep, 4 fade). Reactions drive the floor and stands.
+  { start: 0, duration: 10, module: 'EVT-01', params: { mode: 'dark intro', bpm: 120, energy: .08, color: [0.12, .16, .8], pattern: 0, reaction: 'phones' } },
+  { start: 10, duration: 14, module: 'EVT-01', params: { mode: 'build', bpm: 120, energy: .4, color: [.6, .08, .8], pattern: 1, reaction: 'cheer' } },
+  { start: 24, duration: 12, module: 'EVT-01', params: { mode: 'drop', bpm: 120, energy: 1, color: [.08, .75, 1], pattern: 2, reaction: 'cheer' } },
+  { start: 36, duration: 16, module: 'EVT-01', params: { mode: 'chorus', bpm: 120, energy: .8, color: [1, .18, .4], pattern: 3, reaction: 'wave' } },
+  { start: 52, duration: 8, module: 'EVT-01', params: { mode: 'outro', bpm: 120, energy: .15, color: [.2, .3, .8], pattern: 4, reaction: 'phones' } },
 ];
 
 const formation = [[0, 48], [-23, 30], [-8, 32], [8, 32], [23, 30], [-22, 12], [-7, 14], [7, 14], [22, 12], [-9, 2], [9, 2]];

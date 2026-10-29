@@ -41,14 +41,14 @@ test('cue boundaries switch phases exactly and both timelines loop', () => {
 });
 
 test('concert counts follow tiers and the phone width boundary', () => {
-  for (const [tier, count, heads] of [['high', 2400, 16], ['medium', 900, 12], ['low', 300, 8]]) {
+  // The floor crowd count is budget.crowd. More concert checks are in concert.test.mjs.
+  for (const [tier, count, heads] of [['high', 5000, 16], ['medium', 2000, 12], ['low', 700, 8]]) {
     for (const width of [390, 767, 768, 1280]) {
       const budget = concertBudget(tier, width), frame = concertState(concert_cues, 25, budget);
-      assert.equal(frame.crowd.length, width < 768 ? count / 2 : count);
+      assert.equal(frame.floor.count, width < 768 ? count / 2 : count);
       assert.equal(frame.lights.length, width < 768 ? 8 : heads);
       assert.equal(budget.lights, 0);
       assert.equal(frame.screens.length, 3);
-      assert.ok(frame.crowd.every(p => Math.abs(p.position[0]) <= 29 && p.position[2] >= -42 && p.position[2] <= 34));
     }
   }
 });
@@ -111,9 +111,10 @@ test('software renderers consume state, apply the pitch frame, resize, and relea
   const event = installConcert({ scene, bearing: 17, pad: 8, tier: 'medium', width: 1024 });
   const root = scene.getObjectByName('EVT-01');
   assert.equal(root.position.y, 8); assert.equal(root.rotation.y, -17 * Math.PI / 180);
-  assert.equal(root.getObjectByName('standing-pitch-crowd').count, 900);
+  assert.equal(root.children.filter(o => o.name === 'standing-crowd').length, 4);
+  assert.equal(root.getObjectByName('concert-performer').name, 'concert-performer');
   event.seek(36); event.setTier('low', 390);
-  assert.equal(root.getObjectByName('standing-pitch-crowd').count, 150);
+  assert.equal(root.children.filter(o => o.name === 'standing-crowd').length, 4);
   assert.equal(event.sample(36).lights.length, 8);
   root.traverse(o => { if (o.isInstancedMesh) assert.ok(o.instanceMatrix.array.every(Number.isFinite)); });
   event.dispose(); event.dispose(); assert.equal(scene.children.length, 0);

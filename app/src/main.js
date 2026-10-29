@@ -485,6 +485,11 @@ $('#sources').innerHTML = [
   ['Microsoft Building Footprints', 'Some footprints'],
   ['W1b measurements, Google Earth Pro (numbers only)', 'Site boundary, pitch zone'],
   ['Open-Meteo (CC BY 4.0)', 'Weather card'],
+  ['"Simple Concert Stage" by mertart3D (CC BY 4.0)', 'Concert B-stage'],
+  ['"Truss Structure" by JanoschR (CC BY 4.0)', 'Concert stage rig'],
+  ['"Led 25 X 4" by Pitrako (CC BY 4.0)', 'Concert LED tiles'],
+  ['"STAGE LIGHTS" by Maxime GUINARD (CC BY 4.0)', 'Concert moving heads'],
+  ['"Concert Stage" by iPoly3D (CC0)', 'Concert main stage'],
 ].map(([a, b]) => `<div class="src"><b>${a}</b><span class="muted">${b}</span></div>`).join('');
 $('#ov').innerHTML = [
   ['Venue', 'Raila Odinga Talanta Stadium'],

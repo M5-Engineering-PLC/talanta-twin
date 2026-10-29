@@ -22,7 +22,7 @@ export const MODULES = [
   { id: 'ENV-07', name: 'Live weather sync', phase: 'C', status: 'partial', claim: 'Name the provider, the time, the place, and whether the value is observed or a forecast.', note: 'Open-Meteo, read-only card' },
   // Phase B: headline events
   { id: 'SPT-01', name: 'Football match', phase: 'B', status: 'partial', claim: CROWD },
-  { id: 'EVT-01', name: 'Concert', phase: 'B', status: 'partial', claim: SHOW },
+  { id: 'EVT-01', name: 'Concert', phase: 'B', status: 'partial', claim: SHOW, note: 'End stage with LED backdrop, flown tiles and a standing floor crowd; models from public/concert; not yet checked on a real GPU' },
   { id: 'EVT-02', name: 'National celebration', phase: 'B', status: 'planned', claim: SHOW },
   { id: 'SHW-04', name: 'Fireworks', phase: 'B', status: 'planned', claim: SHOW },
   { id: 'CAM-04', name: 'View from your seat', phase: 'B', status: 'planned', claim: 'Approximate view from the model.' },
