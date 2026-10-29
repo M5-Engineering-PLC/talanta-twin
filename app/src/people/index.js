@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu';
 import { uniform, attribute, vec2, vec3, float, sin, cos, abs, max, smoothstep, mix, step, texture, floor, fract, select } from 'three/tsl';
-import { figureGeometry, crowdAssets, loadCrowdAssets } from './geometry.js';
+import { figureGeometry, crowdAssets, loadCrowdAssets, crowdLevelIndex } from './geometry.js';
 import { generateSeats } from './seats.js';
 import { clampFill, occupancyOrder, selectSeats, crowdTier, partitionCrowd, standingPlaces, fanVariation } from './model.js';
 
@@ -24,7 +24,8 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
   root.userData.animation = u;
   const width = () => config.width ?? globalThis.innerWidth ?? 1024;
   let lastWidth = width();
-  const tier = () => crowdTier(quality, width());
+  // A phone animation file holds only the low level, so the low tier is forced once it is loaded.
+  const tier = () => crowdAssets() && !crowdAssets().levels.includes(0) ? 'low' : crowdTier(quality, width());
   const localCamera = new THREE.Vector3(), lastCamera = new THREE.Vector3(Infinity, Infinity, Infinity);
   function cameraPosition() {
     if (!camera) return localCamera.set(0, 0, 0);
@@ -40,6 +41,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
   }
   function material(lod) {
     const { manifest, texture: animation } = crowdAssets();
+    const level = crowdLevelIndex(lod);
     const mat = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide });
     const phase = attribute('fanPhase', 'float'), angle = attribute('fanAngle', 'float');
     const elapsed = max(0, u.time.sub(u.start));
@@ -63,15 +65,15 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     const reactionProgress = elapsed.div(2).min(.6).add(sin(u.time.mul(7).add(phase)).mul(.025).mul(elapsed.clamp(0, 1)));
     const progress = select(wave.greaterThan(.01), waveProgress, select(max(cheer, scarf).greaterThan(0), standing ? reactionProgress.max(.4) : reactionProgress, loop));
     const frame = progress.mul(manifest.framesPerClip - 1);
-    const row = clip.add(lod * manifest.clips.length).mul(manifest.framesPerClip).add(floor(frame));
+    const row = clip.add(level * manifest.clips.length).mul(manifest.framesPerClip).add(floor(frame));
     const x = attribute('fanVertex', 'float').add(.5).div(manifest.width);
     const sample = r => texture(animation, vec2(x, r.add(.5).div(manifest.height))).level(0).xyz;
-    let animated = mix(sample(row), sample(row.add(1).min(clip.add(lod * manifest.clips.length + 1).mul(manifest.framesPerClip).sub(1))), fract(frame));
+    let animated = mix(sample(row), sample(row.add(1).min(clip.add(level * manifest.clips.length + 1).mul(manifest.framesPerClip).sub(1))), fract(frame));
     if (standing) {
       // Blend standing reactions from an idle stance without a seated pose.
       const idle = manifest.clips[slot('Idle_Loop')];
       const baseFrame = fract(u.time.add(phase).div(idle.duration)).mul(manifest.framesPerClip - 1);
-      const baseRow = floor(baseFrame).add((lod * manifest.clips.length + idle.slot) * manifest.framesPerClip);
+      const baseRow = floor(baseFrame).add((level * manifest.clips.length + idle.slot) * manifest.framesPerClip);
       const base = mix(sample(baseRow), sample(baseRow.add(1)), fract(baseFrame));
       const blend = max(wave, max(cheer, scarf)).mul(elapsed.div(.25).clamp(0, 1));
       animated = mix(animated, mix(base, animated, blend), max(wave, max(cheer, scarf)));
@@ -194,7 +196,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
       accept(generateSeats((await response.json()).features));
     }
   })();
-  ready = Promise.all([ready, loadCrowdAssets()]).then(() => { if (!installedWithAssets) rebuild(); }).catch((error) => { failure = error; root.userData.error = error.message; if (label) { label.textContent = 'Visualization unavailable'; label.hidden = false; } throw error; });
+  ready = Promise.all([ready, loadCrowdAssets({ quality: config.tier ?? quality, width: config.width })]).then(() => { if (!installedWithAssets) rebuild(); }).catch((error) => { failure = error; root.userData.error = error.message; if (label) { label.textContent = 'Visualization unavailable'; label.hidden = false; } throw error; });
   // Prevent an unhandled rejection when the host does not consume ready.
   ready.catch(() => {});
   return {

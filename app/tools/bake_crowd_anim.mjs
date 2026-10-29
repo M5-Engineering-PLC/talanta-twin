@@ -16,7 +16,6 @@ gltf.scene.traverse(o => { if (o.isSkinnedMesh) meshes.push(o); });
 const mixer = new THREE.AnimationMixer(gltf.scene);
 const clips = new Map(gltf.animations.map(c => [c.name, c]));
 const slots = ['Sitting_Idle_Loop', 'Sitting_Enter', 'Sitting_Exit', 'Idle_Loop', 'Jump_Start', 'Jump_Loop', 'Jump_Land', 'Dance_Loop', 'Walk_Loop', 'clap', 'cheer', 'wave'];
-const framesPerClip = 24;
 function pose(name, progress) {
   mixer.stopAllAction();
   const base = name === 'clap' ? 'Sitting_Idle_Loop' : ['cheer', 'wave'].includes(name) ? 'Sitting_Exit' : name;
@@ -102,51 +101,68 @@ const props = new THREE.PlaneGeometry(.64, .065).toNonIndexed();
 const phone = new THREE.PlaneGeometry(.045, .075).toNonIndexed();
 const propVertices = [...Array.from({ length: props.attributes.position.count }, (_, i) => ({ p: new THREE.Vector3().fromBufferAttribute(props.attributes.position, i), kind: 3 })),
   ...Array.from({ length: phone.attributes.position.count }, (_, i) => ({ p: new THREE.Vector3().fromBufferAttribute(phone.attributes.position, i), kind: 4 }))];
-const width = 2 ** Math.ceil(Math.log2(Math.max(...lods.map(l => l.ids.length + propVertices.length))));
-const height = framesPerClip * slots.length * lods.length;
-const texture = new Uint16Array(width * height * 4);
-const manifest = { version: 1, width, height, framesPerClip, format: 'RGBA16F', sourceSha256: createHash('sha256').update(bytes).digest('hex'), clips: [], lods: [] };
+// Desktop keeps both levels at 24 frames. Phones draw only LOD1 (the low tier), at 12 frames.
+const variants = [
+  { key: 'desktop', levels: [0, 1], framesPerClip: 24, bin: 'animation.bin', json: 'crowd.json' },
+  { key: 'phone', levels: [1], framesPerClip: 12, bin: 'animation_phone.bin', json: 'crowd_phone.json' },
+];
+for (const variant of variants) {
+  variant.width = 2 ** Math.ceil(Math.log2(Math.max(...variant.levels.map(l => lods[l].ids.length + propVertices.length))));
+  variant.height = variant.framesPerClip * slots.length * variant.levels.length;
+  variant.texture = new Uint16Array(variant.width * variant.height * 4);
+  variant.manifest = { version: 1, width: variant.width, height: variant.height, framesPerClip: variant.framesPerClip, format: 'RGBA16F', sourceSha256: createHash('sha256').update(bytes).digest('hex'), clips: [], lods: [] };
+  if (variant.key === 'phone') Object.assign(variant.manifest, { profile: 'phone', lodLevels: variant.levels });
+}
+const hand = () => meshes[0].skeleton.bones.find(b => b.name === THREE.PropertyBinding.sanitizeNodeName('DEF-hand.R')).getWorldPosition(new THREE.Vector3());
 for (let slot = 0; slot < slots.length; slot++) {
   const name = slots[slot], base = name === 'clap' ? 'Sitting_Idle_Loop' : ['cheer', 'wave'].includes(name) ? 'Sitting_Exit' : name;
-  manifest.clips.push({ name, slot, duration: ['clap', 'cheer', 'wave'].includes(name) ? 2 : clips.get(base).duration, source: base, motion: ['clap', 'cheer', 'wave'].includes(name) ? 'hand-keyed layer' : 'Quaternius clip' });
-  for (let frame = 0; frame < framesPerClip; frame++) {
-    pose(name, frame / (framesPerClip - 1));
-    for (let lod = 0; lod < lods.length; lod++) {
-      const data = lods[lod], row = (lod * slots.length + slot) * framesPerClip + frame;
-      const baked = [];
-      for (const id of data.ids) {
-        const e = entries[id];
-        v.fromBufferAttribute(e.m.geometry.attributes.position, e.i); e.m.applyBoneTransform(e.i, v); e.m.localToWorld(v);
-        baked.push(v.x * scale, (v.y - floor) * scale, v.z * scale);
-      }
-      const hand = meshes[0].skeleton.bones.find(b => b.name === THREE.PropertyBinding.sanitizeNodeName('DEF-hand.R')).getWorldPosition(new THREE.Vector3());
-      for (const prop of propVertices) {
-        const p = prop.p.clone();
-        if (prop.kind === 3) p.add(new THREE.Vector3(0, name === 'Sitting_Idle_Loop' || name === 'clap' ? 1.3 : 1.95, .08));
-        else p.add(new THREE.Vector3(hand.x * scale, (hand.y - floor) * scale, hand.z * scale));
-        baked.push(p.x, p.y, p.z);
-      }
-      for (let i = 0; i < baked.length / 3; i++) {
-        for (let k = 0; k < 3; k++) texture[(row * width + i) * 4 + k] = THREE.DataUtils.toHalfFloat(baked[i * 3 + k]);
-        texture[(row * width + i) * 4 + 3] = THREE.DataUtils.toHalfFloat(1);
-      }
-      if (slot === 0 && frame === 0) {
-        const start = data.ids.length;
-        manifest.lods.push({ triangles: data.triangles + propVertices.length / 3, bodyTriangles: data.triangles, vertices: baked.length / 3,
-          position: baked, kind: [...data.kind, ...propVertices.map(p => p.kind)], index: [...data.index, ...propVertices.map((_, i) => start + i)] });
+  const clipInfo = { name, slot, duration: ['clap', 'cheer', 'wave'].includes(name) ? 2 : clips.get(base).duration, source: base, motion: ['clap', 'cheer', 'wave'].includes(name) ? 'hand-keyed layer' : 'Quaternius clip' };
+  for (const variant of variants) {
+    const { framesPerClip, width, texture } = variant;
+    variant.manifest.clips.push({ ...clipInfo });
+    for (let frame = 0; frame < framesPerClip; frame++) {
+      pose(name, frame / (framesPerClip - 1));
+      for (let li = 0; li < variant.levels.length; li++) {
+        const data = lods[variant.levels[li]], row = (li * slots.length + slot) * framesPerClip + frame;
+        const baked = [];
+        for (const id of data.ids) {
+          const e = entries[id];
+          v.fromBufferAttribute(e.m.geometry.attributes.position, e.i); e.m.applyBoneTransform(e.i, v); e.m.localToWorld(v);
+          baked.push(v.x * scale, (v.y - floor) * scale, v.z * scale);
+        }
+        const h = hand();
+        for (const prop of propVertices) {
+          const p = prop.p.clone();
+          if (prop.kind === 3) p.add(new THREE.Vector3(0, name === 'Sitting_Idle_Loop' || name === 'clap' ? 1.3 : 1.95, .08));
+          else p.add(new THREE.Vector3(h.x * scale, (h.y - floor) * scale, h.z * scale));
+          baked.push(p.x, p.y, p.z);
+        }
+        for (let i = 0; i < baked.length / 3; i++) {
+          for (let k = 0; k < 3; k++) texture[(row * width + i) * 4 + k] = THREE.DataUtils.toHalfFloat(baked[i * 3 + k]);
+          texture[(row * width + i) * 4 + 3] = THREE.DataUtils.toHalfFloat(1);
+        }
+        if (slot === 0 && frame === 0) {
+          const start = data.ids.length;
+          variant.manifest.lods.push({ triangles: data.triangles + propVertices.length / 3, bodyTriangles: data.triangles, vertices: baked.length / 3,
+            position: baked, kind: [...data.kind, ...propVertices.map(p => p.kind)], index: [...data.index, ...propVertices.map((_, i) => start + i)] });
+        }
       }
     }
   }
 }
+const [desktop, phoneVariant] = variants, manifest = desktop.manifest;
 await mkdir(output, { recursive: true });
-const files = { 'crowd.json': Buffer.from(JSON.stringify(manifest)), 'animation.bin': Buffer.from(texture.buffer) };
+const files = {};
+for (const variant of variants) { files[variant.json] = Buffer.from(JSON.stringify(variant.manifest)); files[variant.bin] = Buffer.from(variant.texture.buffer); }
 let gzipBytes = 0;
 for (const [name, data] of Object.entries(files)) { await writeFile(new URL(name, output), data); gzipBytes += gzipSync(data).length; }
-const credits = 'Quaternius Universal Animation Library, Standard.\nModel and animation clips: Quaternius. License: CC0 1.0 Universal.\nhttps://quaternius.com/packs/universalanimationlibrary.html\nhttps://creativecommons.org/publicdomain/zero/1.0/\n\nThe bake uses the staged Godot GLB. crowd.json records its SHA-256 hash.\nMeshoptSimplifier from three.js reduces the mesh. Its license is MIT.\nClap, cheer, and wave use hand-keyed bone rotations over Quaternius sitting clips.\nThe other slots use the supplied Quaternius animation clips.\nCMU motion capture data is not used.\n\nCrowds are Visualization. They are not validated safety, capacity, or crowd-flow evidence.\nRendered fan counts do not show venue capacity.\n';
+const credits = 'Quaternius Universal Animation Library, Standard.\nModel and animation clips: Quaternius. License: CC0 1.0 Universal.\nhttps://quaternius.com/packs/universalanimationlibrary.html\nhttps://creativecommons.org/publicdomain/zero/1.0/\n\nThe bake uses the staged Godot GLB. crowd.json records its SHA-256 hash.\nanimation_phone.bin and crowd_phone.json are the phone set: LOD1 only, 12 frames per clip.\nMeshoptSimplifier from three.js reduces the mesh. Its license is MIT.\nClap, cheer, and wave use hand-keyed bone rotations over Quaternius sitting clips.\nThe other slots use the supplied Quaternius animation clips.\nCMU motion capture data is not used.\n\nCrowds are Visualization. They are not validated safety, capacity, or crowd-flow evidence.\nRendered fan counts do not show venue capacity.\n';
 await writeFile(new URL('CREDITS.md', output), credits);
+const phoneBytes = files['animation_phone.bin'].length + files['crowd_phone.json'].length;
+if (phoneBytes > 1_000_000) throw new Error(`Phone asset budget exceeded: ${phoneBytes} bytes`);
 const total = gzipBytes + gzipSync(credits).length;
 if (total >= 3_000_000) throw new Error(`Asset budget exceeded: ${total} gzip bytes`);
 console.log(`LOD0 ${manifest.lods[0].bodyTriangles} body triangles, ${manifest.lods[0].triangles} with accessories; LOD1 ${manifest.lods[1].bodyTriangles} body triangles, ${manifest.lods[1].triangles} with accessories`);
 console.log(`Clips: ${slots.join(', ')}`);
-console.log(`Frames: ${framesPerClip} per clip; texture ${width} x ${height} RGBA16F`);
+for (const x of variants) console.log(`${x.key}: ${x.framesPerClip} frames per clip; levels ${x.levels}; texture ${x.width} x ${x.height} RGBA16F; ${x.texture.byteLength} bytes`);
 console.log(`Output: ${Object.values(files).reduce((n, b) => n + b.length, Buffer.byteLength(credits))} bytes; ${total} gzip bytes; ${((performance.now() - started) / 1000).toFixed(2)} seconds`);
