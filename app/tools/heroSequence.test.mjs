@@ -15,6 +15,7 @@ const focus = [
   { id: 'seating', pose: { pos: [-100, 48.12, 0], target: [30, 12.12, 0], fov: 42 } },
   { id: 'pitch', pose: { pos: [117, 136.17, 0], target: [0, 6.12, 0], fov: 42 } },
 ];
+function trustedEvent(type) { const event = new Event(type); Object.defineProperty(event, 'isTrusted', { value: true }); return event; }
 const poses = resolveSequencePoses(manifest, focus);
 const sample = t => state(t, { poses, crowdFraction: .25 });
 const distance = (a, b) => Math.hypot(...a.map((x, i) => x - b[i]));
@@ -103,7 +104,7 @@ test('pointer, wheel, touch, any key and Escape stop playback and restore the ho
     const input = new EventTarget(); let stopped = 0, delivered = 0;
     const player = createSequencePlayer({ input, sample, now: () => 0, onState() { delivered++; }, onStop() { stopped++; } });
     await player.start(); player.tick(1000); const before = delivered;
-    const event = new Event(type); if (type === 'keydown') Object.defineProperty(event, 'key', { value: 'Escape' });
+    const event = trustedEvent(type); if (type === 'keydown') Object.defineProperty(event, 'key', { value: 'Escape' });
     input.dispatchEvent(event); player.tick(2000);
     assert.equal(player.active, false); assert.equal(stopped, 1); assert.equal(delivered, before);
     input.dispatchEvent(event); assert.equal(stopped, 1);
@@ -113,7 +114,7 @@ test('pointer, wheel, touch, any key and Escape stop playback and restore the ho
 test('input during loading cancels autoplay before a late prepare completes', async () => {
   const input = new EventTarget(); let resolve, frames = 0;
   const player = createSequencePlayer({ input, sample, prepare: () => new Promise(r => { resolve = r; }), onState() { frames++; } });
-  const pending = player.start(); input.dispatchEvent(new Event('wheel')); resolve();
+  const pending = player.start(); input.dispatchEvent(trustedEvent('wheel')); resolve();
   assert.equal(await pending, null); assert.equal(frames, 0); assert.equal(player.active, false);
 });
 
@@ -161,12 +162,38 @@ test('software host adapter seeks match, restores controls and anchors crowd rea
     await director.seek(50); assert.equal(scene.getObjectByName('SPT-01').visible, false); assert.equal(crowd.goal.duration, 0);
     await director.seek(90); assert.equal(controls.enabled, true); assert.equal(controls.enableDamping, true); assert.equal(replay.hidden, false);
     const held = camera.position.clone(); director.tick(900000); assert.ok(camera.position.equals(held));
-    const replayInput = new Event('pointerdown'); Object.defineProperty(replayInput, 'target', { value: replay });
+    await director.seek(55);
+    assert.equal(button.textContent, 'Stop hero'); assert.equal(strip.hidden, false); assert.equal(controls.enabled, false);
+    await director.seek(85); assert.equal(strip.hidden, false); assert.equal(button.textContent, 'Stop hero');
+    await director.seek(90);
+    const replayInput = trustedEvent('pointerdown'); Object.defineProperty(replayInput, 'target', { value: replay });
     globalThis.window.dispatchEvent(replayInput);
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(director.active, true); assert.equal(controls.enabled, false);
-    globalThis.window.dispatchEvent(new Event('wheel'));
+    globalThis.window.dispatchEvent(trustedEvent('wheel'));
     assert.equal(director.active, false); assert.equal(scene.getObjectByName('SPT-01'), undefined); assert.equal(strip.hidden, true);
     assert.ok(fills.length <= 3);
   } finally { globalThis.document = priorDocument; globalThis.window = priorWindow; globalThis.matchMedia = priorMedia; }
+});
+
+// Synthetic input can come from capture automation or UI synchronization.
+test('synthetic input preserves seeks at 55 and 85 seconds', async () => {
+  const input = new EventTarget(), player = createSequencePlayer({ input, sample });
+  for (const t of [55, 85]) {
+    await player.seek(t);
+    for (const type of ['pointerdown', 'wheel', 'keydown', 'touchstart']) input.dispatchEvent(new Event(type));
+    assert.equal(player.active, true); assert.equal(player.frame.time, t);
+    assert.equal(player.tick(999999).time, t);
+  }
+  player.stop();
+});
+
+test('concurrent seeks share preparation and hold the latest requested time', async () => {
+  let ready, preparations = 0;
+  const player = createSequencePlayer({ sample, input: new EventTarget(), prepare: () => {
+    preparations++; return new Promise(resolve => { ready = resolve; });
+  } });
+  const first = player.seek(55), second = player.seek(85); ready();
+  assert.equal((await first).time, 85); assert.equal((await second).time, 85);
+  assert.equal(preparations, 1); assert.equal(player.tick(999999).time, 85); player.stop();
 });

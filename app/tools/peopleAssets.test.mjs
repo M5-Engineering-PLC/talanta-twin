@@ -58,7 +58,7 @@ test('human skin, shirts, trousers, scale, and motion vary per instance', async 
     for (const name of ['fanSkin', 'fanShirt', 'fanTrousers', 'fanScale', 'fanPhase', 'fanClap']) {
       const a = mesh.geometry.getAttribute(name);
       assert.equal(a.count, mesh.count);
-      assert.ok(new Set(Array.from({ length: a.count }, (_, i) => Array.from(a.array.slice(i * a.itemSize, (i + 1) * a.itemSize)).join(','))).size > 1);
+      assert.ok(new Set(Array.from({ length: a.count }, (_, i) => Array.from({ length: a.itemSize }, (_, j) => a.getComponent(i, j)).join(','))).size > 1);
     }
     assert.ok(mesh.material.positionNode);
     assert.equal(mesh.material.userData.bakedAnimation, true);

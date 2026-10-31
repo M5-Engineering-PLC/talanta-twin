@@ -56,8 +56,9 @@ const PAD = F.site_pad_y;
 const stage = $('#stage');
 const params = new URLSearchParams(location.search);
 const LITE = params.has('lite'); // software-GPU test mode
-const renderer = new THREE.WebGPURenderer({ antialias: true, logarithmicDepthBuffer: true });
+const renderer = new THREE.WebGPURenderer({ antialias: true, logarithmicDepthBuffer: true, forceWebGL: params.get('renderer') === 'webgl' });
 try { await renderer.init(); } catch (error) {
+  console.error('Renderer initialization failed before quality selection:', error);
   document.getElementById('landing-claim').textContent = '3D is unavailable on this device. Rendered from the twin model · Visualization.';
   throw error;
 }
@@ -69,6 +70,9 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 $('#view').appendChild(renderer.domElement);
 console.info('renderer backend:', renderer.backend?.isWebGPUBackend ? 'WebGPU' : 'WebGL2');
+const gpuLimits = renderer.backend?.device?.limits, gl = renderer.backend?.gl;
+console.info('renderer vertex limits:', gpuLimits ? { buffers: gpuLimits.maxVertexBuffers, attributes: gpuLimits.maxVertexAttributes }
+  : { attributes: gl?.getParameter(gl.MAX_VERTEX_ATTRIBS) });
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xe7dfd1, 4000, 70000);

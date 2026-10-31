@@ -43,20 +43,22 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     const { manifest, texture: animation } = crowdAssets();
     const level = crowdLevelIndex(lod);
     const mat = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide });
-    const phase = attribute('fanPhase', 'float'), angle = attribute('fanAngle', 'float');
+    const originYaw = attribute('fanOriginYaw', 'vec4'), motion = attribute('fanMotion', 'vec4');
+    const shirtScale = attribute('fanShirtScale', 'vec4'), skinScale = attribute('fanSkinScale', 'vec4');
+    const phase = motion.x, angle = motion.y;
     const elapsed = max(0, u.time.sub(u.start));
     const active = float(1).sub(step(u.duration, elapsed));
     const travel = elapsed.mul(u.speed).div(u.perimeter).mul(Math.PI * 2);
     const delta = cos(angle.sub(travel)).clamp(-1, 1).acos();
     const wave = float(1).sub(smoothstep(.06, .20, delta)).mul(u.wave).mul(active);
-    const endMatch = step(0, attribute('fanEnd', 'float').mul(u.end));
+    const endMatch = step(0, motion.z.mul(u.end));
     const cheer = max(u.cheer, u.goal.mul(endMatch)).mul(active);
     const scarf = u.scarves.mul(active), phone = u.phones.mul(u.night);
     const standing = config.standing === true;
     const slot = name => manifest.clips.find(c => c.name === name).slot;
     const clip = select(wave.greaterThan(.01), float(slot(standing ? 'cheer' : 'wave')),
       select(max(cheer, scarf).greaterThan(0), float(slot('cheer')),
-        select(attribute('fanClap', 'float').greaterThan(.86), float(slot(standing ? 'Dance_Loop' : 'clap')), float(slot(standing ? 'Idle_Loop' : 'Sitting_Idle_Loop')))));
+        select(motion.w.greaterThan(.86), float(slot(standing ? 'Dance_Loop' : 'clap')), float(slot(standing ? 'Idle_Loop' : 'Sitting_Idle_Loop')))));
     // Uniform clip slots let replacement clips retain the runtime interface.
     let duration = float(manifest.clips[0].duration);
     for (const c of manifest.clips.slice(1)) duration = select(clip.equal(c.slot), float(c.duration), duration);
@@ -81,12 +83,12 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     const kind = attribute('kind', 'float');
     const isScarf = abs(kind.sub(3)).lessThan(.1), isPhone = abs(kind.sub(4)).lessThan(.1);
     const visible = select(isScarf, scarf, select(isPhone, phone, float(1)));
-    const p = animated.mul(vec3(attribute('fanScale', 'vec2').x, attribute('fanScale', 'vec2').y, 1)).mul(visible);
-    const yaw = attribute('fanYaw', 'float');
+    const p = animated.mul(vec3(shirtScale.w, skinScale.w, 1)).mul(visible);
+    const yaw = originYaw.w;
     // positionNode replaces the instanced position. Apply the origin once.
-    mat.positionNode = attribute('fanOrigin', 'vec3').add(vec3(p.x.mul(cos(yaw)).add(p.z.mul(sin(yaw))), p.y, p.z.mul(cos(yaw)).sub(p.x.mul(sin(yaw)))));
-    const skin = attribute('fanSkin', 'vec3'), trousers = attribute('fanTrousers', 'vec3');
-    const shirt = attribute('fanShirt', 'vec3');
+    mat.positionNode = originYaw.xyz.add(vec3(p.x.mul(cos(yaw)).add(p.z.mul(sin(yaw))), p.y, p.z.mul(cos(yaw)).sub(p.x.mul(sin(yaw)))));
+    const skin = skinScale.xyz, trousers = attribute('fanTrousers', 'vec3');
+    const shirt = shirtScale.xyz;
     mat.colorNode = select(isPhone, vec3(3), select(kind.equal(1), skin, select(kind.equal(2), trousers, shirt)));
     mat.userData.bakedAnimation = true;
     return mat;
@@ -123,10 +125,21 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
         values.fanScale.push(...variation.scale); values.fanClap.push(variation.clap);
         values.fanPhase.push(rand * Math.PI * 2); values.fanAngle.push(waveAngle((Math.atan2(seat.z, seat.x) + Math.PI * 2) % (Math.PI * 2))); values.fanEnd.push(end);
       });
-      for (const [name, value] of Object.entries(values)) {
-        const size = ['fanOrigin', 'fanShirt', 'fanSkin', 'fanTrousers'].includes(name) ? 3 : name === 'fanScale' ? 2 : 1;
-        geometry.setAttribute(name, new THREE.InstancedBufferAttribute(new Float32Array(value), size));
+      // One instance buffer, five shader attributes. Keep aliases for CPU inspection.
+      const layout = { fanOrigin: [3, 0], fanYaw: [1, 3], fanPhase: [1, 4], fanAngle: [1, 5], fanEnd: [1, 6], fanClap: [1, 7],
+        fanShirt: [3, 8], fanSkin: [3, 12], fanTrousers: [3, 16] };
+      const packed = new Float32Array(indices.length * 20);
+      for (const [name, [size, offset]] of Object.entries(layout)) {
+        for (let j = 0; j < indices.length; j++) packed.set(values[name].slice(j * size, (j + 1) * size), j * 20 + offset);
       }
+      for (let j = 0; j < indices.length; j++) { packed[j * 20 + 11] = values.fanScale[j * 2]; packed[j * 20 + 15] = values.fanScale[j * 2 + 1]; }
+      const buffer = new THREE.InstancedInterleavedBuffer(packed, 20);
+      for (const [name, [size, offset]] of Object.entries(layout)) geometry.setAttribute(name, new THREE.InterleavedBufferAttribute(buffer, size, offset));
+      for (const [name, offset] of Object.entries({ fanOriginYaw: 0, fanMotion: 4, fanShirtScale: 8, fanSkinScale: 12 })) {
+        geometry.setAttribute(name, new THREE.InterleavedBufferAttribute(buffer, 4, offset));
+      }
+      // Scale components live in the spare color lanes, so retain a CPU-only view.
+      geometry.setAttribute('fanScale', new THREE.InstancedBufferAttribute(new Float32Array(values.fanScale), 2));
       mesh.name = lod === 0 ? 'crowd-figures' : 'crowd-lod1'; mesh.userData.lod = lod;
       mesh.frustumCulled = false;
       root.add(mesh); meshes.push(mesh);

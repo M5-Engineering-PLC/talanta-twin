@@ -81,7 +81,7 @@ function fakeSet(root, name, { time_eat, preset, v, roofSize = 8, groups = ['gro
   fs.writeFileSync(path.join(dir, 'bake_log.json'), JSON.stringify({ date: '2026-01-15', time_eat, light_preset: preset, sun_elevation_deg: 5, sun_azimuth_deg: 250, sun_dir_app: [0, 0, 1], groups: g }));
   return dir;
 }
-function cli(...args) { const r = spawnSync(process.execPath, [POST, ...args], { encoding: 'utf8' }); return { code: r.status, out: r.stdout, err: r.stderr }; }
+function cli(...args) { const r = spawnSync(process.execPath, [POST, ...args], { encoding: 'utf8' }); if (r.error) throw r.error; return { code: r.status, out: r.stdout, err: r.stderr }; }
 function bundle(root) {
   const dir = path.join(root, 'bundle'); fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ bundle: 'b', sun: { local: '07:30 EAT' }, files: [] }));

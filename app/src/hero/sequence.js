@@ -57,18 +57,24 @@ export function state(t, { poses, crowdFraction = 1, reducedMotion = false } = {
 // The player is independent of rendering so input, loading races, and seeking can be tested.
 export function createSequencePlayer({ sample, prepare = async () => {}, onState = () => {}, onStop = () => {},
   input = globalThis.window, now = () => performance.now() }) {
-  let phase = 'idle', epoch = 0, origin = 0, frame = null, seeking = false;
+  let phase = 'idle', epoch = 0, origin = 0, frame = null, seeking = false, pending = null, requestedTime = 0;
   const events = ['pointerdown', 'wheel', 'keydown', 'touchstart'];
   const options = { capture: true, passive: true };
-  const onInput = event => stop(event);
+  const onInput = event => { if (event.isTrusted) stop(event); };
   function listen(on) { for (const type of events) input?.[on ? 'addEventListener' : 'removeEventListener'](type, onInput, options); }
   function emit(t) { frame = sample(t); onState(frame); if (frame.ended) phase = 'held'; return frame; }
-  async function start(t = 0, seek = false) {
-    stop(); phase = 'loading'; seeking = seek; const version = ++epoch; listen(true);
-    try { await prepare(() => version === epoch); }
-    catch (error) { if (version === epoch) stop(); throw error; }
-    if (version !== epoch) return null;
-    phase = 'playing'; origin = now() - clamp(t, 0, DURATION) * 1000; return emit(t);
+  function start(t = 0, seek = false) {
+    stop(); phase = 'loading'; seeking = seek; requestedTime = t; const version = ++epoch; listen(true);
+    pending = (async () => {
+      try {
+        await prepare(() => version === epoch);
+        if (version !== epoch) return null;
+        phase = 'playing'; origin = now() - clamp(requestedTime, 0, DURATION) * 1000;
+        return emit(requestedTime);
+      } catch (error) { if (version === epoch) stop(); throw error; }
+      finally { if (version === epoch) pending = null; }
+    })();
+    return pending;
   }
   function stop(reason) {
     const active = phase !== 'idle'; ++epoch; phase = 'idle'; frame = null; listen(false);
@@ -77,7 +83,8 @@ export function createSequencePlayer({ sample, prepare = async () => {}, onState
   return { start, stop,
     async seek(t) {
       if (!Number.isFinite(t)) throw new Error('Hero time must be finite');
-      if (phase === 'idle' || phase === 'loading') return start(t, true);
+      if (phase === 'idle') return start(t, true);
+      if (phase === 'loading') { requestedTime = t; seeking = true; return pending; }
       seeking = true; phase = 'playing'; return emit(t);
     },
     tick(time = now()) { if (phase === 'playing' && !seeking) emit((time - origin) / 1000); return frame; },
@@ -120,6 +127,8 @@ export function installHeroSequence(host) {
       buttons.forEach(b => { b.textContent = 'Stop hero'; });
     },
     onState(q) {
+      strip.hidden = false;
+      if (!q.ended) { if (!savedControls) takeControl(); buttons.forEach(b => { b.textContent = 'Stop hero'; }); }
       if (q.reducedMotion && q.beat !== lastBeat && lastBeat >= 0) {
         snapshot.src = holdImage; snapshot.hidden = !holdImage;
       }
