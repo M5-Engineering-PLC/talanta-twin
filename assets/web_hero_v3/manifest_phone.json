@@ -2080,5 +2080,838 @@
   },
   "source": "blender/web_hero/measure_look.py (lookdev.py STRENGTHS after hero_artistic.prepare, render_cycles.py presets)",
   "look": "AgX - High Contrast"
- }
+ },
+ "tod": {
+  "base": "0730",
+  "times": [
+   "0730",
+   "1030",
+   "1805",
+   "2000"
+  ],
+  "dir": "lightmaps_phone"
+ },
+ "tod_files": [
+  {
+   "file": "lightmaps_phone/0730/forecourt_light.ktx2",
+   "bytes": 243797,
+   "sha256": "00c28f4032ea2064b856681a9bd69de233b1ff75548a802c51fe054eda32b4eb"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_00_light.ktx2",
+   "bytes": 12741,
+   "sha256": "9d2b9142a700a35a2b7d5642bd067ffc4348381285997e4e3e921f33f67b9abc"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_01_light.ktx2",
+   "bytes": 23855,
+   "sha256": "e33df6f63dd6baff8e75b1188592fbcfd0d026cf4c0649ef17cffb563f701594"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_02_light.ktx2",
+   "bytes": 25137,
+   "sha256": "9ed558457fb5d4563a0995a11d6d44751ef14ad5da4a7c1ff6d1a05b5e61000b"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_03_light.ktx2",
+   "bytes": 25772,
+   "sha256": "0c1f87b94c9c5ff7a638a83b4c5d8027bf7ce21b6417f064ea48c7ac45e47047"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_04_light.ktx2",
+   "bytes": 21904,
+   "sha256": "16dd6e9a932dc5714e4e1b6932b49487ee4631c4c59c0953309b374944bb6e71"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_05_light.ktx2",
+   "bytes": 20652,
+   "sha256": "cb45de3534212c0ac37ae1285afc4a091145ade4e751043c8568aa0b7cf4c953"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_06_light.ktx2",
+   "bytes": 16983,
+   "sha256": "0a3c7422bdd22dd985f43b6f69654874341880dd3ec9b4511d2714b1c01750be"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_07_light.ktx2",
+   "bytes": 25613,
+   "sha256": "38d51f0f3039592a187743e8ee92129e0e4f739fc6bff50e67a1020e0b35afad"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_08_light.ktx2",
+   "bytes": 22007,
+   "sha256": "8eec59914abf0a7d0fe51a23f3035554b6483ab6382fa75bce1ed2cbb200a2e1"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_09_light.ktx2",
+   "bytes": 16068,
+   "sha256": "f1459e33c8315b8d40256719be3be60f2b9893747ffd23d88ddbb0d8f25b76f0"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_10_light.ktx2",
+   "bytes": 16191,
+   "sha256": "5ac4f80cfee94fc5ee1adf70fb61149bb37deab24b4a4eb47ed06673b4ba06b7"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_11_light.ktx2",
+   "bytes": 25963,
+   "sha256": "ec4adc627f30cba19ba87aa4c7dcf57a855004fa54b697585e7a3e3a769da817"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_12_light.ktx2",
+   "bytes": 17364,
+   "sha256": "3292a764dc58029e772d6aa1ba68bfb4a71a25612fa69288eec35fafe7c4fcaf"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_13_light.ktx2",
+   "bytes": 14809,
+   "sha256": "9f2051ad514a620fc581b83fce6068f9aa6bd2c44f9d9571d1894b58cb0fc1ee"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_14_light.ktx2",
+   "bytes": 18131,
+   "sha256": "f9ac184ede5c337b83dffcd8e9b2c733b9459403563983ccdd8914e2be42003b"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_15_light.ktx2",
+   "bytes": 23710,
+   "sha256": "8ad155ea696e7bb7675754972aac2731c270c927dd721327af3bb4bc20e03ee4"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_16_light.ktx2",
+   "bytes": 28115,
+   "sha256": "f066ecfd4f131ae6f5e3fa533446b6206ed8307811c262988fb21a69dd696fc2"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_17_light.ktx2",
+   "bytes": 28784,
+   "sha256": "075e2b94a740143f80d488cb063a46d4ac3fde8503655bf05a78d91138e33e5e"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_18_light.ktx2",
+   "bytes": 30092,
+   "sha256": "a8f5662b0544702e4dc405de51a301357ae81f1f7d37faa4dccec9d4e8343c4e"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_19_light.ktx2",
+   "bytes": 28688,
+   "sha256": "510d88b3d5900a3a6dba3bd5c84ce53d80a2329be79d44256a394fed2351f992"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_20_light.ktx2",
+   "bytes": 30672,
+   "sha256": "d18c75776d9fa2b9f22f90b24af63b224a758a07349674c995858302069f7d42"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_21_light.ktx2",
+   "bytes": 28226,
+   "sha256": "52ce1fcab0aed9cb88260340804918147c6ca7fb85f16715f7ccf521af4d71f3"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_22_light.ktx2",
+   "bytes": 22857,
+   "sha256": "daf418d480e12527bfc13bf3aefe63295a5b37e0ca7301d9f49041615aca6b61"
+  },
+  {
+   "file": "lightmaps_phone/0730/ground_23_light.ktx2",
+   "bytes": 28686,
+   "sha256": "4436bade1b0d2ae2946074f42c4666999c2fbf1623acfcbb0425c72aa7bf5f53"
+  },
+  {
+   "file": "lightmaps_phone/0730/landmarks_light.ktx2",
+   "bytes": 92887,
+   "sha256": "1b1f7b50bec2ae71f3a91861ded9b4f0885ca48770f915b2d6eb5b5c73ee3a93"
+  },
+  {
+   "file": "lightmaps_phone/0730/layout_pass_i_light.ktx2",
+   "bytes": 150105,
+   "sha256": "18771ad5b2493461730361969837d6504f4df0b6628c71ce386f358d2ce8daca"
+  },
+  {
+   "file": "lightmaps_phone/0730/plaza_south_light.ktx2",
+   "bytes": 166176,
+   "sha256": "cbb06c9ec6c92ad5808c6c64426b349bcb0ce5f58f27b2a06f1aecc162e6d9d0"
+  },
+  {
+   "file": "lightmaps_phone/0730/roads_light.ktx2",
+   "bytes": 277991,
+   "sha256": "194c9be06f2c83666437cf62c043a1d97b7818344f2715b60fec0fd3cf9d1de8"
+  },
+  {
+   "file": "lightmaps_phone/0730/roof_light.ktx2",
+   "bytes": 272971,
+   "sha256": "2935f9b213b02b6c49de7045f4f424e73a46c22d94fb278e8441d8e0cc7c83bb"
+  },
+  {
+   "file": "lightmaps_phone/0730/site_built_light.ktx2",
+   "bytes": 122764,
+   "sha256": "bab5f3372555b980e744207fce9f8ad02419650c36897025bd7d1d244c2d75d7"
+  },
+  {
+   "file": "lightmaps_phone/0730/site_layout_light.ktx2",
+   "bytes": 181514,
+   "sha256": "fb1e7e38c859955364907bee179fe71cafa49ff4f8d71523b6609cf5da9a0e79"
+  },
+  {
+   "file": "lightmaps_phone/0730/sport_light.ktx2",
+   "bytes": 166358,
+   "sha256": "6452e54000b96dc68638261c6f36b98077f20d138c9161a8e08568951c14ff8e"
+  },
+  {
+   "file": "lightmaps_phone/0730/stadium_fins_light.ktx2",
+   "bytes": 253360,
+   "sha256": "393ed355b360e92b62d23a7993fd7addcd18e3e102213d234a10f71d79156888"
+  },
+  {
+   "file": "lightmaps_phone/0730/stadium_ornament_light.ktx2",
+   "bytes": 176050,
+   "sha256": "d1dbab1acae282071eecadd393a926ac5c3cb79cf663ae09da09ec6701199924"
+  },
+  {
+   "file": "lightmaps_phone/0730/stadium_shell_light.ktx2",
+   "bytes": 214819,
+   "sha256": "7254044615c4b83aeb73ce5ef84139e5b4cc8b110250182896729d5f599939a4"
+  },
+  {
+   "file": "lightmaps_phone/0730/station_light.ktx2",
+   "bytes": 103910,
+   "sha256": "dfeaea84b2e63f8de910847d5749ff998f131255068dde504a2706c9d8144e88"
+  },
+  {
+   "file": "lightmaps_phone/0730/suburbs_light.ktx2",
+   "bytes": 274421,
+   "sha256": "df43417a0a68dc6dbadcdf0f8a41c033da8d8936333b2fdd29b9955b06fc90a5"
+  },
+  {
+   "file": "lightmaps_phone/0730/trace_sw_light.ktx2",
+   "bytes": 111302,
+   "sha256": "e07d0940e853565a505aee059386e86aba1a8aa46e9d1966c80ec80f2e9f19dc"
+  },
+  {
+   "file": "lightmaps_phone/0730/traffic_light.ktx2",
+   "bytes": 222941,
+   "sha256": "032efbb64c3400f3cf8f7103c6ce3569fc883a24a36779f8a95db72e28e556f9"
+  },
+  {
+   "file": "lightmaps_phone/0730/tod.json",
+   "bytes": 7791,
+   "sha256": "de4c4543f031397c527daeee1b13e35a7d339fff582cdae393bd97fd02935472"
+  },
+  {
+   "file": "lightmaps_phone/1030/forecourt_light.ktx2",
+   "bytes": 236911,
+   "sha256": "e314682724043b56c6b1c17f9db610743ac6097b4bbf9bf18803d03e09af1f97"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_00_light.ktx2",
+   "bytes": 8356,
+   "sha256": "6c01e4b48d033b2fdf1152bb8a69cf841b36fff4987a82d60260f9490d1170f4"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_01_light.ktx2",
+   "bytes": 18596,
+   "sha256": "d94528aa71fcdf433fcdfff358eef0ee88f78acc0038dce05efd92844cc233b9"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_02_light.ktx2",
+   "bytes": 21957,
+   "sha256": "5b5c2b5a89da145c14aa1f304cb483720a803734da346d21f204efe05bb858b5"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_03_light.ktx2",
+   "bytes": 23785,
+   "sha256": "ebb721da2fcdffb7e9011600277018e1ea0ebd0ca49f272c61c6a916e020c29b"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_04_light.ktx2",
+   "bytes": 16916,
+   "sha256": "1a607d65bc2219e2a510229a6bb765f8dca971e1a432dca2e32f7321fc8afe19"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_05_light.ktx2",
+   "bytes": 16936,
+   "sha256": "33a1bfa61c7c9f9fbd675a1fdec5e98dd5d54f79b82b116ec74ce01906dffd61"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_06_light.ktx2",
+   "bytes": 14856,
+   "sha256": "3d6b56f819eefa69dfceec818a4e62415245f0cf4ba96df2ae4c540541700595"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_07_light.ktx2",
+   "bytes": 23814,
+   "sha256": "1a12a7f2cb2287b76281bf1ce6975752e2e86ecaaf25472746a12c2afe331522"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_08_light.ktx2",
+   "bytes": 17708,
+   "sha256": "d0546fcb7f27ea486497854ffa9a83904f5ceff4e3297df16604a543fc4595e5"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_09_light.ktx2",
+   "bytes": 12836,
+   "sha256": "ac44cf7132f10dbb6ded5859c89cb3220dbde7d7aad86cdc11ecf8ab8c53bc22"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_10_light.ktx2",
+   "bytes": 13675,
+   "sha256": "30f59ac419f78da7da697788ad4f4838d101b01341a78af28e0f59254d4798cc"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_11_light.ktx2",
+   "bytes": 23491,
+   "sha256": "3ac70b951466903f00b975c37cd9ecbfd1f51e26e3cb001e8929dd9b0d5e7a0a"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_12_light.ktx2",
+   "bytes": 13414,
+   "sha256": "49558922b63a3b6492879e35b9a08ae87ddd3d4e058d26796ff921cc7a66d392"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_13_light.ktx2",
+   "bytes": 11980,
+   "sha256": "19f9625de1e603e849011108629f0c89b342611bbfefc1f4ea07102483ce0101"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_14_light.ktx2",
+   "bytes": 14102,
+   "sha256": "832ec98c87c79bb78da1ea20857984d011ff73a70343a059f9dccb6801b9834f"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_15_light.ktx2",
+   "bytes": 21052,
+   "sha256": "903a0331f13b4156b64e98612383d95da3f034822acd39f33bd49ba9471c744f"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_16_light.ktx2",
+   "bytes": 26460,
+   "sha256": "3967f0e166ffd08dd3b5fc33a55395a6c2045786a25f49f569dc32fe17720d33"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_17_light.ktx2",
+   "bytes": 26127,
+   "sha256": "428fda4184c56c80bd096ad904e1ccab4e1b2449b87437519a3013a6bea5c6d5"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_18_light.ktx2",
+   "bytes": 27695,
+   "sha256": "29fe5b0ab0f664f19a8db88b37b82a8ba02dccc97adbbff8fd3d6f07001f7dea"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_19_light.ktx2",
+   "bytes": 25934,
+   "sha256": "323a9335aba5ee59d63276d525a57cd535555409cf746855e958654a7e61f8b1"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_20_light.ktx2",
+   "bytes": 29356,
+   "sha256": "1746b2116112feeb9bfce385d44fefe832bca86720750695b6d6ee9839c8ab4d"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_21_light.ktx2",
+   "bytes": 26901,
+   "sha256": "cf837bc6603b64a9d0ee698cc212edfcde281027d9e2b87c118434091032e011"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_22_light.ktx2",
+   "bytes": 19554,
+   "sha256": "8faaff857a62c79d81472c6bdbcbe03983ce55abc96903bdc84d20fd01828c50"
+  },
+  {
+   "file": "lightmaps_phone/1030/ground_23_light.ktx2",
+   "bytes": 26645,
+   "sha256": "cd1754d2c31e679505772c7b8cd35b7505200eecdd0357e9b70aa4dcb77a2594"
+  },
+  {
+   "file": "lightmaps_phone/1030/landmarks_light.ktx2",
+   "bytes": 90695,
+   "sha256": "c02372013ac7b7f5cffad37353ede92b776a6344025e905698dcd7b99e8b5759"
+  },
+  {
+   "file": "lightmaps_phone/1030/layout_pass_i_light.ktx2",
+   "bytes": 127847,
+   "sha256": "c7143fd6fdfcfc32683fad6736f1cc499fb315d177c3c34bd33b190866df11e7"
+  },
+  {
+   "file": "lightmaps_phone/1030/plaza_south_light.ktx2",
+   "bytes": 148386,
+   "sha256": "95e4fc0aa7955c421dfa7f16ed22213e8cd154af8405b0d76f0818a0a343ec4e"
+  },
+  {
+   "file": "lightmaps_phone/1030/roads_light.ktx2",
+   "bytes": 256780,
+   "sha256": "5a898d9900cb4e5b5f3a7d79862e79ebf622aa5f3227c7f2156b4329e06e5e2a"
+  },
+  {
+   "file": "lightmaps_phone/1030/roof_light.ktx2",
+   "bytes": 259012,
+   "sha256": "97b1f0686b347ff8f74ca5d45064c7aaebc74e88aa16916453ea69943676e413"
+  },
+  {
+   "file": "lightmaps_phone/1030/site_built_light.ktx2",
+   "bytes": 122784,
+   "sha256": "ad3ab485f2e75b4f88ec4bf17c242c9fbaf404530cd85363024e69b0515ba4b2"
+  },
+  {
+   "file": "lightmaps_phone/1030/site_layout_light.ktx2",
+   "bytes": 171192,
+   "sha256": "97fa549eeba27928d64c17ac0f7f7966e8c8a90d1e9d02d0e559e477b582ba82"
+  },
+  {
+   "file": "lightmaps_phone/1030/sport_light.ktx2",
+   "bytes": 142464,
+   "sha256": "95f3b0aecc00429ff5240908da1e6be452e7551896217e1231240a25208addd5"
+  },
+  {
+   "file": "lightmaps_phone/1030/stadium_fins_light.ktx2",
+   "bytes": 243421,
+   "sha256": "8f70aa8df11ef10f3142c35426894078629c7e768412ed96b028e8ba0d925457"
+  },
+  {
+   "file": "lightmaps_phone/1030/stadium_ornament_light.ktx2",
+   "bytes": 176180,
+   "sha256": "a38dbf7c7520a7539e3be227e8ac6bc5cb5e7bfe5cb99c5a7fc08f351819a78d"
+  },
+  {
+   "file": "lightmaps_phone/1030/stadium_shell_light.ktx2",
+   "bytes": 210909,
+   "sha256": "ee8aaaec7c5b4c9d1fec18b6fae381b91dafb404b6c7895e3916b66214e42b0d"
+  },
+  {
+   "file": "lightmaps_phone/1030/station_light.ktx2",
+   "bytes": 106468,
+   "sha256": "91edb321d2bfb1cb6ca73f1547120378c57f7f2b6fadf60d8ee46a64a9145aa4"
+  },
+  {
+   "file": "lightmaps_phone/1030/suburbs_light.ktx2",
+   "bytes": 263014,
+   "sha256": "d9467d20fcd9dc2df68bb598c34ac2ca6e8a20b866b8e0888ab7d686d7fc1e25"
+  },
+  {
+   "file": "lightmaps_phone/1030/trace_sw_light.ktx2",
+   "bytes": 116499,
+   "sha256": "86fc34435f6be75d47829ce9e8d7f97e2c1de09ccbb0b53fd9bb48937233ffad"
+  },
+  {
+   "file": "lightmaps_phone/1030/traffic_light.ktx2",
+   "bytes": 214738,
+   "sha256": "724f61adabe7ce634fbb8fa566c36f6b8cafd15f922ea01ceb9620aaa45e5736"
+  },
+  {
+   "file": "lightmaps_phone/1030/tod.json",
+   "bytes": 7715,
+   "sha256": "b78e3453791ed91bd0525831347018f4a82a929d6e74e1e614cfa2a0e16102f8"
+  },
+  {
+   "file": "lightmaps_phone/1805/forecourt_light.ktx2",
+   "bytes": 246611,
+   "sha256": "031cbffcb58a54f18a91a96947cb291c2a944cee4e8757f84cfe2ff3fdf3832d"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_00_light.ktx2",
+   "bytes": 14198,
+   "sha256": "b0d9076da117109fa35568945a7295f7b148437b9bf3f31408183c6cb1e82b2e"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_01_light.ktx2",
+   "bytes": 22934,
+   "sha256": "f5358f70e42734fd2e870091b1a0d23a45b86923dc92fed3fbacf11395993594"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_02_light.ktx2",
+   "bytes": 24243,
+   "sha256": "4799ecebe2a5a27819edf263ddc9304db4d0ad556929c3210ea54881057b0674"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_03_light.ktx2",
+   "bytes": 25418,
+   "sha256": "06400bb26a8fb361be9971cd601c9c48810d5d38fdc7554fad64097ce82344f2"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_04_light.ktx2",
+   "bytes": 21469,
+   "sha256": "5f5375e37b105937d16d135aaf8245fea6feb9dfe9887386e62bbc9dfd0b9cbf"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_05_light.ktx2",
+   "bytes": 21664,
+   "sha256": "70631c6073102bc4fb53d8de2df480af00b2c1000691b1fe89eef80a1c0a04f8"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_06_light.ktx2",
+   "bytes": 19042,
+   "sha256": "21fe5541bf999d751a290c14bb00317a1cc31f0cb72c518aaba8d0ddc57549f2"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_07_light.ktx2",
+   "bytes": 25551,
+   "sha256": "9eb30d31c155f758dd4dcf10968dae74fa528b72926c4269ec749ae9924e5221"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_08_light.ktx2",
+   "bytes": 20823,
+   "sha256": "08ad5627cbf3016a99893e9cfe83eb2fee9881fcc26e7c854531fa1645df3c4a"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_09_light.ktx2",
+   "bytes": 18213,
+   "sha256": "f8c63a75e4462911258bb214c94540cf38c1f0caf2d66ea24273fb4b9efa4ae2"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_10_light.ktx2",
+   "bytes": 17028,
+   "sha256": "77922f802144103385204b1aeae7f5e9790aeba29fbb2ae535826bf5f0251172"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_11_light.ktx2",
+   "bytes": 25284,
+   "sha256": "40675b5d22111672b34d93cc5630d011ae3920ec6581c4a35eedc2f89917809d"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_12_light.ktx2",
+   "bytes": 18107,
+   "sha256": "6e67d38b230b439cd365895bb1a166ea2f803d763666261e2c40badbf381ea38"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_13_light.ktx2",
+   "bytes": 16147,
+   "sha256": "d8d843260a792486b4de175e7e9be209004e7168ec91972cb951846372e5e1ca"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_14_light.ktx2",
+   "bytes": 19184,
+   "sha256": "3ad09cebedff2b072ae49a29ba90cb69ffe1be1523199f4340983f349741f0d2"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_15_light.ktx2",
+   "bytes": 23272,
+   "sha256": "8855a25b4d7a73dec5d32fe2ec8fc323d94f8a5f5c06adde217789073bae6360"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_16_light.ktx2",
+   "bytes": 27181,
+   "sha256": "842e9253f4b5449cf056fdb63ee77933bb6a3b1cad1e6da9176fb2350d79f524"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_17_light.ktx2",
+   "bytes": 28726,
+   "sha256": "a587fd69c8aab64b6f6a9e5107cb0c7c5d81d353bd9b145191f0c7cdc8983754"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_18_light.ktx2",
+   "bytes": 29766,
+   "sha256": "c9c4f811e69c55fb927214d002482bf746fc63d8afb341145bd9e56385b1eecb"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_19_light.ktx2",
+   "bytes": 28076,
+   "sha256": "afc940690f758919b67d72603845cb225832a3ebea9ec773ce547cc0c26b6c3f"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_20_light.ktx2",
+   "bytes": 30437,
+   "sha256": "aea1b90b97a5d2ba2b67f9abd6b6701e8443b23787e7ff4ac34e66b65812f017"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_21_light.ktx2",
+   "bytes": 26352,
+   "sha256": "dd2ff2df6b5c0771f18565594c35828784f00cb62f57068385b8f2c4ed030a2a"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_22_light.ktx2",
+   "bytes": 23567,
+   "sha256": "cbee101e7dbfdbd3a0750fc16236f8bf8c1f3d08a23789c103c5929ad202788e"
+  },
+  {
+   "file": "lightmaps_phone/1805/ground_23_light.ktx2",
+   "bytes": 28108,
+   "sha256": "c26184735e3b63bb9e59e942aaa7858a8402e154fefe04fc1fe85b874959d35a"
+  },
+  {
+   "file": "lightmaps_phone/1805/landmarks_light.ktx2",
+   "bytes": 98722,
+   "sha256": "eb03f9ad8302f14975bb98c2c8cdf8ab537d5246fdd74db794795b948f60a375"
+  },
+  {
+   "file": "lightmaps_phone/1805/layout_pass_i_light.ktx2",
+   "bytes": 155514,
+   "sha256": "d763b60e5938bd09e41285f65ca3f7a668100741df218dfb4c9c97266541f58f"
+  },
+  {
+   "file": "lightmaps_phone/1805/plaza_south_light.ktx2",
+   "bytes": 164698,
+   "sha256": "4303d89ffa4b2e654632fe780581319722182937bf1fbc2fbd1bcfc5da9555a4"
+  },
+  {
+   "file": "lightmaps_phone/1805/roads_light.ktx2",
+   "bytes": 278188,
+   "sha256": "fff14b206f20405023b9730bd80643d393038ba48657e4b6512254c8595fca08"
+  },
+  {
+   "file": "lightmaps_phone/1805/roof_light.ktx2",
+   "bytes": 267849,
+   "sha256": "eee7954aaf0c487ef780b53bb8afee85b4ad69066b9898515782555e58b7d482"
+  },
+  {
+   "file": "lightmaps_phone/1805/site_built_light.ktx2",
+   "bytes": 125692,
+   "sha256": "a9d36afe4e129771999462bd7b660589e61700d516244123b171044ac82ba0e6"
+  },
+  {
+   "file": "lightmaps_phone/1805/site_layout_light.ktx2",
+   "bytes": 138973,
+   "sha256": "5d6488b0841a35ba84beac2cd1f34a84136a2bffde0c3764fb6714b7a0811995"
+  },
+  {
+   "file": "lightmaps_phone/1805/sport_light.ktx2",
+   "bytes": 169757,
+   "sha256": "0f6b90a467fbfa536e045f2f0f75befdb9922ac21de9448eecdbaeddcf1559ad"
+  },
+  {
+   "file": "lightmaps_phone/1805/stadium_fins_light.ktx2",
+   "bytes": 255920,
+   "sha256": "3ddce23b578b55d1bd6ec27611bfc69cb9ce0c23b4545fd94b39544128380072"
+  },
+  {
+   "file": "lightmaps_phone/1805/stadium_ornament_light.ktx2",
+   "bytes": 187292,
+   "sha256": "69ea56427f5c958ec70b9c00fc91f16bac5329063e8aec61b4ef3d47501e6b98"
+  },
+  {
+   "file": "lightmaps_phone/1805/stadium_shell_light.ktx2",
+   "bytes": 239068,
+   "sha256": "8022ad7ed055b743b35ac0e475df47457b21c9b82178f9316c48f4d555efe3c6"
+  },
+  {
+   "file": "lightmaps_phone/1805/station_light.ktx2",
+   "bytes": 115033,
+   "sha256": "96066fb8b7a33a3796125d6de435886016d73f977a317a90a3b3afd84d79f8ab"
+  },
+  {
+   "file": "lightmaps_phone/1805/suburbs_light.ktx2",
+   "bytes": 273873,
+   "sha256": "3cd6b84d7f0c6bc9695702c602fb3313336adb84ca138cdf180418ac2a71d644"
+  },
+  {
+   "file": "lightmaps_phone/1805/trace_sw_light.ktx2",
+   "bytes": 131310,
+   "sha256": "f7db3775e7d3f45d30d52fa0958a5dddec00171f56dbd5a5b0e1af024e318875"
+  },
+  {
+   "file": "lightmaps_phone/1805/traffic_light.ktx2",
+   "bytes": 207103,
+   "sha256": "f202227d69796886cd7f52cc3b18129210191fc8e44536ec13c588ddc2b908bc"
+  },
+  {
+   "file": "lightmaps_phone/1805/tod.json",
+   "bytes": 7727,
+   "sha256": "60621ad31f37eb1163eaf1d0a4ba00a2f07504288c62bfb294d06f26653f922b"
+  },
+  {
+   "file": "lightmaps_phone/2000/forecourt_light.ktx2",
+   "bytes": 257871,
+   "sha256": "bdd35367f24b6fd2534359719b06623a4edd61f78c52b199d86d7f15051ab8d9"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_00_light.ktx2",
+   "bytes": 10384,
+   "sha256": "797103e0184d3a9a7a923cdebc670919db719a286fe43c44ddc6d838d7a3a673"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_01_light.ktx2",
+   "bytes": 18538,
+   "sha256": "54c17ac6c20f3b9ed67ead0ccfe662d2035a7236dfb628d861cb93532bccefce"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_02_light.ktx2",
+   "bytes": 18628,
+   "sha256": "b15ca7356e0a0df7d180a87dc135c22cc5ee4477b7e2e8ed2eea5e74fe6e3c02"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_03_light.ktx2",
+   "bytes": 23532,
+   "sha256": "0741be10fbdefda2e3d4b0a479142e962f192edacaa3cd96330e1bbd0f36f8bf"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_04_light.ktx2",
+   "bytes": 18166,
+   "sha256": "b8c8b202cbffc1dc2dc366fa4f78dd9b3e6d91b54895905e45c7f4d473116a9b"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_05_light.ktx2",
+   "bytes": 21614,
+   "sha256": "a3d137a18cd50e0c7ee3f4bef084c3313ae9b806af20b5eca4cef49c9e3dee0a"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_06_light.ktx2",
+   "bytes": 18628,
+   "sha256": "feb8cf7fef854958bd108a2d14720d1927c536e2cca4195d5ff94abd2690b58f"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_07_light.ktx2",
+   "bytes": 23934,
+   "sha256": "69bdebaa753d0a606926996980adac6140ff5969186c006c99dccaad9798ed40"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_08_light.ktx2",
+   "bytes": 21937,
+   "sha256": "fce48a62dc0ab176adfd9fe5551f0e1fc792146b892928bb5dbd218dbbd4180a"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_09_light.ktx2",
+   "bytes": 18240,
+   "sha256": "3ed57882c3b040d9b33ac9110a09394c71139f9f627a3291aa3daf1a8272e25b"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_10_light.ktx2",
+   "bytes": 15932,
+   "sha256": "da376c865365950b418765f7efd7b6f88f7022da315f46d42fdb6bb5c7dae140"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_11_light.ktx2",
+   "bytes": 22764,
+   "sha256": "f2aaf7e677f9d82d062f5d5c6c155a4a9e532a7173c098bb9da4eef532e19567"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_12_light.ktx2",
+   "bytes": 18337,
+   "sha256": "ba1225b43ee346ac89cf769dbfe0766c4cf748fde97c748ca22adf0dd7ecec0c"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_13_light.ktx2",
+   "bytes": 17514,
+   "sha256": "c57d8bd064ed4716b5cad836a41ae5f96f257f8e425baf124abbdbb07269b317"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_14_light.ktx2",
+   "bytes": 18358,
+   "sha256": "9657e67de8a6183604e1756c9c900adb790111eaf14886e918f269817398dd58"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_15_light.ktx2",
+   "bytes": 22865,
+   "sha256": "80834a07de495611656927b6335477eb479d846b918d181f823c532d91f653ae"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_16_light.ktx2",
+   "bytes": 19528,
+   "sha256": "38d80bd57b295b555db455e518a4221291e2c0dde47250915dc88f480bde5b22"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_17_light.ktx2",
+   "bytes": 26364,
+   "sha256": "16a2a65c0054003576ac3dfc3eed0d5082be9bf74cc15c70b46242874699a155"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_18_light.ktx2",
+   "bytes": 24611,
+   "sha256": "85b5edf56849b186a236ee9ce8184e8714d4d053037ea598820267afe264a00f"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_19_light.ktx2",
+   "bytes": 24470,
+   "sha256": "fcfdaa000b47510eb2c80205801ac8b5c4c34a75eeefa0bb4370af60db1cfa26"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_20_light.ktx2",
+   "bytes": 29506,
+   "sha256": "104cb2c4cc9b63acd3f70d7c2cddeaffab45f5d3e47e2eba32ef1fe5d4fc8a46"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_21_light.ktx2",
+   "bytes": 21395,
+   "sha256": "e561ba3e32623b180bde525d8f1fa3f769518303a00d34c51ace4e32e8b1130b"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_22_light.ktx2",
+   "bytes": 20723,
+   "sha256": "b9ed454a30b11f70e11369f661e310c853a9038d4bba511b06d6adb15b25caea"
+  },
+  {
+   "file": "lightmaps_phone/2000/ground_23_light.ktx2",
+   "bytes": 22659,
+   "sha256": "26f99d0fe4c2a1dd9e0c51701486e16519f4448947c623eb8e1522a3e1d94b2f"
+  },
+  {
+   "file": "lightmaps_phone/2000/landmarks_light.ktx2",
+   "bytes": 138643,
+   "sha256": "96f35752807daeda46b0b3f0be5a87f65fc8a84b78d4a2ddc745e12c883bf318"
+  },
+  {
+   "file": "lightmaps_phone/2000/layout_pass_i_light.ktx2",
+   "bytes": 183118,
+   "sha256": "9e7b75a9ec2fc09ddf8da00268de803e300baf2a9906ce093c2a672f479a0b18"
+  },
+  {
+   "file": "lightmaps_phone/2000/plaza_south_light.ktx2",
+   "bytes": 202199,
+   "sha256": "54cb3871f3e6c52969d2ff123fbc68926827310b04d44b9f4736cb2bed0b084b"
+  },
+  {
+   "file": "lightmaps_phone/2000/roads_light.ktx2",
+   "bytes": 237476,
+   "sha256": "ad32b13b68635515a90c10c9271210a70a4a1f7abc204aa5dd3e9398cd6b6bef"
+  },
+  {
+   "file": "lightmaps_phone/2000/roof_light.ktx2",
+   "bytes": 259718,
+   "sha256": "03cb92e74b6ae05985e78e186157035b4c1c9f9c0b522012dfb03c8a70a0734c"
+  },
+  {
+   "file": "lightmaps_phone/2000/site_built_light.ktx2",
+   "bytes": 165138,
+   "sha256": "2109adbb61b09cb555f7c0d3e6c39e6b00eadb236ffb4aedccf7da9b5aed35b8"
+  },
+  {
+   "file": "lightmaps_phone/2000/site_layout_light.ktx2",
+   "bytes": 101344,
+   "sha256": "1485ae6fc5959a402cf62d17534b9ecdd8023d00dd4ad7a16a17ac7d5cb56091"
+  },
+  {
+   "file": "lightmaps_phone/2000/sport_light.ktx2",
+   "bytes": 185387,
+   "sha256": "95229af3cd181b529b61b1ccef986e0e021773d25734d3990bc94f5f6f5c0aa6"
+  },
+  {
+   "file": "lightmaps_phone/2000/stadium_fins_light.ktx2",
+   "bytes": 267874,
+   "sha256": "848c886f9c6288db322351833e6c5f5a23171e5345ad4c4a60cb5fd26017b2b5"
+  },
+  {
+   "file": "lightmaps_phone/2000/stadium_ornament_light.ktx2",
+   "bytes": 198023,
+   "sha256": "77c2cdb2943556bfd1f6cfa9f049ee1817d2e8f9b3467c4b7f65a7f316d131a2"
+  },
+  {
+   "file": "lightmaps_phone/2000/stadium_shell_light.ktx2",
+   "bytes": 223499,
+   "sha256": "647c70d176ae108847080e48db3d53160271d002feb273c5f30232f447f8b38a"
+  },
+  {
+   "file": "lightmaps_phone/2000/station_light.ktx2",
+   "bytes": 108610,
+   "sha256": "394d4c3d225f3dcc8c635c98aa23717b4641be85842b6ffd1680b9192cbf7c9d"
+  },
+  {
+   "file": "lightmaps_phone/2000/suburbs_light.ktx2",
+   "bytes": 265995,
+   "sha256": "adcfbb91192cfcdbf3dda2ea3db2b48a763b2185567c51730d7bb7f20ad12a0c"
+  },
+  {
+   "file": "lightmaps_phone/2000/trace_sw_light.ktx2",
+   "bytes": 164039,
+   "sha256": "a7cb7ea493f0275564e9dd1332bc813c1e52813dfa9b1937a16f52e67c10d567"
+  },
+  {
+   "file": "lightmaps_phone/2000/traffic_light.ktx2",
+   "bytes": 210203,
+   "sha256": "6ee142072c5c12a74571a1ab20c362962f7c828cd340448c614cde80605c1849"
+  },
+  {
+   "file": "lightmaps_phone/2000/tod.json",
+   "bytes": 7783,
+   "sha256": "0d48765832d55a44fd3d75cc04798a50601bdbf102a7a32f3277b550f47454a3"
+  }
+ ],
+ "tod_bytes": 14263005
 }
