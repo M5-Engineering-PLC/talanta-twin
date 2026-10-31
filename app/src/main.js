@@ -385,6 +385,7 @@ renderer.domElement.addEventListener('dblclick', (e) => {
 $('#focuslist').innerHTML = FOCUS.map((f) => `<div class="focus-item" data-focus="${f.id}"><div>${f.name}<div class="k">${f.k}</div></div><span class="muted">›</span></div>`).join('');
 document.addEventListener('click', (e) => { const b = e.target.closest('[data-focus]'); if (b) { stopTour(); focus(b.dataset.focus); } });
 const tourBtn = $('#tour');
+let heroSequence = null, heroSequenceLoad = null;
 const tour = createTour({
   camera, controls, focus,
   views: chips.map((id) => FOCUS.find((f) => f.id === id)),
@@ -392,6 +393,7 @@ const tour = createTour({
 });
 function stopTour() { if (tour.running) tour.stop(); }
 tourBtn.onclick = () => {
+  heroSequence?.stop();
   if (tour.running) return tour.stop();
   tour.start(); tourBtn.classList.add('on'); tourBtn.textContent = '■ Stop tour';
 };
@@ -850,7 +852,7 @@ else if (initialHero.reason === 'phone') {
 }
 // ENV-01: pick the nearest baked time (hysteresis in nearest), swap its set, preload the next one when idle.
 function heroTodStep(dusk) {
-  const tod = hero.tod, want = tod.nearest(parityMode ? 450 : state.minutes);
+  const tod = hero.tod, want = heroSequence?.frame?.lightSet ?? tod.nearest(parityMode ? 450 : state.minutes);
   if (want !== heroTodTime) {
     heroTodTime = want;
     hero.environmentReady = tod.setTime(want).then((ok) => {
@@ -996,7 +998,7 @@ buildTimeline();
 applyBuild();
 focus('overview', 1);
 viewStills = createViewStills({
-  allowed: () => !parityMode && !tour.running && state.mode === 'venue',
+  allowed: () => !parityMode && !tour.running && !heroSequence?.active && state.mode === 'venue',
   onTime(minutes, id) {
     stopPlay(); stopLiveClock(); state.minutes = minutes;
     landingUI?.sync(id, minutes);
@@ -1011,6 +1013,54 @@ let landingUI = initLanding({
   setEvent(mode) { document.querySelector(`#modes button[data-mode="${mode}"]`)?.click(); },
   startTour() { tourBtn.click(); },
 });
+
+// CAM-01 / ENV-02 / ENV-03 load only on demand. The director owns its timeline and weather.
+async function ensureHeroSequence() {
+  if (!heroSequenceLoad) heroSequenceLoad = import('./hero/sequence.js').then(({ installHeroSequence }) => {
+    heroSequence = installHeroSequence({ scene, camera, controls, canvas: renderer.domElement, stage,
+      manifest: CAMS, focus: FOCUS, sky, paintSky, bearing: F.pitch_bearing_deg, pad: PAD,
+      tier: () => tier, fraction: () => quality.crowdFraction, crowd: () => crowd, night: () => night,
+      roots: () => [bowl.group, hero?.group].filter(Boolean),
+      dismiss() { viewStills?.dismiss(); fly = null; fitView = null; landed = false; setHighlight(); focusLabelPos = null; },
+      async prepare(current) {
+        stopTour(); stopPlay(); stopLiveClock(); ++modeVersion; stopEvent(); stopShow();
+        state.mode = 'venue'; state.matchday = true; state.minutes = 1060; applyBuild();
+        $('#claim').hidden = true; $('#hero-caption').hidden = false;
+        await Promise.all([startHero(), ensureCrowd()]);
+        const deadline = performance.now() + 180000;
+        while (heroLoading && current() && performance.now() < deadline) await new Promise(resolve => requestAnimationFrame(resolve));
+        if (!current()) return;
+        if (heroLoading) throw new Error('Hero assets did not finish loading');
+        await Promise.all([crowd?.ready, hero?.groundReady,
+          ...(hero?.tod ? ['1805', '2000'].map(t => hero.tod.preload(t)) : [])]);
+      },
+      frame(q) { state.minutes = q.minutes; state.matchday = true; },
+      lights(q) {
+        flood.forEach((s, i) => { s.intensity = 9000 * smooth(i / flood.length, (i + 1) / flood.length, q.floodLevel); });
+        bowl.lightsMat.emissiveIntensity = q.floodLevel * 4;
+      },
+      stop() { state.matchday = false; $('#claim').hidden = false; heroLookKey = ''; },
+      error(error) { $('#hero-caption').hidden = false; $('#hero-caption [data-caption]').textContent = 'Hero unavailable. Select Hero to retry.'; console.warn('Hero sequence unavailable:', error); },
+    });
+    return heroSequence;
+  }).catch(error => { heroSequenceLoad = null; throw error; });
+  return heroSequenceLoad;
+}
+document.querySelectorAll('[data-hero]').forEach(button => { button.onclick = async () => {
+  if (button.dataset.heroStopped) { delete button.dataset.heroStopped; return; }
+  try { const sequence = await ensureHeroSequence(); if (sequence.active) sequence.stop(); else await sequence.start(); }
+  catch (error) { console.warn('Hero sequence unavailable:', error); $('#hero-caption').hidden = false; $('#hero-caption [data-caption]').textContent = 'Hero unavailable. Select Hero to retry.'; }
+}; });
+$('#rain-toggle').onchange = async e => { const sequence = await ensureHeroSequence(); sequence.setRain(e.target.checked); };
+window.__heroSeek = async t => {
+  const sequence = await ensureHeroSequence(), frame = await sequence.seek(t);
+  if (!frame) return null;
+  applyTime(); heroLookKey = ''; if (hero) heroLock();
+  await hero?.environmentReady;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  return frame;
+};
+if (params.get('hero') === '1') void ensureHeroSequence().then(sequence => sequence.start()).catch(error => console.warn('Hero autoplay unavailable:', error));
 if (!quality.crowdFraction) site.crowd.visible = false;
 let lastT = performance.now(), hud = 0, lastTimeKey = '', lastBuildKey = '', cachedSun;
 let lastLiveMinute = '';
@@ -1021,6 +1071,7 @@ function performanceProfile() {
 const frameCaptures = [];
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  heroSequence?.tick(now);
   if (state.liveClock) {
     const eatNow = new Date(Date.now() + 3 * 3600000), key = eatNow.toISOString().slice(0, 16);
     if (key !== lastLiveMinute) {
@@ -1035,17 +1086,17 @@ renderer.setAnimationLoop((now) => {
     else { state.minutes += state.speed * dt * 15; if (state.minutes > 1440) state.minutes = 0; }
   }
   stepFly(now);
-  if (!hero && site.group.visible) site.update(now / 1000, night);
+  if (!hero && site.group.visible && !heroSequence?.frame?.ended) site.update(now / 1000, night);
   traffic?.setNight?.(hero?.tod && heroTodTime ? (heroTodTime === '2000' ? 1 : 0) : night);
-  if (!parityMode) traffic?.update(dt);
+  if (!parityMode && !heroSequence?.frame?.ended) traffic?.update(dt);
   if (traffic) traffic.group.visible = !parityMode && layerOn('vehicles');
   heroLighting?.setVehiclesVisible(!parityMode && layerOn('vehicles'));
   vehicleClaim.hidden = !layerOn('vehicles') || !traffic && !hero;
   if (!parityMode) shows?.update(dt);
-  site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
+  site.crowd.visible = !heroSequence?.active && quality.crowdFraction > 0 && layerOn('people');
   if (crowd) {
     crowd.group.visible = Boolean((state.matchday || eventMode) && (hero || bowl.group.visible && bowl.seats.visible));
-    if (crowd.group.visible) {
+    if (crowd.group.visible && !heroSequence?.active) {
       const t = now / 1000; crowd.setNight(night); crowd.react('phones', { on: night }); crowd.update(dt, t);
       if (state.matchday && t > nextWave) { crowd.react('wave', { speed: 12 }); nextWave = t + 75; nextCheer = t + 30; }
       else if (state.matchday && t > nextCheer) { crowd.react('cheer'); nextCheer = t + 25; }
@@ -1053,13 +1104,14 @@ renderer.setAnimationLoop((now) => {
   }
   if (!parityMode) { liveEvent?.setTier?.(tier); liveEvent?.update(dt); }
   fpsMonitor.update(now);
-  controls.update();
+  if (!heroSequence?.active) controls.update();
   const timeKey = `${state.day}:${state.minutes}:${Boolean(hero)}`;
   if (timeKey !== lastTimeKey) { cachedSun = applyTime(); lastTimeKey = timeKey; }
   const buildKey = `${state.mode}:${state.build}:${Boolean(blockout)}:${JSON.stringify(layerState)}`;
   if (buildKey !== lastBuildKey) { applyBuild(); lastBuildKey = buildKey; }
   const sp = cachedSun;
   if (hero) heroLock();
+  heroSequence?.render(now);
   const cv = curVal();
   $('#thumb').style.left = `${pct(cv)}%`;
   $('#thumb-label').textContent = state.mode === 'construction' ? fmtD(cv) : fmtHM(cv);
@@ -1073,6 +1125,7 @@ renderer.setAnimationLoop((now) => {
   if (pipeline) {
     try { pipeline.render(); } catch (e) { console.warn('post-processing failed, plain render from now on:', e); pipeline = null; bloomPass = null; renderer.render(scene, camera); }
   } else renderer.render(scene, camera);
+  heroSequence?.afterRender();
   if (landed) { landed = false; viewStills?.arrive(); }
   for (const resolve of frameCaptures.splice(0)) {
     try { resolve({ image: renderer.domElement.toDataURL('image/png'), width: renderer.domElement.width,

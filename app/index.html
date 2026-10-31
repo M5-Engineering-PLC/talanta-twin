@@ -38,6 +38,7 @@
     </nav>
     <div class="spacer"></div>
     <button id="tour" class="ghost">▶ Tour</button>
+    <button type="button" class="ghost" data-hero>Hero</button>
   </header>
 
   <header id="landing-header">
@@ -46,11 +47,18 @@
       <div><div class="brand-name">Talanta Twin</div><div class="tricolour"><i></i><i></i><i></i></div><div class="landing-sub">Venue digital twin</div></div>
     </div>
     <div class="landing-venue">Raila Odinga Talanta Stadium<span>Nairobi, Kenya</span></div>
-    <button id="landing-tour" class="landing-pill">▶ Take a tour</button>
+    <div class="landing-tour-actions">
+      <button id="landing-tour" class="landing-pill">▶ Take a tour</button>
+      <button type="button" class="landing-pill" data-hero>Hero</button>
+    </div>
   </header>
   <button id="landing-toggle" type="button" aria-pressed="false">Explore the twin</button>
   <main id="stage">
     <div id="view"></div>
+    <div id="hero-caption" role="status" aria-live="polite" hidden>
+      <span data-caption></span><small data-claims></small>
+      <button type="button" hidden>Replay</button>
+    </div>
     <img id="landing-still" alt="" hidden>
     <form id="landing-controls" aria-label="Scene controls" onsubmit="return false">
       <label>View<select id="landing-view"></select></label>
@@ -96,6 +104,7 @@
     </div>
     <div class="card" id="weather">
       <div class="card-h">Weather <span class="muted small">Hali ya hewa · at site</span></div>
+      <label class="rain-control"><input id="rain-toggle" type="checkbox"> Rain · Simulation</label>
       <div class="wx" id="wx"></div>
     </div>
   </aside>
