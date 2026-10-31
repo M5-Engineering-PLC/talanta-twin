@@ -28,3 +28,15 @@ export function normalizeManifest(manifest) {
     ground: files.some(e => e.file === 'ground/tiles.json') ? { index: 'app/public/ground/tiles.json' } : null,
   };
 }
+
+// WebGPU rejects block-compressed textures below one 4 x 4 block, and the device is then lost.
+export function dropInvalidCompressedMaps(material) {
+  const dropped = [];
+  for (const slot of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap', 'lightMap']) {
+    const texture = material?.[slot], image = texture?.image;
+    if (!texture?.isCompressedTexture || image?.width % 4 === 0 && image?.height % 4 === 0) continue;
+    console.warn(`Dropped ${image?.width}x${image?.height} compressed ${slot} on ${material.name}`);
+    material[slot] = null; dropped.push(slot);
+  }
+  return dropped;
+}

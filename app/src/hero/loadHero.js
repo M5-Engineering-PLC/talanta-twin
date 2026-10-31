@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu';
-import { readManifest } from './manifest.js';
+import { dropInvalidCompressedMaps, readManifest } from './manifest.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
@@ -35,6 +35,7 @@ export async function loadHero({ renderer, base = './models/', onProgress = () =
 
       modelRoot.traverse((node) => {
         if (!node.isMesh) return;
+        dropInvalidCompressedMaps(node.material);
         node.castShadow = false;
         node.receiveShadow = false;
         meshCount++;

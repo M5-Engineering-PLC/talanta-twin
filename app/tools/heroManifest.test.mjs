@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { readManifest } from '../src/hero/manifest.js';
+import { dropInvalidCompressedMaps, readManifest } from '../src/hero/manifest.js';
 
 test('manifest parsing rejects HTML even with status 200 or a misleading JSON content type', async () => {
   for (const headers of [{ 'content-type': 'text/html' }, { 'content-type': 'application/json' }, {}]) {
@@ -26,4 +26,12 @@ test('desktop and phone release manifests resolve the linked models and time set
     }
     assert.equal(manifest.ground.index, 'app/public/ground/tiles.json');
   }
+});
+
+test('compressed maps below one block are dropped and valid maps stay', () => {
+  const tiny = { isCompressedTexture: true, image: { width: 1, height: 1 } }, good = { isCompressedTexture: true, image: { width: 512, height: 1024 } };
+  const plain = { image: { width: 1, height: 1 } }, material = { name: 'shield_paint', map: tiny, lightMap: good, aoMap: plain };
+  const warn = console.warn; console.warn = () => {};
+  try { assert.deepEqual(dropInvalidCompressedMaps(material), ['map']); } finally { console.warn = warn; }
+  assert.equal(material.map, null); assert.equal(material.lightMap, good); assert.equal(material.aoMap, plain);
 });
