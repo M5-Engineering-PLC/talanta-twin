@@ -1,0 +1,266 @@
+{
+ "time": "0730",
+ "bake_time_eat": "07:30",
+ "preset": "morning_golden",
+ "variant": "desktop",
+ "base_time": "0730",
+ "sun": {
+  "date": "2026-01-15",
+  "elevation_deg": 11.59,
+  "azimuth_deg": 111.31,
+  "direction_to_sun": [
+   0.91266,
+   0.20092,
+   0.35593
+  ]
+ },
+ "groups": {
+  "forecourt": {
+   "file": "forecourt_light.ktx2",
+   "bytes": 2968785,
+   "sha256": "0fb0ae8ad3afac5f919a5175a1acb8beae56eb961ac4c9c681798a5c8fe005e9",
+   "intensity": 14.0222
+  },
+  "ground_00": {
+   "file": "ground_00_light.ktx2",
+   "bytes": 831024,
+   "sha256": "2c37e88a0d43c150a7067a641cf7bb2d4e031111792dd119c76b0ba4dc4b500f",
+   "intensity": 4.9075
+  },
+  "ground_01": {
+   "file": "ground_01_light.ktx2",
+   "bytes": 1165480,
+   "sha256": "1ce0f888e10fd44ef83954649138f6f95c260bc82915ed0f1033356085164e07",
+   "intensity": 4.7507
+  },
+  "ground_02": {
+   "file": "ground_02_light.ktx2",
+   "bytes": 989117,
+   "sha256": "3fc9748aebd9b53ce3058b97a59d40ecbf73f239daf19e35ad994fd40e91499c",
+   "intensity": 5.2373
+  },
+  "ground_03": {
+   "file": "ground_03_light.ktx2",
+   "bytes": 979653,
+   "sha256": "21a1bdda0d4546c8ba27974a321de6dd2090573ed518ae1cc0b060a9f50912c9",
+   "intensity": 5.2895
+  },
+  "ground_04": {
+   "file": "ground_04_light.ktx2",
+   "bytes": 1107270,
+   "sha256": "5bb3d4f5d4f246c8f732bb028ef85762d9a25bc679f71aee4b89e1baac2c15e7",
+   "intensity": 4.7523
+  },
+  "ground_05": {
+   "file": "ground_05_light.ktx2",
+   "bytes": 924654,
+   "sha256": "6a20837abf4d3c6aa799222a6e5575faee00af3dfa0e5510b40d37c4b0fa0d36",
+   "intensity": 4.7671
+  },
+  "ground_06": {
+   "file": "ground_06_light.ktx2",
+   "bytes": 768439,
+   "sha256": "e5e053db866d1448d94196af2b1393b36c91e84ffe6331fd084407ee002d0a20",
+   "intensity": 5.1274
+  },
+  "ground_07": {
+   "file": "ground_07_light.ktx2",
+   "bytes": 1008507,
+   "sha256": "9d84ca8cc765343322bb5b39c5def02b9826419c083f9ee61de86e947a3b8f14",
+   "intensity": 5.3005
+  },
+  "ground_08": {
+   "file": "ground_08_light.ktx2",
+   "bytes": 1103168,
+   "sha256": "307ccaef6f6a6a95a0b3f417369a123aa74ccfb45fdce0078ad655fbfc83c3d0",
+   "intensity": 4.8167
+  },
+  "ground_09": {
+   "file": "ground_09_light.ktx2",
+   "bytes": 797040,
+   "sha256": "7890f937c610376132962682160e52912eb2cc8f37f4f5d4826a722354726d9d",
+   "intensity": 5.5685
+  },
+  "ground_10": {
+   "file": "ground_10_light.ktx2",
+   "bytes": 632895,
+   "sha256": "a1ef4e52cf44cb5aa6f22f2dfec1cfa616963e45428557081375bb80f08f6c88",
+   "intensity": 6.4365
+  },
+  "ground_11": {
+   "file": "ground_11_light.ktx2",
+   "bytes": 1017253,
+   "sha256": "c64c5c1f8f67deb20961d13f6fea52f1568e6ab759c8b3188f83cb7f3c335cb2",
+   "intensity": 5.5012
+  },
+  "ground_12": {
+   "file": "ground_12_light.ktx2",
+   "bytes": 944910,
+   "sha256": "bd6dfb2ff818e54bb8b09d788a008f0c5096d77512a5c5144a830f270cd5c05a",
+   "intensity": 4.8908
+  },
+  "ground_13": {
+   "file": "ground_13_light.ktx2",
+   "bytes": 826411,
+   "sha256": "9de84cf6622427bf4f88ccf88a86c530e18fb2e4fd7319e64642d2eed28722da",
+   "intensity": 5.1412
+  },
+  "ground_14": {
+   "file": "ground_14_light.ktx2",
+   "bytes": 889356,
+   "sha256": "4d087832b5bf43f02c17c9346a90f62dbdcc64b56aa3f67ff612fd859aeda1fd",
+   "intensity": 5.4381
+  },
+  "ground_15": {
+   "file": "ground_15_light.ktx2",
+   "bytes": 991503,
+   "sha256": "9c589afbb335d7dfa1c1ee78fb8ccdddf1d3a6b54861de9633b07a18e1a095a3",
+   "intensity": 5.6209
+  },
+  "ground_16": {
+   "file": "ground_16_light.ktx2",
+   "bytes": 1282445,
+   "sha256": "99441db15d2d79d6f92ff620c22d279a6a9effe5eea616de6b64b8cc72b38c3b",
+   "intensity": 4.6364
+  },
+  "ground_17": {
+   "file": "ground_17_light.ktx2",
+   "bytes": 1146940,
+   "sha256": "d85ec387350458117dab0ed50b4821157d6de5323ad4ccd9607f81acbd82b36a",
+   "intensity": 5.0174
+  },
+  "ground_18": {
+   "file": "ground_18_light.ktx2",
+   "bytes": 1140262,
+   "sha256": "4efec29ca55ee1ebc6b9ac859d733b46b6cbd07dc339d57d654be0c15ee49a98",
+   "intensity": 5.2728
+  },
+  "ground_19": {
+   "file": "ground_19_light.ktx2",
+   "bytes": 1266930,
+   "sha256": "909e58cc28d123da8f6c33d7cb1e0f5d0f13b307777669ffcc3a711fb91f551b",
+   "intensity": 4.7155
+  },
+  "ground_20": {
+   "file": "ground_20_light.ktx2",
+   "bytes": 1204771,
+   "sha256": "06a60d1ae61d8f90d6b67d5a6d24072de2fd80a0b0b594fb9ac716e50e09c777",
+   "intensity": 4.9678
+  },
+  "ground_21": {
+   "file": "ground_21_light.ktx2",
+   "bytes": 1305417,
+   "sha256": "b98f6b5a3490ed5ca6a311dac3e6ca62a7b4f1c057219b63906cb28646761d1e",
+   "intensity": 4.6618
+  },
+  "ground_22": {
+   "file": "ground_22_light.ktx2",
+   "bytes": 989664,
+   "sha256": "537b62e4ab567f149a10645d2a5d9a34db4662f01ca5b54657d5a278476180a6",
+   "intensity": 5.4972
+  },
+  "ground_23": {
+   "file": "ground_23_light.ktx2",
+   "bytes": 1116006,
+   "sha256": "8a03bd3ab8b6b30b24a22def6d58e31342ebd44037da895104b715f4e9b5765b",
+   "intensity": 5.4525
+  },
+  "landmarks": {
+   "file": "landmarks_light.ktx2",
+   "bytes": 1507395,
+   "sha256": "3121af7eb8aaaab5fcb02fed5d811a5468f51a72f37582d912fe552b78ffa28f",
+   "intensity": 16.1654
+  },
+  "layout_pass_i": {
+   "file": "layout_pass_i_light.ktx2",
+   "bytes": 537039,
+   "sha256": "0c50eb6665b39f7eae7aecfc2bb2a4c672feea524b0e8ecea0a4497daf0df497",
+   "intensity": 6.5939
+  },
+  "plaza_south": {
+   "file": "plaza_south_light.ktx2",
+   "bytes": 612525,
+   "sha256": "b1cae5d5c3806b8714f9a93a34252a957adf481f5b17a2c7de0530a586452dc0",
+   "intensity": 4.9684
+  },
+  "roads": {
+   "file": "roads_light.ktx2",
+   "bytes": 3849827,
+   "sha256": "4133f5b0922b2ecbe932e9deb0dac40e1069f08af6c5d85b82604e701cc95baf",
+   "intensity": 5.27
+  },
+  "roof": {
+   "file": "roof_light.ktx2",
+   "bytes": 3637485,
+   "sha256": "68ab09994f1568b89a5538261efd1a80cd3fb72aac093b068cbfd77becdaf5c1",
+   "intensity": 11.3927
+  },
+  "site_built": {
+   "file": "site_built_light.ktx2",
+   "bytes": 414812,
+   "sha256": "df68ddaa758569772ea28ba87c929d694c112d8b7501e096ef865cc88f2baa84",
+   "intensity": 14.277
+  },
+  "site_layout": {
+   "file": "site_layout_light.ktx2",
+   "bytes": 2450004,
+   "sha256": "c20f1f017683e2c3376719fdd73c3d3b1adecb049748f515d42291b65669fbfb",
+   "intensity": 15.1378
+  },
+  "sport": {
+   "file": "sport_light.ktx2",
+   "bytes": 608674,
+   "sha256": "cbfac111faab832520b793ff4fe14b34c69e5da885e1d453da58bdab3fb3981e",
+   "intensity": 5.183
+  },
+  "stadium_fins": {
+   "file": "stadium_fins_light.ktx2",
+   "bytes": 3968876,
+   "sha256": "28a242e90a46671f3cf101060608828a5e532e91c8b00f30051a1abc929beeed",
+   "intensity": 11.2353
+  },
+  "stadium_ornament": {
+   "file": "stadium_ornament_light.ktx2",
+   "bytes": 2382276,
+   "sha256": "2328ba173543865a3dfbee21cccd3839da828d869c3b43fcb5169152fb68ff36",
+   "intensity": 15.9062
+  },
+  "stadium_shell": {
+   "file": "stadium_shell_light.ktx2",
+   "bytes": 2810428,
+   "sha256": "b8f961e0a6b78f525a074c3fbea8205c950f76dfcdf05760099ce4c7c2130f9c",
+   "intensity": 16.2392
+  },
+  "station": {
+   "file": "station_light.ktx2",
+   "bytes": 291144,
+   "sha256": "2b25c1b725f04db2fce57abbe3f5693e3b98b03f7f036b6ca496d3f649c2a408",
+   "intensity": 12.2582
+  },
+  "suburbs": {
+   "file": "suburbs_light.ktx2",
+   "bytes": 9173716,
+   "sha256": "fa1d879d42a67f7886170a3a0f2947020137b549f6e99ef0065cb752ca97e22b",
+   "intensity": 14.4312
+  },
+  "trace_sw": {
+   "file": "trace_sw_light.ktx2",
+   "bytes": 359847,
+   "sha256": "0424f5d5c35e447a35ec4289f1036e0b8529a42973a85fa387d3d0c912a3cc86",
+   "intensity": 13.588
+  },
+  "traffic": {
+   "file": "traffic_light.ktx2",
+   "bytes": 2417515,
+   "sha256": "6b88cc06403f0ff015ba0146e4cd85b8195b1b7a2848103bb6be80e52f944ded",
+   "intensity": 14.8324
+  }
+ },
+ "panorama": {
+  "hdr": "talanta_pano_0730_2048.hdr",
+  "exr": "talanta_pano_0730.exr"
+ },
+ "ground_tile_gain": 1,
+ "codec": "KTX2 UASTC+RDO+zstd, sRGB, mipmaps",
+ "note": "light only; AO and albedo do not change with time. intensity = light_scale x pi (material.lightMapIntensity)."
+}
