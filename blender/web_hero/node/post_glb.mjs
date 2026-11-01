@@ -104,6 +104,7 @@ if (TOD || REINDEX) {
     let png = readSet(setDir)(p.group);
     if (p.encoded[0] !== p.png[0] || p.encoded[1] !== p.png[1]) png = await sharp(png).resize(p.encoded[0], p.encoded[1], { kernel: "lanczos3" }).png().toBuffer();
     const data = await encodeToKTX2(new Uint8Array(png), { ...T.ktxOptions("light", PH), imageDecoder });
+    T.checkImageSizes([{ name: `${p.group}_light`, size: T.ktx2Size(Buffer.from(data)) }], `tod ${hhmm}`);
     const file = `${p.group}_light.ktx2`; fs.writeFileSync(path.join(outDir, file), data);
     groups[p.group] = { file, bytes: data.length, sha256: sha(data), intensity: p.intensity };
     console.log(file, data.length);
@@ -275,6 +276,8 @@ for (const glb of SKIP_MODELS ? [] : ["hero", "site"]) {
     }
   }
   const file = path.join(DEST, `talanta_${glb}${PHONE ? "_phone" : ""}.glb`);
+  // every embedded image must be a multiple of 4 on both sides (a missing source image becomes a 1x1 placeholder)
+  T.checkImageSizes(root.listTextures().map((t) => ({ name: t.getName(), size: t.getSize() })), `talanta_${glb}${PHONE ? "_phone" : ""}.glb`);
   await io.write(file, doc);
   result[glb] = { file: path.relative(ROOT, file), bytes: fs.statSync(file).size, triangles: { lod0: tris[0], lod1_300m: tris[1], lod2_1km: tris[2] },
                   textures: [...cache.keys()].length, instanced_sets: sets };

@@ -129,3 +129,14 @@ test('reindex lists the tod sets in the manifests and checks sha256', () => {
   fs.writeFileSync(path.join(dir, 'roof_light.ktx2'), 'bad');
   assert.notEqual(cli('reindex', `out=${out}`).code, 0);
 });
+
+test('image size check: KTX2 header size, sides must be multiples of 4', () => {
+  const k = Buffer.alloc(80); Buffer.from([0xab, 0x4b, 0x54, 0x58, 0x20, 0x32, 0x30, 0xbb, 0x0d, 0x0a, 0x1a, 0x0a]).copy(k);
+  k.writeUInt32LE(512, 20); k.writeUInt32LE(1024, 24);
+  assert.deepEqual(T.ktx2Size(k), [512, 1024]);
+  assert.throws(() => T.ktx2Size(Buffer.alloc(80)), /not a KTX2/);
+  T.checkImageSizes([{ name: 'shield', size: [512, 1024] }, { name: 'leaves', size: [1024, 1024] }], 'ok');
+  assert.throws(() => T.checkImageSizes([{ name: 'shield', size: [512, 1024] }, { name: 'Image', size: [1, 1] }], 'hero.glb'), /hero\.glb: 1 image.*Image 1x1/);
+  assert.throws(() => T.checkImageSizes([{ name: 'odd', size: [1024, 1022] }], 'x'), /odd 1024x1022/);
+  assert.throws(() => T.checkImageSizes([{ name: 'unknown', size: null }], 'x'), /unknown size/);
+});

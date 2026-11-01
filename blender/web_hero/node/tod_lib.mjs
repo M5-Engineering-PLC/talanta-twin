@@ -148,3 +148,19 @@ export function validateTod(tod) {
   if (tod.panorama != null && !(tod.panorama.hdr || tod.panorama.exr)) fail("panorama has no file");
   return tod;
 }
+
+/** [width, height] of a KTX2 file from its header (pixelWidth, pixelHeight). */
+export function ktx2Size(buf) {
+  const id = [0xab, 0x4b, 0x54, 0x58, 0x20, 0x32, 0x30, 0xbb, 0x0d, 0x0a, 0x1a, 0x0a];
+  if (buf.length < 28 || id.some((v, i) => buf[i] !== v)) throw new Error("not a KTX2 file");
+  return [buf.readUInt32LE(20), buf.readUInt32LE(24)];
+}
+
+/** Block-compressed textures (ETC1S, UASTC transcode to 4x4 blocks) need both sides a multiple of 4: WebGPU rejects
+ *  anything else and loses the device (web_hero_v3 shipped two 1x1 placeholders, 2026-11-01). images: [{ name, size }].
+ *  Throws with every offending image listed. */
+export function checkImageSizes(images, where) {
+  const bad = images.filter(({ size }) => !size || size[0] % 4 || size[1] % 4 || !size[0] || !size[1]);
+  if (bad.length) throw new Error(`${where}: ${bad.length} image(s) with a side that is not a multiple of 4 (a missing source image?): ` +
+    bad.map(({ name, size }) => `${name || "(unnamed)"} ${size ? size.join("x") : "unknown size"}`).join(", "));
+}

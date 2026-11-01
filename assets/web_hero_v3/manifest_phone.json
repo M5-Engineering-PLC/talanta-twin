@@ -5,13 +5,13 @@
  "tier1_files": [
   {
    "file": "models_phone/talanta_hero_phone.glb",
-   "bytes": 8535532,
-   "sha256": "97f3b767eb104476295ddbafe6c237405c2fccd61cedfbde0d5f8e24b911e2a5"
+   "bytes": 8558496,
+   "sha256": "86eb8bde041a8bdc49ea4f56f7873f661753c0b8e06ed899c480c89c9d54ec71"
   },
   {
    "file": "models_phone/talanta_site_phone.glb",
-   "bytes": 19693428,
-   "sha256": "95ee3d2e6196fb43260f3f32467d7d8326f8a0e177654e03c5b30a88ad5e62ce"
+   "bytes": 20131348,
+   "sha256": "1801efd13f593636b1bcc80fe9676cda832acea38eb3d8d15079c4721b0adf7a"
   },
   {
    "file": "ground/tiles.json",
@@ -204,13 +204,13 @@
    "sha256": "96f146d782efb55b2dd482bb4c48d97a15b0acaaf849b9aa6046f58a15e72734"
   }
  ],
- "tier1_bytes": 37753591,
+ "tier1_bytes": 38214475,
  "budget_bytes": 40000000,
  "within_budget": true,
  "models": {
   "hero": {
    "file": "blender/out/web_hero/v3_0730/web_hero_v3/models_phone/talanta_hero_phone.glb",
-   "bytes": 8535532,
+   "bytes": 8558496,
    "triangles": {
     "lod0": 766607,
     "lod1_300m": 766607,
@@ -238,7 +238,7 @@
   },
   "site": {
    "file": "blender/out/web_hero/v3_0730/web_hero_v3/models_phone/talanta_site_phone.glb",
-   "bytes": 19693428,
+   "bytes": 20131348,
    "triangles": {
     "lod0": 1029954,
     "lod1_300m": 1029954,
@@ -900,10 +900,10 @@
    ]
   },
   {
-   "map": "Image",
-   "png_bytes": 250,
-   "ktx2_bytes": 313,
-   "seconds": 0.008,
+   "map": "shield",
+   "png_bytes": 20430,
+   "ktx2_bytes": 23280,
+   "seconds": 3.357,
    "codec": "ETC1S"
   },
   {
@@ -1774,10 +1774,10 @@
    "codec": "ETC1S"
   },
   {
-   "map": "Image",
-   "png_bytes": 250,
-   "ktx2_bytes": 313,
-   "seconds": 0.008,
+   "map": "island_tree_02_leaves_diff_1k",
+   "png_bytes": 191886,
+   "ktx2_bytes": 80956,
+   "seconds": 1.511,
    "codec": "ETC1S"
   },
   {
@@ -1785,6 +1785,20 @@
    "png_bytes": 403231,
    "ktx2_bytes": 142029,
    "seconds": 5.918,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "jacaranda_tree_trunk_diff_1k",
+   "png_bytes": 896938,
+   "ktx2_bytes": 230572,
+   "seconds": 3.729,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "jacaranda_tree_leaves_diff_1k",
+   "png_bytes": 533896,
+   "ktx2_bytes": 125770,
+   "seconds": 3.772,
    "codec": "ETC1S"
   }
  ],
@@ -2913,5 +2927,47 @@
    "sha256": "0d48765832d55a44fd3d75cc04798a50601bdbf102a7a32f3277b550f47454a3"
   }
  ],
- "tod_bytes": 14263005
+ "tod_bytes": 14263005,
+ "repaired": {
+  "date": "2026-11-01",
+  "by": "blender/web_hero/node/repair_images.mjs",
+  "images": {
+   "shield": {
+    "source": "blender/textures/shield.png",
+    "size": [
+     512,
+     1024
+    ],
+    "ktx2_bytes": 23280,
+    "sha256": "32a723696708c26d608ac25e5114c35c4a6a5cb3355b8f1f7ac9f77bf26dc5ff"
+   },
+   "island_tree_02_leaves_diff_1k": {
+    "source": "blender/assets/foliage/island_tree_02/island_tree_02_leaves_diff_1k.jpg",
+    "size": [
+     1024,
+     1024
+    ],
+    "ktx2_bytes": 80956,
+    "sha256": "119726c4d6a89633fa927b2f9b6292bf1b7b338fef133e4895d5369fd276018d"
+   },
+   "jacaranda_tree_trunk_diff_1k": {
+    "source": "blender/assets/foliage/jacaranda_tree/jacaranda_tree_trunk_diff_1k.jpg",
+    "size": [
+     1024,
+     1024
+    ],
+    "ktx2_bytes": 230572,
+    "sha256": "a437f7c3565f9c67d36673b8d5e590d06f9866dc6bae18a9e25e2ea9506b407d"
+   },
+   "jacaranda_tree_leaves_diff_1k": {
+    "source": "blender/assets/foliage/jacaranda_tree/jacaranda_tree_leaves_diff_1k.jpg",
+    "size": [
+     1024,
+     1024
+    ],
+    "ktx2_bytes": 125770,
+    "sha256": "98d2ff45e6fa94af79e1d9d26843a7e1be461df0efd335745f414e7239f1e903"
+   }
+  }
+ }
 }
