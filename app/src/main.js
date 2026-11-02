@@ -28,6 +28,8 @@ import { heroDuskParameters, installHeroLighting } from './hero/dusk.js';
 import { panoramaDevice, panoramaManifest } from './hero/environment.js';
 import { cameraPoseFromManifest } from './world/cameras.js';
 import { createTour, enableTouchUX } from './tour.js';
+import { MODULES } from './modules/registry.js';
+import { initModulesMenu } from './ui/modulesMenu.js';
 import { detectTier, TIERS, createFpsMonitor, profileGeometry } from './perf.js';
 
 const $ = (s) => document.querySelector(s);
@@ -1055,6 +1057,17 @@ document.querySelectorAll('[data-hero]').forEach(button => { button.onclick = as
   try { const sequence = await ensureHeroSequence(); if (sequence.active) sequence.stop(); else await sequence.start(); }
   catch (error) { console.warn('Hero sequence unavailable:', error); $('#hero-caption').hidden = false; $('#hero-caption [data-caption]').textContent = 'Hero unavailable. Select Hero to retry.'; }
 }; });
+// Modules menu (phase A): built from the registry; actions reuse the mode buttons, the event path and the Hero sequence.
+initModulesMenu({ modules: MODULES, async run(action) {
+  if (action.kind === 'mode' || action.kind === 'event') {
+    const mode = action.kind === 'event' ? (action.value === 'match' ? 'football' : 'concert') : action.value;
+    heroSequence?.stop();
+    document.querySelector(`#modes button[data-mode="${mode}"]`)?.click();
+    return;
+  }
+  try { const sequence = await ensureHeroSequence(); if (!sequence.active) await sequence.start(); }
+  catch (error) { console.warn('Hero sequence unavailable:', error); $('#hero-caption').hidden = false; $('#hero-caption [data-caption]').textContent = 'Hero unavailable. Select Hero to retry.'; }
+} });
 $('#rain-toggle').onchange = async e => { const sequence = await ensureHeroSequence(); sequence.setRain(e.target.checked); };
 window.__heroSeek = async t => {
   const sequence = await ensureHeroSequence(), frame = await sequence.seek(t);

@@ -256,3 +256,22 @@ body:not(.landing-mode) #landing-toggle { top: 7px; bottom: auto; right: 96px; p
 .rain-control { display: flex; align-items: center; gap: 8px; margin: 8px 16px; font-size: 13px; }
 .landing-tour-actions { display: flex; gap: 8px; justify-self: end; }
 @media (max-width: 600px) { .landing-tour-actions .landing-pill { padding: 9px 10px; } #hero-caption { left: 12px; bottom: 64px; max-width: calc(100% - 24px); font-size: 13px; } }
+
+/* Modules menu (phase A). Native dialog: the backdrop blocks the scene, Escape closes it. */
+#modules-panel { width: min(440px, calc(100vw - 24px)); max-height: min(720px, calc(100dvh - 24px)); margin: auto; padding: 0 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); box-shadow: 0 12px 40px rgba(0,0,0,.25); overflow: auto; overscroll-behavior: contain; }
+#modules-panel::backdrop { background: rgba(20, 18, 15, .45); }
+#modules-panel .mm-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: 6px 6px 6px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+#modules-panel h2 { margin: 0; font-size: 16px; }
+#modules-panel h3 { margin: 14px 16px 6px; font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+#modules-panel ul { list-style: none; margin: 0; padding: 0 8px; }
+#modules-panel .mm-close { min-width: 44px; min-height: 44px; font-size: 16px; border-radius: 6px; }
+.mm-item { display: block; width: 100%; min-height: 44px; padding: 8px 10px; text-align: left; border-radius: 6px; overflow-wrap: anywhere; }
+button.mm-item:not(:disabled):hover { background: var(--panel-2); }
+button.mm-item:disabled { cursor: not-allowed; opacity: .6; }
+.mm-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.mm-name { font-weight: 600; }
+.mm-status { flex: none; font-size: 11px; padding: 1px 7px; border-radius: 9px; background: var(--panel-2); color: var(--ink-2); }
+.mm-status.mm-done { background: #dfeee3; color: var(--ke-green); }
+.mm-status.mm-planned { background: transparent; border: 1px dashed var(--ink-3); }
+.mm-claim, .mm-note { display: block; margin-top: 3px; font-size: 11px; line-height: 1.4; color: var(--ink-2); }
+.mm-note { color: var(--ink-3); }
