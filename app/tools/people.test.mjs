@@ -72,7 +72,7 @@ test('wave travels at the selected speed and wraps around the circumference', ()
   assert.equal(u.speed.value, 12); assert.equal(u.wave.value, 1);
   assert.equal(waveDistance(u.time.value - u.start.value, u.speed.value, u.perimeter.value), 24);
   const attribute = crowd.group.children[0].geometry.attributes.fanAngle;
-  assert.ok(attribute.array.every((v) => v >= 0 && v <= Math.PI * 2));
+  assert.ok(Array.from({ length: attribute.count }, (_, i) => attribute.getX(i)).every(v => v >= 0 && v <= Math.PI * 2));
   assert.ok(Math.abs(waveDistance(u.perimeter.value / 12 + 1, 12, u.perimeter.value) - 12) < 1e-8);
   crowd.react('wave', { speed: 7 }); assert.equal(u.speed.value, 7);
   crowd.dispose();

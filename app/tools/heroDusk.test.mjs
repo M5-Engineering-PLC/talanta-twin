@@ -31,8 +31,10 @@ test('night is continuous at midnight and returns to day at dawn', () => {
   assert.ok(heroDuskParameters(390).dusk < heroDuskParameters(330).dusk);
   assert.equal(heroDuskParameters(450).dusk, 0);
 });
-test('installed bundle selects only 17:30 panorama at dusk', () => {
-  const manifest = JSON.parse(readFileSync(new URL('../public/models/manifest.json', import.meta.url)));
+test('legacy dusk approximation selects only the listed 17:30 panorama', () => {
+  // Independent of the installed bundle. v3 uses timeOfDay instead of this approximation.
+  const manifest = { files: ['0730', '1730'].flatMap(time => ['.exr', '_2048.hdr'].map(ext => ({ file: `app/public/env/talanta_pano_${time}${ext}` }))),
+    environment: { file: 'app/public/env/talanta_pano_0730_2048.hdr' } };
   assert.equal(panoramaManifest(manifest, 'day'), manifest);
   const dusk = panoramaManifest(manifest, 'evening');
   assert.deepEqual(choosePanorama(dusk), ['env/talanta_pano_1730_2048.hdr']);

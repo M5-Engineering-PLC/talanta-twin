@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu';
+import { dropInvalidCompressedMaps, readManifest } from './manifest.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
@@ -14,8 +15,7 @@ export async function loadHero({ renderer, base = './models/', onProgress = () =
     if (phone && !usePhone) console.warn('manifest_phone.json unavailable; loading the full hero models');
     if (!usePhone) response = await fetch(`${base}manifest.json`);
     if (!response.ok) throw new Error(`manifest request failed: ${response.status}`);
-    const manifest = await response.json();
-    if (!manifest.models || typeof manifest.models !== 'object') throw new Error('manifest.models is missing');
+    const manifest = await readManifest(response, `${base}${usePhone ? 'manifest_phone.json' : 'manifest.json'}`);
 
     const group = new THREE.Group();
     group.name = 'talanta-hero';
@@ -28,13 +28,14 @@ export async function loadHero({ renderer, base = './models/', onProgress = () =
 
     for (const model of modelEntries) {
       if (!model?.file) throw new Error('manifest model file is missing');
-      const file = model.file.split('/').at(-1);
+      const file = model.file.replace(/^app\/public\/models\//, '');
       const gltf = await loadWithTimeout(loader, `${base}${file}`);
       const modelRoot = gltf.scene;
       const standalone = [];
 
       modelRoot.traverse((node) => {
         if (!node.isMesh) return;
+        dropInvalidCompressedMaps(node.material);
         node.castShadow = false;
         node.receiveShadow = false;
         meshCount++;

@@ -45,8 +45,8 @@ export function detectTier(renderer) {
 /** Create a four-second FPS readout and a one-way quality downgrade monitor. */
 export function createFpsMonitor({ onDowngrade, tier = 'high' }) {
   const visible = new URLSearchParams(location.search).has('fps');
-  // Explicit legacy tiers stay pinned. Ultra can step down to high.
-  if (new URLSearchParams(location.search).has('tier') && tier !== 'ultra') onDowngrade = () => {};
+  const params = new URLSearchParams(location.search);
+  const pinned = params.has('lite') || TIER_ORDER.includes(params.get('tier'));
   const element = document.createElement('div');
   Object.assign(element.style, {
     position: 'fixed', right: '12px', bottom: '12px', zIndex: '10000',
@@ -72,7 +72,7 @@ export function createFpsMonitor({ onDowngrade, tier = 'high' }) {
       const average = span > 0 ? 1000 / fps : 0;
       if (visible) element.textContent = `${average ? average.toFixed(0) : '--'} FPS · ${currentTier}`;
 
-      if (span >= 4000 && average < 28) {
+      if (!pinned && span >= 4000 && average < 28) {
         const index = TIER_ORDER.indexOf(currentTier);
         const nextTier = TIER_ORDER[Math.min(index + 1, TIER_ORDER.length - 1)];
         if (nextTier !== currentTier && !sent.has(nextTier)) {

@@ -101,7 +101,7 @@ test('software crowd attributes match the live instance attributes and reaction 
   const crowd = installSeatedCrowd({scene,camera,seats,quality:{width:1024}}); await crowd.ready;
   const { fans, perimeter } = fanLayout(seats), order = occupancyOrder(seats);
   const mesh = crowd.group.children[0];
-  order.forEach((seat,j) => { for (const [key,attr] of [['phase','fanPhase'],['angle','fanAngle'],['end','fanEnd']]) assert.equal(fans[seat][key],mesh.geometry.attributes[attr].array[j]); });
+  order.forEach((seat,j) => { for (const [key,attr] of [['phase','fanPhase'],['angle','fanAngle'],['end','fanEnd']]) assert.equal(fans[seat][key],mesh.geometry.attributes[attr].getX(j)); });
   for (const name of ['cheer','goal','wave','scarves','phones']) {
     crowd.update(0,5); crowd.react(name,{duration:8,end:'away',speed:12});
     const cues = [{name,start:5,duration:8,params:{end:'away',speed:12}}];

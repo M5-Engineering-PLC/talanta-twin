@@ -132,7 +132,7 @@ test('IES profile parses and installs at most eight shadowless lights from the s
   rig.dispose(); assert.equal(scene.children.length, 0); ies.dispose();
 });
 
-test('ultra can downgrade to high even when the URL explicitly selects ultra', () => {
+test('explicit ultra and high URL tiers remain pinned', () => {
   const descriptors = Object.fromEntries(['location', 'document'].map(k => [k, Object.getOwnPropertyDescriptor(globalThis, k)]));
   try {
     Object.defineProperties(globalThis, {
@@ -141,11 +141,11 @@ test('ultra can downgrade to high even when the URL explicitly selects ultra', (
     });
     const tiers = [], monitor = createFpsMonitor({ tier: 'ultra', onDowngrade: tier => tiers.push(tier) });
     for (let t = 0; t <= 4050; t += 50) monitor.update(t);
-    assert.deepEqual(tiers, ['high']);
+    assert.deepEqual(tiers, []);
     location.search = '?tier=high';
     const pinned = createFpsMonitor({ tier: 'high', onDowngrade: tier => tiers.push(tier) });
     for (let t = 0; t <= 4050; t += 50) pinned.update(t);
-    assert.deepEqual(tiers, ['high']);
+    assert.deepEqual(tiers, []);
   } finally {
     for (const [key, descriptor] of Object.entries(descriptors)) {
       if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key];

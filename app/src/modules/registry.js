@@ -12,7 +12,8 @@ export const MODULES = [
   { id: 'SHW-01', name: 'Floodlight show', phase: 'A', status: 'done', claim: SHOW, note: 'Night show mode' },
   { id: 'SHW-02', name: 'Facade and roof light show', phase: 'A', status: 'done', claim: SHOW, note: 'Night show mode' },
   { id: 'SHW-03', name: 'Drone show', phase: 'A', status: 'done', claim: SHOW, note: 'Night show mode; needs a phone version' },
-  { id: 'CAM-01', name: 'Cinematic fly-in', phase: 'A', status: 'partial', claim: 'n/a' },
+  { id: 'CAM-01', name: 'Cinematic fly-in', phase: 'A', status: 'partial', claim: 'n/a', note: '90-second hero timeline with deterministic seek, input cancellation and reduced-motion holds; GPU appearance and device budgets need review' },
+  { id: 'ENV-02', name: 'Sunshine and clouds', phase: 'C', status: 'partial', claim: 'Simulation', note: 'Hero milestone: overcast sky and panorama dimming during rain; cloud shadows remain planned' },
   { id: 'CAM-02', name: 'Free orbit', phase: 'A', status: 'done', claim: 'n/a' },
   { id: 'AMB-02', name: 'Trees and planting', phase: 'A', status: 'partial', claim: 'Estimated' },
   { id: 'AMB-03', name: 'City skyline and Ngong Hills', phase: 'A', status: 'partial', claim: 'Measured', note: 'GLO-30 terrain to 20 km' },
@@ -27,5 +28,5 @@ export const MODULES = [
   { id: 'SHW-04', name: 'Fireworks', phase: 'B', status: 'planned', claim: SHOW },
   { id: 'CAM-04', name: 'View from your seat', phase: 'B', status: 'planned', claim: 'Approximate view from the model.' },
   { id: 'PPL-08', name: 'Accessible seating', phase: 'B', status: 'planned', claim: 'Illustrative access preview. Follow approved venue accessibility information.' },
-  { id: 'ENV-03', name: 'Rain', phase: 'C', status: 'planned', claim: 'Simulation' },
+  { id: 'ENV-03', name: 'Rain', phase: 'C', status: 'partial', claim: 'Simulation', note: 'One instanced line draw with tier-scaled streaks and wet material uniforms; puddles and camera drops remain planned; GPU output needs review' },
 ];

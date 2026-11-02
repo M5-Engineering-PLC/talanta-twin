@@ -61,9 +61,12 @@ export function figureGeometry(lod = 0) {
   const data = assets.manifest.lods[crowdLevelIndex(lod)];
   const geometry = new THREE.BufferGeometry();
   geometry.setIndex(data.index);
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.position, 3));
-  geometry.setAttribute('kind', new THREE.Float32BufferAttribute(data.kind, 1));
-  geometry.setAttribute('fanVertex', new THREE.Float32BufferAttribute(data.kind.map((_, i) => i), 1));
+  const vertices = new Float32Array(data.kind.length * 5);
+  for (let i = 0; i < data.kind.length; i++) vertices.set([...data.position.slice(i * 3, i * 3 + 3), data.kind[i], i], i * 5);
+  const buffer = new THREE.InterleavedBuffer(vertices, 5);
+  geometry.setAttribute('position', new THREE.InterleavedBufferAttribute(buffer, 3, 0));
+  geometry.setAttribute('kind', new THREE.InterleavedBufferAttribute(buffer, 1, 3));
+  geometry.setAttribute('fanVertex', new THREE.InterleavedBufferAttribute(buffer, 1, 4));
   geometry.userData.lod = lod;
   return geometry;
 }
