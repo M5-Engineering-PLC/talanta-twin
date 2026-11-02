@@ -275,3 +275,42 @@ button.mm-item:disabled { cursor: not-allowed; opacity: .6; }
 .mm-status.mm-planned { background: transparent; border: 1px dashed var(--ink-3); }
 .mm-claim, .mm-note { display: block; margin-top: 3px; font-size: 11px; line-height: 1.4; color: var(--ink-2); }
 .mm-note { color: var(--ink-3); }
+
+/* Touch targets and narrow screens (demo milestone task 3): every button and select is at least 44 x 44 px, and the
+   page never scrolls sideways. Strips that hold more than fits (top bar, view chips) scroll inside themselves. */
+button, select { min-height: 44px; }
+#mapctl > button, .sq, .seg button, #focusbar button.nav, #hero-caption button { min-width: 44px; }
+body { grid-template-rows: 56px 1fr 252px; }
+#topbar { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; gap: 10px; }
+@media (max-width: 1600px) { .brand-sub, .place, .sep, #topbar .venue { display: none; } }
+#topbar > * { flex: none; }
+.modes { padding: 0; }
+.date input { min-height: 44px; }
+#mapctl select, #mapctl > button, .seg { height: 44px; }
+.sq, #speed { height: 44px; }
+.sq { width: 44px; }
+.tabs button { padding: 10px 9px 12px; }
+.layer input[type=checkbox] { width: 24px; height: 24px; }
+.layer { grid-template-columns: 24px 30px 1fr 64px 34px; }
+#focusbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; max-width: calc(100% - 140px); padding: 2px 4px 6px; }
+#focusbar::-webkit-scrollbar { display: none; }
+#focusbar button { flex: none; white-space: nowrap; }
+#landing-controls select { min-height: 44px; }
+#landing-toggle { min-height: 44px; }
+/* Full interface: the landing toggle sits at the right end of the top bar, which leaves room for it. */
+body:not(.landing-mode) #landing-toggle { top: 6px; right: 12px; }
+body:not(.landing-mode) #topbar { padding-right: 150px; }
+/* The mandatory vehicle claim joins the claim line of the hero caption strip instead of hiding behind it. */
+#stage:has(#hero-caption:not([hidden])) #vehicle-claim { display: none; }
+#stage:has(#vehicle-claim:not([hidden])) #hero-caption small::after { content: " Vehicles · Visualization."; }
+@media (max-width: 900px) {
+  body { grid-template-rows: 56px 1fr 130px; }
+  #bottom { overflow: hidden; }
+}
+@media (max-width: 600px) {
+  #focusbar { left: 70px; right: 8px; transform: none; max-width: none; }
+  #claim { bottom: 66px; max-width: calc(100% - 28px); }
+  #scalebar { display: none; }
+  #track-ticks span:nth-child(even) { display: none; }
+  .landing-pill { min-width: 44px; }
+}
