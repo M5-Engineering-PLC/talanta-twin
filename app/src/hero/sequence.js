@@ -30,6 +30,10 @@ function cameraAt(t, poses, reducedMotion, beat) {
     target: a.target.map((v, j) => lerp(v, b.target[j])), fov: lerp(a.fov, b.fov) };
 }
 
+// ENV-01 light set for a sequence time. The first frame needs only lightSetAt(start); the others load when idle.
+export const SEQUENCE_LIGHT_SETS = Object.freeze(['1805', '2000']);
+export const lightSetAt = t => (t < 31 ? '1805' : '2000');
+
 // Pure absolute-time state. All times are seconds, positions are app-local metres.
 // A caller supplies resolved poses so this function needs no browser or renderer.
 export function state(t, { poses, crowdFraction = 1, reducedMotion = false } = {}) {
@@ -44,7 +48,7 @@ export function state(t, { poses, crowdFraction = 1, reducedMotion = false } = {
   // Jump to the attack, reach the existing 60 s goal cue at hero 70 s, then celebrate.
   const matchTime = t < 62 ? null : t < 78 ? 52 + (t - 62) : 68;
   return { time: t, beat, camera: cameraAt(t, poses, reducedMotion, beat), minutes,
-    lightSet: t < 31 ? '1805' : '2000', fill, rain, overcast: rain,
+    lightSet: lightSetAt(t), fill, rain, overcast: rain,
     wet: t < 48 ? 0 : t < 62 ? ramp(48, 52, t) : 1 - ramp(62, 90, t),
     floodLevel, shieldGlow, matchTime, goalElapsed: t >= 70 && t < 78 ? t - 70 : null,
     caption: BEATS[beat].caption,
@@ -67,7 +71,7 @@ export function createSequencePlayer({ sample, prepare = async () => {}, onState
     stop(); phase = 'loading'; seeking = seek; requestedTime = t; const version = ++epoch; listen(true);
     pending = (async () => {
       try {
-        await prepare(() => version === epoch);
+        await prepare(() => version === epoch, () => clamp(requestedTime, 0, DURATION));
         if (version !== epoch) return null;
         phase = 'playing'; origin = now() - clamp(requestedTime, 0, DURATION) * 1000;
         return emit(requestedTime);
@@ -115,11 +119,11 @@ export function installHeroSequence(host) {
   }
   const player = createSequencePlayer({
     sample: t => state(t, { poses, reducedMotion: reduced, crowdFraction: host.fraction() }),
-    async prepare(current) {
+    async prepare(current, startTime) {
       reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
       buttons.forEach(b => { b.textContent = 'Loading hero…'; }); strip.hidden = false; caption.textContent = 'Loading the hero sequence';
       labels.textContent = `${CROWD} ${SHOW}`;
-      const [module] = await Promise.all([import('../events/match.js'), host.prepare(current)]);
+      const [module] = await Promise.all([import('../events/match.js'), host.prepare(current, startTime)]);
       if (!current()) return;
       match = module.installMatch({ scene, bearing: host.bearing, pad: host.pad, getCrowd: host.crowd });
       matchRoot = scene.getObjectByName('SPT-01'); matchRoot.visible = false;
