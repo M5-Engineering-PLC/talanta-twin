@@ -5,15 +5,13 @@ import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
 /** Load the baked stadium hero models and their manifest, off-scene: the caller adds result.group when ready.
- *  phone (a phone or the low tier): manifest_phone.json and the *_phone.glb files; if it is missing, the full manifest. */
+ *  phone (a phone or the low tier): manifest_phone.json and the *_phone.glb files only. */
 export async function loadHero({ renderer, base = './models/', onProgress = () => {}, phone = false }) {
   const ktx2 = new KTX2Loader().setTranscoderPath('./basis/').detectSupport(renderer);
   const loader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
   try {
-    let response = phone ? await fetch(`${base}manifest_phone.json`).catch(() => null) : null;
-    const usePhone = Boolean(response?.ok);
-    if (phone && !usePhone) console.warn('manifest_phone.json unavailable; loading the full hero models');
-    if (!usePhone) response = await fetch(`${base}manifest.json`);
+    const response = await fetch(`${base}${phone ? 'manifest_phone.json' : 'manifest.json'}`);
+    const usePhone = phone;
     if (!response.ok) throw new Error(`manifest request failed: ${response.status}`);
     const manifest = await readManifest(response, `${base}${usePhone ? 'manifest_phone.json' : 'manifest.json'}`);
 
