@@ -256,3 +256,23 @@ body:not(.landing-mode) #landing-toggle { top: 7px; bottom: auto; right: 96px; p
 .rain-control { display: flex; align-items: center; gap: 8px; margin: 8px 16px; font-size: 13px; }
 .landing-tour-actions { display: flex; gap: 8px; justify-self: end; }
 @media (max-width: 600px) { .landing-tour-actions .landing-pill { padding: 9px 10px; } #hero-caption { left: 12px; bottom: 64px; max-width: calc(100% - 24px); font-size: 13px; } }
+
+/* Registry menu: one scrollable panel for the landing and full interfaces. */
+#modules-toggle { position: fixed; z-index: 21; right: 18px; bottom: 64px; min-height: 44px; padding: 9px 18px; border: 1px solid var(--line); border-radius: 24px; background: var(--panel); box-shadow: 0 2px 12px #0002; }
+#modules-panel { position: fixed; z-index: 21; right: 18px; bottom: 116px; width: min(420px, calc(100% - 36px)); max-height: calc(100% - 140px); max-height: calc(100dvh - 140px); overflow-y: auto; overscroll-behavior: contain; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: 0 6px 24px #0003; }
+#modules-panel[hidden], #module-claim[hidden] { display: none; }
+.modules-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.modules-heading h2 { margin: 0; font-size: 18px; }
+.modules-heading button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; }
+#modules-list h3 { margin: 18px 0 6px; font-size: 12px; color: var(--ink-2); }
+.module-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 10px; width: 100%; min-height: 44px; padding: 12px 4px; border-top: 1px solid var(--line); text-align: left; overflow-wrap: anywhere; }
+.module-entry:hover:enabled { background: var(--panel-2); }
+.module-entry:disabled { cursor: default; color: var(--ink-2); }
+.module-status { font-size: 11px; color: var(--ink-2); }
+.module-claim { grid-column: 1 / -1; font-size: 11px; line-height: 1.45; color: var(--ink-2); }
+#module-claim { position: fixed; z-index: 20; left: 18px; bottom: 110px; width: min(430px, calc(100% - 36px)); margin: 0; padding: 8px 12px; border-radius: 6px; background: var(--panel); font-size: 11px; line-height: 1.45; pointer-events: none; }
+@media (max-width: 600px) {
+  #modules-toggle { right: 12px; bottom: 60px; padding: 9px 13px; font-size: 12px; }
+  #modules-panel { right: 12px; bottom: 112px; width: calc(100% - 24px); padding: 12px; }
+  #module-claim { left: 12px; bottom: 110px; width: calc(100% - 24px); }
+}
