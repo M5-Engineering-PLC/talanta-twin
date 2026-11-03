@@ -90,21 +90,26 @@ const defaultIo = (renderer) => ({
  * base: public root ('./'). manifest: the app manifest; manifest.tod = { base, times, dir } enables it (else times is empty).
  * setTime(hhmm) loads the set, then swaps lightmaps, panorama and ground gain in one synchronous step.
  * A failed load keeps the current set and logs one warning. At most 2 sets (phone) or 4 (desktop) stay cached; the base set
- * (the textures inside the GLB) is never disposed.
+ * (the textures inside the GLB) stays cached unless phone preloading needs its slot.
  */
 export function createTimeOfDay({ group, renderer, scene, base = './', manifest, phone = false, onEnvironment, io = defaultIo(renderer) }) {
   const cfg = manifest?.tod, times = cfg?.times?.length ? [...cfg.times].sort() : [], baseTime = cfg?.base ?? null;
-  const dir = `${base}${cfg?.dir ?? (phone ? 'lightmaps_phone' : 'lightmaps')}/`;
+  const dir = `${base}${phone ? 'lightmaps_phone' : (cfg?.dir ?? 'lightmaps')}/`;
   const cap = phone ? 2 : 4;
-  const sets = new Map(), pending = new Map(), envs = new Map();
+  const sets = new Map(), pending = new Map(), envs = new Map(), samplers = new Map();
   let current = null, appliedEnv = null, seq = 0, nearestCurrent = null, ground = new Set(), gain = 1, warned = false, tick = 0;
+  let idleScheduled = false, disposed = false;
   const warn = (what, error) => { if (!warned) console.warn(`time of day: ${what}`, error); warned = true; };
 
   // The base set is what the GLB already carries.
   const entries = () => collectLightmapped(group);
   if (baseTime) {
     const textures = new Map(), intensities = new Map();
-    for (const e of entries()) if (e.material.lightMap && !textures.has(e.group)) { textures.set(e.group, e.material.lightMap); intensities.set(e.group, e.material.userData.talanta_lightmap.intensity); }
+    for (const e of entries()) if (e.material.lightMap && !textures.has(e.group)) {
+      const t = e.material.lightMap;
+      textures.set(e.group, t); intensities.set(e.group, e.material.userData.talanta_lightmap.intensity);
+      samplers.set(e.group, { wrapS: t.wrapS, wrapT: t.wrapT, magFilter: t.magFilter, minFilter: t.minFilter, anisotropy: t.anisotropy });
+    }
     sets.set(baseTime, { textures, intensities, tod: null, base: true, used: 0 });
   }
 
@@ -117,9 +122,9 @@ export function createTimeOfDay({ group, renderer, scene, base = './', manifest,
         if (have) { have.tod = tod; return have; }  // base set: textures are already in the GLB
         const names = Object.keys(tod.groups);
         const loaded = await io.textures(names.map((n) => `${dir}${hhmm}/${tod.groups[n].file}`));
-        const reference = sets.get(baseTime)?.textures, textures = new Map(), intensities = new Map();
+        const textures = new Map(), intensities = new Map();
         names.forEach((n, i) => {
-          const t = loaded[i], r = reference?.get(n);
+          const t = loaded[i], r = samplers.get(n);
           if (r) { t.wrapS = r.wrapS; t.wrapT = r.wrapT; t.magFilter = r.magFilter; t.minFilter = r.minFilter; t.anisotropy = r.anisotropy; }
           textures.set(n, t); intensities.set(n, tod.groups[n].intensity);
         });
@@ -181,20 +186,41 @@ export function createTimeOfDay({ group, renderer, scene, base = './', manifest,
   return {
     times,
     get current() { return current; },
+    isReady: hhmm => Boolean(sets.get(hhmm)?.tod),
     preset: (hhmm) => PRESETS[hhmm],
     /** The baked time for these minutes, with hysteresis. */
     nearest(minutes) { nearestCurrent = nearestTime(times, minutes, nearestCurrent); return nearestCurrent; },
     setTime,
     /** Load the maps of a time ahead (idle time). On a phone only while the cache has room. */
-    async preload(hhmm) {
+    async preload(hhmm, { priority = false } = {}) {
       if (!times.includes(hhmm) || sets.get(hhmm)?.tod) return false;
-      if (phone && sets.size >= cap) return false;
+      if (phone && sets.size + [...pending.keys()].filter(t => !sets.has(t)).length >= cap) {
+        const unusedBase = sets.get(baseTime);
+        if (!priority || !unusedBase || baseTime === current || pending.size) return false;
+        const active = new Set(entries().map(e => e.material.lightMap));
+        for (const t of unusedBase.textures.values()) if (!active.has(t)) t.dispose();
+        sets.delete(baseTime);
+      }
       try { await ensure(hhmm); evict(); return true; } catch (error) { warn(`${hhmm} set failed to preload`, error); return false; }
+    },
+    /** Wait for a painted frame, then load night first and the other sets during idle time. */
+    preloadWhenIdle(start, onReady = () => {}, host = globalThis) {
+      if (idleScheduled || disposed) return;
+      idleScheduled = true;
+      const next = start === '1805' ? '2000' : times[(times.indexOf(start) + 1) % times.length];
+      const queue = [...new Set([next, ...times].filter(t => t && t !== start))];
+      const idle = callback => host.requestIdleCallback ? host.requestIdleCallback(callback, { timeout: 4000 }) : host.setTimeout(callback, 0);
+      const loadNext = () => idle(async () => {
+        if (disposed || !queue.length) return;
+        if (await this.preload(queue.shift(), { priority: true })) onReady();
+        if (queue.length) loadNext();
+      });
+      host.requestAnimationFrame(() => host.requestAnimationFrame(loadNext));
     },
     /** Re-apply the ground gain after late ground tiles appear. */
     refresh() { ground = groundTileMaterials(group); applyGroundGain(ground, gain); },
     dispose() {
-      seq++;
+      seq++; disposed = true;
       for (const s of sets.values()) if (!s.base) for (const t of s.textures.values()) t.dispose();
       sets.clear(); for (const p of envs.values()) p.then((e) => e?.dispose()); envs.clear();
     },

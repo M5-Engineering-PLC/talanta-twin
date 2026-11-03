@@ -856,15 +856,16 @@ else if (initialHero.reason === 'phone') {
 }
 // ENV-01: pick the nearest baked time (hysteresis in nearest), swap its set, preload the next one when idle.
 function heroTodStep(dusk) {
-  const tod = hero.tod, want = heroSequence?.frame?.lightSet ?? tod.nearest(parityMode ? 450 : state.minutes);
+  const tod = hero.tod, requested = heroSequence?.frame?.lightSet ?? tod.nearest(parityMode ? 450 : state.minutes);
+  const want = heroSequence?.frame && !tod.isReady(requested) ? (tod.current ?? '1805') : requested;
   if (want !== heroTodTime) {
     heroTodTime = want;
-    hero.environmentReady = tod.setTime(want).then((ok) => {
+    const ready = tod.setTime(want).then((ok) => {
       if (!ok || heroTodTime !== want) return;
       hero.environmentPeriod = want === '1805' || want === '2000' ? 'evening' : 'day'; heroLookKey = '';
-      const next = tod.times[(tod.times.indexOf(want) + 1) % tod.times.length];
-      (globalThis.requestIdleCallback ?? setTimeout)(() => tod.preload(next), { timeout: 4000 });
+      if (!heroSequence?.active || heroSequence.frame) tod.preloadWhenIdle(want, () => { heroLookKey = ''; });
     });
+    hero.environmentReady = heroSequence?.active && tod.current ? Promise.resolve() : ready;
   }
   heroLighting?.update({ ...dusk, lightMapIntensity: 1, tint: [1, 1, 1], gradeWarmth: 0 });
   heroWarmth.value = getGradePreset(tod.preset(want)).warmth;
@@ -1035,8 +1036,8 @@ async function ensureHeroSequence() {
         while (heroLoading && current() && performance.now() < deadline) await new Promise(resolve => requestAnimationFrame(resolve));
         if (!current()) return;
         if (heroLoading) throw new Error('Hero assets did not finish loading');
-        await Promise.all([crowd?.ready, hero?.groundReady,
-          ...(hero?.tod ? ['1805', '2000'].map(t => hero.tod.preload(t)) : [])]);
+        await Promise.all([crowd?.ready, hero?.groundReady, hero?.tod?.setTime('1805')]);
+        if (current()) hero?.tod?.preloadWhenIdle('1805', () => { heroLookKey = ''; });
       },
       frame(q) { state.minutes = q.minutes; state.matchday = true; },
       lights(q) {
