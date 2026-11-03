@@ -29,6 +29,8 @@ import { panoramaDevice, panoramaManifest } from './hero/environment.js';
 import { cameraPoseFromManifest } from './world/cameras.js';
 import { createTour, enableTouchUX } from './tour.js';
 import { detectTier, TIERS, createFpsMonitor, profileGeometry } from './perf.js';
+import { MODULES } from './modules/registry.js';
+import { buildMenuModel, renderMenu } from './modules/menu.js';
 
 const $ = (s) => document.querySelector(s);
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -1065,6 +1067,26 @@ window.__heroSeek = async t => {
   return frame;
 };
 if (params.get('hero') === '1') void ensureHeroSequence().then(sequence => sequence.start()).catch(error => console.warn('Hero autoplay unavailable:', error));
+
+// Module entries reuse the existing controls, including event cleanup and load cancellation.
+const moduleActions = {};
+document.querySelectorAll('#modes button').forEach(button => {
+  moduleActions[`mode:${button.dataset.mode}`] = () => button.click();
+});
+moduleActions['event:concert'] = moduleActions['mode:concert'];
+moduleActions['event:match'] = moduleActions['mode:football'];
+moduleActions.hero = () => document.querySelector('.landing-mode #landing-header [data-hero], body:not(.landing-mode) #topbar [data-hero]')?.click();
+moduleActions.tour = () => { viewStills?.dismiss(); tourBtn.click(); };
+const moduleModel = buildMenuModel(MODULES, moduleActions);
+const moduleMenu = renderMenu({ button: $('#modules-toggle'), panel: $('#modules-panel'),
+  list: $('#modules-list'), claim: $('#module-claim') }, moduleModel);
+document.querySelectorAll('#modes button').forEach(button => button.addEventListener('click', () => {
+  const mode = button.dataset.mode, action = mode === 'concert' ? 'event:concert' : mode === 'football' ? 'event:match' : `mode:${mode}`;
+  moduleMenu.showClaim(moduleModel.flatMap(group => group.entries).filter(entry => entry.action === action));
+  if (mode === 'weather' && document.body.classList.contains('landing-mode')) $('#landing-toggle').click();
+  $('#landing-event').value = mode;
+}));
+
 if (!quality.crowdFraction) site.crowd.visible = false;
 let lastT = performance.now(), hud = 0, lastTimeKey = '', lastBuildKey = '', cachedSun;
 let lastLiveMinute = '';

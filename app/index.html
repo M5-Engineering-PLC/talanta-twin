@@ -53,6 +53,12 @@
     </div>
   </header>
   <button id="landing-toggle" type="button" aria-pressed="false">Explore the twin</button>
+  <button id="modules-toggle" type="button" aria-expanded="false" aria-controls="modules-panel">Modules</button>
+  <aside id="modules-panel" aria-labelledby="modules-title" hidden>
+    <div class="modules-heading"><h2 id="modules-title">Modules</h2><button type="button" data-close aria-label="Close modules">Close</button></div>
+    <div id="modules-list"></div>
+  </aside>
+  <p id="module-claim" role="status" hidden></p>
   <main id="stage">
     <div id="view"></div>
     <div id="hero-caption" role="status" aria-live="polite" hidden>
