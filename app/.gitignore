@@ -10,3 +10,4 @@ public/env
 public/ground
 public/models
 .fetch-cache/
+public/perimeter/

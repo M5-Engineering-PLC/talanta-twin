@@ -6,7 +6,16 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 
 export default defineConfig(({ command }) => ({
   base: './',
-  build: { target: 'es2022', chunkSizeWarningLimit: 2000 },
+  build: {
+    target: 'es2022',
+    chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      input: {
+        main: path.join(repoRoot, 'app/index.html'),
+        perimeter: path.join(repoRoot, 'app/perimeter.html'),
+      },
+    },
+  },
   ...(command === 'serve' ? {
     server: { fs: { allow: [repoRoot] } },
     define: { __TALANTA_REPO_ROOT__: JSON.stringify(repoRoot) },
