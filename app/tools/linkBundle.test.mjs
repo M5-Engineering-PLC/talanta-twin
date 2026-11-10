@@ -12,8 +12,9 @@ const bundle = fileURLToPath(new URL('../../assets/web_hero_v3', import.meta.url
 test('linker mounts both manifests and resolves model fetch paths without changing bundle files', async () => {
   const publicRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'talanta-links-'));
   const source = await fs.readFile(path.join(bundle, 'manifest.json'));
-  // Simulate the existing symlinks into the shared checkout.
-  await fs.symlink('/missing/old/models', path.join(publicRoot, 'models'));
+  // Replace an existing directory link without requiring Windows symlink privileges.
+  const old = await fs.mkdtemp(path.join(os.tmpdir(), 'talanta-old-'));
+  await fs.symlink(old, path.join(publicRoot, 'models'), process.platform === 'win32' ? 'junction' : 'dir');
   const report = await linkBundle({ bundle, publicRoot });
   assert.match(report, /398 files match size and sha256; 398 fetched paths are listed; 5 public links installed/);
   for (const name of ['models', 'env', 'ground', 'lightmaps', 'lightmaps_phone']) assert.equal((await fs.lstat(path.join(publicRoot, name))).isSymbolicLink(), true);
@@ -30,8 +31,9 @@ test('linker mounts both manifests and resolves model fetch paths without changi
 
 test('linker refuses any real destination before replacing an earlier symlink', async () => {
   const publicRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'talanta-refuse-'));
-  await fs.symlink('/old/models', path.join(publicRoot, 'models'));
+  const old = await fs.mkdtemp(path.join(os.tmpdir(), 'talanta-old-'));
+  await fs.symlink(old, path.join(publicRoot, 'models'), process.platform === 'win32' ? 'junction' : 'dir');
   await fs.mkdir(path.join(publicRoot, 'ground'));
   await assert.rejects(linkBundle({ bundle, publicRoot }), /Refusing to replace a real directory or file/);
-  assert.equal(await fs.readlink(path.join(publicRoot, 'models')), '/old/models');
+  assert.equal(await fs.realpath(path.join(publicRoot, 'models')), await fs.realpath(old));
 });

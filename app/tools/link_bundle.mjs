@@ -66,7 +66,8 @@ export async function linkBundle({ bundle = path.resolve(app, '../assets/web_her
     const info = await present(dest);
     if (info && !info.isSymbolicLink()) throw new Error(`Refusing to replace a real directory or file: ${dest}`);
     if (info) await fs.unlink(dest);
-    await fs.symlink(target, dest, 'dir');
+    // Windows junctions do not require the symlink privilege; lstat still identifies them as links.
+    await fs.symlink(target, dest, process.platform === 'win32' ? 'junction' : 'dir');
   }
   return `${desktop.bundle}: ${all.size} files match size and sha256; ${fetched.size} fetched paths are listed; ${Object.keys(links).length} public links installed`;
 }
