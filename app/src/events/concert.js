@@ -23,16 +23,29 @@ function fit(object, { size, yaw = 0, base = 0, x = 0, backZ, centreZ }) {
 // World-space geometry of every mesh in a loaded scene whose material passes the filter.
 function collect(object, accept = () => true) {
   object.updateMatrixWorld(true); const list = [];
-  object.traverse(o => { if (o.isMesh && accept(o.material)) list.push(o.geometry.clone().applyMatrix4(o.matrixWorld)); });
+  object.traverse(o => { if (o.isMesh && accept(o.material)) list.push({ geometry: o.geometry, matrix: o.matrixWorld }); });
   return list;
 }
-function merged(geometries) {
-  let total = 0; for (const g of geometries) total += g.attributes.position.count;
+export function mergeConcertGeometry(geometries) {
+  let total = 0; for (const { geometry } of geometries) total += geometry.attributes.position.count;
   const position = new Float32Array(total * 3), normal = new Float32Array(total * 3), index = []; let offset = 0;
-  for (const g of geometries) {
-    position.set(g.attributes.position.array, offset * 3); if (g.attributes.normal) normal.set(g.attributes.normal.array, offset * 3);
-    const ids = g.index ? g.index.array : Array.from({ length: g.attributes.position.count }, (_, i) => i);
-    for (const i of ids) index.push(i + offset); offset += g.attributes.position.count;
+  const vertex = new THREE.Vector3(), normalMatrix = new THREE.Matrix3();
+  for (const { geometry, matrix } of geometries) {
+    const { position: sourcePosition, normal: sourceNormal } = geometry.attributes;
+    normalMatrix.getNormalMatrix(matrix);
+    for (let i = 0; i < sourcePosition.count; i++) {
+      const dest = (offset + i) * 3;
+      vertex.fromBufferAttribute(sourcePosition, i).applyMatrix4(matrix).toArray(position, dest);
+      if (sourceNormal) {
+        vertex.fromBufferAttribute(sourceNormal, i).applyNormalMatrix(normalMatrix).toArray(normal, dest);
+      }
+    }
+    if (geometry.index) {
+      for (let i = 0; i < geometry.index.count; i++) index.push(geometry.index.getX(i) + offset);
+    } else {
+      for (let i = 0; i < sourcePosition.count; i++) index.push(i + offset);
+    }
+    offset += sourcePosition.count;
   }
   const out = new THREE.BufferGeometry();
   out.setAttribute('position', new THREE.BufferAttribute(position, 3)); out.setAttribute('normal', new THREE.BufferAttribute(normal, 3)); out.setIndex(index);
@@ -161,17 +174,21 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
     const [stage, truss, bstage, tile, light] = await Promise.all(['ipoly3d-concert-stage', 'truss-structure', 'simple-concert-stage', 'led-25-x-4', 'stage-lights'].map(get));
     if (dead) return;
     // Main stage: the model faces +z. Turn it to face north, 60 m wide, back plane at the stage back.
-    root.add(fit(stage, { size: [STAGE.width, 17.55, 35.07 * .45], yaw: Math.PI, backZ: STAGE.backZ })).name = 'concert-stage';
-    root.add(fit(truss, { size: [initial.truss.width, initial.truss.height, initial.truss.depth], base: initial.truss.position[1], centreZ: initial.truss.position[2] })).name = 'concert-truss';
-    root.add(fit(bstage, { size: [BSTAGE.halfWidth * 2, BSTAGE.height, BSTAGE.depth], yaw: Math.PI, centreZ: BSTAGE.centreZ })).name = 'concert-bstage';
+    stage.name = 'concert-stage';
+    root.add(fit(stage, { size: [STAGE.width, 17.55, 35.07 * .45], yaw: Math.PI, backZ: STAGE.backZ }));
+    truss.name = 'concert-truss';
+    root.add(fit(truss, { size: [initial.truss.width, initial.truss.height, initial.truss.depth], base: initial.truss.position[1], centreZ: initial.truss.position[2] }));
+    bstage.name = 'concert-bstage';
+    root.add(fit(bstage, { size: [BSTAGE.halfWidth * 2, BSTAGE.height, BSTAGE.depth], yaw: Math.PI, centreZ: BSTAGE.centreZ }));
     // The truss file has a white factor. Dim it so it reads as painted steel at night.
     truss.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.color.multiplyScalar(.45); } });
     fallback.visible = false;
     // Tile: face is the FrontColor material, the rest is frame. Light: one fixture, lens along +z.
     const faces = collect(tile, m => m.name === 'FrontColor'), frames = collect(tile, m => m.name !== 'FrontColor');
-    normalise([faces, frames], [2, 2, .2]);
-    tileGeometry = { face: merged(faces), frame: merged(frames) }; buildStatic();
-    const fixture = merged(collect(light)); normalise([[fixture]], [.9, 1.1, .9]);
+    const face = mergeConcertGeometry(faces), frame = mergeConcertGeometry(frames);
+    normalise([[face, frame]], [2, 2, .2]);
+    tileGeometry = { face, frame }; buildStatic();
+    const fixture = mergeConcertGeometry(collect(light)); normalise([[fixture]], [.9, 1.1, .9]);
     headGeometry = fixture; buildMoving(); player.redraw();
   }
   if (loadModels) loadAll().catch(error => console.warn('Concert models unavailable, using stand-ins:', error));
