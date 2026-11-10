@@ -9,11 +9,25 @@
   canvas { display: block; }
   header { position: absolute; z-index: 1; margin: 1rem; padding: .75rem 1rem; background: #fff; border-radius: .5rem; }
   p { margin: .25rem 0 0; }
+  header { max-width: min(32rem, calc(100vw - 4rem)); }
+  nav { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .65rem; }
+  button { min-height: 44px; padding: .4rem .7rem; cursor: pointer; }
+  button[aria-pressed="true"] { background: #174b38; color: white; }
+  #event-claim { max-width: 30rem; }
+  a { display: inline-block; padding: .5rem 0; }
 </style>
 <header>
   <strong>Talanta Twin · Stadium and perimeter</strong>
   <p id="status" role="status">Loading the stadium…</p>
   <p>Venue visualization · some site details are estimated</p>
+  <nav aria-label="Venue modes">
+    <button type="button" data-mode="venue" aria-pressed="true">Venue</button>
+    <button type="button" data-mode="football" aria-pressed="false">Football</button>
+    <button type="button" data-mode="concert" aria-pressed="false">Concert</button>
+    <button type="button" data-mode="drone" aria-pressed="false">Drone show</button>
+  </nav>
+  <p id="event-claim" role="status"></p>
+  <a href="./concert/CREDITS.md" target="_blank" rel="noopener">Concert sources and credits</a>
 </header>
 <script type="module" src="/src/perimeter.js"></script>
 </html>
