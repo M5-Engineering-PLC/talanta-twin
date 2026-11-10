@@ -42,7 +42,7 @@ test('regenerating the palette writes the same file', async () => {
   const result = spawnSync(process.execPath, [generator], { cwd: appDir, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   const after = await readFile(path.join(appDir, 'src/world/seatPalette.js'), 'utf8');
-  assert.equal(after, before);
+  assert.equal(after.replace(/\r\n/g, '\n'), before.replace(/\r\n/g, '\n'));
 });
 
 test('seeded tone and speckle shares follow the ledger rules and repeat exactly', () => {

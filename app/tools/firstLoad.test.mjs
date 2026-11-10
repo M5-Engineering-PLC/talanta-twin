@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { lightSetAt, SEQUENCE_LIGHT_SETS, createSequencePlayer } from '../src/hero/sequence.js';
 import { loadHero } from '../src/hero/loadHero.js';
+import { prepareSequenceLight } from '../src/hero/sequenceLight.js';
 
 test('the sequence uses its light sets in order, the start frame needs only 1805', () => {
   assert.equal(lightSetAt(0), '1805');
@@ -26,12 +27,24 @@ test('prepare learns the requested start time, also after a seek during loading'
   assert.equal(lightSetAt(seen[1]), '2000');
 });
 
-test('the hero prepare step waits for one light set and fetches the rest when idle', () => {
-  const main = readFileSync(new URL('../src/main.js', import.meta.url), 'utf8');
-  assert.doesNotMatch(main, /\['1805', '2000'\]\.map\(t => hero\.tod\.preload/);
-  assert.match(main, /const first = lightSetAt\(startTime\(\)\);/);
-  assert.match(main, /hero\?\.tod\?\.preload\(first\)\]/);
-  assert.match(main, /if \(t !== first\) idle\(/);
+test('applies the latest seek before starting and defers other sets until after paint', async () => {
+  const calls = [], frames = [], idle = []; let seek = 0, release;
+  const tod = { async setTime(t) { calls.push(`set:${t}`); if (t === '1805') await new Promise(r => { release = r; }); return true; },
+    async preload(t) { calls.push(`preload:${t}`); } };
+  const host = { requestAnimationFrame: fn => frames.push(fn), requestIdleCallback: fn => idle.push(fn) };
+  const pending = prepareSequenceLight(tod, () => seek, () => true, host);
+  await Promise.resolve(); seek = 50; release(); await pending;
+  assert.deepEqual(calls, ['set:1805', 'set:2000']);
+  frames.shift()(); assert.equal(idle.length, 0); frames.shift()(); assert.equal(idle.length, 1);
+  await idle.shift()(); assert.deepEqual(calls, ['set:1805', 'set:2000', 'preload:1805']);
+});
+
+test('cancellation prevents deferred loads and a failed start set aborts preparation', async () => {
+  const frames = [], calls = []; let active = true;
+  const host = { requestAnimationFrame: fn => frames.push(fn), setTimeout: fn => { calls.push('timer'); fn(); } };
+  await prepareSequenceLight({ setTime: async () => true, preload: async () => calls.push('preload') }, () => 0, () => active, host);
+  active = false; frames.shift()(); assert.deepEqual(calls, []);
+  await assert.rejects(prepareSequenceLight({ setTime: async () => false }, () => 0, () => true, host), /light set/);
 });
 
 test('a phone reads manifest_phone.json only and never falls back to the desktop models', async () => {

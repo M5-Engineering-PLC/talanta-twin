@@ -63,7 +63,7 @@ function setup() {
   const release = path.join(root, 'release');
   fs.mkdirSync(release);
   execFileSync('tar', ['-cf', path.join(release, `${BUNDLE}.tar`), '-C', path.join(root, 'tree'), BUNDLE]);
-  const gh = path.join(root, 'gh');
+  const gh = path.join(root, 'gh.cjs');
   fs.writeFileSync(gh, FAKE_GH, { mode: 0o755 });
   const log = path.join(root, 'gh.log');
   fs.writeFileSync(log, '');

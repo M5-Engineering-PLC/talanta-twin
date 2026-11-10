@@ -856,9 +856,9 @@ else if (initialHero.reason === 'phone') {
   full.onclick = () => { if (decision(true).load) void scheduleHeroLoad(openingPoster.ready, startHero); };
   heroStatus.append(full);
 }
-const idle = (fn) => (globalThis.requestIdleCallback ?? ((f) => setTimeout(f, 200)))(fn, { timeout: 4000 });
 // ENV-01: pick the nearest baked time (hysteresis in nearest), swap its set, preload the next one when idle.
 function heroTodStep(dusk) {
+  if (heroSequence?.active && !heroSequence.frame) return; // preparation owns the starting light set
   const tod = hero.tod, want = heroSequence?.frame?.lightSet ?? tod.nearest(parityMode ? 450 : state.minutes);
   if (want !== heroTodTime) {
     heroTodTime = want;
@@ -866,7 +866,7 @@ function heroTodStep(dusk) {
       if (!ok || heroTodTime !== want) return;
       hero.environmentPeriod = want === '1805' || want === '2000' ? 'evening' : 'day'; heroLookKey = '';
       const next = tod.times[(tod.times.indexOf(want) + 1) % tod.times.length];
-      (globalThis.requestIdleCallback ?? setTimeout)(() => tod.preload(next), { timeout: 4000 });
+      if (!heroSequence?.active) (globalThis.requestIdleCallback ?? ((fn) => setTimeout(fn, 200)))(() => tod.preload(next), { timeout: 4000 });
     });
   }
   heroLighting?.update({ ...dusk, lightMapIntensity: 1, tint: [1, 1, 1], gradeWarmth: 0 });
@@ -1023,7 +1023,7 @@ let landingUI = initLanding({
 
 // CAM-01 / ENV-02 / ENV-03 load only on demand. The director owns its timeline and weather.
 async function ensureHeroSequence() {
-  if (!heroSequenceLoad) heroSequenceLoad = import('./hero/sequence.js').then(({ installHeroSequence, lightSetAt, SEQUENCE_LIGHT_SETS }) => {
+  if (!heroSequenceLoad) heroSequenceLoad = Promise.all([import('./hero/sequence.js'), import('./hero/sequenceLight.js')]).then(([{ installHeroSequence }, { prepareSequenceLight }]) => {
     heroSequence = installHeroSequence({ scene, camera, controls, canvas: renderer.domElement, stage,
       manifest: CAMS, focus: FOCUS, sky, paintSky, bearing: F.pitch_bearing_deg, pad: PAD,
       tier: () => tier, fraction: () => quality.crowdFraction, crowd: () => crowd, night: () => night,
@@ -1038,10 +1038,8 @@ async function ensureHeroSequence() {
         while (heroLoading && current() && performance.now() < deadline) await new Promise(resolve => requestAnimationFrame(resolve));
         if (!current()) return;
         if (heroLoading) throw new Error('Hero assets did not finish loading');
-        // First-load budget: wait only for the light set of the start frame; fetch the other sequence sets when idle.
-        const first = lightSetAt(startTime());
-        await Promise.all([crowd?.ready, hero?.groundReady, hero?.tod?.preload(first)]);
-        if (hero?.tod) for (const t of SEQUENCE_LIGHT_SETS) if (t !== first) idle(() => { if (current()) void hero.tod.preload(t); });
+        await Promise.all([crowd?.ready, hero?.groundReady]);
+        if (current()) await prepareSequenceLight(hero?.tod, startTime, current);
       },
       frame(q) { state.minutes = q.minutes; state.matchday = true; },
       lights(q) {

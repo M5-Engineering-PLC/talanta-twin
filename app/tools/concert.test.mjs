@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -7,7 +8,7 @@ import { concert_cues } from '../src/events/cues.js';
 import { concertState, concertBudget, concertCost, floorZones, AISLE, CATWALK, BSTAGE, PITCH_HALF } from '../src/events/concert-state.js';
 import { standingPlaces } from '../src/people/model.js';
 
-const dir = new URL('../public/concert/', import.meta.url).pathname;
+const dir = fileURLToPath(new URL('../public/concert/', import.meta.url));
 const files = d => readdirSync(d).flatMap(n => statSync(join(d, n)).isDirectory() ? files(join(d, n)) : [join(d, n)]);
 
 test('concertState is deterministic, JSON-safe and leaves the cues unchanged', () => {
@@ -90,7 +91,7 @@ test('every file in public/concert has an entry in CREDITS.md and the size budge
   const credits = readFileSync(join(dir, 'CREDITS.md'), 'utf8'), all = files(dir);
   let total = 0;
   for (const file of all) {
-    const name = relative(dir, file); total += statSync(file).size;
+    const name = relative(dir, file).split('\\').join('/'); total += statSync(file).size;
     if (name !== 'CREDITS.md') assert.ok(credits.includes(name), `${name} is missing from CREDITS.md`);
     assert.ok(!/speaker|sofi/i.test(name), `${name} must not be in the repository`);
   }

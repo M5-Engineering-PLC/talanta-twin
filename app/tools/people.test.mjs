@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -117,7 +118,7 @@ test('reactions, palettes, LOD selection, label, and disposal work through the p
 
 test('crowd module bundles with its TSL imports', async () => {
   const result = await build({ configFile: false, logLevel: 'error', build: { write: false, minify: false,
-    lib: { entry: new URL('../src/people/index.js', import.meta.url).pathname, formats: ['es'], fileName: 'people' } } });
+    lib: { entry: fileURLToPath(new URL('../src/people/index.js', import.meta.url)), formats: ['es'], fileName: 'people' } } });
   const output = Array.isArray(result) ? result[0].output : result.output;
   assert.ok(output.some((o) => o.type === 'chunk' && o.code.includes('installSeatedCrowd')));
 });

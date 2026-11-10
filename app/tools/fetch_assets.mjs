@@ -34,6 +34,9 @@ const PUBLIC = path.resolve(opt('public', path.join(APP, 'public')));
 const CHECK_ONLY = args.includes('--check');
 const CACHE = path.join(APP, '.fetch-cache', BUNDLE);
 const GH = process.env.GH_BIN || 'gh';
+// A JavaScript executable may be supplied for offline tests on every platform.
+const ghCommand = GH.endsWith('.cjs') ? process.execPath : GH;
+const ghPrefix = GH.endsWith('.cjs') ? [GH] : [];
 
 const fail = (msg) => { console.error(`fetch-assets: ${msg}`); process.exit(1); };
 const rel = (p) => path.relative(process.cwd(), p) || '.';
@@ -93,7 +96,7 @@ if (missing.length) {
     fs.mkdirSync(CACHE, { recursive: true });
     let assets;
     try {
-      assets = JSON.parse(execFileSync(GH, ['release', 'view', BUNDLE, '--repo', REPO, '--json', 'assets'], { encoding: 'utf8' })).assets.map((a) => a.name);
+      assets = JSON.parse(execFileSync(ghCommand, [...ghPrefix, 'release', 'view', BUNDLE, '--repo', REPO, '--json', 'assets'], { encoding: 'utf8' })).assets.map((a) => a.name);
     } catch (error) {
       fail(`cannot read release ${BUNDLE} on ${REPO} (${error.message.split('\n')[0]}). Is it published, and is gh logged in?`);
     }
@@ -102,7 +105,7 @@ if (missing.length) {
     const patterns = flat.length === wanted.size ? flat : [...flat, ...archives];
     if (!patterns.length) fail(`release ${BUNDLE} has none of the ${wanted.size} needed files and no tar archive`);
     console.log(`fetch-assets: downloading ${patterns.length} asset(s) from ${REPO} release ${BUNDLE}`);
-    execFileSync(GH, ['release', 'download', BUNDLE, '--repo', REPO, '--dir', CACHE, '--clobber', ...patterns.flatMap((p) => ['--pattern', p])], { stdio: 'inherit' });
+    execFileSync(ghCommand, [...ghPrefix, 'release', 'download', BUNDLE, '--repo', REPO, '--dir', CACHE, '--clobber', ...patterns.flatMap((p) => ['--pattern', p])], { stdio: 'inherit' });
   }
 }
 
