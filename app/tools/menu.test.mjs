@@ -38,6 +38,7 @@ test('SEC- modules never appear', () => {
 test('actions parse to mode, event or hero and reject anything else', () => {
   assert.equal(parseAction(undefined), null);
   assert.deepEqual(parseAction('hero'), { kind: 'hero' });
+  assert.deepEqual(parseAction('tour'), { kind: 'tour' });
   assert.deepEqual(parseAction('mode:show'), { kind: 'mode', value: 'show' });
   assert.deepEqual(parseAction('event:concert'), { kind: 'event', value: 'concert' });
   assert.deepEqual(parseAction('event:match'), { kind: 'event', value: 'match' });
@@ -48,6 +49,10 @@ test('registry actions are valid and wired to the expected controls', () => {
   for (const m of MODULES) parseAction(m.action);
   const by = Object.fromEntries(MODULES.map((m) => [m.id, m.action]));
   assert.equal(by['CAM-01'], 'hero');
+  for (const id of ['ENV-01', 'AMB-02', 'AMB-03']) assert.equal(by[id], 'mode:venue');
+  for (const id of ['ENV-02', 'ENV-03']) assert.equal(by[id], 'mode:weather');
+  assert.equal(by['CAM-07'], 'tour');
+  assert.match(readFileSync(new URL('../src/main.js', import.meta.url), 'utf8'), /action.kind === 'tour'.*tourBtn.click/);
   assert.equal(by['EVT-01'], 'event:concert');
   assert.equal(by['SPT-01'], 'event:match');
   assert.equal(by['SHW-01'], 'mode:show');

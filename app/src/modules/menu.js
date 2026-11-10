@@ -17,7 +17,7 @@ export const EVENTS = ['concert', 'match'];
 /** Parse an optional registry action. Returns null for no action; throws on an unknown one. */
 export function parseAction(action) {
   if (action == null) return null;
-  if (action === 'hero') return { kind: 'hero' };
+  if (action === 'hero' || action === 'tour') return { kind: action };
   const [kind, value, ...rest] = String(action).split(':');
   if (!rest.length && kind === 'mode' && MODES.includes(value)) return { kind, value };
   if (!rest.length && kind === 'event' && EVENTS.includes(value)) return { kind, value };

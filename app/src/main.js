@@ -1062,6 +1062,7 @@ document.querySelectorAll('[data-hero]').forEach(button => { button.onclick = as
 }; });
 // Modules menu (phase A): built from the registry; actions reuse the mode buttons, the event path and the Hero sequence.
 initModulesMenu({ modules: MODULES, async run(action) {
+  if (action.kind === 'tour') { viewStills?.dismiss(); tourBtn.click(); return; }
   if (action.kind === 'mode' || action.kind === 'event') {
     const mode = action.kind === 'event' ? (action.value === 'match' ? 'football' : 'concert') : action.value;
     heroSequence?.stop();
