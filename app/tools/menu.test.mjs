@@ -54,8 +54,8 @@ test('registry actions are valid and wired to the expected controls', () => {
   assert.equal(by['PPL-01'], 'mode:matchday');
   assert.equal(by['HIS-01'], 'mode:construction');
   assert.equal(by['ENV-07'], 'mode:weather');
-  // Every data-mode named by an action exists in index.html.
-  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  // Every data-mode named by an action exists in the full-site app.
+  const html = readFileSync(new URL('../full-site.html', import.meta.url), 'utf8');
   for (const m of MODULES) { const a = parseAction(m.action); if (a?.kind === 'mode') assert.match(html, new RegExp(`data-mode="${a.value}"`), m.id); }
 });
 

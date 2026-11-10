@@ -13,6 +13,7 @@ export default defineConfig(({ command }) => ({
       input: {
         main: path.join(repoRoot, 'app/index.html'),
         perimeter: path.join(repoRoot, 'app/perimeter.html'),
+        fullSite: path.join(repoRoot, 'app/full-site.html'),
       },
     },
   },

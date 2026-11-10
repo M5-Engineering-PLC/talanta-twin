@@ -9,6 +9,7 @@ if (full) document.querySelector('strong').textContent = 'Talanta Twin · Full s
 try {
   const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: true });
   await renderer.init();
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   const camera = new THREE.PerspectiveCamera(42, 1, 1, 4000);
   const resize = () => {
@@ -24,13 +25,9 @@ try {
   if (!loaded) throw new Error('Run export_perimeter.mjs and check the model files.');
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#d4dce1');
-  scene.add(loaded.group, new THREE.HemisphereLight('#fff8ed', '#6e6355', 1.25));
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), new THREE.MeshBasicMaterial({ color: '#b6b1a3' }));
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -2;
-  scene.add(ground);
+  scene.add(loaded.group, new THREE.HemisphereLight('#fff8ed', '#6e6355', .65));
 
-  camera.position.set(320, 180, 320);
+  camera.position.set(410, 280, 440);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(0, 15, 0);
   controls.maxPolarAngle = Math.PI / 2;
