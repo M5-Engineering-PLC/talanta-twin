@@ -1,6 +1,6 @@
 # H0 asset and shot review — 2026-11-10
 
-Status: draft for Munene's review. No third-party assets have been imported under this record.
+Status: prototype direction approved by Munene in chat on 2026-11-10. File-level review and shot freeze are in progress.
 
 ## Output strategy
 
@@ -23,7 +23,7 @@ Use the eight existing virtual camera keys in app/src/hero/sequencePoses.js. The
 
 Add four close shots for review in both render tracks. Frame a crowd subject at 10 m, a generic performer on stage, a generic football player on the pitch, and one detailed drone in front of the formation. Record camera transforms and show cues before rendering the comparison set.
 
-Munene approval of strategy, exact asset and notice table, and shot freeze: pending.
+Munene approved the two-track strategy and the two-rig, two-clip prototype after file-level checks. The complete production asset table and close-shot camera transforms are pending.
 
 For the first import evaluation, shortlist the standard rigged FBX and matching body, head and opacity texture sets for [Female_Adult_01](https://github.com/microsoft/Microsoft-Rocketbox/tree/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Adults/Female_Adult_01) and [Male_Adult_01](https://github.com/microsoft/Microsoft-Rocketbox/tree/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Adults/Male_Adult_01). Evaluate their suitability before using them for the broader Kenyan crowd. The [creators' paper](https://doi.org/10.3389/frvir.2020.561558) describes the avatars as composites made from substantially modified reference material. Individual source releases have not been inspected.
 
