@@ -1,0 +1,4 @@
+# Bundle JSON is referenced by byte size and SHA-256 in its manifests.
+# Preserve the committed LF bytes even when Windows uses core.autocrlf=true.
+assets/web_hero_v3/*.json text eol=lf
+assets/web_hero_v3/**/*.json text eol=lf
