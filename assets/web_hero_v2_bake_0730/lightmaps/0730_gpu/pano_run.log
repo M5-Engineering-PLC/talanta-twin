@@ -1,0 +1,16 @@
+00:00.578  blend            | Read blend: "/tmp/talanta/pack/talanta_render_pack/blender/out/frozen_FL.blend"
+00:12.279  cycles           | WARNING HIPEW initialization failed: Error opening HIP dynamic library
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+06:23.894  render           | Saved: '/kaggle/working/lightmaps/0730/env/talanta_pano_0730.exr'
+gpu_pre.py: OPTIX ['Tesla T4', 'Tesla T4']
+
+Blender quit
+Traceback (most recent call last):
+  File "/tmp/talanta/pack/talanta_render_pack/blender/web_hero/render_panorama.py", line 109, in <module>
+    "file": str(full.relative_to(ROOT)), "file_2048": str((env / f"{stem}_2048.hdr").relative_to(ROOT)),
+                ~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/talanta/blender/5.2/python/lib/python3.13/pathlib/_local.py", line 385, in relative_to
+    raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+ValueError: '/kaggle/working/lightmaps/0730/env/talanta_pano_0730.exr' is not in the subpath of '/tmp/talanta/pack/talanta_render_pack'
+
+Error: script failed, file: '/tmp/talanta/pack/talanta_render_pack/blender/web_hero/render_panorama.py', exiting.

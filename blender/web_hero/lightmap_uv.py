@@ -112,6 +112,10 @@ def _shelf(dims, size):
     return pos
 
 
+class NoFit(ValueError):
+    pass
+
+
 def pack(obs, size, tube_names=()):
     """Write the "lightmap" UV layer of every object in obs into one size x size atlas. Returns stats."""
     items = []  # (object, loops, uv in metres, w, h)
@@ -132,6 +136,7 @@ def pack(obs, size, tube_names=()):
         if _shelf(dims_at(mid), size) is not None: lo = mid
         else: hi = mid
     d = lo; dims = dims_at(d); pos = _shelf(dims, size)
+    if pos is None: raise NoFit(f"{len(items)} charts do not fit a {size} px atlas at {MIN_PX} px each")
     buf = {o.name: np.zeros((len(o.data.loops), 2)) for o in obs}
     used = 0
     for (o, loops, uv, w, h), (pw, ph), (x, y) in zip(items, dims, pos):

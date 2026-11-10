@@ -3,7 +3,8 @@ import { attribute, instanceColor, uniform, vec3, float, mix, sin, step } from '
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { Timeline, night_show } from './timeline.js';
 import { fallbackFacadeLines, validFacadeLines, padY } from './geometry.js';
-import { limits, droneFrame, faceDronePoint } from './shapes.js';
+import { limits } from './shapes.js';
+import { showState } from './state.js';
 
 function strips(data) {
   const parts = [...data.ribs, data.fascia, data.opening].map((line, index) => {
@@ -71,30 +72,24 @@ export function installShows({ scene, camera, renderer, heroGroup, bowlGroup, cl
   function update(dtSeconds = 0, timeSeconds) {
     if (disposed) return;
     const cues = timeline.update(dtSeconds), t = scripted ? timeline.time : (timeSeconds ?? clock?.elapsedTime ?? 0); time.value = t;
-    const state = id => {
-      if (!enabled.get(id)) return null;
-      const cue = cues.filter(c => c.module === id).at(-1);
-      if (scripted) return cue ?? (id === 'SHW-02' ? { params: { mode: 'rest' }, localTime: t } : null);
-      return { params: { mode: id === 'SHW-01' ? 'sequence' : 'rest' }, localTime: id === 'SHW-03' ? t % 32 : t };
-    };
-    const f = state('SHW-02'); facade.visible = !!f;
-    mode.value = ({ flag: 1, chase: 2, wave: 3 })[f?.params.mode] ?? 0;
-    tint.value.set(f?.params.color ?? 'white');
-    const flood = state('SHW-01'); lamps.visible = !!flood;
-    const intensity = i => {
-      if (!flood) return 0;
-      const m = flood.params.mode, local = flood.localTime;
-      if (m === 'flash') return Math.sin(local * Math.PI * 8) >= 0 ? 1 : 0;
-      return m === 'sequence' ? +(i / data.floodlights.length <= Math.min(1, local / 8)) : 1;
-    };
-    const lightColor = new THREE.Color(flood?.params.color ?? 'white');
-    data.floodlights.forEach((_, i) => lamps.setColorAt(i, c.copy(lightColor).multiplyScalar(intensity(i))));
+    // THREE.Color retains all CSS colour forms accepted by the app.
+    const cueColor = id => scripted ? cues.filter(c => c.module === id).at(-1)?.params.color : undefined;
+    const colors = { facade: new THREE.Color(enabled.get('SHW-02') ? cueColor('SHW-02') ?? 'white' : 'white').toArray(),
+      flood: new THREE.Color(enabled.get('SHW-01') ? cueColor('SHW-01') ?? 'white' : 'white').toArray() };
+    const sampled = showState(cues, t, data, budget, { scripted, enabled: Object.fromEntries(enabled),
+      viewer: camera?.getWorldPosition(new THREE.Vector3()), colors });
+    const f = sampled['SHW-02']; facade.visible = f.visible;
+    mode.value = f.mode; tint.value.setRGB(...f.tint);
+    const flood = sampled['SHW-01']; lamps.visible = flood.visible;
+    data.floodlights.forEach((_, i) => lamps.setColorAt(i, c.setRGB(...flood.rgb.slice(i * 3, i * 3 + 3))));
     lamps.instanceColor.needsUpdate = true;
-    lights.forEach((l, i) => { l.intensity = intensity(Math.floor(i / lights.length * data.floodlights.length)) * 180000; l.color.copy(lightColor); });
-    const drone = state('SHW-03'); drones.visible = !!drone;
-    if (drone) {
-      const viewer = camera?.getWorldPosition(new THREE.Vector3());
-      droneFrame(drone.localTime, budget.drones, drone.duration ?? 32).forEach((p, i) => { dummy.position.set(...faceDronePoint(p.position, viewer)); dummy.quaternion.identity(); dummy.updateMatrix(); drones.setMatrixAt(i, dummy.matrix); drones.setColorAt(i, c.setRGB(...p.color)); });
+    lights.forEach((l, i) => { l.intensity = flood.intensity[Math.floor(i / lights.length * data.floodlights.length)] * 180000; l.color.setRGB(...flood.color); });
+    const drone = sampled['SHW-03']; drones.visible = drone.visible;
+    if (drone.visible) {
+      for (let i = 0; i < budget.drones; i++) {
+        dummy.position.set(...drone.position.slice(i * 3, i * 3 + 3)); dummy.quaternion.identity(); dummy.updateMatrix();
+        drones.setMatrixAt(i, dummy.matrix); drones.setColorAt(i, c.setRGB(...drone.rgb.slice(i * 3, i * 3 + 3)));
+      }
       drones.instanceMatrix.needsUpdate = true; drones.instanceColor.needsUpdate = true;
     }
   }

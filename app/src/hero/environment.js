@@ -45,7 +45,10 @@ const SpecularPhysicalMaterial = specularEnvironmentMaterial(THREE.MeshPhysicalN
 export function choosePanorama(manifest, { desktopGPU = false, maxTextureSize = 0, memoryGB = 0, phone = true, preferSmall = false } = {}) {
   const env = manifest.environment ?? {};
   const files = (manifest.files ?? []).map(f => f.file).filter(f => f.startsWith('app/public/env/'));
-  const hdr = [env.file_2048, env.file].find(f => files.includes(f) && /\.hdr$/i.test(f));
+  // A bundle without panorama logs has no manifest.environment: take the base-time panorama named in the file list.
+  const time = (manifest.tod?.base ?? String(manifest.sun?.local ?? manifest.time?.local ?? '').replace(/\D/g, '').slice(0, 4)) || '0730';
+  const byName = (re) => files.find(f => re.test(f));
+  const hdr = [env.file_2048, env.file, byName(new RegExp(`/talanta_pano_${time}_2048\\.hdr$`))].find(f => files.includes(f) && /\.hdr$/i.test(f));
   const stem = hdr?.replace(/_2048\.hdr$/i, '');
   const exr = [env.file_exr, env.file, ...files.filter(f => f === `${stem}.exr`)].find(f => files.includes(f) && /\.exr$/i.test(f));
   const large = !preferSmall && !phone && desktopGPU && memoryGB >= 8 && maxTextureSize >= (env.resolution?.[0] ?? 8192);
@@ -114,6 +117,7 @@ export function limitEnvToSpecular(root, envTexture) {
       const physical = source.isMeshPhysicalMaterial || source.isMeshPhysicalNodeMaterial;
       const Material = physical ? SpecularPhysicalMaterial : SpecularStandardMaterial;
       const material = source instanceof Material ? source : new Material().copy(source);
+      material.userData.ultraBaked = true;
       material.envMap = envTexture;
       material.envMapRotation.y = NORTH_YAW;
       material.needsUpdate = true;
@@ -148,4 +152,14 @@ export function horizonFogColor(texture) {
     }
   }
   return new THREE.Color().setRGB(sum[0] / count, sum[1] / count, sum[2] / count, THREE.LinearSRGBColorSpace);
+}
+
+/** Select only the installed 17:30 panorama entries for the evening approximation. */
+export function panoramaManifest(manifest, period) {
+  if (period !== 'evening') return manifest;
+  const files = (manifest.files ?? []).map((entry) => entry.file);
+  const hdr = files.find((file) => /\/talanta_pano_1730_2048\.hdr$/.test(file));
+  const exr = files.find((file) => /\/talanta_pano_1730\.exr$/.test(file));
+  return { ...manifest, environment: { ...manifest.environment,
+    preset: 'evening_golden', file: hdr, file_2048: hdr, file_exr: exr } };
 }

@@ -1,0 +1,291 @@
+{
+ "view_transform": "AgX",
+ "curve": {
+  "ev_min": -10.0,
+  "ev_max": 6.5,
+  "input": "scene-linear grey 0.18 x 2^EV, exposure 0",
+  "output": "display-encoded value (the scene display device), 0..1, float, through Blender's OCIO config (PyOpenColorIO)",
+  "check": "max difference to Blender save_render 8-bit: 0.00196 (look), 0.00195 (no look)",
+  "samples": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1e-05,
+   0.00027,
+   0.00116,
+   0.00325,
+   0.00747,
+   0.01542,
+   0.03,
+   0.0541,
+   0.0855,
+   0.12489,
+   0.17465,
+   0.23911,
+   0.3196,
+   0.41879,
+   0.52681,
+   0.62686,
+   0.71127,
+   0.7824,
+   0.84107,
+   0.88914,
+   0.92929,
+   0.96228,
+   0.98986,
+   1.0,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "samples_rgb": [
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    1e-05,
+    1e-05,
+    1e-05
+   ],
+   [
+    0.00027,
+    0.00027,
+    0.00027
+   ],
+   [
+    0.00116,
+    0.00116,
+    0.00116
+   ],
+   [
+    0.00325,
+    0.00325,
+    0.00325
+   ],
+   [
+    0.00747,
+    0.00747,
+    0.00747
+   ],
+   [
+    0.01542,
+    0.01542,
+    0.01543
+   ],
+   [
+    0.03,
+    0.03,
+    0.03001
+   ],
+   [
+    0.0541,
+    0.0541,
+    0.05411
+   ],
+   [
+    0.08551,
+    0.0855,
+    0.08552
+   ],
+   [
+    0.12489,
+    0.12489,
+    0.12491
+   ],
+   [
+    0.17465,
+    0.17465,
+    0.17467
+   ],
+   [
+    0.23911,
+    0.23911,
+    0.23913
+   ],
+   [
+    0.31961,
+    0.3196,
+    0.31963
+   ],
+   [
+    0.41879,
+    0.41879,
+    0.41883
+   ],
+   [
+    0.52681,
+    0.52681,
+    0.52684
+   ],
+   [
+    0.62686,
+    0.62686,
+    0.62689
+   ],
+   [
+    0.71127,
+    0.71127,
+    0.7113
+   ],
+   [
+    0.78241,
+    0.7824,
+    0.78243
+   ],
+   [
+    0.84107,
+    0.84107,
+    0.84109
+   ],
+   [
+    0.88914,
+    0.88914,
+    0.88916
+   ],
+   [
+    0.92929,
+    0.92929,
+    0.9293
+   ],
+   [
+    0.96228,
+    0.96228,
+    0.96229
+   ],
+   [
+    0.98986,
+    0.98986,
+    0.98986
+   ],
+   [
+    1.0,
+    1.0,
+    1.0
+   ],
+   [
+    1.0,
+    1.0,
+    1.0
+   ],
+   [
+    1.0,
+    1.0,
+    1.0
+   ],
+   [
+    1.0,
+    1.0,
+    1.0
+   ]
+  ],
+  "agx_base_samples": [
+   0.0,
+   4e-05,
+   0.00026,
+   0.00079,
+   0.00181,
+   0.00359,
+   0.00651,
+   0.01115,
+   0.01838,
+   0.02942,
+   0.04581,
+   0.06586,
+   0.08933,
+   0.117,
+   0.15033,
+   0.18993,
+   0.23693,
+   0.29244,
+   0.35712,
+   0.43057,
+   0.50861,
+   0.58239,
+   0.64931,
+   0.70888,
+   0.76133,
+   0.80725,
+   0.84718,
+   0.8816,
+   0.91171,
+   0.93812,
+   0.96134,
+   0.98182,
+   0.99942
+  ]
+ },
+ "views": {
+  "L07": {
+   "exposure_ev": -1.1,
+   "time": "10:30",
+   "date": "2026-01-15",
+   "preset": "daylight_artistic",
+   "look": "AgX - High Contrast"
+  },
+  "L06": {
+   "exposure_ev": -1.6,
+   "time": "18:05",
+   "date": "2026-01-15",
+   "preset": "sunset_artistic",
+   "look": "AgX - High Contrast"
+  }
+ },
+ "compositor": {
+  "contrast": 1.0,
+  "saturation": 1.12,
+  "warmth": [
+   1.05,
+   1.0,
+   0.93
+  ],
+  "warmth_rise": [
+   0.03,
+   0.18
+  ],
+  "warmth_fall": [
+   0.55,
+   1.4
+  ],
+  "grain": 0.03,
+  "glare": 0.09,
+  "glare_threshold": 1.1,
+  "streak_glare": 0.05,
+  "streak_threshold": 4.0,
+  "vignette": 0.055,
+  "dispersion": 0.0005,
+  "order": "saturation and warm gain on scene-linear before the view transform (warmth fades in over display-equivalent luminance warmth_rise and out over warmth_fall); fog glow glare (glare, glare_threshold) and streaks; lens dispersion; vignette and grain last",
+  "not_in_web": "volumetric haze and the mist-pass aerial haze of the stills (the references are rendered without haze)"
+ },
+ "source": "blender/web_hero/measure_look.py (lookdev.py STRENGTHS after hero_artistic.prepare, render_cycles.py presets)",
+ "look": "AgX - High Contrast"
+}

@@ -11,3 +11,11 @@ test('EXR entries work without file_exr and do not select another preset',()=>{
  const m=structuredClone(manifest); delete m.environment.file_exr;
  assert.deepEqual(choosePanorama(m,desktop),['env/day.exr','env/day_2048.hdr']);
 });
+
+test('without manifest.environment (v3 bundle) the base-time panorama comes from the file list', () => {
+  const m = { sun: { local: '07:30 EAT' }, panoramas: [], files: ['talanta_pano_0730.exr', 'talanta_pano_0730_2048.hdr', 'talanta_pano_2030.exr', 'talanta_pano_2030_2048.hdr'].map(f => ({ file: `app/public/env/${f}` })) };
+  const d = { desktopGPU: true, maxTextureSize: 16384, memoryGB: 16, phone: false };
+  assert.deepEqual(choosePanorama(m, d), ['env/talanta_pano_0730.exr', 'env/talanta_pano_0730_2048.hdr']);
+  assert.deepEqual(choosePanorama(m, { ...d, phone: true }), ['env/talanta_pano_0730_2048.hdr']);
+  assert.deepEqual(choosePanorama({ ...m, tod: { base: '0730' } }, d), ['env/talanta_pano_0730.exr', 'env/talanta_pano_0730_2048.hdr']);
+});

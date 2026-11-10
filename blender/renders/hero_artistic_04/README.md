@@ -1,7 +1,10 @@
-# Hero artistic 04: 4K stills L06 and L07 on step_FK (waiting for approval)
+# Hero artistic 04: 4K stills L06 and L07 on step_FK (approved 2026-10-24)
 
-Work order: engineering/cloud_pass_k_2026-10-24.md, "Final 4K stills". **STOP after these stills.** Munene must approve
-them before the W re-bake. The W re-bake has not started.
+Work order: engineering/cloud_pass_k_2026-10-24.md, "Final 4K stills".
+
+**Approved.** Munene approved these 4K stills on 2026-10-24 (engineering/cloud_web_hero_v2_2026-10-24.md: "Munene
+approved the 4K stills in blender/renders/hero_artistic_04/ on 2026-10-24"; blender/STATUS.md, row "4K hero_artistic
+L06, L07 (pass K)"). The same work order then ordered the W re-bake.
 
 ## Settings
 
@@ -20,8 +23,7 @@ them before the W re-bake. The W re-bake has not started.
 | L07_daylight_artistic_hero_artistic.png (and the `_labelled.jpg` copy) | 46.5 min |
 
 The labelled copies carry "Visualization: people, vehicles and lighting are illustrative". People, cars and the dusk
-lights are not a crowd count, occupancy or safety study. Use only the labelled copies outside the team, and only once
-Munene clears them.
+lights are not a crowd count, occupancy or safety study. Use only the labelled copies outside the team.
 
 ## What changed since hero_artistic_03 (pass K)
 

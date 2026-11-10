@@ -1,0 +1,5 @@
+map | mean A | mean B | mean abs diff (light: % of mean; others: of 255) | p99 abs diff
+stadium_shell_albedo.png | 116.12 | 116.12 | 0.0 | 0.0
+stadium_shell_ao.png | 106.66 | 106.65 | 0.01 | 0.0
+stadium_shell_light.png | 0.2962 | 0.2962 | 0.07 | 0.0064
+PASS (3 maps compared)

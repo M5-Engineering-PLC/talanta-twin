@@ -1,0 +1,35 @@
+map | mean A | mean B | mean abs diff (light: % of mean; others: of 255) | p99 abs diff
+forecourt_albedo.png | 101.88 | 101.8 | 0.08 | 3.0
+forecourt_light.png | 0.8708 | 0.8704 | 0.06 | 0.0031
+landmarks_albedo.png | 108.95 | 108.93 | 0.02 | 0.0
+landmarks_ao.png | 174.44 | 174.08 | 0.36 | 0.0
+landmarks_light.png | 0.6188 | 0.6188 | 0.02 | 0.0045
+layout_pass_i_albedo.png | 78.2 | 78.2 | 0.0 | 0.0
+layout_pass_i_light.png | 0.8655 | 0.8655 | 0.02 | 0.0001
+plaza_south_albedo.png | 87.84 | 87.84 | 0.0 | 0.0
+plaza_south_light.png | 0.9334 | 0.9333 | 0.09 | 0.0191
+roads_albedo.png | 61.75 | 61.75 | 0.0 | 0.0
+roads_light.png | 1.1188 | 1.1188 | 0.04 | 0.0193
+roof_albedo.png | 162.87 | 162.87 | 0.0 | 0.0
+roof_ao.png | 135.1 | 135.1 | 0.0 | 0.0
+roof_light.png | 0.7812 | 0.7813 | 0.26 | 0.0189
+site_built_albedo.png | 107.44 | 107.43 | 0.01 | 0.0
+site_built_light.png | 0.4251 | 0.4251 | 0.07 | 0.0073
+site_layout_albedo.png | 79.33 | 79.33 | 0.0 | 0.0
+site_layout_light.png | 0.7484 | 0.7482 | 0.11 | 0.0195
+sport_albedo.png | 49.87 | 49.87 | 0.0 | 0.0
+sport_light.png | 0.768 | 0.7681 | 0.35 | 0.0249
+stadium_fins_albedo.png | 209.88 | 209.88 | 0.0 | 0.0
+stadium_fins_ao.png | 117.45 | 117.45 | 0.0 | 0.0
+stadium_fins_light.png | 0.5478 | 0.5461 | 0.5 | 0.0479
+stadium_ornament_albedo.png | 102.2 | 102.2 | 0.0 | 0.0
+stadium_ornament_ao.png | 100.07 | 99.99 | 0.1 | 0.0
+stadium_ornament_light.png | 0.3197 | 0.3185 | 0.57 | 0.0207
+stadium_shell_albedo.png | 116.12 | 116.05 | 32.88 | 222.0
+stadium_shell_ao.png | 106.66 | 97.75 | 44.95 | 255.0
+stadium_shell_light.png | 0.2962 | 0.2891 | 80.46 | 2.3128
+station_albedo.png | 103.16 | 103.16 | 0.0 | 0.0
+station_light.png | 0.1708 | 0.1708 | 0.05 | 0.004
+trace_sw_albedo.png | 52.97 | 52.97 | 0.0 | 0.0
+trace_sw_light.png | 0.5977 | 0.5977 | 0.02 | 0.0032
+FAIL (33 maps compared)

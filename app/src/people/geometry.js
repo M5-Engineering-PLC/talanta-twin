@@ -1,24 +1,72 @@
 import * as THREE from 'three/webgpu';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-export function figureGeometry() {
-  const parts = [];
-  function part(g, x, y, z, rise, kind) {
-    g.translate(x, y, z);
-    const n = g.attributes.position.count;
-    g.setAttribute('rise', new THREE.Float32BufferAttribute(new Float32Array(n).fill(rise), 1));
-    g.setAttribute('kind', new THREE.Float32BufferAttribute(new Float32Array(n).fill(kind), 1));
-    g.deleteAttribute('uv');
-    parts.push(g.index ? g.toNonIndexed() : g.clone());
-    g.dispose();
+let assets, pending;
+
+// Decode once. The shader samples positions without a runtime skeleton.
+export function decodeCrowdAssets(manifest, buffer) {
+  if (manifest.version !== 1 || manifest.format !== 'RGBA16F' || buffer.byteLength !== manifest.width * manifest.height * 8) {
+    throw new Error('Crowd animation asset dimensions are invalid');
   }
-  part(new THREE.BoxGeometry(.32, .48, .22), 0, .77, 0, .5, 0);
-  part(new THREE.OctahedronGeometry(.12), 0, 1.13, 0, .5, 1);
-  for (const x of [-.1, .1]) part(new THREE.BoxGeometry(.12, .48, .14), x, .25, .22, 0, 2);
-  for (const x of [-.21, .21]) part(new THREE.BoxGeometry(.09, .4, .1), x, .77, 0, .95, 0);
-  part(new THREE.BoxGeometry(.65, .08, .025), 0, 1.95, 0, 0, 3);
-  part(new THREE.BoxGeometry(.035, .055, .015), .22, 1.8, .06, 0, 4);
-  const merged = mergeGeometries(parts);
-  parts.forEach((g) => g.dispose());
-  return merged;
+  const data = new Uint16Array(buffer.slice(0));
+  const texture = new THREE.DataTexture(data, manifest.width, manifest.height, THREE.RGBAFormat, THREE.HalfFloatType);
+  texture.magFilter = texture.minFilter = THREE.NearestFilter;
+  texture.generateMipmaps = false; texture.needsUpdate = true;
+  // levels lists the detail levels in the file. The desktop file has [0, 1]. The phone file has [1].
+  assets = { manifest, texture, levels: manifest.lodLevels ?? manifest.lods.map((_, i) => i), profile: manifest.profile ?? 'desktop' };
+  return assets;
+}
+
+// Phone: a phone user agent, a narrow window, or the low quality tier.
+export function isPhoneProfile(quality, { userAgent = globalThis.navigator?.userAgent ?? '', width = globalThis.innerWidth } = {}) {
+  const tier = typeof quality === 'string' ? quality : quality?.tier;
+  return tier === 'low' || /Android|iPhone|iPad|Mobile/i.test(userAgent) || (Number.isFinite(width) && width < 768);
+}
+
+export function crowdFiles(phone) {
+  return phone ? { json: '/people/crowd_phone.json', bin: '/people/animation_phone.bin' } : { json: '/people/crowd.json', bin: '/people/animation.bin' };
+}
+
+// Row block of a detail level inside the loaded animation texture.
+export function crowdLevelIndex(lod) {
+  const index = assets?.levels.indexOf(lod) ?? -1;
+  if (index < 0) throw new Error(`Crowd detail level ${lod} is not in the loaded animation file`);
+  return index;
+}
+
+export function crowdAssets() { return assets; }
+
+export function loadCrowdAssets(options = {}) {
+  if (assets) return Promise.resolve(assets);
+  const files = crowdFiles(isPhoneProfile(options.quality, options));
+  if (!pending) pending = (async () => {
+    if (globalThis.process?.versions?.node) {
+      // Node consumers include the existing offline bridge exporter.
+      const moduleName = 'node:fs/promises';
+      const { readFile } = await import(/* @vite-ignore */ moduleName);
+      const directory = new URL(/* @vite-ignore */ '../../public/people/', import.meta.url);
+      const [json, bytes] = await Promise.all([readFile(new URL(files.json.slice('/people/'.length), directory)), readFile(new URL(files.bin.slice('/people/'.length), directory))]);
+      return decodeCrowdAssets(JSON.parse(json), bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+    }
+    const [manifest, buffer] = await Promise.all([
+      fetch(files.json).then(r => { if (!r.ok) throw new Error('Crowd geometry is unavailable'); return r.json(); }),
+      fetch(files.bin).then(r => { if (!r.ok) throw new Error('Crowd animation is unavailable'); return r.arrayBuffer(); }),
+    ]);
+    return decodeCrowdAssets(manifest, buffer);
+  })().catch(error => { pending = null; throw error; });
+  return pending;
+}
+
+export function figureGeometry(lod = 0) {
+  if (!assets) throw new Error('Load crowd assets before creating a figure');
+  const data = assets.manifest.lods[crowdLevelIndex(lod)];
+  const geometry = new THREE.BufferGeometry();
+  geometry.setIndex(data.index);
+  const vertices = new Float32Array(data.kind.length * 5);
+  for (let i = 0; i < data.kind.length; i++) vertices.set([...data.position.slice(i * 3, i * 3 + 3), data.kind[i], i], i * 5);
+  const buffer = new THREE.InterleavedBuffer(vertices, 5);
+  geometry.setAttribute('position', new THREE.InterleavedBufferAttribute(buffer, 3, 0));
+  geometry.setAttribute('kind', new THREE.InterleavedBufferAttribute(buffer, 1, 3));
+  geometry.setAttribute('fanVertex', new THREE.InterleavedBufferAttribute(buffer, 1, 4));
+  geometry.userData.lod = lod;
+  return geometry;
 }

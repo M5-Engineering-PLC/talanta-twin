@@ -1,0 +1,55 @@
+{
+ "chapter": null,
+ "camera": "L06",
+ "preset": "sunset_artistic",
+ "frames": 24,
+ "arc_deg": 30.0,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "samples": 128,
+ "adaptive_threshold": 0.019999999552965164,
+ "denoiser": "OPENIMAGEDENOISE",
+ "persistent_data": true,
+ "haze_volume": true,
+ "only": [
+  0,
+  23
+ ],
+ "view_layers": [
+  "ViewLayer",
+  "passes_no_haze"
+ ],
+ "seed": 6,
+ "scene": "/home/user/talanta-twin/blender/out/frozen_FK.blend",
+ "setup_seconds": 10.2,
+ "frame_seconds": [
+  1403.6,
+  1575.0,
+  2087.2,
+  1055.2,
+  1070.0,
+  1072.5,
+  1092.2,
+  1099.8,
+  1109.6,
+  1108.8,
+  1099.1,
+  1093.5,
+  1049.7,
+  1053.6,
+  1041.8,
+  1070.1,
+  1051.6,
+  1027.2,
+  1044.7,
+  1020.8,
+  1030.4,
+  1025.2,
+  1028.4,
+  1024.7
+ ],
+ "resumed_at_frame": 11,
+ "total_render_seconds": 27334.7
+}

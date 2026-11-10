@@ -4,4 +4,10 @@ dist/
 public/models/
 public/env/
 public/ground/
+public/lightmaps
+public/lightmaps_phone
+public/env
+public/ground
+public/models
 .fetch-cache/
+public/perimeter/

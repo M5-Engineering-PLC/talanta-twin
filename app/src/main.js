@@ -8,20 +8,28 @@ import { buildBowl } from './world/bowl.js';
 import { buildPitch, pitchFeatures, buildSport } from './world/pitch.js';
 import { ribbon, centroid, circlePts } from './world/geom.js';
 import { sunPosition, eatDate, sunEvents, openingMinutes } from './sun.js';
-import { initLanding } from './ui/landing.js';
+import { initLanding, createViewStills, STILLS, portrait } from './ui/landing.js';
 import { lineChart } from './ui/charts.js';
 import { buildSite } from './world/site.js';
-import { pass, mrt, output, normalView, vec4 } from 'three/tsl';
+import { pass, mrt, output, normalView, vec4, uniform } from 'three/tsl';
 import { ao } from 'three/addons/tsl/display/GTAONode.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
-import { loadHero } from './hero/loadHero.js';
 import { loadEnvironment, limitEnvToSpecular, horizonFogColor } from './hero/environment.js';
-import { applyHeroToneMapping, heroGrade, applyHeroHaze } from './hero/heroLook.js';
+import { applyHeroToneMapping, heroGrade, heroLookCurve, applyHeroHaze } from './hero/heroLook.js';
 import { getGradePreset } from './hero/grade.js';
+import { manifestGrade, measuredLook, lookExposure } from './hero/manifestLook.js';
+import { stillFit } from './ui/stillFit.js';
 import { initOverlay } from './hero/overlay.js';
 import CAMS from '../cameras/manifest.json';
 import { buildTraffic } from './hero/traffic.js';
+import { heroLoadDecision, scheduleHeroLoad } from './hero/loading.js';
+import { showOpeningPoster } from './ui/openingPoster.js';
+import { heroDuskParameters, installHeroLighting } from './hero/dusk.js';
+import { panoramaDevice, panoramaManifest } from './hero/environment.js';
+import { cameraPoseFromManifest } from './world/cameras.js';
 import { createTour, enableTouchUX } from './tour.js';
+import { MODULES } from './modules/registry.js';
+import { initModulesMenu } from './ui/modulesMenu.js';
 import { detectTier, TIERS, createFpsMonitor, profileGeometry } from './perf.js';
 
 const $ = (s) => document.querySelector(s);
@@ -29,7 +37,16 @@ const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const DAY = 86400000;
 
+for (const [mode, name] of [['concert', 'Concert'], ['football', 'Football']]) {
+  const button = document.createElement('button'); button.dataset.mode = mode; button.textContent = name;
+  button.className = 'event-mode'; $('#modes').append(button);
+  const option = document.createElement('option'); option.value = mode; option.textContent = name;
+  $('#landing-event')?.append(option);
+}
+// end event controls
+
 // ---------------------------------------------------------------- boot
+const openingPoster = showOpeningPoster();
 let loaded = 0;
 const progress = () => { loaded++; $('#splash-bar').style.width = `${Math.min(100, (loaded / (TOTAL_FILES + 3)) * 100)}%`; };
 const D = await loadData(progress);
@@ -41,8 +58,12 @@ const PAD = F.site_pad_y;
 const stage = $('#stage');
 const params = new URLSearchParams(location.search);
 const LITE = params.has('lite'); // software-GPU test mode
-const renderer = new THREE.WebGPURenderer({ antialias: true, logarithmicDepthBuffer: true });
-await renderer.init();
+const renderer = new THREE.WebGPURenderer({ antialias: true, logarithmicDepthBuffer: true, forceWebGL: params.get('renderer') === 'webgl' });
+try { await renderer.init(); } catch (error) {
+  console.error('Renderer initialization failed before quality selection:', error);
+  document.getElementById('landing-claim').textContent = '3D is unavailable on this device. Rendered from the twin model · Visualization.';
+  throw error;
+}
 // Quality tier (app/src/perf.js): ?lite = low, ?tier=<high|medium|low>, ?fps shows the readout.
 let tier = detectTier(renderer), quality = TIERS[tier];
 renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
@@ -51,6 +72,9 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 $('#view').appendChild(renderer.domElement);
 console.info('renderer backend:', renderer.backend?.isWebGPUBackend ? 'WebGPU' : 'WebGL2');
+const gpuLimits = renderer.backend?.device?.limits, gl = renderer.backend?.gl;
+console.info('renderer vertex limits:', gpuLimits ? { buffers: gpuLimits.maxVertexBuffers, attributes: gpuLimits.maxVertexAttributes }
+  : { attributes: gl?.getParameter(gl.MAX_VERTEX_ATTRIBS) });
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xe7dfd1, 4000, 70000);
@@ -187,12 +211,15 @@ function applyTime() {
   const z = zNight.clone().lerp(zDay, dayF).lerp(zDusk, dusk * 0.7);
   const h = hNight.clone().lerp(hDay, dayF).lerp(hDusk, dusk * 0.85);
   paintSky(z, h);
-  scene.fog.color.copy(h);
+  if (scene.fog) scene.fog.color.copy(h);
   night = 1 - smooth(-2, 5, el);
   bowl.lightsMat.emissiveIntensity = night * 4;
   bowl.ledMat.emissiveIntensity = night * 3.5;
   bowl.shieldMat.emissiveIntensity = 0.22 + night * 0.25;
-  if (bloomPass) bloomPass.strength.value = getGradePreset().bloom.strength + night * 0.55;
+  if (bloomPass) {
+    const measured = hero && !parityFallback && measuredLook(hero.manifest);
+    bloomPass.strength.value = measured ? manifestGrade(hero.manifest).bloom.strength : getGradePreset(hero?.tod?.preset(heroTodTime)).bloom.strength + night * 0.55;
+  }
   for (const s of flood) s.intensity = night * 9000;
   renderer.toneMappingExposure = 1.0 + night * 0.25;
   return sp;
@@ -225,14 +252,31 @@ function applyBuild() {
 }
 
 // ---------------------------------------------------------------- camera fly-to
-let fly = null;
+let fly = null, viewStills = null, fitView = null, landed = false;
+let parityMode = false, parityFallback = false;
+const heroExposure = uniform(1);
+function fitProjection(id, baseFov = camPose(id === 'lead06' ? 'L06' : 'L07').fov) {
+  const fit = stillFit(baseFov, stage.clientWidth, stage.clientHeight, portrait?.matches ? STILLS[id].crop : null);
+  camera.clearViewOffset(); camera.aspect = stage.clientWidth / stage.clientHeight;
+  camera.fov = fit.fov;
+  if (fit.offset) {
+    const o = fit.offset;
+    camera.setViewOffset(o.fullWidth, o.fullHeight, o.x, o.y, o.width, o.height);
+  }
+  camera.updateProjectionMatrix();
+  return fit;
+}
 function poseFrom({ target, az, el, d }) {
   const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180;
   const T = new THREE.Vector3(...target);
   return { target: T, pos: new THREE.Vector3(T.x + Math.sin(a) * Math.cos(e) * d, T.y + Math.sin(e) * d, T.z - Math.cos(a) * Math.cos(e) * d) };
 }
 function flyTo(pose, ms = 2000) {
-  fly = { t0: performance.now(), ms, p0: camera.position.clone(), t0v: controls.target.clone(), p1: pose.pos, t1: pose.target };
+  viewStills?.dismiss(); fitView = null; landed = false;
+  camera.clearViewOffset(); camera.aspect = stage.clientWidth / stage.clientHeight;
+  // Flush residual orbit deltas before the exact Cycles pose arrives.
+  const damping = controls.enableDamping; controls.enableDamping = false; controls.update(); controls.enableDamping = damping;
+  fly = { t0: performance.now(), ms, p0: camera.position.clone(), t0v: controls.target.clone(), p1: pose.pos, t1: pose.target, f0: camera.fov, f1: pose.fov ?? 42 };
 }
 function stepFly(now) {
   if (!fly) return;
@@ -241,7 +285,9 @@ function stepFly(now) {
   const lift = Math.sin(Math.PI * e) * 0.18 * fly.p0.distanceTo(fly.p1);
   camera.position.y += lift;
   controls.target.lerpVectors(fly.t0v, fly.t1, e);
-  if (k >= 1) fly = null;
+  camera.fov = THREE.MathUtils.lerp(fly.f0, fly.f1, e);
+  camera.updateProjectionMatrix();
+  if (k >= 1) { fly = null; landed = true; }
 }
 
 // ---------------------------------------------------------------- highlights
@@ -273,7 +319,7 @@ function fitD(radius, margin = 1.15) {
 }
 const CENTRE = [0, PAD + 22, 0];
 // Critic cameras from app/cameras/manifest.json (review viewpoints, not real camera locations).
-function camPose(id) { const c = CAMS.cameras.find((k) => k.id === id); return { pos: new THREE.Vector3(...c.position), target: new THREE.Vector3(...c.target) }; }
+function camPose(id) { return cameraPoseFromManifest(CAMS, id); }
 const fitted = (az, el, k = 1) => () => poseFrom({ target: CENTRE, az, el, d: fitD(BOWL_R) * k });
 const FOCUS = [
   { id: 'overview', name: 'Overview', k: 'Whole bowl, centred, Ngong Hills behind', poseFn: fitted(40, 22), label: null, rings: [] },
@@ -304,7 +350,14 @@ function focus(id, ms) {
   const f = FOCUS.find((x) => x.id === id); if (!f) return;
   focusId = id; focusLabelPos = f.label ? { pos: new THREE.Vector3(...f.label), text: f.name } : null;
   setHighlight(f.rings);
-  flyTo(f.poseFn ? f.poseFn() : f.pose, ms);
+  const pose = f.poseFn ? f.poseFn() : f.pose;
+  flyTo(pose, ms);
+  if (STILLS[id] && !parityMode) {
+    viewStills?.select(id);
+    fitView = { id, baseFov: pose.fov };
+    fly.f1 = fitProjection(id, pose.fov).fov;
+    camera.fov = fly.f0; camera.updateProjectionMatrix();
+  }
   document.querySelectorAll('[data-focus]').forEach((b) => b.classList.toggle('on', b.dataset.focus === id));
 }
 // Views bar: numbered views (keys 1-9), previous/next (arrow keys) and Centre (C or Home).
@@ -338,6 +391,7 @@ renderer.domElement.addEventListener('dblclick', (e) => {
 $('#focuslist').innerHTML = FOCUS.map((f) => `<div class="focus-item" data-focus="${f.id}"><div>${f.name}<div class="k">${f.k}</div></div><span class="muted">›</span></div>`).join('');
 document.addEventListener('click', (e) => { const b = e.target.closest('[data-focus]'); if (b) { stopTour(); focus(b.dataset.focus); } });
 const tourBtn = $('#tour');
+let heroSequence = null, heroSequenceLoad = null;
 const tour = createTour({
   camera, controls, focus,
   views: chips.map((id) => FOCUS.find((f) => f.id === id)),
@@ -345,11 +399,12 @@ const tour = createTour({
 });
 function stopTour() { if (tour.running) tour.stop(); }
 tourBtn.onclick = () => {
+  heroSequence?.stop();
   if (tour.running) return tour.stop();
   tour.start(); tourBtn.classList.add('on'); tourBtn.textContent = '■ Stop tour';
 };
 enableTouchUX({ stage, controls, onPrev: () => { stopTour(); stepView(-1); }, onNext: () => { stopTour(); stepView(1); }, onCentre: () => { stopTour(); centreView(); } });
-controls.addEventListener('start', () => { fly = null; });
+controls.addEventListener('start', () => { fly = null; landed = false; viewStills?.dismiss(); });
 
 // ---------------------------------------------------------------- labels
 const labelsEl = $('#labels');
@@ -397,6 +452,7 @@ const LAYERS = [
   { id: 'trees', name: 'Trees', claim: 'Estimated · Sentinel-2 NDVI', sw: 'radial-gradient(circle,#5c7a45 40%,#3f5a30 70%)', objs: [trees], mats: trees.userData.mats },
   { id: 'site', name: 'Site boundary', claim: 'Measured · W1b, Dec 2025', sw: 'repeating-linear-gradient(90deg,#fff 0 5px,#9a9285 5px 9px)', objs: [siteLine], mats: [siteLine.material] },
   { id: 'labels', name: 'Labels', claim: 'OSM names · GLO-30 heights', sw: 'linear-gradient(135deg,#efe9de,#cfc6b6)', slider: false },
+  { id: 'vehicles', name: 'Vehicles', claim: 'Visualization', sw: '#737b82', slider: false },
   { id: 'people', name: 'People for scale', claim: 'Visualization · not a crowd model', sw: 'radial-gradient(circle,#a3282a 30%,#2e7442 31% 60%,#e4dccb 61%)', objs: [site.crowd], slider: false },
   { id: 'crowd', name: 'Match-day crowd', claim: 'Visualization · phase 1', sw: 'radial-gradient(circle,#a3282a 30%,#2e7442 31% 60%,#e4dccb 61%)', disabled: true, slider: false },
 ];
@@ -437,6 +493,11 @@ $('#sources').innerHTML = [
   ['Microsoft Building Footprints', 'Some footprints'],
   ['W1b measurements, Google Earth Pro (numbers only)', 'Site boundary, pitch zone'],
   ['Open-Meteo (CC BY 4.0)', 'Weather card'],
+  ['"Simple Concert Stage" by mertart3D (CC BY 4.0)', 'Concert B-stage'],
+  ['"Truss Structure" by JanoschR (CC BY 4.0)', 'Concert stage rig'],
+  ['"Led 25 X 4" by Pitrako (CC BY 4.0)', 'Concert LED tiles'],
+  ['"STAGE LIGHTS" by Maxime GUINARD (CC BY 4.0)', 'Concert moving heads'],
+  ['"Concert Stage" by iPoly3D (CC0)', 'Concert main stage'],
 ].map(([a, b]) => `<div class="src"><b>${a}</b><span class="muted">${b}</span></div>`).join('');
 $('#ov').innerHTML = [
   ['Venue', 'Raila Odinga Talanta Stadium'],
@@ -562,10 +623,60 @@ function drawCharts() {
 
 // ---------------------------------------------------------------- modes and date
 // Night show (SHW-01 to SHW-03): loaded on demand, removed when another mode is chosen.
-let shows = null;
+let shows = null, liveEvent = null, eventMode = null, modeVersion = 0;
+const eventHUD = document.createElement('aside');
+eventHUD.id = 'event-hud'; eventHUD.hidden = true;
+const eventScore = document.createElement('div'), eventClaim = document.createElement('p');
+eventHUD.append(eventScore, eventClaim); stage.append(eventHUD);
+
+function stopEvent() {
+  if (eventMode) { crowd?.dispose(); crowd = null; }
+  liveEvent?.dispose(); liveEvent = null; eventMode = null; eventHUD.hidden = true;
+}
+async function startEvent(mode, version) {
+  eventMode = mode; eventHUD.hidden = false; eventScore.textContent = 'Loading event…'; eventClaim.textContent = '';
+  try {
+    const [module, registry] = await Promise.all([
+      mode === 'concert' ? import('./events/concert.js') : import('./events/match.js'),
+      import('./modules/registry.js'), ensureCrowd(),
+    ]);
+    if (version !== modeVersion) return;
+    const id = mode === 'concert' ? 'EVT-01' : 'SPT-01';
+    eventClaim.textContent = registry.MODULES.find(m => m.id === id).claim;
+    stopLiveClock(); stopPlay(); state.minutes = mode === 'concert' ? 1200 : 1050;
+    const timeControl = $('#landing-time'); if (timeControl) timeControl.value = String(state.minutes);
+    const install = mode === 'concert' ? module.installConcert : module.installMatch;
+    liveEvent = install({ scene, bearing: F.pitch_bearing_deg, pad: PAD, tier,
+      getCrowd: () => crowd,
+      onState(frame) {
+        const clock = `${Math.floor(frame.time)} / ${frame.duration} s`;
+        eventScore.textContent = mode === 'concert' ? `Fictional concert · ${frame.phase} · ${clock}`
+          : `Fictional home ${frame.score[0]} : ${frame.score[1]} Fictional away · ${frame.phase} · ${clock}`;
+      },
+    });
+    // Public crowd controls only. Reactions come from event cues.
+    crowd?.setPalette('#b92332', '#18733d');
+    if (import.meta.env.DEV) window.__event = liveEvent;
+  } catch (error) {
+    if (version !== modeVersion) return;
+    liveEvent?.dispose(); liveEvent = null; eventMode = null;
+    eventScore.textContent = 'Event unavailable. Select the event to retry.';
+    eventClaim.textContent = ''; console.warn('Event unavailable:', error);
+  }
+}
+function excludeEventsForShow() {
+  ++modeVersion;
+  stopEvent();
+  state.matchday = false;
+}
+// Keep the night-show entry point usable without the optional event host.
+startShow.excludeEvents = excludeEventsForShow;
 async function startShow() {
+  startShow.excludeEvents?.();
+  const version = startShow.version ?? 0;
   if (!shows) {
     const { installShows } = await import('./shows/index.js');
+    if (version !== (startShow.version ?? 0)) return;
     shows = installShows({ scene, camera, renderer, heroGroup: hero?.group, bowlGroup: bowl.group });
   }
   stopLiveClock(); state.minutes = 1200; const t = document.querySelector('#landing-time'); if (t) t.value = '1200';
@@ -578,6 +689,7 @@ async function startShow() {
   if (import.meta.env.DEV) window.__shows = shows;
 }
 function stopShow() {
+  startShow.version = (startShow.version ?? 0) + 1;
   shows?.dispose(); shows = null;
   if (startShow.savedFlood) {
     for (const { light, descriptor } of startShow.savedFlood) Object.defineProperty(light, 'intensity', descriptor);
@@ -586,13 +698,18 @@ function stopShow() {
 }
 document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   if (b.disabled) return;
+  const version = ++modeVersion;
+  stopEvent(); stopShow();
+  if (crowd) crowd.setFill(quality.crowdFraction);
+  viewStills?.dismiss();
   document.querySelectorAll('#modes button').forEach((x) => x.classList.toggle('on', x === b));
   state.mode = b.dataset.mode === 'construction' ? 'construction' : 'venue';
   state.matchday = b.dataset.mode === 'matchday'; if (state.matchday) ensureCrowd();
   stopPlay(); buildTimeline(); applyBuild();
   if (b.dataset.mode === 'construction') { state.build = Date.UTC(2023, 0, 8); focus('bowl'); }
   if (b.dataset.mode === 'weather') { $('#weather').scrollIntoView({ behavior: 'smooth' }); focus('overview'); }
-  if (b.dataset.mode === 'show') { focus('overview'); void startShow(); } else stopShow();
+  if (b.dataset.mode === 'show') { focus('overview'); void startShow(); }
+  if (['concert', 'football'].includes(b.dataset.mode)) { focus('pitch'); void startEvent(b.dataset.mode, version); }
 });
 $('#date').onchange = (e) => { if (e.target.value) { stopLiveClock(); state.day = e.target.value; wxKey = ''; buildTimeline(); } };
 
@@ -640,7 +757,7 @@ renderer.domElement.addEventListener('pointermove', (e) => {
 renderer.domElement.addEventListener('pointerleave', () => { $('#tooltip').hidden = true; });
 
 // ---------------------------------------------------------------- resize, compass, scale bar
-function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); drawCharts(); }
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; if (fitView) { const fit = fitProjection(fitView.id, fitView.baseFov); if (fly) fly.f1 = fit.fov; } camera.updateProjectionMatrix(); drawCharts(); }
 new ResizeObserver(resize).observe(stage);
 function updateHud() {
   const d = camera.position.clone().sub(controls.target);
@@ -654,52 +771,106 @@ function updateHud() {
   $('#sb-mid').textContent = f(nice / 2); $('#sb-end').textContent = f(nice);
 }
 
-// ---------------------------------------------------------------- web hero (?hero)
-// Baked Blender export (blender/web_hero, app/public/models + env). Lighting is baked for one moment
-// (manifest.time), so hero mode keeps that baked light while the UI clock remains independent.
-// It loads in the background: the procedural twin stays usable until the hero is ready, or if it never is.
-let hero = null, heroHidden = [], heroFog = null, heroGradeOn = null;
+// ---------------------------------------------------------------- tier-1 baked twin
+let hero = null, heroHidden = [], heroFog = null;
+let heroLighting = null, heroEnvironment = null, heroLookKey = '', heroTodTime = null;
 let heroImpostors = null, heroTreesUpdated = -Infinity;
-const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} timed out after ${ms / 1000} s`)), ms))]);
-async function loadPreferredHero() {
-  for (const base of ['./models/', './models/test/']) {
-    try {
-      const response = await fetch(`${base}manifest.json`);
-      if (!response.ok) continue;
-      const manifest = await response.json();
-      if (!manifest.models || typeof manifest.models !== 'object') continue;
-      return await loadHero({ renderer, scene, base });
-    } catch (error) { console.warn('hero manifest unavailable:', base, error); }
-  }
-  return null;
-}
-if (params.has('hero')) {
-  (async () => {
-    // A load that times out is cancelled: if it completes later, its result is dropped, never shown.
-    let late = false;
-    const h = await withTimeout(loadPreferredHero(), 180000, 'hero models').catch((e) => { late = true; console.warn(e); return null; });
-    if (!h) return;
-    let envLate = false;
-    const envP = loadEnvironment({ renderer, scene: new THREE.Scene(), manifest: h.manifest, preferSmall: quality.panoramaSize === '2048' }).then((e) => { if (envLate) { e?.dispose(); return null; } return e; });
-    const env = await withTimeout(envP, 120000, 'panorama').catch((e) => { envLate = true; console.warn(e); return null; });
-    if (late) return;
-    if (env) { scene.background = scene.environment = env.texture; scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation); }
-    scene.add(h.group);
+const heroStatus = document.createElement('div');
+heroStatus.id = 'hero-status'; heroStatus.setAttribute('role', 'status'); stage.append(heroStatus);
+const vehicleClaim = document.createElement('div');
+vehicleClaim.id = 'vehicle-claim'; vehicleClaim.textContent = 'Vehicles · Visualization'; stage.append(vehicleClaim);
+const device = panoramaDevice(renderer);
+const decision = (requested = false) => heroLoadDecision({ search: location.search, phone: device.phone,
+  supported: Boolean(renderer.backend?.isWebGPUBackend || renderer.backend?.gl), requested });
+let heroLoading = false;
+async function startHero() {
+  if (hero || heroLoading) return;
+  heroLoading = true;
+  heroStatus.textContent = 'Loading full scene…';
+  try {
+    // Import the loader only after tier 0 paints. A failed bake leaves the procedural twin usable.
+    const { loadHero } = await import('./hero/loadHero.js');
+    const h = await loadHero({ renderer, base: './models/', phone: device.phone || tier === 'low', onProgress({ loaded, total }) {
+      heroStatus.textContent = `Loading full scene · ${Math.round(100 * loaded / total)}%`;
+    } });
+    if (!h) throw new Error('Baked scene unavailable');
     const { installTreeImpostors } = await import('./hero/impostors.js');
     heroImpostors = installTreeImpostors(h.group, camera);
     const { loadGroundTiles } = await import('./hero/groundTiles.js');
-    void loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768 });
-    limitEnvToSpecular(h.group, env?.texture);
+    h.groundReady = loadGroundTiles({ renderer, manifest: h.manifest, parent: h.group, camera, groundAt, coarseOnly: device.phone });
     let hasGround = false; h.group.traverse((o) => { if (o.isMesh && /^ground/.test(o.name)) hasGround = true; });
     heroHidden = [bowl.group, pitch.group, sport.group, site.group, buildings, roads, trees, siteLine, blockout].filter(Boolean);
-    if (env) { heroHidden.push(sky, terrainHz, terrainFar); heroFog = horizonFogColor(env.texture); }
-    applyHeroHaze(scene, heroFog ?? scene.fog.color);
     if (hasGround) heroHidden.push(terrainSite);
+    heroLighting = installHeroLighting(h.group);
+    heroEnvironment = createHeroEnvironment(h);
+    if (h.manifest.tod && params.get('tod') !== '0') {  // ENV-01: the baked light sets (lightmaps/<HHMM>) replace the analytic dusk
+      const { createTimeOfDay } = await import('./hero/timeOfDay.js');
+      h.tod = createTimeOfDay({ group: h.group, renderer, scene, base: './', manifest: h.manifest, phone: h.phone,
+        onEnvironment({ texture }) {
+          limitEnvToSpecular(h.group, texture); heroLighting = installHeroLighting(h.group); heroFog = horizonFogColor(texture); heroLookKey = '';
+          for (const object of [sky, terrainHz, terrainFar]) if (!heroHidden.includes(object)) heroHidden.push(object);
+        } });
+      h.groundReady.then(() => h.tod.refresh());
+    }
+    scene.add(h.group);
     sun.castShadow = false; renderer.shadowMap.enabled = false;
-    // The UI keeps 07:30 or the user's choice; the lightmap retains its baked time.
-    hero = h; heroGradeOn?.();
-    console.info('hero mode on:', h.manifest.time, env ? 'panorama loaded' : 'no panorama, procedural sky kept');
-  })();
+    hero = h; configurePipeline();
+    if (state.matchday || eventMode) void ensureCrowd();
+    heroStatus.textContent = '';
+    console.info('hero mode on:', h.manifest.bundle, h.manifest.time);
+  } catch (error) {
+    console.warn('Baked scene unavailable; keeping procedural scene:', error);
+    heroStatus.textContent = 'Full scene unavailable. Simplified scene shown.';
+  } finally { heroLoading = false; }
+}
+// Cache panoramas off-scene. A late response must never replace a newer time selection.
+function createHeroEnvironment(h) {
+  const cache = new Map();
+  let wanted = '', applied = null;
+  return (period) => {
+    wanted = period;
+    if (!cache.has(period)) {
+      const manifest = panoramaManifest(h.manifest, period);
+      cache.set(period, loadEnvironment({ renderer, scene: new THREE.Scene(), manifest,
+        preferSmall: quality.panoramaSize === '2048' }));
+    }
+    h.environmentReady = cache.get(period).then((env) => {
+      if (!env || wanted !== period || applied === period) return;
+      applied = period; h.environmentPeriod = period;
+      scene.background = scene.environment = env.texture;
+      scene.backgroundRotation.copy(env.rotation); scene.environmentRotation.copy(env.rotation);
+      limitEnvToSpecular(h.group, env.texture);
+      // Capture material baselines after node-material conversion.
+      heroLighting = installHeroLighting(h.group);
+      heroLighting.update(heroDuskParameters(parityMode ? 450 : state.minutes));
+      heroFog = horizonFogColor(env.texture);
+      for (const object of [sky, terrainHz, terrainFar]) if (!heroHidden.includes(object)) heroHidden.push(object);
+    });
+  };
+}
+const initialHero = decision();
+if (initialHero.load) void scheduleHeroLoad(openingPoster.ready, startHero);
+else if (initialHero.reason === 'phone') {
+  heroStatus.textContent = 'Simplified scene on phones. ';
+  const full = document.createElement('button'); full.type = 'button'; full.textContent = 'Load full scene (136 MB)';
+  full.onclick = () => { if (decision(true).load) void scheduleHeroLoad(openingPoster.ready, startHero); };
+  heroStatus.append(full);
+}
+// ENV-01: pick the nearest baked time (hysteresis in nearest), swap its set, preload the next one when idle.
+function heroTodStep(dusk) {
+  if (heroSequence?.active && !heroSequence.frame) return; // preparation owns the starting light set
+  const tod = hero.tod, want = heroSequence?.frame?.lightSet ?? tod.nearest(parityMode ? 450 : state.minutes);
+  if (want !== heroTodTime) {
+    heroTodTime = want;
+    hero.environmentReady = tod.setTime(want).then((ok) => {
+      if (!ok || heroTodTime !== want) return;
+      hero.environmentPeriod = want === '1805' || want === '2000' ? 'evening' : 'day'; heroLookKey = '';
+      const next = tod.times[(tod.times.indexOf(want) + 1) % tod.times.length];
+      if (!heroSequence?.active) (globalThis.requestIdleCallback ?? ((fn) => setTimeout(fn, 200)))(() => tod.preload(next), { timeout: 4000 });
+    });
+  }
+  heroLighting?.update({ ...dusk, lightMapIntensity: 1, tint: [1, 1, 1], gradeWarmth: 0 });
+  heroWarmth.value = getGradePreset(tod.preset(want)).warmth;
 }
 // Keep procedural lights and geometry hidden when the time or layer controls change.
 function heroLock() {
@@ -711,31 +882,76 @@ function heroLock() {
   crowd?.setContactShadows?.(contactShadows);
   sun.intensity = 0; hemi.intensity = 0; for (const s of flood) s.intensity = 0;
   for (const o of heroHidden) o.visible = false;
-  applyHeroHaze(scene, heroFog);
-  applyHeroToneMapping(renderer, hero.manifest);
+  const dusk = heroDuskParameters(parityMode ? 450 : state.minutes);
+  const lookKey = `${state.minutes}`;
+  if (lookKey !== heroLookKey) {
+    heroLookKey = lookKey;
+    if (hero.tod) heroTodStep(dusk);
+    else { heroLighting?.update(dusk); heroEnvironment?.(dusk.panorama); heroWarmth.value = getGradePreset().warmth + dusk.gradeWarmth; }
+  }
+  const manifest = parityFallback ? { ...hero.manifest, look: undefined } : hero.manifest;
+  // The parity references have no haze; the product keeps it.
+  if (parityMode) scene.fog = null;
+  else applyHeroHaze(scene, heroFog, hero.tod && heroTodTime ? hero.tod.preset(heroTodTime) : dusk.panorama === 'evening' ? 'evening_golden' : undefined);
+  heroExposure.value = lookExposure(manifest, focusId === 'lead06' ? 'L06' : 'L07');
+  applyHeroToneMapping(renderer, manifest, focusId === 'lead06' ? 'L06' : 'L07');
 }
 initOverlay({ stage, camera, controls });
 
 // ---------------------------------------------------------------- post: ambient occlusion + bloom
+const heroWarmth = uniform(getGradePreset().warmth);
 let pipeline = null, bloomPass = null;
-if (quality.postProcessing && !new URLSearchParams(location.search).has('nopost')) {
+let ultraModule = null, ultraLoading = null, ultraFailed = false;
+function configurePipeline() {
+  const manifest = hero && (parityFallback ? { ...hero.manifest, look: undefined } : hero.manifest);
+  const measured = manifest && measuredLook(manifest);
+  const effects = quality.postProcessing && !params.has('nopost');
+  pipeline?.dispose(); pipeline = null; bloomPass = null;
+  if (!effects && !measured) return;
+  if (tier === 'ultra' && effects && !ultraModule && !ultraLoading && !ultraFailed) {
+    ultraLoading = import('./hero/ultra.js').then(module => {
+      ultraModule = module;
+      if (tier === 'ultra') configurePipeline();
+    }).catch(error => { ultraFailed = true; console.warn('ultra unavailable; keeping high:', error); });
+  }
   try {
+    if (tier === 'ultra' && effects && ultraModule && !ultraFailed) {
+      pipeline = ultraModule.createUltraPipeline({
+        settings: ultraModule.parseUltraSettings(location.search), renderer, scene, camera, sun,
+        look: manifest ? manifestGrade(manifest) : getGradePreset(), measured, manifest,
+        warmth: heroWarmth, exposure: heroExposure, minutes: () => state.minutes,
+        onFailure: () => { ultraFailed = true; configurePipeline(); },
+        onSettings: () => {
+          // Retain console edits when rebuilding the graph.
+          const settings = { ...globalThis.ultra.settings };
+          ultraModule = { ...ultraModule, parseUltraSettings: () => settings }; configurePipeline();
+        },
+      });
+      if (pipeline) { bloomPass = pipeline.bloomPass; return; }
+    }
     pipeline = new THREE.RenderPipeline(renderer);
     const scenePass = pass(scene, camera);
-    // PassNode inherits renderer.samples (4 with antialias:true). No extra AA pass is needed.
-    scenePass.setMRT(mrt({ output, normal: normalView }));
-    const color = scenePass.getTextureNode('output');
-    const aoPass = ao(scenePass.getTextureNode('depth'), scenePass.getTextureNode('normal'), camera);
-    aoPass.resolutionScale = 0.5;
-    aoPass.radius.value = 1.2;
-    const shaded = vec4(color.rgb.mul(aoPass.getTextureNode().r.mul(0.85).add(0.15)), color.a);
-    const look = getGradePreset();
-    bloomPass = bloom(shaded, look.bloom.strength + night * 0.55, look.bloom.radius, look.bloom.threshold);
+    let shaded = scenePass.getTextureNode('output');
+    // The bake already contains occlusion. Extra AO obscures the measured comparison.
+    if (effects && !measured) {
+      scenePass.setMRT(mrt({ output, normal: normalView }));
+      const aoPass = ao(scenePass.getTextureNode('depth'), scenePass.getTextureNode('normal'), camera);
+      aoPass.resolutionScale = 0.5; aoPass.radius.value = 1.2;
+      shaded = vec4(shaded.rgb.mul(aoPass.getTextureNode().r.mul(0.85).add(0.15)), shaded.a);
+    }
+    const look = manifest ? manifestGrade(manifest) : getGradePreset();
+    bloomPass = bloom(shaded, look.bloom.strength, look.bloom.radius, look.bloom.threshold);
     bloomPass.setResolutionScale(TIERS.high.bloomResolutionScale);
-    pipeline.outputNode = heroGrade(shaded).add(bloomPass);
-    heroGradeOn = () => { pipeline.outputNode = heroGrade(shaded).add(bloomPass); pipeline.needsUpdate = true; };
-  } catch (e) { console.warn('post-processing off:', e); pipeline = null; bloomPass = null; }
+    const graded = heroGrade(shaded, measured ? { manifest, exposure: heroExposure } : { warmth: heroWarmth });
+    const composed = graded.add(bloomPass);
+    pipeline.outputColorTransform = !measured;
+    pipeline.outputNode = measured ? heroLookCurve(composed, measured, heroExposure) : composed;
+    pipeline.needsUpdate = true;
+  } catch (error) {
+    console.warn('post-processing off:', error); pipeline = null; bloomPass = null;
+  }
 }
+configurePipeline();
 
 // ---------------------------------------------------------------- loop
 // ---------------------------------------------------------------- life: traffic and match-day crowd (Visualization)
@@ -749,27 +965,38 @@ fetch('./data/traffic_lines.json').then((r) => r.json()).then((lines) => {
 // The crowd is heavy (92 triangles per near fan), so it is built only when Match day is first opened.
 let crowd = null;
 // Seated crowd (PPL-01, PPL-02, Visualization): one fan per seat place, with scripted reactions on match day.
-let crowdLoading = false, nextCheer = 20, nextWave = 45;
+let crowdLoading = null, nextCheer = 20, nextWave = 45;
 async function ensureCrowd() {
-  if (crowd || crowdLoading || !bowl.seats || quality.crowdFraction === 0) return;
-  crowdLoading = true;
-  const { installSeatedCrowd } = await import('./people/index.js');
-  crowd = installSeatedCrowd({ scene, camera, renderer, bowlGroup: bowl.group, heroGroup: hero?.group, quality: tier, features: F });
-  crowd.setFill(quality.crowdFraction); crowdLoading = false;
-  if (import.meta.env.DEV) window.__crowd = crowd;
+  if (crowdLoading) return crowdLoading;
+  if (crowd) { crowd.setFill(quality.crowdFraction || (eventMode ? .04 : 0)); return crowd; }
+  if (!bowl.seats || quality.crowdFraction === 0 && !eventMode) return;
+  crowd?.dispose(); crowd = null;
+  crowdLoading = (async () => {
+    const { installSeatedCrowd } = await import('./people/index.js');
+    if (!state.matchday && !eventMode) return null;
+    crowd = installSeatedCrowd({ scene, camera, renderer, bowlGroup: bowl.group, quality: tier, features: F });
+    // Preserve the drawn seat frame, including pad height, outside the baked model's lighting traversal.
+    scene.attach(crowd.group);
+    crowd.setFill(quality.crowdFraction || (eventMode ? .04 : 0));
+    if (import.meta.env.DEV) window.__crowd = crowd;
+    return crowd;
+  })();
+  try { return await crowdLoading; } finally { crowdLoading = null; }
 }
+
 const fpsMonitor = createFpsMonitor({ tier, onDowngrade(next) {
   tier = next; quality = TIERS[tier];
   renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
   renderer.shadowMap.enabled = quality.shadows && !hero;
   applyShadowQuality(); bowl.setTier(tier);
   // Apply the rest of the tier to what already exists: post-processing off, fewer trees, cheaper traffic.
-  if (!quality.postProcessing) pipeline = null;
+  if (!quality.postProcessing || pipeline?.isUltraPipeline) configurePipeline();
   { const keep = quality.treeCount / Math.max(1, trees.children.reduce((n, m) => n + m.count, 0)); if (keep < 1) for (const m of trees.children) if (m.isInstancedMesh) m.count = Math.floor(m.count * keep); }
   traffic?.setLimit(quality.trafficCount);
   if (crowd && quality.crowdFraction < 1) {
-    crowd.dispose(); crowd = null; if (state.matchday) ensureCrowd();
+    crowd.dispose(); crowd = null; if (state.matchday || eventMode) void ensureCrowd();
   }
+  liveEvent?.setTier?.(tier);
   if (!quality.crowdFraction) site.crowd.visible = false;
 } });
 if (fpsMonitor.element) stage.appendChild(fpsMonitor.element);
@@ -777,12 +1004,82 @@ if (fpsMonitor.element) stage.appendChild(fpsMonitor.element);
 buildTimeline();
 applyBuild();
 focus('overview', 1);
-initLanding({
+viewStills = createViewStills({
+  allowed: () => !parityMode && !tour.running && !heroSequence?.active && state.mode === 'venue',
+  onTime(minutes, id) {
+    stopPlay(); stopLiveClock(); state.minutes = minutes;
+    landingUI?.sync(id, minutes);
+  },
+  onProjection(id) { fitView = { id, baseFov: camPose(id === 'lead06' ? 'L06' : 'L07').fov }; fitProjection(id); },
+  onRelease() { fitView = null; camera.clearViewOffset(); camera.aspect = stage.clientWidth / stage.clientHeight; camera.updateProjectionMatrix(); },
+});
+let landingUI = initLanding({
+  stills: viewStills,
   views: FOCUS, focus, state, stopTour,
   setTime(minutes) { stopTour(); stopPlay(); stopLiveClock(); state.minutes = minutes; },
   setEvent(mode) { document.querySelector(`#modes button[data-mode="${mode}"]`)?.click(); },
   startTour() { tourBtn.click(); },
 });
+
+// CAM-01 / ENV-02 / ENV-03 load only on demand. The director owns its timeline and weather.
+async function ensureHeroSequence() {
+  if (!heroSequenceLoad) heroSequenceLoad = Promise.all([import('./hero/sequence.js'), import('./hero/sequenceLight.js')]).then(([{ installHeroSequence }, { prepareSequenceLight }]) => {
+    heroSequence = installHeroSequence({ scene, camera, controls, canvas: renderer.domElement, stage,
+      manifest: CAMS, focus: FOCUS, sky, paintSky, bearing: F.pitch_bearing_deg, pad: PAD,
+      tier: () => tier, fraction: () => quality.crowdFraction, crowd: () => crowd, night: () => night,
+      roots: () => [bowl.group, hero?.group].filter(Boolean),
+      dismiss() { viewStills?.dismiss(); fly = null; fitView = null; landed = false; setHighlight(); focusLabelPos = null; },
+      async prepare(current, startTime = () => 0) {
+        stopTour(); stopPlay(); stopLiveClock(); ++modeVersion; stopEvent(); stopShow();
+        state.mode = 'venue'; state.matchday = true; state.minutes = 1060; applyBuild();
+        $('#claim').hidden = true; $('#hero-caption').hidden = false;
+        await Promise.all([startHero(), ensureCrowd()]);
+        const deadline = performance.now() + 180000;
+        while (heroLoading && current() && performance.now() < deadline) await new Promise(resolve => requestAnimationFrame(resolve));
+        if (!current()) return;
+        if (heroLoading) throw new Error('Hero assets did not finish loading');
+        await Promise.all([crowd?.ready, hero?.groundReady]);
+        if (current()) await prepareSequenceLight(hero?.tod, startTime, current);
+      },
+      frame(q) { state.minutes = q.minutes; state.matchday = true; },
+      lights(q) {
+        flood.forEach((s, i) => { s.intensity = 9000 * smooth(i / flood.length, (i + 1) / flood.length, q.floodLevel); });
+        bowl.lightsMat.emissiveIntensity = q.floodLevel * 4;
+      },
+      stop() { state.matchday = false; $('#claim').hidden = false; heroLookKey = ''; },
+      error(error) { $('#hero-caption').hidden = false; $('#hero-caption [data-caption]').textContent = 'Hero unavailable. Select Hero to retry.'; console.warn('Hero sequence unavailable:', error); },
+    });
+    return heroSequence;
+  }).catch(error => { heroSequenceLoad = null; throw error; });
+  return heroSequenceLoad;
+}
+document.querySelectorAll('[data-hero]').forEach(button => { button.onclick = async () => {
+  if (button.dataset.heroStopped) { delete button.dataset.heroStopped; return; }
+  try { const sequence = await ensureHeroSequence(); if (sequence.active) sequence.stop(); else await sequence.start(); }
+  catch (error) { console.warn('Hero sequence unavailable:', error); $('#hero-caption').hidden = false; $('#hero-caption [data-caption]').textContent = 'Hero unavailable. Select Hero to retry.'; }
+}; });
+// Modules menu (phase A): built from the registry; actions reuse the mode buttons, the event path and the Hero sequence.
+initModulesMenu({ modules: MODULES, async run(action) {
+  if (action.kind === 'tour') { viewStills?.dismiss(); tourBtn.click(); return; }
+  if (action.kind === 'mode' || action.kind === 'event') {
+    const mode = action.kind === 'event' ? (action.value === 'match' ? 'football' : 'concert') : action.value;
+    heroSequence?.stop();
+    document.querySelector(`#modes button[data-mode="${mode}"]`)?.click();
+    return;
+  }
+  try { const sequence = await ensureHeroSequence(); if (!sequence.active) await sequence.start(); }
+  catch (error) { console.warn('Hero sequence unavailable:', error); $('#hero-caption').hidden = false; $('#hero-caption [data-caption]').textContent = 'Hero unavailable. Select Hero to retry.'; }
+} });
+$('#rain-toggle').onchange = async e => { const sequence = await ensureHeroSequence(); sequence.setRain(e.target.checked); };
+window.__heroSeek = async t => {
+  const sequence = await ensureHeroSequence(), frame = await sequence.seek(t);
+  if (!frame) return null;
+  applyTime(); heroLookKey = ''; if (hero) heroLock();
+  await hero?.environmentReady;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  return frame;
+};
+if (params.get('hero') === '1') void ensureHeroSequence().then(sequence => sequence.start()).catch(error => console.warn('Hero autoplay unavailable:', error));
 if (!quality.crowdFraction) site.crowd.visible = false;
 let lastT = performance.now(), hud = 0, lastTimeKey = '', lastBuildKey = '', cachedSun;
 let lastLiveMinute = '';
@@ -790,8 +1087,10 @@ let lastLiveMinute = '';
 function performanceProfile() {
   return Object.fromEntries(Object.entries({ seats: bowl.seats, bowl: bowl.group, context: trees, buildings, roads, site: site.group, traffic: traffic?.group, crowd: crowd?.group }).map(([name, root]) => [name, profileGeometry(root)]));
 }
+const frameCaptures = [];
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  heroSequence?.tick(now);
   if (state.liveClock) {
     const eatNow = new Date(Date.now() + 3 * 3600000), key = eatNow.toISOString().slice(0, 16);
     if (key !== lastLiveMinute) {
@@ -806,26 +1105,32 @@ renderer.setAnimationLoop((now) => {
     else { state.minutes += state.speed * dt * 15; if (state.minutes > 1440) state.minutes = 0; }
   }
   stepFly(now);
-  if (!hero && site.group.visible) site.update(now / 1000, night);
-  traffic?.update(dt);
-  shows?.update(dt);
-  site.crowd.visible = quality.crowdFraction > 0 && layerOn('people');
+  if (!hero && site.group.visible && !heroSequence?.frame?.ended) site.update(now / 1000, night);
+  traffic?.setNight?.(hero?.tod && heroTodTime ? (heroTodTime === '2000' ? 1 : 0) : night);
+  if (!parityMode && !heroSequence?.frame?.ended) traffic?.update(dt);
+  if (traffic) traffic.group.visible = !parityMode && layerOn('vehicles');
+  heroLighting?.setVehiclesVisible(!parityMode && layerOn('vehicles'));
+  vehicleClaim.hidden = !layerOn('vehicles') || !traffic && !hero;
+  if (!parityMode) shows?.update(dt);
+  site.crowd.visible = !heroSequence?.active && quality.crowdFraction > 0 && layerOn('people');
   if (crowd) {
-    crowd.group.visible = !hero && state.matchday && bowl.group.visible && bowl.seats.visible;
-    if (crowd.group.visible) {
+    crowd.group.visible = Boolean((state.matchday || eventMode) && (hero || bowl.group.visible && bowl.seats.visible));
+    if (crowd.group.visible && !heroSequence?.active) {
       const t = now / 1000; crowd.setNight(night); crowd.react('phones', { on: night }); crowd.update(dt, t);
-      if (t > nextWave) { crowd.react('wave', { speed: 12 }); nextWave = t + 75; nextCheer = t + 30; }
-      else if (t > nextCheer) { crowd.react('cheer'); nextCheer = t + 25; }
+      if (state.matchday && t > nextWave) { crowd.react('wave', { speed: 12 }); nextWave = t + 75; nextCheer = t + 30; }
+      else if (state.matchday && t > nextCheer) { crowd.react('cheer'); nextCheer = t + 25; }
     }
   }
+  if (!parityMode) { liveEvent?.setTier?.(tier); liveEvent?.update(dt); }
   fpsMonitor.update(now);
-  controls.update();
+  if (!heroSequence?.active) controls.update();
   const timeKey = `${state.day}:${state.minutes}:${Boolean(hero)}`;
   if (timeKey !== lastTimeKey) { cachedSun = applyTime(); lastTimeKey = timeKey; }
   const buildKey = `${state.mode}:${state.build}:${Boolean(blockout)}:${JSON.stringify(layerState)}`;
   if (buildKey !== lastBuildKey) { applyBuild(); lastBuildKey = buildKey; }
   const sp = cachedSun;
   if (hero) heroLock();
+  heroSequence?.render(now);
   const cv = curVal();
   $('#thumb').style.left = `${pct(cv)}%`;
   $('#thumb-label').textContent = state.mode === 'construction' ? fmtD(cv) : fmtHM(cv);
@@ -839,7 +1144,48 @@ renderer.setAnimationLoop((now) => {
   if (pipeline) {
     try { pipeline.render(); } catch (e) { console.warn('post-processing failed, plain render from now on:', e); pipeline = null; bloomPass = null; renderer.render(scene, camera); }
   } else renderer.render(scene, camera);
+  heroSequence?.afterRender();
+  if (landed) { landed = false; viewStills?.arrive(); }
+  for (const resolve of frameCaptures.splice(0)) {
+    try { resolve({ image: renderer.domElement.toDataURL('image/png'), width: renderer.domElement.width,
+      height: renderer.domElement.height, pipeline: Boolean(pipeline), measured: Boolean(hero?.manifest.look && !parityFallback) }); }
+    catch (error) { resolve({ error: String(error) }); }
+  }
 });
-setTimeout(() => $('#splash').classList.add('done'), 250);
+requestAnimationFrame(() => requestAnimationFrame(() => openingPoster.scenePainted()));
 $('#claim').innerHTML = `<b>Raila Odinga Talanta Stadium</b> · 60,000 design capacity · ${Math.round(Math.max(...bowl.rOut) * 2)} m long · ${Math.round(bowl.topY)} m high (est.)`;
 window.__twin = { performanceProfile, scene, camera, controls, focus, state, FOCUS, get blockout() { return blockout; } };
+
+// Dev-only capture hook. The comparison page never ships with the product build.
+const parityStageStyle = stage.getAttribute('style');
+const parityPixelRatio = renderer.getPixelRatio();
+if (import.meta.env.DEV) window.__twin.parity = {
+  pixelRatio(value) { renderer.setPixelRatio(value); resize(); },
+  async prepare(view, fallback = false) {
+    if (!['L06', 'L07'].includes(view)) throw new Error('Expected L06 or L07');
+    parityMode = true; parityFallback = fallback;
+    Object.assign(stage.style, { position: 'fixed', inset: '0', width: '100vw', height: '100vh', zIndex: '100' });
+    resize();
+    viewStills.dismiss(); stopTour(); stopPlay(); stopLiveClock();
+    document.querySelector('#modes button[data-mode="venue"]')?.click();
+    state.minutes = 450; heroLookKey = '';
+    await startHero();
+    // startHero can already be in flight from the scheduled tier-1 load.
+    const deadline = performance.now() + 180000;
+    while (heroLoading && performance.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 100));
+    if (!hero) throw new Error('Baked hero scene unavailable');
+    if (!fallback && !measuredLook(hero.manifest)) throw new Error('Manifest look block is missing');
+    focus(view === 'L06' ? 'lead06' : 'lead07', 1);
+    configurePipeline();
+    heroLock(); await hero.groundReady; await hero.environmentReady;
+    if (hero.environmentPeriod !== 'day') throw new Error('Bake panorama is unavailable');
+    return { bundle: hero.manifest.bundle, look: fallback ? 'grade.js fallback' : hero.manifest.look.look,
+      reference: `ref_bake_${view}.png`, exposure: lookExposure(fallback ? { ...hero.manifest, look: undefined } : hero.manifest, view) };
+  },
+  capture() { return new Promise((resolve) => frameCaptures.push(resolve)); },
+  finish() {
+    parityMode = false; parityFallback = false; heroLookKey = '';
+    if (parityStageStyle === null) stage.removeAttribute('style'); else stage.setAttribute('style', parityStageStyle);
+    renderer.setPixelRatio(parityPixelRatio); resize(); configurePipeline();
+  },
+};

@@ -1,0 +1,3213 @@
+{
+ "bundle": "web_hero_v3",
+ "generated": "2026-10-29T14:01:19.608Z",
+ "source": "blender/out/frozen_FL.blend (finished state, look layer day) via blender/web_hero (bake_lightmaps.py, ground_tiles.py, render_panorama.py, export_web.py, node/post_glb.mjs)",
+ "frame": "glTF y-up = app frame: x east, y up, z south, metres, origin at the pitch centre",
+ "sun": {
+  "date": "2026-01-15",
+  "local": "07:30 EAT",
+  "elevation_deg": 11.59,
+  "azimuth_deg": 111.31,
+  "direction_to_sun": [
+   0.91266,
+   0.20092,
+   0.35593
+  ]
+ },
+ "files": [
+  {
+   "file": "env/talanta_pano_0730.exr",
+   "bytes": 11829373,
+   "sha256": "13ab7fa79180b4e25d32563d1a9adbce76b68e6c4869046af3cfefb4bee3d078"
+  },
+  {
+   "file": "env/talanta_pano_0730_2048.hdr",
+   "bytes": 4358606,
+   "sha256": "96f146d782efb55b2dd482bb4c48d97a15b0acaaf849b9aa6046f58a15e72734"
+  },
+  {
+   "file": "env/talanta_pano_2030.exr",
+   "bytes": 1597327,
+   "sha256": "3fb0a5e54862710691f82d509ab177311d5b17cd7919ab1633729955b3279e54"
+  },
+  {
+   "file": "env/talanta_pano_2030_2048.hdr",
+   "bytes": 601632,
+   "sha256": "d1ef56e197278cb73a5d9f17d174349bd5d0532a90ffdbd89ff90e52f9bf7505"
+  },
+  {
+   "file": "ground/L0_0_0.ktx2",
+   "bytes": 141258,
+   "sha256": "5b7544e37780f08d528a396734b9588ea039031ec910d066ab4f25e2bea7f841"
+  },
+  {
+   "file": "ground/L0_0_1.ktx2",
+   "bytes": 138811,
+   "sha256": "582c863fcd9acde9561787d5ad0e0e6df4d0807de1e6a2fb208e1b9fd92f3e17"
+  },
+  {
+   "file": "ground/L0_0_2.ktx2",
+   "bytes": 91918,
+   "sha256": "caacfb90ad2a4c67d5acca59a39b03cf5aac933417eac975c9b74d5092e546f0"
+  },
+  {
+   "file": "ground/L0_0_3.ktx2",
+   "bytes": 108228,
+   "sha256": "41dc1704bf04885e642f4372963cef5f1842952b7bf47fbae97d0ae37e0b1279"
+  },
+  {
+   "file": "ground/L0_0_4.ktx2",
+   "bytes": 109384,
+   "sha256": "3b45137932db8f99f7a587bc3358b6525d642f987bc3cede8ada5a8c06477fb7"
+  },
+  {
+   "file": "ground/L0_1_0.ktx2",
+   "bytes": 145363,
+   "sha256": "9e2e111079239bd66a945b294235b25c6fa3d5ef78e5e7bbda5bd1f6cd7e4b9a"
+  },
+  {
+   "file": "ground/L0_1_1.ktx2",
+   "bytes": 131882,
+   "sha256": "ed251669a00540433b87621a514dc948c818224fc315f325ab685794bf83af37"
+  },
+  {
+   "file": "ground/L0_1_2.ktx2",
+   "bytes": 107601,
+   "sha256": "252ec460af5cb243baf336a9b76948435ba79d6edcff3fc9b86f19472f394d98"
+  },
+  {
+   "file": "ground/L0_1_3.ktx2",
+   "bytes": 100692,
+   "sha256": "7248a8e47b1b2897203b6265586071f15c61ec957f2897583479ff8b061cc6f4"
+  },
+  {
+   "file": "ground/L0_1_4.ktx2",
+   "bytes": 108050,
+   "sha256": "e1e8fa7dcbcf663b95f96eaaa6eb5d3356026cca7391b365ed1014725cc7585a"
+  },
+  {
+   "file": "ground/L0_2_0.ktx2",
+   "bytes": 148706,
+   "sha256": "73bf251e20abada9d73b99e2c69be99fd132b4995db8294750cdc64e41a3a303"
+  },
+  {
+   "file": "ground/L0_2_1.ktx2",
+   "bytes": 154144,
+   "sha256": "34def474c73b13406b58925c676580f35a694f8bb304c8ab454955b0be199827"
+  },
+  {
+   "file": "ground/L0_2_2.ktx2",
+   "bytes": 94345,
+   "sha256": "1d5081dc0e510614c097b47219dba602f7dfb68783c9dbd831aba2096bb842db"
+  },
+  {
+   "file": "ground/L0_2_3.ktx2",
+   "bytes": 140631,
+   "sha256": "e9d2e59ebcda9c7ac93a6fe213d65eb3308c12f3f2f6ca41a7a275a03569c420"
+  },
+  {
+   "file": "ground/L0_2_4.ktx2",
+   "bytes": 68593,
+   "sha256": "bb3015948ed161c32c2a2de531a32c752317d9caafb8e8c22621b667efbfe30c"
+  },
+  {
+   "file": "ground/L0_3_0.ktx2",
+   "bytes": 151226,
+   "sha256": "a4589d3487498343065fc982101db17ce7f5aff53b04a3841291b97f103639fd"
+  },
+  {
+   "file": "ground/L0_3_1.ktx2",
+   "bytes": 142835,
+   "sha256": "19555c56ec149a3737e2d7f883451e870f473e4298ea170494613c627823d752"
+  },
+  {
+   "file": "ground/L0_3_2.ktx2",
+   "bytes": 138731,
+   "sha256": "8ba4cf9a5430061894d88c95115cc43d4e5791a74fe026311db8b1c1a7b83493"
+  },
+  {
+   "file": "ground/L0_3_3.ktx2",
+   "bytes": 122250,
+   "sha256": "bb2478c758ac81a4f058d0155429fbca8321b4ed45f3e3d11e59f0d181936c6b"
+  },
+  {
+   "file": "ground/L0_3_4.ktx2",
+   "bytes": 92325,
+   "sha256": "e4eeaf8b762819dcbb7ccd7b04a3135e9925f6eab58ca7c380129ccb24a2aca2"
+  },
+  {
+   "file": "ground/L0_4_0.ktx2",
+   "bytes": 153860,
+   "sha256": "42ebbb13c7af8b50b66377221008780c7f891b34544062f79bf144e60973aedc"
+  },
+  {
+   "file": "ground/L0_4_1.ktx2",
+   "bytes": 141353,
+   "sha256": "487ddcfe717d44157ccf92ae14b35e76ec288066fff8f0da48fece97ae43269b"
+  },
+  {
+   "file": "ground/L0_4_2.ktx2",
+   "bytes": 147396,
+   "sha256": "e6d32ee1b4e66a37eb5e6efa44be5a0eb14fdab9add015a4ff21f075d7e7ef74"
+  },
+  {
+   "file": "ground/L0_4_3.ktx2",
+   "bytes": 137619,
+   "sha256": "fbe493ea347045b663b3c3c0ba1960c9569dcd22cf1aab96e7dffa25d5a3f0c2"
+  },
+  {
+   "file": "ground/L0_4_4.ktx2",
+   "bytes": 98856,
+   "sha256": "6d0f4c1ff2ad5d7743be186060cebad11375c8e9cb0f6d755982222dbe774897"
+  },
+  {
+   "file": "ground/L1_0_0.ktx2",
+   "bytes": 157568,
+   "sha256": "9b0e1d5759cb5aff8507f53f4ca4330be799870ca1cc683e7925b935d8a959c2"
+  },
+  {
+   "file": "ground/L1_0_1.ktx2",
+   "bytes": 157211,
+   "sha256": "fb86ed3e703b914ff4d4676ad12c0f2800962a39aabf8d67335ce1b5e70ee796"
+  },
+  {
+   "file": "ground/L1_0_2.ktx2",
+   "bytes": 159395,
+   "sha256": "d7ef914e37b00bc47678f926c145855cb572d9f4cf7353c9c64e1d90f5a2605e"
+  },
+  {
+   "file": "ground/L1_0_3.ktx2",
+   "bytes": 156522,
+   "sha256": "5ef5692f173ff8c255ce2cecfd355a0305aef17bda2148aa60e75f50246ee5a4"
+  },
+  {
+   "file": "ground/L1_0_4.ktx2",
+   "bytes": 113222,
+   "sha256": "3578e080f8cca8c173eb7ed93d750857aba511f2af12426640a6d8eb0e9c0bcc"
+  },
+  {
+   "file": "ground/L1_0_5.ktx2",
+   "bytes": 93742,
+   "sha256": "ea1c8d714d0eb22676e5763c0cde705ec121cb0d4a2c68232a4e2173c07d9494"
+  },
+  {
+   "file": "ground/L1_1_0.ktx2",
+   "bytes": 166186,
+   "sha256": "bd30363bc23487f9ef00be42bfe7f136edd1978777913347d6b48b5844ffaef9"
+  },
+  {
+   "file": "ground/L1_1_1.ktx2",
+   "bytes": 166788,
+   "sha256": "e5611a988928b28e16ed937799fe26fa9976605bc4b8d3efed262428fa727bfd"
+  },
+  {
+   "file": "ground/L1_1_2.ktx2",
+   "bytes": 169982,
+   "sha256": "9b8bf48263e15319bb48bed007bb2cfa5e6b30f0e18c347630ce715587974256"
+  },
+  {
+   "file": "ground/L1_1_3.ktx2",
+   "bytes": 146654,
+   "sha256": "08da514ad9c8cf42da3b3ce41341b1059bd1ae01dd1e4a890be26ccb9552cb26"
+  },
+  {
+   "file": "ground/L1_1_4.ktx2",
+   "bytes": 130563,
+   "sha256": "c8cce825a49101ced23330004c61c348b82769ee564a552c6f2344f0930ff4a5"
+  },
+  {
+   "file": "ground/L1_1_5.ktx2",
+   "bytes": 101931,
+   "sha256": "45ae45ca83c22e532c110509bc065250a229d098debb1fbfa3048760c44989c9"
+  },
+  {
+   "file": "ground/L1_2_0.ktx2",
+   "bytes": 158919,
+   "sha256": "5363711bf59715a273eaeee3114e463fd93e88a4f33f2d3813e9cccda15a4542"
+  },
+  {
+   "file": "ground/L1_2_1.ktx2",
+   "bytes": 176496,
+   "sha256": "47fddef1d98d3ec07c6c439d498e856797b667e01a7769bc31cc0e06350dfb67"
+  },
+  {
+   "file": "ground/L1_2_2.ktx2",
+   "bytes": 158729,
+   "sha256": "d5985d2ff54409f1615cd843af2765b371604c18815934fa5974924273026f04"
+  },
+  {
+   "file": "ground/L1_2_3.ktx2",
+   "bytes": 135674,
+   "sha256": "9fe553979351eb1ae3ca629d00863dcab5778bbfeb01104be623f0948def9a1a"
+  },
+  {
+   "file": "ground/L1_2_4.ktx2",
+   "bytes": 139204,
+   "sha256": "dd46e1af18c2c188bb36a6c819d12ae669c0d7a301345922d7613684518077c5"
+  },
+  {
+   "file": "ground/L1_2_5.ktx2",
+   "bytes": 96238,
+   "sha256": "30f3d442cc0e29d0e0bbf75cdf43eba0ae8be97514b62e18d2dea9ece3e5f086"
+  },
+  {
+   "file": "ground/L1_3_0.ktx2",
+   "bytes": 150720,
+   "sha256": "7b1b400fdfb0ad026cf28c173d278400d01d3e2e49868601a03029392de77a7c"
+  },
+  {
+   "file": "ground/L1_3_1.ktx2",
+   "bytes": 182130,
+   "sha256": "ad2ff930d467e8f8efaca73e34ad073b18c42812a75f1fc22b025d58e2bf7e82"
+  },
+  {
+   "file": "ground/L1_3_2.ktx2",
+   "bytes": 182381,
+   "sha256": "e261e5989836831535b4299b3e0bda90386e99ca94fb0c97949ad6c5d911724d"
+  },
+  {
+   "file": "ground/L1_3_3.ktx2",
+   "bytes": 156182,
+   "sha256": "c02c32453a7e0bdd8c7390188b9c4373eac415fe06709c692456eb90d8f7a66e"
+  },
+  {
+   "file": "ground/L1_3_4.ktx2",
+   "bytes": 109372,
+   "sha256": "4df1f967ba383f5517cf73754d2e1b6a59988bdb1557f0511ef49c480c76727c"
+  },
+  {
+   "file": "ground/L1_3_5.ktx2",
+   "bytes": 99847,
+   "sha256": "a1edf72047ea3b11213c2677392a5199a828932c283aa6cad2e95f9920a6f589"
+  },
+  {
+   "file": "ground/L1_4_0.ktx2",
+   "bytes": 140262,
+   "sha256": "92d104de22cfcc9ad27147bd21de0e1749bb49a839143cb192b69599bb3895ad"
+  },
+  {
+   "file": "ground/L1_4_1.ktx2",
+   "bytes": 180493,
+   "sha256": "2c995ecfce2bcbaa0b88f8fefaf5c396716bbcacb3296abc85f307236a2bfb09"
+  },
+  {
+   "file": "ground/L1_4_2.ktx2",
+   "bytes": 175101,
+   "sha256": "28f6a24e5916828a41be61717e1937dd7d36c293f5ae9094905ff15b7179fc30"
+  },
+  {
+   "file": "ground/L1_4_3.ktx2",
+   "bytes": 155749,
+   "sha256": "0a70c2685f05094c18304fa92d31761f5b48db55253e918a68f68bfa9b0b9db1"
+  },
+  {
+   "file": "ground/L1_4_4.ktx2",
+   "bytes": 122134,
+   "sha256": "61312bff1c37dbfe2895d7d6d577db6a0b9741acf19bdf84381508b0cf3af217"
+  },
+  {
+   "file": "ground/L1_4_5.ktx2",
+   "bytes": 93893,
+   "sha256": "27f09c267c5f3bfc86f608a8cbbe33a571aa73c163a64fdfaa4885fab8f813e8"
+  },
+  {
+   "file": "ground/L1_5_0.ktx2",
+   "bytes": 135652,
+   "sha256": "143dec429aca84e03f289443ccfde6477e035dc157ea3d88dcab76921de7c9e4"
+  },
+  {
+   "file": "ground/L1_5_1.ktx2",
+   "bytes": 153972,
+   "sha256": "0399ef221154c65c4637c0cba406209c7835004a606746361a0bffa904a31bfb"
+  },
+  {
+   "file": "ground/L1_5_2.ktx2",
+   "bytes": 152804,
+   "sha256": "2f88a9fef38370f52012933629536e1c33dbd61b494d3058871792e83ce39489"
+  },
+  {
+   "file": "ground/L1_5_3.ktx2",
+   "bytes": 172313,
+   "sha256": "fd9be76ce422c548e2d56e2381a34c75c2c26186e6d71ee9f902bb9e8566d2db"
+  },
+  {
+   "file": "ground/L1_5_4.ktx2",
+   "bytes": 117783,
+   "sha256": "7f4370f135d7f28c6456447ee7ddbc12a8d40f22350d1edce9560343b15ae91b"
+  },
+  {
+   "file": "ground/L1_5_5.ktx2",
+   "bytes": 92838,
+   "sha256": "79dd68b1006213f7e28b37f7ca607c5e25b1bfe93861e8c9188c8e3c774013b4"
+  },
+  {
+   "file": "ground/tiles.json",
+   "bytes": 7375,
+   "sha256": "ccb3a9efe7fada62c7d0d025c4eeed11410e25387db3933f6e186b8fbb4bbc4e"
+  },
+  {
+   "file": "models/talanta_hero.glb",
+   "bytes": 35180644,
+   "sha256": "0a6a47b49f9854e25c36a06eb2a232af24a67012295de4edd51f09d9b18a9299"
+  },
+  {
+   "file": "models/talanta_site.glb",
+   "bytes": 89633388,
+   "sha256": "a7720278ba79ae2e38027e838f53325dfe69233ae386016cd585e07c701a5889"
+  }
+ ],
+ "total_bytes": 151483052,
+ "budget_bytes": 250000000,
+ "within_budget": true,
+ "models": {
+  "hero": {
+   "file": "blender/out/web_hero/v3_0730/web_hero_v3/models/talanta_hero.glb",
+   "bytes": 35180644,
+   "triangles": {
+    "lod0": 766607,
+    "lod1_300m": 347962,
+    "lod2_1km": 36621
+   },
+   "textures": 11,
+   "instanced_sets": [
+    {
+     "set": "seats",
+     "proto": "seat_proto_v2",
+     "lod": 0,
+     "instances": 60197,
+     "tris_each": 4,
+     "tris": 240788
+    },
+    {
+     "set": "seats",
+     "proto": "seat_proto_v2",
+     "lod": 1,
+     "instances": 60197,
+     "tris_each": 2,
+     "tris": 120394
+    },
+    {
+     "set": "vip_seats",
+     "proto": "vip_seat_proto",
+     "lod": 0,
+     "instances": 218,
+     "tris_each": 84,
+     "tris": 18312
+    }
+   ]
+  },
+  "site": {
+   "file": "blender/out/web_hero/v3_0730/web_hero_v3/models/talanta_site.glb",
+   "bytes": 89633388,
+   "triangles": {
+    "lod0": 8886336,
+    "lod1_300m": 668980,
+    "lod2_1km": 513701
+   },
+   "textures": 64,
+   "instanced_sets": [
+    {
+     "set": "fc_retained_bollards",
+     "proto": "bo_bollard",
+     "lod": 0,
+     "instances": 7,
+     "tris_each": 28,
+     "tris": 196
+    },
+    {
+     "set": "fc_retained_flag_masts",
+     "proto": "fm_flagmast",
+     "lod": 0,
+     "instances": 1,
+     "tris_each": 44,
+     "tris": 44
+    },
+    {
+     "set": "fc_retained_light_masts",
+     "proto": "lm_lightmast",
+     "lod": 0,
+     "instances": 24,
+     "tris_each": 48,
+     "tris": 1152
+    },
+    {
+     "set": "fc_retained_palms",
+     "proto": "sp_0_palm",
+     "lod": 0,
+     "instances": 181,
+     "tris_each": 113,
+     "tris": 20453
+    },
+    {
+     "set": "fc_retained_palms",
+     "proto": "sp_0_palm",
+     "lod": 1,
+     "instances": 181,
+     "tris_each": 4,
+     "tris": 724
+    },
+    {
+     "set": "fc_retained_path_lights",
+     "proto": "pl_pathlight",
+     "lod": 0,
+     "instances": 67,
+     "tris_each": 40,
+     "tris": 2680
+    },
+    {
+     "set": "fc_retained_shrubs",
+     "proto": "sh_0_green",
+     "lod": 0,
+     "instances": 204,
+     "tris_each": 20,
+     "tris": 4080
+    },
+    {
+     "set": "fc_retained_shrubs",
+     "proto": "sh_1_red",
+     "lod": 0,
+     "instances": 172,
+     "tris_each": 20,
+     "tris": 3440
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_0_round",
+     "lod": 0,
+     "instances": 121,
+     "tris_each": 119,
+     "tris": 14399
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_0_round",
+     "lod": 1,
+     "instances": 121,
+     "tris_each": 4,
+     "tris": 484
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_1_acacia",
+     "lod": 0,
+     "instances": 38,
+     "tris_each": 119,
+     "tris": 4522
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_1_acacia",
+     "lod": 1,
+     "instances": 38,
+     "tris_each": 4,
+     "tris": 152
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_3_jacaranda",
+     "lod": 0,
+     "instances": 2,
+     "tris_each": 119,
+     "tris": 238
+    },
+    {
+     "set": "fc_retained_site_trees",
+     "proto": "st_3_jacaranda",
+     "lod": 1,
+     "instances": 2,
+     "tris_each": 4,
+     "tris": 8
+    },
+    {
+     "set": "jets",
+     "proto": "je_jet",
+     "lod": 0,
+     "instances": 60,
+     "tris_each": 20,
+     "tris": 1200
+    },
+    {
+     "set": "suburbs_tanks",
+     "proto": "suburbs_tank",
+     "lod": 0,
+     "instances": 171,
+     "tris_each": 40,
+     "tris": 6840
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_broad",
+     "lod": 0,
+     "instances": 1767,
+     "tris_each": 93,
+     "tris": 164331
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_broad",
+     "lod": 1,
+     "instances": 1767,
+     "tris_each": 4,
+     "tris": 7068
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_eucalyptus",
+     "lod": 0,
+     "instances": 280,
+     "tris_each": 106,
+     "tris": 29680
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_eucalyptus",
+     "lod": 1,
+     "instances": 280,
+     "tris_each": 4,
+     "tris": 1120
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_jacaranda",
+     "lod": 0,
+     "instances": 377,
+     "tris_each": 103,
+     "tris": 38831
+    },
+    {
+     "set": "suburbs_trees",
+     "proto": "suburbs_jacaranda",
+     "lod": 1,
+     "instances": 377,
+     "tris_each": 4,
+     "tris": 1508
+    },
+    {
+     "set": "track_masts",
+     "proto": "tm_trackmast",
+     "lod": 0,
+     "instances": 12,
+     "tris_each": 40,
+     "tris": 480
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.001",
+     "lod": 0,
+     "instances": 2278,
+     "tris_each": 112,
+     "tris": 255136
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.001",
+     "lod": 1,
+     "instances": 2278,
+     "tris_each": 4,
+     "tris": 9112
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.002",
+     "lod": 0,
+     "instances": 591,
+     "tris_each": 112,
+     "tris": 66192
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.002",
+     "lod": 1,
+     "instances": 591,
+     "tris_each": 4,
+     "tris": 2364
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.003",
+     "lod": 0,
+     "instances": 3129,
+     "tris_each": 112,
+     "tris": 350448
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_far.003",
+     "lod": 1,
+     "instances": 3129,
+     "tris_each": 4,
+     "tris": 12516
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_high.004",
+     "lod": 0,
+     "instances": 1086,
+     "tris_each": 112,
+     "tris": 121632
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_high.004",
+     "lod": 1,
+     "instances": 1086,
+     "tris_each": 4,
+     "tris": 4344
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_high.005",
+     "lod": 0,
+     "instances": 358,
+     "tris_each": 112,
+     "tris": 40096
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_high.005",
+     "lod": 1,
+     "instances": 358,
+     "tris_each": 4,
+     "tris": 1432
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_high.006",
+     "lod": 0,
+     "instances": 1301,
+     "tris_each": 112,
+     "tris": 145712
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_00_high.006",
+     "lod": 1,
+     "instances": 1301,
+     "tris_each": 4,
+     "tris": 5204
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.001",
+     "lod": 0,
+     "instances": 2450,
+     "tris_each": 112,
+     "tris": 274400
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.001",
+     "lod": 1,
+     "instances": 2450,
+     "tris_each": 4,
+     "tris": 9800
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.002",
+     "lod": 0,
+     "instances": 563,
+     "tris_each": 112,
+     "tris": 63056
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.002",
+     "lod": 1,
+     "instances": 563,
+     "tris_each": 4,
+     "tris": 2252
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.003",
+     "lod": 0,
+     "instances": 3212,
+     "tris_each": 112,
+     "tris": 359744
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_far.003",
+     "lod": 1,
+     "instances": 3212,
+     "tris_each": 4,
+     "tris": 12848
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_high.004",
+     "lod": 0,
+     "instances": 993,
+     "tris_each": 112,
+     "tris": 111216
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_high.004",
+     "lod": 1,
+     "instances": 993,
+     "tris_each": 4,
+     "tris": 3972
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_high.005",
+     "lod": 0,
+     "instances": 370,
+     "tris_each": 112,
+     "tris": 41440
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_high.005",
+     "lod": 1,
+     "instances": 370,
+     "tris_each": 4,
+     "tris": 1480
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_high.006",
+     "lod": 0,
+     "instances": 1235,
+     "tris_each": 112,
+     "tris": 138320
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_01_high.006",
+     "lod": 1,
+     "instances": 1235,
+     "tris_each": 4,
+     "tris": 4940
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.001",
+     "lod": 0,
+     "instances": 2322,
+     "tris_each": 112,
+     "tris": 260064
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.001",
+     "lod": 1,
+     "instances": 2322,
+     "tris_each": 4,
+     "tris": 9288
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.002",
+     "lod": 0,
+     "instances": 567,
+     "tris_each": 112,
+     "tris": 63504
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.002",
+     "lod": 1,
+     "instances": 567,
+     "tris_each": 4,
+     "tris": 2268
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.003",
+     "lod": 0,
+     "instances": 3386,
+     "tris_each": 112,
+     "tris": 379232
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_far.003",
+     "lod": 1,
+     "instances": 3386,
+     "tris_each": 4,
+     "tris": 13544
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_high.004",
+     "lod": 0,
+     "instances": 1081,
+     "tris_each": 112,
+     "tris": 121072
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_high.004",
+     "lod": 1,
+     "instances": 1081,
+     "tris_each": 4,
+     "tris": 4324
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_high.005",
+     "lod": 0,
+     "instances": 346,
+     "tris_each": 112,
+     "tris": 38752
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_high.005",
+     "lod": 1,
+     "instances": 346,
+     "tris_each": 4,
+     "tris": 1384
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_high.006",
+     "lod": 0,
+     "instances": 1214,
+     "tris_each": 112,
+     "tris": 135968
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_02_high.006",
+     "lod": 1,
+     "instances": 1214,
+     "tris_each": 4,
+     "tris": 4856
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.001",
+     "lod": 0,
+     "instances": 2054,
+     "tris_each": 112,
+     "tris": 230048
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.001",
+     "lod": 1,
+     "instances": 2054,
+     "tris_each": 4,
+     "tris": 8216
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.002",
+     "lod": 0,
+     "instances": 614,
+     "tris_each": 112,
+     "tris": 68768
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.002",
+     "lod": 1,
+     "instances": 614,
+     "tris_each": 4,
+     "tris": 2456
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.003",
+     "lod": 0,
+     "instances": 3239,
+     "tris_each": 112,
+     "tris": 362768
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_far.003",
+     "lod": 1,
+     "instances": 3239,
+     "tris_each": 4,
+     "tris": 12956
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_high.004",
+     "lod": 0,
+     "instances": 1179,
+     "tris_each": 112,
+     "tris": 132048
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_high.004",
+     "lod": 1,
+     "instances": 1179,
+     "tris_each": 4,
+     "tris": 4716
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_high.005",
+     "lod": 0,
+     "instances": 329,
+     "tris_each": 112,
+     "tris": 36848
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_high.005",
+     "lod": 1,
+     "instances": 329,
+     "tris_each": 4,
+     "tris": 1316
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_high.006",
+     "lod": 0,
+     "instances": 1242,
+     "tris_each": 112,
+     "tris": 139104
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_03_high.006",
+     "lod": 1,
+     "instances": 1242,
+     "tris_each": 4,
+     "tris": 4968
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.001",
+     "lod": 0,
+     "instances": 2252,
+     "tris_each": 112,
+     "tris": 252224
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.001",
+     "lod": 1,
+     "instances": 2252,
+     "tris_each": 4,
+     "tris": 9008
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.002",
+     "lod": 0,
+     "instances": 576,
+     "tris_each": 112,
+     "tris": 64512
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.002",
+     "lod": 1,
+     "instances": 576,
+     "tris_each": 4,
+     "tris": 2304
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.003",
+     "lod": 0,
+     "instances": 3267,
+     "tris_each": 112,
+     "tris": 365904
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_far.003",
+     "lod": 1,
+     "instances": 3267,
+     "tris_each": 4,
+     "tris": 13068
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_high.004",
+     "lod": 0,
+     "instances": 1072,
+     "tris_each": 112,
+     "tris": 120064
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_high.004",
+     "lod": 1,
+     "instances": 1072,
+     "tris_each": 4,
+     "tris": 4288
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_high.005",
+     "lod": 0,
+     "instances": 381,
+     "tris_each": 112,
+     "tris": 42672
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_high.005",
+     "lod": 1,
+     "instances": 381,
+     "tris_each": 4,
+     "tris": 1524
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_high.006",
+     "lod": 0,
+     "instances": 1292,
+     "tris_each": 112,
+     "tris": 144704
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_04_high.006",
+     "lod": 1,
+     "instances": 1292,
+     "tris_each": 4,
+     "tris": 5168
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.001",
+     "lod": 0,
+     "instances": 2373,
+     "tris_each": 112,
+     "tris": 265776
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.001",
+     "lod": 1,
+     "instances": 2373,
+     "tris_each": 4,
+     "tris": 9492
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.002",
+     "lod": 0,
+     "instances": 595,
+     "tris_each": 112,
+     "tris": 66640
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.002",
+     "lod": 1,
+     "instances": 595,
+     "tris_each": 4,
+     "tris": 2380
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.003",
+     "lod": 0,
+     "instances": 3338,
+     "tris_each": 112,
+     "tris": 373856
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_far.003",
+     "lod": 1,
+     "instances": 3338,
+     "tris_each": 4,
+     "tris": 13352
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_high.004",
+     "lod": 0,
+     "instances": 1042,
+     "tris_each": 112,
+     "tris": 116704
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_high.004",
+     "lod": 1,
+     "instances": 1042,
+     "tris_each": 4,
+     "tris": 4168
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_high.005",
+     "lod": 0,
+     "instances": 365,
+     "tris_each": 112,
+     "tris": 40880
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_high.005",
+     "lod": 1,
+     "instances": 365,
+     "tris_each": 4,
+     "tris": 1460
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_high.006",
+     "lod": 0,
+     "instances": 1359,
+     "tris_each": 112,
+     "tris": 152208
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_05_high.006",
+     "lod": 1,
+     "instances": 1359,
+     "tris_each": 4,
+     "tris": 5436
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.001",
+     "lod": 0,
+     "instances": 2387,
+     "tris_each": 112,
+     "tris": 267344
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.001",
+     "lod": 1,
+     "instances": 2387,
+     "tris_each": 4,
+     "tris": 9548
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.002",
+     "lod": 0,
+     "instances": 626,
+     "tris_each": 112,
+     "tris": 70112
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.002",
+     "lod": 1,
+     "instances": 626,
+     "tris_each": 4,
+     "tris": 2504
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.003",
+     "lod": 0,
+     "instances": 3257,
+     "tris_each": 112,
+     "tris": 364784
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_far.003",
+     "lod": 1,
+     "instances": 3257,
+     "tris_each": 4,
+     "tris": 13028
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_high.004",
+     "lod": 0,
+     "instances": 1136,
+     "tris_each": 112,
+     "tris": 127232
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_high.004",
+     "lod": 1,
+     "instances": 1136,
+     "tris_each": 4,
+     "tris": 4544
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_high.005",
+     "lod": 0,
+     "instances": 327,
+     "tris_each": 112,
+     "tris": 36624
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_high.005",
+     "lod": 1,
+     "instances": 327,
+     "tris_each": 4,
+     "tris": 1308
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_high.006",
+     "lod": 0,
+     "instances": 1358,
+     "tris_each": 112,
+     "tris": 152096
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_broadleaf_06_high.006",
+     "lod": 1,
+     "instances": 1358,
+     "tris_each": 4,
+     "tris": 5432
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.001",
+     "lod": 0,
+     "instances": 732,
+     "tris_each": 112,
+     "tris": 81984
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.001",
+     "lod": 1,
+     "instances": 732,
+     "tris_each": 4,
+     "tris": 2928
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.002",
+     "lod": 0,
+     "instances": 99,
+     "tris_each": 112,
+     "tris": 11088
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.002",
+     "lod": 1,
+     "instances": 99,
+     "tris_each": 4,
+     "tris": 396
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.003",
+     "lod": 0,
+     "instances": 2033,
+     "tris_each": 112,
+     "tris": 227696
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_far.003",
+     "lod": 1,
+     "instances": 2033,
+     "tris_each": 4,
+     "tris": 8132
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_high.001",
+     "lod": 0,
+     "instances": 213,
+     "tris_each": 112,
+     "tris": 23856
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_high.001",
+     "lod": 1,
+     "instances": 213,
+     "tris_each": 4,
+     "tris": 852
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_high.002",
+     "lod": 0,
+     "instances": 57,
+     "tris_each": 112,
+     "tris": 6384
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_high.002",
+     "lod": 1,
+     "instances": 57,
+     "tris_each": 4,
+     "tris": 228
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_high.003",
+     "lod": 0,
+     "instances": 901,
+     "tris_each": 112,
+     "tris": 100912
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_00_high.003",
+     "lod": 1,
+     "instances": 901,
+     "tris_each": 4,
+     "tris": 3604
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.001",
+     "lod": 0,
+     "instances": 723,
+     "tris_each": 112,
+     "tris": 80976
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.001",
+     "lod": 1,
+     "instances": 723,
+     "tris_each": 4,
+     "tris": 2892
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.002",
+     "lod": 0,
+     "instances": 72,
+     "tris_each": 112,
+     "tris": 8064
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.002",
+     "lod": 1,
+     "instances": 72,
+     "tris_each": 4,
+     "tris": 288
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.003",
+     "lod": 0,
+     "instances": 2052,
+     "tris_each": 112,
+     "tris": 229824
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_far.003",
+     "lod": 1,
+     "instances": 2052,
+     "tris_each": 4,
+     "tris": 8208
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_high.001",
+     "lod": 0,
+     "instances": 242,
+     "tris_each": 112,
+     "tris": 27104
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_high.001",
+     "lod": 1,
+     "instances": 242,
+     "tris_each": 4,
+     "tris": 968
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_high.002",
+     "lod": 0,
+     "instances": 39,
+     "tris_each": 112,
+     "tris": 4368
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_high.002",
+     "lod": 1,
+     "instances": 39,
+     "tris_each": 4,
+     "tris": 156
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_high.003",
+     "lod": 0,
+     "instances": 1019,
+     "tris_each": 112,
+     "tris": 114128
+    },
+    {
+     "set": "trees",
+     "proto": "canopy_eucalyptus_01_high.003",
+     "lod": 1,
+     "instances": 1019,
+     "tris_each": 4,
+     "tris": 4076
+    }
+   ]
+  }
+ },
+ "textures": [
+  {
+   "map": "stadium_shell_light",
+   "png_bytes": 4563780,
+   "ktx2_bytes": 2810428,
+   "seconds": 92.965,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_shell_ao",
+   "png_bytes": 2504793,
+   "ktx2_bytes": 2533306,
+   "seconds": 113.528,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_ornament_light",
+   "png_bytes": 3931983,
+   "ktx2_bytes": 2382276,
+   "seconds": 88.878,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_ornament_ao",
+   "png_bytes": 1484590,
+   "ktx2_bytes": 1572392,
+   "seconds": 70.361,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_ornament_albedo",
+   "png_bytes": 1412014,
+   "ktx2_bytes": 279854,
+   "seconds": 12.828,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "stadium_fins_light",
+   "png_bytes": 6729206,
+   "ktx2_bytes": 3968876,
+   "seconds": 146.933,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "stadium_fins_ao",
+   "png_bytes": 4131567,
+   "ktx2_bytes": 3710404,
+   "seconds": 181.153,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "sport_light",
+   "png_bytes": 937312,
+   "ktx2_bytes": 608674,
+   "seconds": 21.529,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "sport_albedo",
+   "png_bytes": 657516,
+   "ktx2_bytes": 127971,
+   "seconds": 7.041,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "roof_light",
+   "png_bytes": 5729049,
+   "ktx2_bytes": 3637485,
+   "seconds": 126.689,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "roof_ao",
+   "png_bytes": 2413336,
+   "ktx2_bytes": 2647099,
+   "seconds": 121.388,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "shield",
+   "png_bytes": 20430,
+   "ktx2_bytes": 23280,
+   "seconds": 3.357,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "site_built_light",
+   "png_bytes": 805400,
+   "ktx2_bytes": 414812,
+   "seconds": 18.08,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "forecourt_light",
+   "png_bytes": 4916748,
+   "ktx2_bytes": 2968785,
+   "seconds": 135.035,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "site_layout_light",
+   "png_bytes": 4202424,
+   "ktx2_bytes": 2450004,
+   "seconds": 87.976,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_00_light",
+   "png_bytes": 1658662,
+   "ktx2_bytes": 831024,
+   "seconds": 30.338,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_00_albedo",
+   "png_bytes": 1279301,
+   "ktx2_bytes": 183183,
+   "seconds": 3.202,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_01_light",
+   "png_bytes": 1940737,
+   "ktx2_bytes": 1165480,
+   "seconds": 33.164,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_01_albedo",
+   "png_bytes": 1154061,
+   "ktx2_bytes": 139589,
+   "seconds": 2.887,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_02_light",
+   "png_bytes": 1609818,
+   "ktx2_bytes": 989117,
+   "seconds": 29.874,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_02_albedo",
+   "png_bytes": 1255313,
+   "ktx2_bytes": 177786,
+   "seconds": 3.25,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_03_light",
+   "png_bytes": 1568637,
+   "ktx2_bytes": 979653,
+   "seconds": 33.224,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_03_albedo",
+   "png_bytes": 1295292,
+   "ktx2_bytes": 189055,
+   "seconds": 3.389,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_04_light",
+   "png_bytes": 1854067,
+   "ktx2_bytes": 1107270,
+   "seconds": 37.287,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_04_albedo",
+   "png_bytes": 1214946,
+   "ktx2_bytes": 162173,
+   "seconds": 2.854,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_05_light",
+   "png_bytes": 1516788,
+   "ktx2_bytes": 924654,
+   "seconds": 27.203,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_05_albedo",
+   "png_bytes": 1199493,
+   "ktx2_bytes": 141203,
+   "seconds": 3.423,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_06_light",
+   "png_bytes": 1313714,
+   "ktx2_bytes": 768439,
+   "seconds": 26.106,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_06_albedo",
+   "png_bytes": 1271894,
+   "ktx2_bytes": 159213,
+   "seconds": 3.368,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_07_light",
+   "png_bytes": 1632395,
+   "ktx2_bytes": 1008507,
+   "seconds": 30.468,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_07_albedo",
+   "png_bytes": 1310868,
+   "ktx2_bytes": 191980,
+   "seconds": 3.206,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_08_light",
+   "png_bytes": 1893721,
+   "ktx2_bytes": 1103168,
+   "seconds": 38.7,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_08_albedo",
+   "png_bytes": 1126637,
+   "ktx2_bytes": 124475,
+   "seconds": 2.782,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_09_light",
+   "png_bytes": 1444332,
+   "ktx2_bytes": 797040,
+   "seconds": 26.535,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_09_albedo",
+   "png_bytes": 1222967,
+   "ktx2_bytes": 155188,
+   "seconds": 3.551,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_10_light",
+   "png_bytes": 1059200,
+   "ktx2_bytes": 632895,
+   "seconds": 24.29,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_10_albedo",
+   "png_bytes": 1216026,
+   "ktx2_bytes": 139102,
+   "seconds": 3.576,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_11_light",
+   "png_bytes": 1665824,
+   "ktx2_bytes": 1017253,
+   "seconds": 29.222,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_11_albedo",
+   "png_bytes": 1289821,
+   "ktx2_bytes": 187346,
+   "seconds": 2.8,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_12_light",
+   "png_bytes": 1777093,
+   "ktx2_bytes": 944910,
+   "seconds": 34.22,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_12_albedo",
+   "png_bytes": 1167711,
+   "ktx2_bytes": 143554,
+   "seconds": 2.549,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_13_light",
+   "png_bytes": 1673276,
+   "ktx2_bytes": 826411,
+   "seconds": 33.823,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_13_albedo",
+   "png_bytes": 1272914,
+   "ktx2_bytes": 183559,
+   "seconds": 2.952,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_14_light",
+   "png_bytes": 1683600,
+   "ktx2_bytes": 889356,
+   "seconds": 30.269,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_14_albedo",
+   "png_bytes": 1269993,
+   "ktx2_bytes": 183056,
+   "seconds": 3.311,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_15_light",
+   "png_bytes": 1686624,
+   "ktx2_bytes": 991503,
+   "seconds": 32.468,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_15_albedo",
+   "png_bytes": 1282928,
+   "ktx2_bytes": 188070,
+   "seconds": 3.447,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_16_light",
+   "png_bytes": 2086485,
+   "ktx2_bytes": 1282445,
+   "seconds": 36.125,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_16_albedo",
+   "png_bytes": 1114181,
+   "ktx2_bytes": 126878,
+   "seconds": 2.915,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_17_light",
+   "png_bytes": 1924261,
+   "ktx2_bytes": 1146940,
+   "seconds": 35.636,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_17_albedo",
+   "png_bytes": 1365195,
+   "ktx2_bytes": 200872,
+   "seconds": 3.625,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_18_light",
+   "png_bytes": 1935925,
+   "ktx2_bytes": 1140262,
+   "seconds": 36.001,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_18_albedo",
+   "png_bytes": 1335212,
+   "ktx2_bytes": 199691,
+   "seconds": 2.94,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_19_light",
+   "png_bytes": 2091664,
+   "ktx2_bytes": 1266930,
+   "seconds": 35.856,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_19_albedo",
+   "png_bytes": 1190848,
+   "ktx2_bytes": 157068,
+   "seconds": 2.713,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_20_light",
+   "png_bytes": 2095768,
+   "ktx2_bytes": 1204771,
+   "seconds": 35.184,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_20_albedo",
+   "png_bytes": 1419958,
+   "ktx2_bytes": 211860,
+   "seconds": 2.889,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_21_light",
+   "png_bytes": 2114734,
+   "ktx2_bytes": 1305417,
+   "seconds": 32.346,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_21_albedo",
+   "png_bytes": 1146658,
+   "ktx2_bytes": 138232,
+   "seconds": 2.154,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_22_light",
+   "png_bytes": 1864779,
+   "ktx2_bytes": 989664,
+   "seconds": 32.458,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_22_albedo",
+   "png_bytes": 1389036,
+   "ktx2_bytes": 206112,
+   "seconds": 2.982,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "ground_23_light",
+   "png_bytes": 1876539,
+   "ktx2_bytes": 1116006,
+   "seconds": 29.412,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "ground_23_albedo",
+   "png_bytes": 1330320,
+   "ktx2_bytes": 198363,
+   "seconds": 3.128,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "traffic_light",
+   "png_bytes": 3702622,
+   "ktx2_bytes": 2417515,
+   "seconds": 96.247,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "traffic_ao",
+   "png_bytes": 2795743,
+   "ktx2_bytes": 2735403,
+   "seconds": 136.82,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "landmarks_light",
+   "png_bytes": 3213599,
+   "ktx2_bytes": 1507395,
+   "seconds": 72.259,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "landmarks_ao",
+   "png_bytes": 855999,
+   "ktx2_bytes": 898910,
+   "seconds": 43.183,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "roads_light",
+   "png_bytes": 5815358,
+   "ktx2_bytes": 3849827,
+   "seconds": 146.548,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "roads_albedo",
+   "png_bytes": 3199272,
+   "ktx2_bytes": 531854,
+   "seconds": 16.464,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "layout_pass_i_light",
+   "png_bytes": 865601,
+   "ktx2_bytes": 537039,
+   "seconds": 23.683,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "plaza_south_light",
+   "png_bytes": 979933,
+   "ktx2_bytes": 612525,
+   "seconds": 24.341,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "station_light",
+   "png_bytes": 496791,
+   "ktx2_bytes": 291144,
+   "seconds": 15.549,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "suburbs_light",
+   "png_bytes": 17883315,
+   "ktx2_bytes": 9173716,
+   "seconds": 313.834,
+   "codec": "UASTC+zstd",
+   "resized_from": [
+    4096,
+    4096
+   ],
+   "resized_to": [
+    3072,
+    3072
+   ]
+  },
+  {
+   "map": "suburbs_ao",
+   "png_bytes": 10639710,
+   "ktx2_bytes": 7981392,
+   "seconds": 375.523,
+   "codec": "UASTC+zstd",
+   "resized_from": [
+    4096,
+    4096
+   ],
+   "resized_to": [
+    3072,
+    3072
+   ]
+  },
+  {
+   "map": "trace_sw_light",
+   "png_bytes": 708445,
+   "ktx2_bytes": 359847,
+   "seconds": 14.737,
+   "codec": "UASTC+zstd"
+  },
+  {
+   "map": "trace_sw_albedo",
+   "png_bytes": 376282,
+   "ktx2_bytes": 50506,
+   "seconds": 1.787,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "island_tree_02_leaves_diff_1k",
+   "png_bytes": 191886,
+   "ktx2_bytes": 80956,
+   "seconds": 1.511,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "impostor_atlas",
+   "png_bytes": 403231,
+   "ktx2_bytes": 142029,
+   "seconds": 4.397,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "jacaranda_tree_trunk_diff_1k",
+   "png_bytes": 896938,
+   "ktx2_bytes": 230572,
+   "seconds": 3.729,
+   "codec": "ETC1S"
+  },
+  {
+   "map": "jacaranda_tree_leaves_diff_1k",
+   "png_bytes": 533896,
+   "ktx2_bytes": 125770,
+   "seconds": 3.772,
+   "codec": "ETC1S"
+  }
+ ],
+ "panoramas": [],
+ "codecs": {
+  "geometry": "EXT_meshopt_compression (16-bit positions)",
+  "lightmaps": "KTX2 UASTC + RDO + zstd (light: sRGB, ao: linear)",
+  "colour": "KTX2 ETC1S (albedo maps, shield paint, impostor atlas, ground tiles)",
+  "panorama": "OpenEXR half float, DWAB (8K); Radiance HDR (2048)"
+ },
+ "lightmaps": "Baked materials carry extras.talanta_lightmap: move emissiveMap to lightMap (texture.channel = texCoord), emissive black, lightMapIntensity = intensity. KTX2Loader required.",
+ "labels": "Estimated geometry and colours (parameter ledger). Traffic and any people are Visualization. No reference frame is used as a texture.",
+ "look": {
+  "view_transform": "AgX",
+  "curve": {
+   "ev_min": -10,
+   "ev_max": 6.5,
+   "input": "scene-linear grey 0.18 x 2^EV, exposure 0",
+   "output": "display-encoded value (the scene display device), 0..1, float, through Blender's OCIO config (PyOpenColorIO)",
+   "check": "max difference to Blender save_render 8-bit: 0.00196 (look), 0.00195 (no look)",
+   "samples": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.00001,
+    0.00027,
+    0.00116,
+    0.00325,
+    0.00747,
+    0.01542,
+    0.03,
+    0.0541,
+    0.0855,
+    0.12489,
+    0.17465,
+    0.23911,
+    0.3196,
+    0.41879,
+    0.52681,
+    0.62686,
+    0.71127,
+    0.7824,
+    0.84107,
+    0.88914,
+    0.92929,
+    0.96228,
+    0.98986,
+    1,
+    1,
+    1,
+    1
+   ],
+   "samples_rgb": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0.00001,
+     0.00001,
+     0.00001
+    ],
+    [
+     0.00027,
+     0.00027,
+     0.00027
+    ],
+    [
+     0.00116,
+     0.00116,
+     0.00116
+    ],
+    [
+     0.00325,
+     0.00325,
+     0.00325
+    ],
+    [
+     0.00747,
+     0.00747,
+     0.00747
+    ],
+    [
+     0.01542,
+     0.01542,
+     0.01543
+    ],
+    [
+     0.03,
+     0.03,
+     0.03001
+    ],
+    [
+     0.0541,
+     0.0541,
+     0.05411
+    ],
+    [
+     0.08551,
+     0.0855,
+     0.08552
+    ],
+    [
+     0.12489,
+     0.12489,
+     0.12491
+    ],
+    [
+     0.17465,
+     0.17465,
+     0.17467
+    ],
+    [
+     0.23911,
+     0.23911,
+     0.23913
+    ],
+    [
+     0.31961,
+     0.3196,
+     0.31963
+    ],
+    [
+     0.41879,
+     0.41879,
+     0.41883
+    ],
+    [
+     0.52681,
+     0.52681,
+     0.52684
+    ],
+    [
+     0.62686,
+     0.62686,
+     0.62689
+    ],
+    [
+     0.71127,
+     0.71127,
+     0.7113
+    ],
+    [
+     0.78241,
+     0.7824,
+     0.78243
+    ],
+    [
+     0.84107,
+     0.84107,
+     0.84109
+    ],
+    [
+     0.88914,
+     0.88914,
+     0.88916
+    ],
+    [
+     0.92929,
+     0.92929,
+     0.9293
+    ],
+    [
+     0.96228,
+     0.96228,
+     0.96229
+    ],
+    [
+     0.98986,
+     0.98986,
+     0.98986
+    ],
+    [
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1
+    ]
+   ],
+   "agx_base_samples": [
+    0,
+    0.00004,
+    0.00026,
+    0.00079,
+    0.00181,
+    0.00359,
+    0.00651,
+    0.01115,
+    0.01838,
+    0.02942,
+    0.04581,
+    0.06586,
+    0.08933,
+    0.117,
+    0.15033,
+    0.18993,
+    0.23693,
+    0.29244,
+    0.35712,
+    0.43057,
+    0.50861,
+    0.58239,
+    0.64931,
+    0.70888,
+    0.76133,
+    0.80725,
+    0.84718,
+    0.8816,
+    0.91171,
+    0.93812,
+    0.96134,
+    0.98182,
+    0.99942
+   ]
+  },
+  "views": {
+   "L07": {
+    "exposure_ev": -1.1,
+    "time": "10:30",
+    "date": "2026-01-15",
+    "preset": "daylight_artistic",
+    "look": "AgX - High Contrast"
+   },
+   "L06": {
+    "exposure_ev": -1.6,
+    "time": "18:05",
+    "date": "2026-01-15",
+    "preset": "sunset_artistic",
+    "look": "AgX - High Contrast"
+   }
+  },
+  "compositor": {
+   "contrast": 1,
+   "saturation": 1.12,
+   "warmth": [
+    1.05,
+    1,
+    0.93
+   ],
+   "warmth_rise": [
+    0.03,
+    0.18
+   ],
+   "warmth_fall": [
+    0.55,
+    1.4
+   ],
+   "grain": 0.03,
+   "glare": 0.09,
+   "glare_threshold": 1.1,
+   "streak_glare": 0.05,
+   "streak_threshold": 4,
+   "vignette": 0.055,
+   "dispersion": 0.0005,
+   "order": "saturation and warm gain on scene-linear before the view transform (warmth fades in over display-equivalent luminance warmth_rise and out over warmth_fall); fog glow glare (glare, glare_threshold) and streaks; lens dispersion; vignette and grain last",
+   "not_in_web": "volumetric haze and the mist-pass aerial haze of the stills (the references are rendered without haze)"
+  },
+  "source": "blender/web_hero/measure_look.py (lookdev.py STRENGTHS after hero_artistic.prepare, render_cycles.py presets)",
+  "look": "AgX - High Contrast"
+ },
+ "tod": {
+  "base": "0730",
+  "times": [
+   "0730",
+   "1030",
+   "1805",
+   "2000"
+  ],
+  "dir": "lightmaps"
+ },
+ "tod_files": [
+  {
+   "file": "lightmaps/0730/forecourt_light.ktx2",
+   "bytes": 2968785,
+   "sha256": "0fb0ae8ad3afac5f919a5175a1acb8beae56eb961ac4c9c681798a5c8fe005e9"
+  },
+  {
+   "file": "lightmaps/0730/ground_00_light.ktx2",
+   "bytes": 831024,
+   "sha256": "2c37e88a0d43c150a7067a641cf7bb2d4e031111792dd119c76b0ba4dc4b500f"
+  },
+  {
+   "file": "lightmaps/0730/ground_01_light.ktx2",
+   "bytes": 1165480,
+   "sha256": "1ce0f888e10fd44ef83954649138f6f95c260bc82915ed0f1033356085164e07"
+  },
+  {
+   "file": "lightmaps/0730/ground_02_light.ktx2",
+   "bytes": 989117,
+   "sha256": "3fc9748aebd9b53ce3058b97a59d40ecbf73f239daf19e35ad994fd40e91499c"
+  },
+  {
+   "file": "lightmaps/0730/ground_03_light.ktx2",
+   "bytes": 979653,
+   "sha256": "21a1bdda0d4546c8ba27974a321de6dd2090573ed518ae1cc0b060a9f50912c9"
+  },
+  {
+   "file": "lightmaps/0730/ground_04_light.ktx2",
+   "bytes": 1107270,
+   "sha256": "5bb3d4f5d4f246c8f732bb028ef85762d9a25bc679f71aee4b89e1baac2c15e7"
+  },
+  {
+   "file": "lightmaps/0730/ground_05_light.ktx2",
+   "bytes": 924654,
+   "sha256": "6a20837abf4d3c6aa799222a6e5575faee00af3dfa0e5510b40d37c4b0fa0d36"
+  },
+  {
+   "file": "lightmaps/0730/ground_06_light.ktx2",
+   "bytes": 768439,
+   "sha256": "e5e053db866d1448d94196af2b1393b36c91e84ffe6331fd084407ee002d0a20"
+  },
+  {
+   "file": "lightmaps/0730/ground_07_light.ktx2",
+   "bytes": 1008507,
+   "sha256": "9d84ca8cc765343322bb5b39c5def02b9826419c083f9ee61de86e947a3b8f14"
+  },
+  {
+   "file": "lightmaps/0730/ground_08_light.ktx2",
+   "bytes": 1103168,
+   "sha256": "307ccaef6f6a6a95a0b3f417369a123aa74ccfb45fdce0078ad655fbfc83c3d0"
+  },
+  {
+   "file": "lightmaps/0730/ground_09_light.ktx2",
+   "bytes": 797040,
+   "sha256": "7890f937c610376132962682160e52912eb2cc8f37f4f5d4826a722354726d9d"
+  },
+  {
+   "file": "lightmaps/0730/ground_10_light.ktx2",
+   "bytes": 632895,
+   "sha256": "a1ef4e52cf44cb5aa6f22f2dfec1cfa616963e45428557081375bb80f08f6c88"
+  },
+  {
+   "file": "lightmaps/0730/ground_11_light.ktx2",
+   "bytes": 1017253,
+   "sha256": "c64c5c1f8f67deb20961d13f6fea52f1568e6ab759c8b3188f83cb7f3c335cb2"
+  },
+  {
+   "file": "lightmaps/0730/ground_12_light.ktx2",
+   "bytes": 944910,
+   "sha256": "bd6dfb2ff818e54bb8b09d788a008f0c5096d77512a5c5144a830f270cd5c05a"
+  },
+  {
+   "file": "lightmaps/0730/ground_13_light.ktx2",
+   "bytes": 826411,
+   "sha256": "9de84cf6622427bf4f88ccf88a86c530e18fb2e4fd7319e64642d2eed28722da"
+  },
+  {
+   "file": "lightmaps/0730/ground_14_light.ktx2",
+   "bytes": 889356,
+   "sha256": "4d087832b5bf43f02c17c9346a90f62dbdcc64b56aa3f67ff612fd859aeda1fd"
+  },
+  {
+   "file": "lightmaps/0730/ground_15_light.ktx2",
+   "bytes": 991503,
+   "sha256": "9c589afbb335d7dfa1c1ee78fb8ccdddf1d3a6b54861de9633b07a18e1a095a3"
+  },
+  {
+   "file": "lightmaps/0730/ground_16_light.ktx2",
+   "bytes": 1282445,
+   "sha256": "99441db15d2d79d6f92ff620c22d279a6a9effe5eea616de6b64b8cc72b38c3b"
+  },
+  {
+   "file": "lightmaps/0730/ground_17_light.ktx2",
+   "bytes": 1146940,
+   "sha256": "d85ec387350458117dab0ed50b4821157d6de5323ad4ccd9607f81acbd82b36a"
+  },
+  {
+   "file": "lightmaps/0730/ground_18_light.ktx2",
+   "bytes": 1140262,
+   "sha256": "4efec29ca55ee1ebc6b9ac859d733b46b6cbd07dc339d57d654be0c15ee49a98"
+  },
+  {
+   "file": "lightmaps/0730/ground_19_light.ktx2",
+   "bytes": 1266930,
+   "sha256": "909e58cc28d123da8f6c33d7cb1e0f5d0f13b307777669ffcc3a711fb91f551b"
+  },
+  {
+   "file": "lightmaps/0730/ground_20_light.ktx2",
+   "bytes": 1204771,
+   "sha256": "06a60d1ae61d8f90d6b67d5a6d24072de2fd80a0b0b594fb9ac716e50e09c777"
+  },
+  {
+   "file": "lightmaps/0730/ground_21_light.ktx2",
+   "bytes": 1305417,
+   "sha256": "b98f6b5a3490ed5ca6a311dac3e6ca62a7b4f1c057219b63906cb28646761d1e"
+  },
+  {
+   "file": "lightmaps/0730/ground_22_light.ktx2",
+   "bytes": 989664,
+   "sha256": "537b62e4ab567f149a10645d2a5d9a34db4662f01ca5b54657d5a278476180a6"
+  },
+  {
+   "file": "lightmaps/0730/ground_23_light.ktx2",
+   "bytes": 1116006,
+   "sha256": "8a03bd3ab8b6b30b24a22def6d58e31342ebd44037da895104b715f4e9b5765b"
+  },
+  {
+   "file": "lightmaps/0730/landmarks_light.ktx2",
+   "bytes": 1507395,
+   "sha256": "3121af7eb8aaaab5fcb02fed5d811a5468f51a72f37582d912fe552b78ffa28f"
+  },
+  {
+   "file": "lightmaps/0730/layout_pass_i_light.ktx2",
+   "bytes": 537039,
+   "sha256": "0c50eb6665b39f7eae7aecfc2bb2a4c672feea524b0e8ecea0a4497daf0df497"
+  },
+  {
+   "file": "lightmaps/0730/plaza_south_light.ktx2",
+   "bytes": 612525,
+   "sha256": "b1cae5d5c3806b8714f9a93a34252a957adf481f5b17a2c7de0530a586452dc0"
+  },
+  {
+   "file": "lightmaps/0730/roads_light.ktx2",
+   "bytes": 3849827,
+   "sha256": "4133f5b0922b2ecbe932e9deb0dac40e1069f08af6c5d85b82604e701cc95baf"
+  },
+  {
+   "file": "lightmaps/0730/roof_light.ktx2",
+   "bytes": 3637485,
+   "sha256": "68ab09994f1568b89a5538261efd1a80cd3fb72aac093b068cbfd77becdaf5c1"
+  },
+  {
+   "file": "lightmaps/0730/site_built_light.ktx2",
+   "bytes": 414812,
+   "sha256": "df68ddaa758569772ea28ba87c929d694c112d8b7501e096ef865cc88f2baa84"
+  },
+  {
+   "file": "lightmaps/0730/site_layout_light.ktx2",
+   "bytes": 2450004,
+   "sha256": "c20f1f017683e2c3376719fdd73c3d3b1adecb049748f515d42291b65669fbfb"
+  },
+  {
+   "file": "lightmaps/0730/sport_light.ktx2",
+   "bytes": 608674,
+   "sha256": "cbfac111faab832520b793ff4fe14b34c69e5da885e1d453da58bdab3fb3981e"
+  },
+  {
+   "file": "lightmaps/0730/stadium_fins_light.ktx2",
+   "bytes": 3968876,
+   "sha256": "28a242e90a46671f3cf101060608828a5e532e91c8b00f30051a1abc929beeed"
+  },
+  {
+   "file": "lightmaps/0730/stadium_ornament_light.ktx2",
+   "bytes": 2382276,
+   "sha256": "2328ba173543865a3dfbee21cccd3839da828d869c3b43fcb5169152fb68ff36"
+  },
+  {
+   "file": "lightmaps/0730/stadium_shell_light.ktx2",
+   "bytes": 2810428,
+   "sha256": "b8f961e0a6b78f525a074c3fbea8205c950f76dfcdf05760099ce4c7c2130f9c"
+  },
+  {
+   "file": "lightmaps/0730/station_light.ktx2",
+   "bytes": 291144,
+   "sha256": "2b25c1b725f04db2fce57abbe3f5693e3b98b03f7f036b6ca496d3f649c2a408"
+  },
+  {
+   "file": "lightmaps/0730/suburbs_light.ktx2",
+   "bytes": 9173716,
+   "sha256": "fa1d879d42a67f7886170a3a0f2947020137b549f6e99ef0065cb752ca97e22b"
+  },
+  {
+   "file": "lightmaps/0730/trace_sw_light.ktx2",
+   "bytes": 359847,
+   "sha256": "0424f5d5c35e447a35ec4289f1036e0b8529a42973a85fa387d3d0c912a3cc86"
+  },
+  {
+   "file": "lightmaps/0730/traffic_light.ktx2",
+   "bytes": 2417515,
+   "sha256": "6b88cc06403f0ff015ba0146e4cd85b8195b1b7a2848103bb6be80e52f944ded"
+  },
+  {
+   "file": "lightmaps/0730/tod.json",
+   "bytes": 7849,
+   "sha256": "87de9ae297335c119fbb7c268148b764d63014d966d36851035bef659dc27a05"
+  },
+  {
+   "file": "lightmaps/1030/forecourt_light.ktx2",
+   "bytes": 2588068,
+   "sha256": "c9d510e97bd0db834c7c4c6059d807b59cf7c8434796da7da04c59656c124e0b"
+  },
+  {
+   "file": "lightmaps/1030/ground_00_light.ktx2",
+   "bytes": 573711,
+   "sha256": "2e5b87dad1be7b5239b94cd16d6f0f553e8363d03f6922c410e84de6b87fd324"
+  },
+  {
+   "file": "lightmaps/1030/ground_01_light.ktx2",
+   "bytes": 933803,
+   "sha256": "500ed1c04727f4da91b9eb16b8d1b534fcedaf85eb5193ba0585f291dd56d224"
+  },
+  {
+   "file": "lightmaps/1030/ground_02_light.ktx2",
+   "bytes": 856591,
+   "sha256": "e912dd0692315fb076cff44ab3d6ea5fa5a85e2834a555809bc027fb378be08d"
+  },
+  {
+   "file": "lightmaps/1030/ground_03_light.ktx2",
+   "bytes": 850982,
+   "sha256": "436ddf1dc243968c22e4d50a3de189ea70f1ef11e6fe54a7d6eb2f23084471c2"
+  },
+  {
+   "file": "lightmaps/1030/ground_04_light.ktx2",
+   "bytes": 879567,
+   "sha256": "5a824b2630a1932c7a3ba2ccd71a3cb376b2da28b4526e551fcbf0e0998fffbb"
+  },
+  {
+   "file": "lightmaps/1030/ground_05_light.ktx2",
+   "bytes": 728710,
+   "sha256": "2d2ea31a73f0ef04a9278f344aa2e1220a9c0978c82792b0b9dd62fd4f9fff55"
+  },
+  {
+   "file": "lightmaps/1030/ground_06_light.ktx2",
+   "bytes": 623989,
+   "sha256": "dbd22a71d70d501bbb1c10973548b6025d6c58398ed25995e78d08e648981af7"
+  },
+  {
+   "file": "lightmaps/1030/ground_07_light.ktx2",
+   "bytes": 883689,
+   "sha256": "727d62f6027f1e9cd5188f48315ce719e3fd71dd203b2480bbe8e768bdb2b1fc"
+  },
+  {
+   "file": "lightmaps/1030/ground_08_light.ktx2",
+   "bytes": 902592,
+   "sha256": "cc66463442932d17a5c1e95b17881bb870755cc1ea12a0eea9ecf523f069110a"
+  },
+  {
+   "file": "lightmaps/1030/ground_09_light.ktx2",
+   "bytes": 626132,
+   "sha256": "d755e140125602eb8e9ba188a41002786a77f8d52f8ae8060b5b53e0180d28c2"
+  },
+  {
+   "file": "lightmaps/1030/ground_10_light.ktx2",
+   "bytes": 506713,
+   "sha256": "2d6986eacfe656e21cb396233a031b3474f158d6f7cca7afd8bd04e4be3295f7"
+  },
+  {
+   "file": "lightmaps/1030/ground_11_light.ktx2",
+   "bytes": 883940,
+   "sha256": "68a5c696eb9d530f2069fb1788a191ad9f4d0b4cd2414c03b82da9b4cbed7867"
+  },
+  {
+   "file": "lightmaps/1030/ground_12_light.ktx2",
+   "bytes": 735074,
+   "sha256": "f0a138e79e12ee742b4061b0264b9f1ae46558db41b7bde2abac692da9f6b299"
+  },
+  {
+   "file": "lightmaps/1030/ground_13_light.ktx2",
+   "bytes": 634029,
+   "sha256": "21ef1aca4c7a3c29fed136394dbaef662aaf62ff41faf7005ae4cd74bf5fb9e5"
+  },
+  {
+   "file": "lightmaps/1030/ground_14_light.ktx2",
+   "bytes": 692272,
+   "sha256": "2a5d16a85d93a0837935bbc2d550d0e9a45d1638dd4e637228d72cd3555e06df"
+  },
+  {
+   "file": "lightmaps/1030/ground_15_light.ktx2",
+   "bytes": 846660,
+   "sha256": "fdb25b37f1ce0f415c16251f22a1ced434091dc2ba3accd300eefb6b64191819"
+  },
+  {
+   "file": "lightmaps/1030/ground_16_light.ktx2",
+   "bytes": 1115164,
+   "sha256": "62eed3de2f2e285c86c5cc5e9c7db42367c576a9538131a519e1de530889b41b"
+  },
+  {
+   "file": "lightmaps/1030/ground_17_light.ktx2",
+   "bytes": 989651,
+   "sha256": "930f96ae8cdf366f7647c49fa97920ec5beca73cbdadc27d33f2c8635a8998ad"
+  },
+  {
+   "file": "lightmaps/1030/ground_18_light.ktx2",
+   "bytes": 1000711,
+   "sha256": "54549398d6d144c347c0d15a34354047085fe198f73a620cf41ab8eb6f72cd1e"
+  },
+  {
+   "file": "lightmaps/1030/ground_19_light.ktx2",
+   "bytes": 1092600,
+   "sha256": "9aeb38da0856b6c8dfd5ba1c110f9fe2d0f662bcaadc503edaa7dc62ed642cf3"
+  },
+  {
+   "file": "lightmaps/1030/ground_20_light.ktx2",
+   "bytes": 1100106,
+   "sha256": "934ec9621d511c2c325d142044bb80ab47b9952fe6181748f00f32a3a0c96157"
+  },
+  {
+   "file": "lightmaps/1030/ground_21_light.ktx2",
+   "bytes": 1161584,
+   "sha256": "e73ac8957f7b5e51ac97539b99ab3b727bde184de853c1eff4c84a26e13a9ff9"
+  },
+  {
+   "file": "lightmaps/1030/ground_22_light.ktx2",
+   "bytes": 785206,
+   "sha256": "438a2370b2a7d7283c26bb8e6c8c729434af757e427e981aad87d35db7a893cf"
+  },
+  {
+   "file": "lightmaps/1030/ground_23_light.ktx2",
+   "bytes": 973867,
+   "sha256": "a58627f7aa84bfe3f2e7a571a55142cc6fa51fa1ce3d1db450dbc40ad7e60699"
+  },
+  {
+   "file": "lightmaps/1030/landmarks_light.ktx2",
+   "bytes": 1581798,
+   "sha256": "021b3dea64dc8d8ce6aeda5823dd3fad657f26d693395b951f42a34f0026b566"
+  },
+  {
+   "file": "lightmaps/1030/layout_pass_i_light.ktx2",
+   "bytes": 388503,
+   "sha256": "17ea15cb87b425d8f0d87b44196bfeaa47abebe2065f11d89d8d51b8e86761b8"
+  },
+  {
+   "file": "lightmaps/1030/plaza_south_light.ktx2",
+   "bytes": 452909,
+   "sha256": "089d843f0b1b5a8259c043d1de3e57eae3cdaa0188f0e1869eef0b51cba1f18f"
+  },
+  {
+   "file": "lightmaps/1030/roads_light.ktx2",
+   "bytes": 3119082,
+   "sha256": "f7def2c2b3ee21e0785df659f2ce4939cd587112f3e7ce30492135983eb34bab"
+  },
+  {
+   "file": "lightmaps/1030/roof_light.ktx2",
+   "bytes": 3463539,
+   "sha256": "f9e1e24769b5855bd4a3f6526326a015cc3c113a6c4f97af78007ab7c39b0453"
+  },
+  {
+   "file": "lightmaps/1030/site_built_light.ktx2",
+   "bytes": 427890,
+   "sha256": "ea81f958d7c9b6d6b9cd0ba2b57a326f5564d8f7c872593676dc5a1bb194eb3a"
+  },
+  {
+   "file": "lightmaps/1030/site_layout_light.ktx2",
+   "bytes": 2348129,
+   "sha256": "333b9ac28580d9a0a1c729471bfa264c98ffb4eada7f0cf934ef4e3d72ab372c"
+  },
+  {
+   "file": "lightmaps/1030/sport_light.ktx2",
+   "bytes": 477078,
+   "sha256": "e6115baa7f5b23ef53c2ddc6814844f168562bc61907a3a92783a4459d81e530"
+  },
+  {
+   "file": "lightmaps/1030/stadium_fins_light.ktx2",
+   "bytes": 4137034,
+   "sha256": "d2a42de87b0d370589b8e8b93074f6ba3dc698c3da3f15e7a0b86ce08deb79a7"
+  },
+  {
+   "file": "lightmaps/1030/stadium_ornament_light.ktx2",
+   "bytes": 2556792,
+   "sha256": "afa69e344ae323cfbef99f4819b1d1e7612793e0f7f5fd52a07138c8fd2165b8"
+  },
+  {
+   "file": "lightmaps/1030/stadium_shell_light.ktx2",
+   "bytes": 2895297,
+   "sha256": "d90623fb6c7a8ba0fbc5cf72c40402cdb56eae65c028713081003e790704edfd"
+  },
+  {
+   "file": "lightmaps/1030/station_light.ktx2",
+   "bytes": 304254,
+   "sha256": "07a698952eaae390d4f3c6d0939faec448c18992874e44138bd2df7cb4037af9"
+  },
+  {
+   "file": "lightmaps/1030/suburbs_light.ktx2",
+   "bytes": 8631450,
+   "sha256": "9265208d7a4f98cf087f9135d8c56ef3ef40bc889fddadbea862b96f98ff88da"
+  },
+  {
+   "file": "lightmaps/1030/trace_sw_light.ktx2",
+   "bytes": 347024,
+   "sha256": "d4d9b2ae0dd7ae842f8a99876701fd344d8d403f5213169afd514ec5c4095a69"
+  },
+  {
+   "file": "lightmaps/1030/traffic_light.ktx2",
+   "bytes": 2358818,
+   "sha256": "5e96c89a228866b20080cf807f914ffdedddd1d3877920051661f85d94d9a226"
+  },
+  {
+   "file": "lightmaps/1030/tod.json",
+   "bytes": 7767,
+   "sha256": "0575f1a17daa8885c5d2d715fe2ed286c19e1d27208c930dbd84172389966350"
+  },
+  {
+   "file": "lightmaps/1805/forecourt_light.ktx2",
+   "bytes": 3084083,
+   "sha256": "8d761af0d7681f993f72403d26fc272a6c523040b0fe812cd30760a1b05a6c43"
+  },
+  {
+   "file": "lightmaps/1805/ground_00_light.ktx2",
+   "bytes": 793143,
+   "sha256": "e116efdcf2f53003003eafa43bbcfa1ed89ee3498563a043c6a18aa1359d0fb1"
+  },
+  {
+   "file": "lightmaps/1805/ground_01_light.ktx2",
+   "bytes": 1097113,
+   "sha256": "9e39305088367e5bccca89a1bf64e26a5a44adfc0f3069438fa806457be8ba6c"
+  },
+  {
+   "file": "lightmaps/1805/ground_02_light.ktx2",
+   "bytes": 958715,
+   "sha256": "a9bf98b8a9c09ab29f45d1399ccde9dbeabcd2bb7ed0443e8eb37e8162fd42ab"
+  },
+  {
+   "file": "lightmaps/1805/ground_03_light.ktx2",
+   "bytes": 944956,
+   "sha256": "f4df93104d6b299a124c53681c576ab2fb1ffb16a578535c7baf22138c5da445"
+  },
+  {
+   "file": "lightmaps/1805/ground_04_light.ktx2",
+   "bytes": 1051220,
+   "sha256": "ae5b2199f8574f8b198465ce547eeeb2e960ec34fafd03b72514b0bc22dbfea9"
+  },
+  {
+   "file": "lightmaps/1805/ground_05_light.ktx2",
+   "bytes": 971891,
+   "sha256": "35a999eff262a62a53df08ef35849966ce3c549f6c28a7ffc40d68e1a1d3d262"
+  },
+  {
+   "file": "lightmaps/1805/ground_06_light.ktx2",
+   "bytes": 825816,
+   "sha256": "819a5f0084f6fb6b63493e3cfe96aa2b62067bc09894332d00f327c90adcb3c6"
+  },
+  {
+   "file": "lightmaps/1805/ground_07_light.ktx2",
+   "bytes": 986327,
+   "sha256": "7bdc34859d8364508ecad2a8d630bd5288e0a7adfcedea1376816225ccd6a1a5"
+  },
+  {
+   "file": "lightmaps/1805/ground_08_light.ktx2",
+   "bytes": 1027426,
+   "sha256": "c4cb90d9f246212119ec1783ac4a6fd274f10482ff3250fc5e25c9ea5c959314"
+  },
+  {
+   "file": "lightmaps/1805/ground_09_light.ktx2",
+   "bytes": 847014,
+   "sha256": "6a831e67ac39d45c0044024ffb2864af4594edd8760085580b1a392135687881"
+  },
+  {
+   "file": "lightmaps/1805/ground_10_light.ktx2",
+   "bytes": 663890,
+   "sha256": "50bd199c75d7a44ab4da26108d5396368fea48d3f55b9bd79ece2b7764bc4a95"
+  },
+  {
+   "file": "lightmaps/1805/ground_11_light.ktx2",
+   "bytes": 975058,
+   "sha256": "9a592c6c176c963cd75b821bdfa525dea5b17f41b27d969d7551c72717a0ddd2"
+  },
+  {
+   "file": "lightmaps/1805/ground_12_light.ktx2",
+   "bytes": 901181,
+   "sha256": "eae0547071fa75c3a190045fdd4493bd37957a89f40c3e8a3092b6d5d4946537"
+  },
+  {
+   "file": "lightmaps/1805/ground_13_light.ktx2",
+   "bytes": 807514,
+   "sha256": "5428aed230035c63df755e98cda8014b7d2ac4dce47a7c3f1c4a79f0ba7ada53"
+  },
+  {
+   "file": "lightmaps/1805/ground_14_light.ktx2",
+   "bytes": 853007,
+   "sha256": "0d4ec9dd4621c92d8ce83241c76e54918a539a71ded4a2556a195dc0fab98cb0"
+  },
+  {
+   "file": "lightmaps/1805/ground_15_light.ktx2",
+   "bytes": 942598,
+   "sha256": "7ecba7b0621f2c0838f5e124afa4a0942949d9a9e93119302890dd7be7c9d96f"
+  },
+  {
+   "file": "lightmaps/1805/ground_16_light.ktx2",
+   "bytes": 1228634,
+   "sha256": "651b63ba513ca21800443656b2128a12490c24d8f2fdb1ccaa0c29652e8032d7"
+  },
+  {
+   "file": "lightmaps/1805/ground_17_light.ktx2",
+   "bytes": 1110055,
+   "sha256": "e8955bf0bf5fc6a74acc5b71732d8edd982aac0b476f1b98de80ede3c7a2b329"
+  },
+  {
+   "file": "lightmaps/1805/ground_18_light.ktx2",
+   "bytes": 1100864,
+   "sha256": "b7b58b36f4c891c71e1ff818237847b49a41c68774e25de4052a6d3e33d703c8"
+  },
+  {
+   "file": "lightmaps/1805/ground_19_light.ktx2",
+   "bytes": 1212390,
+   "sha256": "6be548480bd82e0d0b55bc5c29ea0c9ba60c7c76effc62d5e0a76eca90b6a6ee"
+  },
+  {
+   "file": "lightmaps/1805/ground_20_light.ktx2",
+   "bytes": 1176650,
+   "sha256": "d48dcc5e10d09861fb7967598282ca1f02c3e3caca62be425b8f62aeb8c13f11"
+  },
+  {
+   "file": "lightmaps/1805/ground_21_light.ktx2",
+   "bytes": 1230597,
+   "sha256": "b165fdc6f2f7a34873a0197000303e4e5e101b16aee812529d1452ee8f4b8b0e"
+  },
+  {
+   "file": "lightmaps/1805/ground_22_light.ktx2",
+   "bytes": 950412,
+   "sha256": "4a5a183f8ed57bd35ee80691605b2de5bf1ede06d5ef6684f408fe40753285eb"
+  },
+  {
+   "file": "lightmaps/1805/ground_23_light.ktx2",
+   "bytes": 1071072,
+   "sha256": "f9220a3e99953d2747ded482b497d68bc57aecc6c0098510ae399e300fb4fd79"
+  },
+  {
+   "file": "lightmaps/1805/landmarks_light.ktx2",
+   "bytes": 1598580,
+   "sha256": "a01ccb4b4dfa17143ea5cfedb80ba1f5154195ee46a1b3a380b6399ae0d33484"
+  },
+  {
+   "file": "lightmaps/1805/layout_pass_i_light.ktx2",
+   "bytes": 594038,
+   "sha256": "b9459dccc22655ccd0a33a685d8a068c45a3d934b2c899186a67384df280f3d4"
+  },
+  {
+   "file": "lightmaps/1805/plaza_south_light.ktx2",
+   "bytes": 607109,
+   "sha256": "7b8df6a9c3114e35b0e747b6d44c0d924acc67ef50f696c79add090158786409"
+  },
+  {
+   "file": "lightmaps/1805/roads_light.ktx2",
+   "bytes": 3741744,
+   "sha256": "935cf68c08df72c5b6f0e70a10d27a1246041c760fbfd1d252083d14362c3768"
+  },
+  {
+   "file": "lightmaps/1805/roof_light.ktx2",
+   "bytes": 3604626,
+   "sha256": "2af2fca2700e4984dd74fcddf3b40d1ee3ba3514db3d36ea265d0b1db033c6e1"
+  },
+  {
+   "file": "lightmaps/1805/site_built_light.ktx2",
+   "bytes": 434330,
+   "sha256": "d5ee224db668fdc67530338468311733d5b161b5a80ec9f192ab0dcde7b7e12f"
+  },
+  {
+   "file": "lightmaps/1805/site_layout_light.ktx2",
+   "bytes": 1767134,
+   "sha256": "8c3aa0ff50ba065061330a45a3fdd0bb237a2a5b7defc6f7c9eb191db776918c"
+  },
+  {
+   "file": "lightmaps/1805/sport_light.ktx2",
+   "bytes": 642164,
+   "sha256": "e6cfd70e71060f2acce8c968faefdc5a10e8bef82a79161d7478f5b66f88f26c"
+  },
+  {
+   "file": "lightmaps/1805/stadium_fins_light.ktx2",
+   "bytes": 4170816,
+   "sha256": "9abc0e6e5887b2fa3f849869d82a65b5064bcd1860ae321cb4b5d7ddbbb8061a"
+  },
+  {
+   "file": "lightmaps/1805/stadium_ornament_light.ktx2",
+   "bytes": 2660265,
+   "sha256": "591210896c7df2aef54c2aebb8a6e6cf2df85907ef104c1efcff220c59494569"
+  },
+  {
+   "file": "lightmaps/1805/stadium_shell_light.ktx2",
+   "bytes": 3267525,
+   "sha256": "ba94767bc713c78bdfcda473d55dded7b1377ec5f21f870f0e41dc4abe31c821"
+  },
+  {
+   "file": "lightmaps/1805/station_light.ktx2",
+   "bytes": 369383,
+   "sha256": "0cbcf6cff3d3afd83cd4f1dd5f92fa219533c6233d516c4a44e12bfea1c34905"
+  },
+  {
+   "file": "lightmaps/1805/suburbs_light.ktx2",
+   "bytes": 9072007,
+   "sha256": "1079d6ff84327386a5affadff9d47207e050da5a94c9a02fa20f15cfd5eb13c5"
+  },
+  {
+   "file": "lightmaps/1805/trace_sw_light.ktx2",
+   "bytes": 480915,
+   "sha256": "5e0af39cebeb434029f8b58174b84c2f893d4e2366de80b8c400febd06220841"
+  },
+  {
+   "file": "lightmaps/1805/traffic_light.ktx2",
+   "bytes": 2212094,
+   "sha256": "5d397e2f256ada9377c19a7baeb6acbbb8bbc829dbd132b94bf7e0a0cd9cb84f"
+  },
+  {
+   "file": "lightmaps/1805/tod.json",
+   "bytes": 7783,
+   "sha256": "1fab2404b392c169bad8d9c4d37ab7aec1d9e09bad9b5b4a82fd701b96a49aea"
+  },
+  {
+   "file": "lightmaps/2000/forecourt_light.ktx2",
+   "bytes": 3445535,
+   "sha256": "f2f33c7657435d54273aa30797a9b403042b3cd273e19056756b36319826c70a"
+  },
+  {
+   "file": "lightmaps/2000/ground_00_light.ktx2",
+   "bytes": 690217,
+   "sha256": "781455668ddb1c6a93625ad6d8b0265f2e5d26ee5d9f066def6d5603e53a59df"
+  },
+  {
+   "file": "lightmaps/2000/ground_01_light.ktx2",
+   "bytes": 900515,
+   "sha256": "e2fe97065c30af20eddb55b0ddd91f3fc3afc79944747818541a8aaf40781aa0"
+  },
+  {
+   "file": "lightmaps/2000/ground_02_light.ktx2",
+   "bytes": 672036,
+   "sha256": "63c7261e64344111fd923ba40d31f153e40b6c391226dbb5bf5f91e1724f8327"
+  },
+  {
+   "file": "lightmaps/2000/ground_03_light.ktx2",
+   "bytes": 855530,
+   "sha256": "8ee1a3cb684baab3b5d7b573adea695e3589c39ca9c3da9a5742a925f3dae6a4"
+  },
+  {
+   "file": "lightmaps/2000/ground_04_light.ktx2",
+   "bytes": 879443,
+   "sha256": "0199b9dfbe37abf104fb15fb9d07203b79f6a386b0366a9d110d538b1425d43e"
+  },
+  {
+   "file": "lightmaps/2000/ground_05_light.ktx2",
+   "bytes": 948738,
+   "sha256": "02e0e3d029a57567b01103035c2bde3d34a97f65d6aaa8fe6c519bb497562aed"
+  },
+  {
+   "file": "lightmaps/2000/ground_06_light.ktx2",
+   "bytes": 786650,
+   "sha256": "61d5f42cb98f9a3122f0fe4f64cbfe3dcaa5ee4e0e74e3e61cecfac9e711a102"
+  },
+  {
+   "file": "lightmaps/2000/ground_07_light.ktx2",
+   "bytes": 922773,
+   "sha256": "20bab8f735cbafd85f4e0895c1d48e24651669783de04cde56c241011dfb9d17"
+  },
+  {
+   "file": "lightmaps/2000/ground_08_light.ktx2",
+   "bytes": 1117513,
+   "sha256": "fdd9b0606b4bad9fef137249e019a815ac36aff82baabef65720f0f0bc40f4b9"
+  },
+  {
+   "file": "lightmaps/2000/ground_09_light.ktx2",
+   "bytes": 959261,
+   "sha256": "6e0c56ce859d58940cff52826ef6c423e41e69d21934c82bfbabf4e80ca7d16e"
+  },
+  {
+   "file": "lightmaps/2000/ground_10_light.ktx2",
+   "bytes": 646139,
+   "sha256": "64119229b6ec68f604bed8cba8c7db7677553821edcc0071d2160538cea935c6"
+  },
+  {
+   "file": "lightmaps/2000/ground_11_light.ktx2",
+   "bytes": 812232,
+   "sha256": "0f605f21383d409384115783a59df2df5c08106896e503105b54472e3c12cdb1"
+  },
+  {
+   "file": "lightmaps/2000/ground_12_light.ktx2",
+   "bytes": 1146233,
+   "sha256": "b8878361c4e193fd3fa0650c6df1f9b7a7f221c681e1623672ecf2b0d88804d7"
+  },
+  {
+   "file": "lightmaps/2000/ground_13_light.ktx2",
+   "bytes": 992685,
+   "sha256": "780a80732b89a3b963d6dc91f7b69681fff8f5b87b63178d6fe4c6e15c0c15f4"
+  },
+  {
+   "file": "lightmaps/2000/ground_14_light.ktx2",
+   "bytes": 991408,
+   "sha256": "2288d394662e8fe7729d132ec941f56e466cbab773580a80decccba3e0fac983"
+  },
+  {
+   "file": "lightmaps/2000/ground_15_light.ktx2",
+   "bytes": 964649,
+   "sha256": "8297844413e372fc1462a6b945e33a2747011aaeac134248931c573b61ac95a6"
+  },
+  {
+   "file": "lightmaps/2000/ground_16_light.ktx2",
+   "bytes": 822760,
+   "sha256": "6def89c91a082ecd3d6c54d8f4013d64e24bdcdcf6866f9fb70e900a3a400975"
+  },
+  {
+   "file": "lightmaps/2000/ground_17_light.ktx2",
+   "bytes": 990949,
+   "sha256": "1b7f6f42d4f49d7662b811242e234cf0d3c16bca21c1e9d1a25bef0e47700183"
+  },
+  {
+   "file": "lightmaps/2000/ground_18_light.ktx2",
+   "bytes": 697244,
+   "sha256": "2f1f332f407559d2886f2fb9e34469bc3c0349e813a1b0079c83a0c26ad7c849"
+  },
+  {
+   "file": "lightmaps/2000/ground_19_light.ktx2",
+   "bytes": 1061771,
+   "sha256": "12a7cae3bfcbc5e6bab646c5f8754d9c2d61edb3222ba8040911298e70f17933"
+  },
+  {
+   "file": "lightmaps/2000/ground_20_light.ktx2",
+   "bytes": 1082980,
+   "sha256": "bee925b50353473f40a287c22a4f361de80211c3c033da52b7b9a9673f9cc2b5"
+  },
+  {
+   "file": "lightmaps/2000/ground_21_light.ktx2",
+   "bytes": 881184,
+   "sha256": "10a1a1821cfbaee12daf56156907f55529d7cc9a3edc035a2a7d27096a222fd9"
+  },
+  {
+   "file": "lightmaps/2000/ground_22_light.ktx2",
+   "bytes": 872991,
+   "sha256": "c6a9e8a3b9045f417dd2fda3322a80e8331bd2c508d1515ad92f8ef41c4b404a"
+  },
+  {
+   "file": "lightmaps/2000/ground_23_light.ktx2",
+   "bytes": 675773,
+   "sha256": "f48c04c3984a597d5d34742498067dc68e2fa2895663b52a1293451fdaa6b170"
+  },
+  {
+   "file": "lightmaps/2000/landmarks_light.ktx2",
+   "bytes": 1907836,
+   "sha256": "3e0a9c2468e1d0f9c6a168e1e60075b8e4bfaee1f78741e513edf0bbce576f4e"
+  },
+  {
+   "file": "lightmaps/2000/layout_pass_i_light.ktx2",
+   "bytes": 706326,
+   "sha256": "a68f9031c8c15c8265b1d4b48e3ab2975efd411082c92c7c9788c0a479efc3a0"
+  },
+  {
+   "file": "lightmaps/2000/plaza_south_light.ktx2",
+   "bytes": 802923,
+   "sha256": "4193bccafc6defea7b39530de9c4c6b2f1bb40426821114c7f5f596a6f6c367c"
+  },
+  {
+   "file": "lightmaps/2000/roads_light.ktx2",
+   "bytes": 2629986,
+   "sha256": "f701793045880de6c6ae22af31a39c20fd49f681add2369aa85e2e054f1231da"
+  },
+  {
+   "file": "lightmaps/2000/roof_light.ktx2",
+   "bytes": 3830639,
+   "sha256": "c6e3a5ed57d9280640e6a1247cca3c5014a79e65717b3c54e0b61bf9d9501bda"
+  },
+  {
+   "file": "lightmaps/2000/site_built_light.ktx2",
+   "bytes": 645937,
+   "sha256": "9e196eac5394dd5bd77283cc09d31ccad4224f3b55c165a4c62612e5cd6b56fb"
+  },
+  {
+   "file": "lightmaps/2000/site_layout_light.ktx2",
+   "bytes": 1425117,
+   "sha256": "01102638cc81299a1fd7738359a4f73d7d8a9a1485f31f58f480e198db4c0771"
+  },
+  {
+   "file": "lightmaps/2000/sport_light.ktx2",
+   "bytes": 711215,
+   "sha256": "d48e4d74ad70986af7234ea678dba08c93422c9df941c8aef36bbb935ac9cdf9"
+  },
+  {
+   "file": "lightmaps/2000/stadium_fins_light.ktx2",
+   "bytes": 4894122,
+   "sha256": "fa6e8b59ac346dcde4b913266155966188031eadea88a63ecfe16b8dd421d218"
+  },
+  {
+   "file": "lightmaps/2000/stadium_ornament_light.ktx2",
+   "bytes": 2966400,
+   "sha256": "e238d6406011c1a415ac0ba362c370ead057705866e6d5027865e2e8c644ebca"
+  },
+  {
+   "file": "lightmaps/2000/stadium_shell_light.ktx2",
+   "bytes": 3266304,
+   "sha256": "b34bbff08f05d88165a5b4490d29040d024c84768503a1243ba9fe208ef11c83"
+  },
+  {
+   "file": "lightmaps/2000/station_light.ktx2",
+   "bytes": 336032,
+   "sha256": "bff59209705b18cceb615d66a7e540aa14c81b8b66b61c2013fc892ca8950b0d"
+  },
+  {
+   "file": "lightmaps/2000/suburbs_light.ktx2",
+   "bytes": 8547823,
+   "sha256": "d1bd71ce2f9379cf141ea69dff50c999920144152dc51082d4a4d1ddd9a39f8a"
+  },
+  {
+   "file": "lightmaps/2000/trace_sw_light.ktx2",
+   "bytes": 639048,
+   "sha256": "275410f3815903357c160498f958e8ff512be989c3af46ed8fe412267502a32f"
+  },
+  {
+   "file": "lightmaps/2000/traffic_light.ktx2",
+   "bytes": 2446576,
+   "sha256": "0266c72b815224adce0437979fce2fa1482040f1e782188bf1ec1900a844943d"
+  },
+  {
+   "file": "lightmaps/2000/tod.json",
+   "bytes": 7832,
+   "sha256": "731bb9802d2c6455aca8bb4cbd4e418e79d1b58f408aed9e865ca42dea1c073f"
+  }
+ ],
+ "tod_bytes": 241513551,
+ "repaired": {
+  "date": "2026-11-01",
+  "by": "blender/web_hero/node/repair_images.mjs",
+  "images": {
+   "shield": {
+    "source": "blender/textures/shield.png",
+    "size": [
+     512,
+     1024
+    ],
+    "ktx2_bytes": 23280,
+    "sha256": "32a723696708c26d608ac25e5114c35c4a6a5cb3355b8f1f7ac9f77bf26dc5ff"
+   },
+   "island_tree_02_leaves_diff_1k": {
+    "source": "blender/assets/foliage/island_tree_02/island_tree_02_leaves_diff_1k.jpg",
+    "size": [
+     1024,
+     1024
+    ],
+    "ktx2_bytes": 80956,
+    "sha256": "119726c4d6a89633fa927b2f9b6292bf1b7b338fef133e4895d5369fd276018d"
+   },
+   "jacaranda_tree_trunk_diff_1k": {
+    "source": "blender/assets/foliage/jacaranda_tree/jacaranda_tree_trunk_diff_1k.jpg",
+    "size": [
+     1024,
+     1024
+    ],
+    "ktx2_bytes": 230572,
+    "sha256": "a437f7c3565f9c67d36673b8d5e590d06f9866dc6bae18a9e25e2ea9506b407d"
+   },
+   "jacaranda_tree_leaves_diff_1k": {
+    "source": "blender/assets/foliage/jacaranda_tree/jacaranda_tree_leaves_diff_1k.jpg",
+    "size": [
+     1024,
+     1024
+    ],
+    "ktx2_bytes": 125770,
+    "sha256": "98d2ff45e6fa94af79e1d9d26843a7e1be461df0efd335745f414e7239f1e903"
+   }
+  }
+ }
+}

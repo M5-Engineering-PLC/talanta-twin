@@ -1,17 +1,21 @@
 import * as THREE from 'three/webgpu';
+import { dropInvalidCompressedMaps, readManifest } from './manifest.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
-/** Load the baked stadium hero models and their manifest, off-scene: the caller adds result.group when ready. */
-export async function loadHero({ renderer, scene, base = './models/' }) {
+/** Load the baked stadium hero models and their manifest, off-scene: the caller adds result.group when ready.
+ *  phone (a phone or the low tier): manifest_phone.json and the *_phone.glb files only; if it is missing, the load fails
+ *  and the caller keeps the procedural scene. */
+export async function loadHero({ renderer, base = './models/', onProgress = () => {}, phone = false }) {
   const ktx2 = new KTX2Loader().setTranscoderPath('./basis/').detectSupport(renderer);
   const loader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
   try {
-    const response = await fetch(`${base}manifest.json`);
-    if (!response.ok) throw new Error(`manifest request failed: ${response.status}`);
-    const manifest = await response.json();
-    if (!manifest.models || typeof manifest.models !== 'object') throw new Error('manifest.models is missing');
+    // A phone reads manifest_phone.json only: no fallback to the desktop models (first-load budget).
+    const name = phone ? 'manifest_phone.json' : 'manifest.json';
+    const response = await fetch(`${base}${name}`);
+    if (!response.ok) throw new Error(`${name} request failed: ${response.status}`);
+    const manifest = await readManifest(response, `${base}${name}`);
 
     const group = new THREE.Group();
     group.name = 'talanta-hero';
@@ -20,16 +24,18 @@ export async function loadHero({ renderer, scene, base = './models/' }) {
     let triangleCount = 0;
     const modelEntries = Object.values(manifest.models);
     let loadedBytes = 0;
+    onProgress({ loaded: 0, total: modelEntries.length });
 
     for (const model of modelEntries) {
       if (!model?.file) throw new Error('manifest model file is missing');
-      const file = model.file.split('/').at(-1);
-      const gltf = await loader.loadAsync(`${base}${file}`);
+      const file = model.file.replace(/^app\/public\/models\//, '');
+      const gltf = await loadWithTimeout(loader, `${base}${file}`);
       const modelRoot = gltf.scene;
       const standalone = [];
 
       modelRoot.traverse((node) => {
         if (!node.isMesh) return;
+        dropInvalidCompressedMaps(node.material);
         node.castShadow = false;
         node.receiveShadow = false;
         meshCount++;
@@ -78,6 +84,7 @@ export async function loadHero({ renderer, scene, base = './models/' }) {
         if (node.parent === modelRoot) group.add(node);
       }
       loadedBytes += model.bytes ?? 0;
+      onProgress({ loaded: modelEntries.indexOf(model) + 1, total: modelEntries.length });
     }
 
     for (const [name, entry] of lodGroups) {
@@ -97,10 +104,25 @@ export async function loadHero({ renderer, scene, base = './models/' }) {
     const fileSizes = modelEntries.map((model) => ({ file: model.file.split('/').at(-1), bytes: model.bytes ?? 0 }));
     console.info('web hero loaded:', { files: fileSizes, totalBytes: loadedBytes, meshes: meshCount, triangles: Math.round(triangleCount), lodGroups: lodGroups.size });
     ktx2.dispose();
-    return { group, manifest };
+    return { group, manifest, phone };
   } catch (error) {
     console.warn('web hero unavailable; keeping procedural scene:', error);
     ktx2.dispose();
     return null;
   }
+}
+
+function loadWithTimeout(loader, url) {
+  return new Promise((resolve, reject) => {
+    let expired = false;
+    const timer = setTimeout(() => { expired = true; reject(new Error(`Model load timed out: ${url}`)); }, 180000);
+    loader.loadAsync(url).then((gltf) => {
+      clearTimeout(timer);
+      if (!expired) resolve(gltf);
+      else gltf.scene.traverse((node) => {
+        node.geometry?.dispose();
+        for (const material of Array.isArray(node.material) ? node.material : [node.material]) material?.dispose();
+      });
+    }, (error) => { clearTimeout(timer); reject(error); });
+  });
 }

@@ -18,12 +18,12 @@ maps; the forecourt_context meshes (forecourt.py, which hides the old plaza and 
 import json, math, sys, time
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, OUT, MAPS, setup_morning, sun_vector_app, write_json
+from common import ROOT, OUT, MAPS, BAKE_OUT, BAKE_PRESET, setup_morning, sun_vector_app, write_json
 import lightmap_uv
 
 SAMPLES = int(sys.argv[-1]) if sys.argv[-1].isdigit() else 128
 TEST = "test" in sys.argv  # quarter-size atlases and few samples, for a quick pipeline check
-g = setup_morning()
+g = setup_morning(preset=BAKE_PRESET)
 import bpy, bmesh
 import numpy as np
 
@@ -58,8 +58,18 @@ def _own_meshes(*cols):
     return out
 if _own_meshes("site_layout_ge", "finish_plaza"): GROUPS["site_layout"] = (2048, _own_meshes("site_layout_ge", "finish_plaza"))
 if _own_meshes("rubis_station"): GROUPS["station"] = (1024, _own_meshes("rubis_station"))
-AO_USED = lambda n: n.startswith("stadium_") or n in ("roof", "suburbs", "traffic")  # post_glb.mjs AO_GROUPS
-ALBEDO_USED = lambda n: not n.startswith("ground_")  # ground colour ships as ground_tiles.py tiles
+# web_hero_v2 order (2026-10-24, W1): passes I (east approach and lens island), J (landmark towers) and K (south plaza),
+# and the traced south-west grass loop, its road and the small stand (passes C-E, finished state). Atlas sizes by area:
+# about 10,000 m2 each for I and K and the loop; the landmark walls run to 47 m high.
+for _g, _size, _cols in (("layout_pass_i", 1024, ["layout_pass_i"]), ("landmarks", 2048, ["landmarks_pass_j"]),
+                         ("plaza_south", 1024, ["plaza_south_k"]), ("trace_sw", 1024, ["trace_sw_finished", "trace_structures"])):
+    if _own_meshes(*_cols): GROUPS[_g] = (_size, _own_meshes(*_cols))
+# the pass I cars replace traffic.py's traffic in step_FK; same group, same Visualization name in the export
+GROUPS["traffic"][1].append("layout_cars_visualization")
+AO_USED = lambda n: n.startswith("stadium_") or n in ("roof", "suburbs", "traffic", "landmarks")  # post_glb.mjs AO_GROUPS
+# every group: the ground tiles of ground_tiles.py lie 6 cm over the ground meshes, and the app keeps the meshes (with
+# this albedo, export_web.py ALBEDO_GROUPS) where a tile is missing; v2 order W1 test: post_glb.mjs needs the map
+ALBEDO_USED = lambda n: True
 CLIP = 1500.0  # the site GLB stops here; the panorama carries everything beyond
 
 
@@ -92,10 +102,12 @@ for gname, (size, names) in GROUPS.items():
     obs = []
     for n in names:
         o = bpy.data.objects.get(n)
+        f = bpy.data.objects.get(n + "_final")  # the finished-state cut copy (passes I and K), e.g. roads_final
+        if o is not None and o.hide_render and f is not None and not f.hide_render: o = f
         if o is None or o.hide_render: print("skip", n); continue
         obs.append(to_mesh(o))
     groups[gname] = (size // 4 if TEST else size, obs)
-clip_box(bpy.data.objects["roads"], CLIP)
+clip_box(next(o for o in groups["roads"][1] if o.name.startswith("roads")), CLIP)
 
 # ground tiles: faces of terrain_site by centroid; inner 4 x 4 over +-700 m, then 8 outer tiles to +-1500 m
 ter = bpy.data.objects["terrain_site"]
@@ -135,9 +147,71 @@ def orient_outward(o):
     bm.to_mesh(o.data); bm.free(); o.data.update()
 
 
+# Shell fix (lead decision 2026-10-26, blender/kaggle/BAKE_ON_KAGGLE.md). Black charts in stadium_shell:
+# - The soffit and the top of base_band (the ledge at the top of the 2 m base band, under the louvre fins) lie in one
+#   plane (distance 0). Each covers the other on both sides, so both bake black on the CPU (the GPU misses the touching
+#   cover and bakes them lit). The soffit faces in that plane are lifted 2 cm in the baked copy (it is the exported
+#   mesh too): the soffit is then the visible top of the ledge and bakes open; the base_band top below it is hidden.
+# - A flat face whose top side has other geometry within COVER_M above it (at more than half of its centre and corner
+#   points) points down.
+# - base_columns and opening_trim keep the scene orientation.
+# The other groups are not changed.
+SHELL_KEEP = ("base_columns", "opening_trim")
+COVER_M = 0.1
+from mathutils import Vector
+
+
+def _hidden_dg(o):
+    o.hide_viewport = True; bpy.context.view_layer.update(); return bpy.context.evaluated_depsgraph_get()
+
+
+def _shown(o):
+    o.hide_viewport = False; bpy.context.view_layer.update()
+
+
+def lift_coplanar(o, other, dz=0.02):
+    """Lift the flat faces of o that lie in a face of other (within 5 mm) by dz."""
+    if o is None or other is None: return 0
+    bm = bmesh.new(); bm.from_mesh(o.data); R, M = o.matrix_world.to_3x3(), o.matrix_world
+    dg = _hidden_dg(o); lift = set()
+    for f in bm.faces:
+        if abs((R @ f.normal).z) <= 0.5: continue
+        hit, _l, _n, _i, ob, _m = s.ray_cast(dg, M @ f.calc_center_median() + Vector((0, 0, 0.005)), Vector((0, 0, -1)), distance=0.01)
+        if hit and ob.name == other.name: lift.add(f)
+    _shown(o)
+    up = M.inverted().to_3x3() @ Vector((0, 0, dz))
+    for v in {v for f in lift for v in f.verts}: v.co += up
+    bm.to_mesh(o.data); bm.free(); o.data.update()
+    return len(lift)
+
+
+def orient_shell(o):
+    if o.name in SHELL_KEEP: return 0
+    orient_outward(o)
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    R, M = o.matrix_world.to_3x3(), o.matrix_world; flip = []
+    dg = _hidden_dg(o)  # the face's own object is hidden, so a cover that touches or cuts the face counts
+    for f in bm.faces:  # the face centre and points 60 % of the way to its corners (large faces are partly covered)
+        if (R @ f.normal).z <= 0.5: continue
+        c = f.calc_center_median(); pts = [M @ c] + [M @ c.lerp(v.co, 0.6) for v in f.verts[:8]]
+        hits = sum(s.ray_cast(dg, q - Vector((0, 0, 0.005)), Vector((0, 0, 1)), distance=COVER_M + 0.005)[0] for q in pts)  # from 5 mm under the face (less than the 2 cm lift)
+        if hits * 2 > len(pts): flip.append(f)
+    _shown(o)
+    bmesh.ops.reverse_faces(bm, faces=flip)
+    bm.to_mesh(o.data); bm.free(); o.data.update()
+    return len(flip)
+
+
+_sh = {o.name: o for o in groups["stadium_shell"][1]}
+print("shell fix: soffit faces lifted 2 cm off the base_band top:", lift_coplanar(_sh.get("soffit"), _sh.get("base_band")), flush=True)
+SHELL_FLIPPED = {}
 for gname, (size, obs) in groups.items():
     if gname.startswith("ground_"): continue
-    for o in obs: orient_outward(o)
+    for o in obs:
+        if gname == "stadium_shell": SHELL_FLIPPED[o.name] = orient_shell(o)
+        else: orient_outward(o)
+print("shell fix: kept the scene orientation of", [n for n in SHELL_KEEP if n in _sh],
+      "; flat faces turned down (covered top side):", SHELL_FLIPPED, flush=True)
 
 # ---------------------------------------------------------------- UV sets: UV0 kept (or added), UV1 = "lightmap"
 def ensure_uvs(o):
@@ -159,7 +233,12 @@ for gname, (size, obs) in groups.items():
         q = (vx[li] - lo) / (hi - lo)
         uv.foreach_set("uv", (0.002 + q * 0.996).ravel())
         continue
-    st = lightmap_uv.pack(obs, size, tube_names=TUBES); uv_stats[gname] = st
+    while True:  # test: a quarter-size atlas can be too small for the charts at their minimum size; double it
+        try: st = lightmap_uv.pack(obs, size, tube_names=TUBES); break
+        except lightmap_uv.NoFit:
+            if not TEST: raise
+            size *= 2; groups[gname] = (size, obs)
+    uv_stats[gname] = st
     print(f"uv {gname}: {st} at {time.time() - t_uv:.0f} s", flush=True)
 print(f"uv sets: {time.time() - t_uv:.1f} s")
 if "uvonly" in sys.argv:  # report how much of each atlas the UV set covers, then stop
@@ -206,6 +285,8 @@ bpy.ops.object.select_all(action="DESELECT")
 for o in all_obs: o.select_set(True)
 bpy.context.view_layer.objects.active = all_obs[0]
 c = s.cycles; c.device = "CPU"; c.use_adaptive_sampling = False; c.use_denoising = False
+if __import__("os").environ.get("TALANTA_PRE"):  # GPU runs (Kaggle): blender/kaggle/gpu_pre.py sets the Cycles device to GPU
+    _pre = __import__("os").environ["TALANTA_PRE"]; exec(compile(open(_pre).read(), _pre, "exec"), {"bpy": bpy, "s": s, "ROOT": ROOT})
 s.render.bake.margin = 2; s.render.bake.margin_type = "EXTEND"; s.render.bake.target = "IMAGE_TEXTURES"
 s.world.light_settings.distance = 2.0
 # ---------------------------------------------------------------- encode and save (8-bit sRGB PNG)
@@ -217,7 +298,7 @@ if TEST: MAPS = OUT / "test/maps"
 MAPS.mkdir(parents=True, exist_ok=True)
 STAGES = MAPS / "stages.json"
 stages = json.loads(STAGES.read_text()) if STAGES.exists() and "fresh" not in sys.argv else {}
-key = {"samples": SAMPLES, "test": TEST, "light": g["sun_key"]}
+key = {"samples": SAMPLES, "test": TEST, "light": g["sun_key"], "state": g["web_state"]["state"], "lookdev": g["web_state"]["lookdev"]}
 if stages.get("key") != key: stages = {"key": key, "done": {}}
 # only=<g1,g2,...>: bake just these groups now (held groups wait for a later run); fresh=<g1,...>: rebake them
 ARG = {a.split("=")[0]: a.split("=")[1].split(",") for a in sys.argv if a.startswith(("only=", "fresh="))}
@@ -247,7 +328,7 @@ def save(gname, kind):
 # v2: what changed bakes in its own batches; the unchanged ones match the stage tags written by migrate_stages_v2.py
 CHANGED_TILES = [5, 6, 9, 10]  # the four inner tiles under the bowl and the plaza
 BATCHES = [["stadium_shell", "stadium_fins"], ["stadium_ornament", "roof"], ["sport", "roads", "site_built"], ["forecourt"],
-           ["site_layout", "station"], ["suburbs", "traffic"],
+           ["site_layout", "station"], ["layout_pass_i", "plaza_south", "trace_sw", "landmarks"], ["suburbs", "traffic"],
            [f"ground_{k:02d}" for k in CHANGED_TILES], [f"ground_{k:02d}" for k in range(12) if k not in CHANGED_TILES],
            [f"ground_{k:02d}" for k in range(12, 16)],  # inner tiles (+-700 m)
            [f"ground_{k:02d}" for k in range(16, 24)]]  # outer tiles
@@ -291,12 +372,13 @@ if "only" in ARG:
 for gname, (size, obs) in groups.items():
     for o in obs: o["bake_group"] = gname; o["bake_size"] = size
 el, az = g["el"], g["az"]
-log = {"date": g["st"]["date"], "time_eat": g["st"]["time_eat"], "light_preset": g["sun_key"], "sky": g.get("sky_log"), "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2),
+log = {"scene": g["web_state"], "date": g["st"]["date"], "time_eat": g["st"]["time_eat"], "light_preset": g["sun_key"], "sky": g.get("sky_log"), "sun_elevation_deg": round(el, 2), "sun_azimuth_deg": round(az, 2),
        "sun_dir_app": sun_vector_app(el, az), "sun_energy": g["sun"].data.energy, "sun_color": list(g["sun"].data.color),
        "samples": {"light": SAMPLES, "ao": 64, "albedo": 4}, "bake_seconds": times, "stages": stages["done"], "total_seconds": round(time.time() - t_start, 1),
        "groups": {gname: {"size": size, "objects": [o.name for o in obs], "light_scale": scales[gname], "uv": uv_stats.get(gname, "planar tile")} for gname, (size, obs) in groups.items()},
        "encoding": "light png = sRGB(light / light_scale); multiply by light_scale to get linear light on a white diffuse surface"}
 if TEST: OUT = OUT / "test"
+OUT = BAKE_OUT if not TEST else OUT  # P2 sets: lightmaps/<HHMM>/ (common.py)
 write_json(OUT / "bake_log.json", log)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT / "talanta_web_baked.blend"), compress=True)
 print(json.dumps({"bake_seconds": times, "total_seconds": log["total_seconds"]}))

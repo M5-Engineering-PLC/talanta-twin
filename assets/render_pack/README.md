@@ -6,7 +6,12 @@ Self-contained Cycles render pack for renders and bakes on the Kaggle GPU. Do no
     sha256sum -c talanta_render_pack.sha256
     tar -xf talanta_render_pack.tar && cd talanta_render_pack   # then see RENDER_PACK.md
 
-Version 2026-10-26 (this commit): 219,340,800 bytes in 3 parts. Scenes blender/out/frozen_FL.blend (frozen_FK plus the
+Version 2026-10-27 (this commit): 219,361,280 bytes in 3 parts. The 2026-10-26 pack plus two files:
+blender/web_hero/bake_lightmaps.py at 4cf04ca (the stadium_shell fix) and app/public/data/manifest.json (render_panorama.py
+and ground_tiles.py read features.site_pad_y from it). The scene for bakes and chapters 1 and 2 is still
+blender/out/frozen_FL.blend (sha256 d6c59e4b707f8ba4..., the same file as before).
+
+Version 2026-10-26: 219,340,800 bytes in 3 parts. Scenes blender/out/frozen_FL.blend (frozen_FK plus the
 seat re-check stand detail; chapters 1 and 2, P2 bakes) and blender/out/frozen_FL_interior.blend (plus the chapter 3
 and 4 interior), the scripts of wo/web-hero-v2 at 58a48c1 (GPU hook for bakes and panoramas, P2 bake options, chapter 3
 and 4 paths), blender/ data, textures and CC0 assets, app/cameras, the ground images. No raw videos, no reference

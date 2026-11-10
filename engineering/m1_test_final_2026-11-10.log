@@ -1,0 +1,266 @@
+
+> talanta-twin@0.1.0 test
+> node --test tools/*.test.mjs
+
+✔ software showState preserves captured original show values (21.9678ms)
+✔ software floodlight state matches the original inline formula for every lamp (33.8057ms)
+✔ software per-rib RGB agrees with documented TSL step/mix formula (2.2891ms)
+✔ software app instance buffers consume the shared state, including fixed viewer (111.7853ms)
+✔ software binary file round-trip, frame counts and byte offsets (636.5726ms)
+✔ software crowd attributes match the live instance attributes and reaction semantics (94.3312ms)
+SOFTWARE crowd seats=56972 first_y=1.2000000476837158
+✔ software exporter chooses app fallback and generates bowl parent coordinates without document (111.9661ms)
+✔ software CLI rejects invalid inputs and preserves requested sampling (7.5573ms)
+SOFTWARE seat parity count=56972 max_position_error_m=0.000005579400306560436 max_facing_error_deg=0.0000023506746629209374
+✔ software generateSeats matches every bowl instance position and facing (845.844ms)
+✔ software crowd seat channels survive a binary file round-trip (1130.1645ms)
+✔ CIEDE2000 matches Sharma reference pairs, including neutral and hue wrapping (5.9268ms)
+✔ sRGB uses D65 white, black and the sRGB transfer function (1.4111ms)
+✔ full frame averages every pixel; rectangles exclude pixels outside their bounds (1.6147ms)
+✔ concertState is deterministic, JSON-safe and leaves the cues unchanged (317.9364ms)
+✔ the new parts exist in the state and keep the stage end (1.9919ms)
+✔ LED content follows the cues and the beat, with no text or image data (93.1888ms)
+✔ the floor crowd stays on the pitch, in front of the stage, and keeps the catwalk aisle clear (47.8813ms)
+✔ the floor crowd is denser near the stage (0.7865ms)
+✔ budget counts per tier and width (2.3575ms)
+✔ draw call and triangle estimate stays inside the budget (0.6818ms)
+✔ every file in public/concert has an entry in CREDITS.md and the size budget holds (11.325ms)
+✔ no speaker model file or sofi frame is tracked or staged in the repository (348.5418ms)
+✔ event state stays deterministic, JSON-safe, and leaves cue data unchanged (62.4809ms)
+✔ cue boundaries switch phases exactly and both timelines loop (4.6248ms)
+✔ concert counts follow tiers and the phone width boundary (2.1585ms)
+✔ concert places the stage south facing north and takes BPM from cues (1.0946ms)
+✔ football keeps 22 players plus one referee and the ball within the pitch except during the goal (261.5582ms)
+✔ goal scores and reacts at 60 seconds at the north end and resets on the loop (0.9429ms)
+✔ playback fires one goal per crossing, supports seeking, and stops after disposal (1.1137ms)
+✔ software renderers consume state, apply the pitch frame, resize, and release roots (105.1134ms)
+✔ night-show entry excludes other events and cancels a stale asynchronous load (24.792ms)
+✔ event crowd uses procedural seats and its own world-space root outside the full model (49.6669ms)
+✔ an event that stops during a crowd import leaves no late crowd root (3.5012ms)
+✔ the landing Event dropdown lists both new events before scene data loads (6.73ms)
+✔ real crowd API keeps fan positions, scale, and colors in the drawn seat frame (4.8526ms)
+✔ installs from a release tar, verifies every file and writes the app manifest (1565.5215ms)
+✔ a second run downloads nothing, and --check passes (2641.0084ms)
+✔ --check fails and names a changed file (1061.6697ms)
+✔ a corrupt file in the release is rejected and not installed (680.584ms)
+✔ a file missing from the release fails the run (676.2424ms)
+✔ --from a local folder with flat files and split parts, no gh call (352.7282ms)
+✔ --from a folder that holds the bundle tree (379.2826ms)
+✔ a manifest path outside models/, env/ or ground/ is refused (268.2893ms)
+✔ ENV-01: tod sets, phone models and manifest_phone.json are installed from a --from tree (408.949ms)
+✔ ENV-01: a bundle without panorama logs gets its environment from the env files (696.1216ms)
+✔ the sequence uses its light sets in order, the start frame needs only 1805 (2.8175ms)
+✔ prepare learns the requested start time, also after a seek during loading (4.2098ms)
+✔ applies the latest seek before starting and defers other sets until after paint (1.9001ms)
+✔ cancellation prevents deferred loads and a failed start set aborts preparation (1.231ms)
+✔ a phone reads manifest_phone.json only and never falls back to the desktop models (60.3485ms)
+✔ blob follows a supplied surface matrix and switches off (10.7513ms)
+✔ blob is black with a radial alpha mask and opacity at most 0.35 (2.8388ms)
+✔ blob shader uses local position rather than a missing UV attribute (1.9804ms)
+✔ day stays unchanged; dusk dims, warms and lights lamps continuously (8.4615ms)
+✔ night is continuous at midnight and returns to day at dawn (0.7805ms)
+✔ legacy dusk approximation selects only the listed 17:30 panorama (4.3874ms)
+✔ dusk/day restores material baselines after panorama conversion; vehicles toggle (8.7505ms)
+✔ L06/L07 include Cycles position, target and vertical field of view (16.8927ms)
+✔ capable desktop selects EXR then HDR fallback (8.6635ms)
+✔ phones, small GPUs and low memory select HDR (34.817ms)
+✔ EXR entries work without file_exr and do not select another preset (2.4506ms)
+✔ without manifest.environment (v3 bundle) the base-time panorama comes from the file list (1.1043ms)
+hero tree impostors: { sources: 2, atlasBatches: 1 }
+hero tree impostors: { sources: 2, atlasBatches: 1 }
+hero tree impostors: { sources: 2, atlasBatches: 1 }
+✔ distance switch uses hysteresis (2.6496ms)
+✔ far trees share a draw call and switch individually (15.9415ms)
+✔ multi-material near LOD groups keep all primitives and compact colours (21.708ms)
+✔ UV-less textured near trees get finite coordinates without changing the source geometry (7.1418ms)
+✔ desktop defaults to bake and hero stays supported (3.3978ms)
+✔ procedural wins over hero and phone consent (0.4215ms)
+✔ unsupported devices and failed loads retain fallback (28.5645ms)
+✔ phones require explicit full scene request (1.8993ms)
+✔ tier 1 waits for first view and idle before any download (0.6492ms)
+✔ without idle callbacks a later timer starts tier 1 (0.4957ms)
+✔ manifest parsing rejects HTML even with status 200 or a misleading JSON content type (79.0656ms)
+✔ desktop and phone release manifests resolve the linked models and time sets (1709.3444ms)
+✔ compressed maps below one block are dropped and valid maps stay (21.5895ms)
+✔ hero state is deterministic in any seek order and clamps endpoints (36.1235ms)
+✔ all seven beats follow the required boundaries and captions stay short (5.3616ms)
+✔ eased camera segments have no jump larger than 3.5 metres per 1/30 second (35.3592ms)
+✔ reduced motion holds cameras and fades between holds, including the night city (2.1808ms)
+✔ rain and clouds occur only in beat five, with continuous wetness (22.5006ms)
+✔ the scripted match reaches the real goal cue and keeps its claim (5.2267ms)
+✔ crowd, match, facade and floodlights carry exact registry labels (20.3506ms)
+✔ pose data references only the selected virtual views and fails on missing targets (0.8012ms)
+✔ pointer, wheel, touch, any key and Escape stop playback and restore the host (2.7099ms)
+✔ input during loading cancels autoplay before a late prepare completes (0.8237ms)
+✔ seeking freezes the requested frame and the final state stays still (0.7634ms)
+✔ failed preparation stops the player and allows a retry (6.106ms)
+✔ software host adapter seeks match, restores controls and anchors crowd reaction time (90.2428ms)
+✔ synthetic input preserves seeks at 55 and 85 seconds (0.7012ms)
+✔ concurrent seeks share preparation and hold the latest requested time (0.4591ms)
+✔ coarse tiles load first and nearest centres lead each level (3.6172ms)
+✔ northwest maps to image row zero for flipY=false KTX2 (60.606ms)
+✔ linker mounts both manifests and resolves model fetch paths without changing bundle files (7115.9912ms)
+✔ linker refuses any real destination before replacing an earlier symlink (17.8395ms)
+✔ curve interpolates all 33 grey samples, midpoints and clamped ends (25.8724ms)
+✔ manifest replaces AgX and selects exposure independently for L06 and L07 (3.012ms)
+✔ all compositor values replace estimates and the TSL graph accepts measured RGB gain (3.9637ms)
+✔ malformed look blocks fail instead of silently applying an invalid curve (1.0539ms)
+✔ menu groups follow the phase order and keep every non-security module once (8.337ms)
+✔ every entry shows a claim label (0.7499ms)
+✔ planned entries show "Planned" and cannot be selected, even with an action (1.1641ms)
+✔ SEC- modules never appear (0.6143ms)
+✔ actions parse to mode, event or hero and reject anything else (1.9331ms)
+✔ registry actions are valid and wired to the expected controls (21.7702ms)
+✔ enabled entries are exactly the non-planned ones with an action (0.6686ms)
+Generated 56972 unique occupied seat places
+Minimum nearby origin spacing 0.497978 m
+✔ generator is deterministic and every generated seat has one fan at full fill (1154.0262ms)
+✔ no generated fan origins are closer than 0.45 m (1247.0651ms)
+✔ fill is exact after rounding, nested, clustered, and clamped (129.9692ms)
+✔ wave travels at the selected speed and wraps around the circumference (481.8622ms)
+✔ phones use only LOD1, cap the drawn fans, and preserve full occupancy on desktop (320.0084ms)
+✔ reactions, palettes, LOD selection, label, and disposal work through the public API (2125.6405ms)
+crowd-figures: 1 draw call, 2104 triangles/fan, 807936 triangles at 384 fans
+crowd-lod1: 1 draw call, 82 triangles/fan, 4888512 triangles at 59616 fans
+Software high-tier total: 5696448 triangles in 2 draw calls
+60000 fans: 0.002406 ms/update, Node v24.20.0; CPU only, no GPU rendering
+✔ crowd module bundles with its TSL imports (4027.3144ms)
+✔ report geometry budgets and CPU update timing for 60000 fans (963.8893ms)
+56972 fan origins match drawn seats; maximum offset 0.020001 m; unit scale and pitch-facing yaw
+Seated figure height 1.410 m; torso base 0.491 m above tread
+✔ drawn bowl seats override fallback data and align all fan origins in bowl local space (4124.8402ms)
+✔ baked seated body fits a human scale above the tread (2.7647ms)
+Software asset result: 1994726 gzip bytes; LOD0 2104, LOD1 82 triangles
+✔ baked assets fit their dimensions, triangle budgets, and gzip budget (304.4848ms)
+✔ all required clip slots exist and the texture contains finite moving human positions (68.4325ms)
+✔ human skin, shirts, trousers, scale, and motion vary per instance (68.5298ms)
+✔ high and medium bound detailed fans; low tier and phone width use LOD1 only (85.1566ms)
+✔ standing figures stay inside rectangle and concave polygon in parent-local meters (177.2281ms)
+✔ hand-keyed wave returns to sitting and clap brings the hands together (73.0826ms)
+Software desktop ultra LOD0: 2 vertex buffers, 8 attributes, 384 fans
+Software desktop ultra LOD1: 3 vertex buffers, 12 attributes, 1216 fans
+Software desktop high LOD0: 2 vertex buffers, 8 attributes, 384 fans
+Software desktop high LOD1: 3 vertex buffers, 12 attributes, 1216 fans
+Software desktop medium LOD0: 2 vertex buffers, 8 attributes, 128 fans
+Software desktop medium LOD1: 3 vertex buffers, 12 attributes, 1472 fans
+Software desktop low LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+✔ desktop crowd fits eight vertex buffers and sixteen attributes at every tier (1003.5776ms)
+Software phone ultra LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+Software phone high LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+Software phone medium LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+Software phone low LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+✔ phone crowd fits eight vertex buffers and sixteen attributes at every tier (373.9329ms)
+✔ phone animation file matches its JSON (3.8967ms)
+✔ phone file decodes and exposes only LOD1 (3.1949ms)
+✔ phone loader path is chosen for phones and the low tier (0.7681ms)
+Software shader generation: seated high GLSL 7350 vertex source bytes
+Software shader generation: seated high WGSL 8300 vertex source bytes
+Software shader generation: seated low GLSL 7352 vertex source bytes
+Software shader generation: seated low WGSL 8302 vertex source bytes
+Software shader generation: standing high GLSL 8727 vertex source bytes
+Software shader generation: standing high WGSL 9778 vertex source bytes
+Software shader generation: standing low GLSL 8730 vertex source bytes
+Software shader generation: standing low WGSL 9781 vertex source bytes
+✔ seated and standing animation nodes generate GLSL and WGSL vertex texture reads (598.0909ms)
+✔ every valid URL tier stays pinned in both behavior and the FPS readout (10.1622ms)
+✔ rain uses one instanced line draw and scales counts with the active tier (26.3627ms)
+✔ rain positions repeat on a backward seek and stay near the camera (18.407ms)
+✔ wetness changes existing uniforms without a material replacement or version change (13.0851ms)
+✔ wetness works with specular-only baked node materials and dusk without cumulative tint (14.0239ms)
+✔ floodlight and shield uniforms advance then restore their baselines (2.5311ms)
+✔ overcast dims panoramas and restores background and fog without accumulation (2.1987ms)
+✔ overcast dome returns to its dry vertex colors (4.4757ms)
+✔ generated palette matches the ledger values (88.5245ms)
+✔ regenerating the palette writes the same file (496.0596ms)
+✔ seeded tone and speckle shares follow the ledger rules and repeat exactly (208.7922ms)
+✔ seat placement matrices stay identical across builds (1308.1576ms)
+SOFTWARE width=390 {"SHW-03":{"drawCalls":1,"triangles":1600},"SHW-02":{"drawCalls":1,"triangles":9984},"SHW-01":{"drawCalls":1,"triangles":288}}
+SOFTWARE width=1280 {"SHW-03":{"drawCalls":1,"triangles":3840},"SHW-02":{"drawCalls":1,"triangles":9984},"SHW-01":{"drawCalls":1,"triangles":288}}
+✔ timeline orders cues and preserves overlaps with latest cue last (5.8742ms)
+✔ seek is deterministic across play, pause and loop (0.9481ms)
+✔ flag bands follow normalized rib angles (0.4866ms)
+✔ point counts, landings and phone limits (17.3419ms)
+✔ fallback V bays and merged facade geometry (17.7114ms)
+✔ software scene lifecycle and geometry budget report (344.0042ms)
+✔ drone formations stay above the forecourt in world space and face both landing cameras (369.8674ms)
+✔ show start holds original floodlights dark across applyTime writes and stop restores them (29.1371ms)
+✔ center cover fits 16:9, 21:9, 4:3 and 9:16 without distortion (4.1208ms)
+✔ both measured portrait crops project source features into the same image pixels (3.3317ms)
+✔ invalid viewport dimensions fail explicitly (1.4819ms)
+✔ nearest time on the 24 h circle (5.7166ms)
+✔ hysteresis: no change near a boundary, change once the margin is passed (1.1866ms)
+✔ parseTod accepts a good file and rejects bad ones (3.6819ms)
+✔ applyLightmaps sets channel, colour space, intensity and returns the old textures (44.8275ms)
+✔ a group without a new texture keeps its material unchanged (0.6886ms)
+✔ ground gain sets the tile colour and the heroLighting baseline (0.652ms)
+✔ setTime swaps maps, intensity, ground gain and panorama in one step; the base textures survive (4.6025ms)
+✔ the base time reuses the GLB textures and keeps the base panorama (1.5894ms)
+✔ a time without panorama in tod.json uses the base-time panorama manifest (1.2803ms)
+✔ a failed load keeps the current set and warns once (3.26ms)
+✔ phone keeps at most two sets and disposes the replaced one (2.517ms)
+✔ without manifest.tod the module is inert (0.6355ms)
+✔ PNG size and decode, luminance of a grey map (13.1934ms)
+✔ ground gain is the ratio of the mean ground light (maps x light_scale) (3.9367ms)
+✔ checkAgainstBase refuses a group or size mismatch (6.2293ms)
+✔ presets, codec rules and encoded sizes follow the bundle mode (2.3561ms)
+✔ validateTod and panoramaNames (4.9239ms)
+✔ tod dry run prints the plan, ground_tile_gain, and writes nothing (524.9622ms)
+✔ tod mode refuses a set with another map size or group list (exit 2) and a wrong preset (1072.5713ms)
+✔ reindex lists the tod sets in the manifests and checks sha256 (341.3893ms)
+✔ image size check: KTX2 header size, sides must be multiples of 4 (1.3417ms)
+✔ ultra is explicit and automatic detection never selects it (3.6638ms)
+✔ converted baked materials carry the mask flag and retain their lighting (5.8182ms)
+✔ ultra URL uses an allowlist, supports none, all, and explicit exclusions (255.3392ms)
+✔ all effects off returns to the unchanged high chain before allocating resources (11.0216ms)
+✔ the actual MRT mask emits one for baked materials and suppresses their entire GI term (5.9999ms)
+✔ real ultra graph selects one AO source and disables scene MSAA for TRAA (64.1395ms)
+✔ unsupported WebGL-only selection returns the unchanged high path without resources (1.309ms)
+✔ IES profile parses and installs at most eight shadowless lights from the show data (69.3057ms)
+✔ explicit ultra and high URL tiers remain pinned (2.0604ms)
+✔ render failure restores renderer state and renders the scene instead of throwing (7.9947ms)
+✔ ultra suppresses other spotlights during its frame and restores them afterward (3.2358ms)
+✔ LUT preserves neutral endpoints and has monotonic equal channels (3ms)
+probox: 652 triangles
+premio: 652 triangles
+vitz: 652 triangles
+prado: 652 triangles
+hilux: 676 triangles
+Nganya model load failed; box proxies stay active. TypeError: Failed to parse URL from ./vehicles/nganya/scene.gltf
+    at new Request (node:internal/deps/undici/undici:12074:19)
+    at FileLoader.load (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/three/build/three.core.js:45108:15)
+    ... 6 lines matching cause stack trace ...
+    at Test.postRun (node:internal/test_runner/test:1537:19)
+    at Test.run (node:internal/test_runner/test:1462:12) {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:840:25)
+      at new Request (node:internal/deps/undici/undici:12072:25)
+      at FileLoader.load (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/three/build/three.core.js:45108:15)
+      at GLTFLoader.load (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/three/examples/jsm/loaders/GLTFLoader.js:320:10)
+      at buildTraffic (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/src/hero/traffic.js:252:24)
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/vehicles.test.mjs:39:19)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19) {
+    code: 'ERR_INVALID_URL',
+    input: './vehicles/nganya/scene.gltf'
+  }
+}
+✔ probox dimensions and parts (47.6322ms)
+✔ premio dimensions and parts (16.8493ms)
+✔ vitz dimensions and parts (13.4952ms)
+✔ prado dimensions and parts (10.8731ms)
+✔ hilux dimensions and parts (7.1604ms)
+✔ traffic switches between detailed cars and box cars by camera distance (164.9382ms)
+✔ P4 shows only after arrival, snaps time, fades in for 0.6s and releases after 0.3s (15.4581ms)
+✔ first wheel/key input cancels a pending decode without reviving the still (1.3379ms)
+✔ reduced motion shows and dismisses without a fade (6.6313ms)
+✔ tour/parity/event guard prevents the still and the time snap (2.0361ms)
+ℹ tests 193
+ℹ suites 0
+ℹ pass 193
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14530.4737

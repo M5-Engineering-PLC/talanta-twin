@@ -15,8 +15,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import ROOT, setup_morning, write_json
 
-OUTD = ROOT / sys.argv[1] / "ground"
-args = [a for a in sys.argv[2:] if a.isdigit()]
+# script arguments only: under the blender binary they follow "--" (Blender's own, e.g. --python-exit-code 1, come first)
+ARGV = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
+OUTD = ROOT / ARGV[0] / "ground"
+args = [a for a in ARGV[1:] if a.isdigit()]
 SAMPLES = int(args[0]) if args else 32
 TEST = "test" in sys.argv
 g = setup_morning()
@@ -30,11 +32,18 @@ GROUND_COLS = {"pitch": {"pitch_zone", "pitch", "pitch_markings", "pitch_apron"}
                "horizon_context": {"racecourse_infield", "racecourse_track"}}
 
 
+# collections whose flat meshes (under 1 m tall) are ground: forecourt.py, and for web_hero_v2 the site layout, the plaza
+# finish, passes I and K and the south-west grass loop, so the tiles carry their colour under the GLB meshes
+FLAT_COLS = {"forecourt_context", "site_layout_ge", "finish_plaza", "layout_pass_i", "plaza_south_k", "trace_sw_finished"}
+
+
 def is_ground(o):
     cols = {c.name for c in o.users_collection}
+    name = o.name.removesuffix("_final")  # the finished-state cut copies of passes I and K (road_markings_final)
     for cn, names in GROUND_COLS.items():
-        if cn in cols and (names is None or o.name in names): return True
-    if "forecourt_context" in cols and o.type == "MESH" and not any(m.type == "NODES" for m in o.modifiers):
+        if cn in cols and (names is None or name in names): return True
+    # (linked copies of flower and shrub prototypes are planting, not ground: they stay shadow-only)
+    if cols & FLAT_COLS and o.type == "MESH" and o.data.users == 1 and not any(m.type == "NODES" for m in o.modifiers):
         bb = [o.matrix_world @ Vector(c) for c in o.bound_box]
         return max(v.z for v in bb) - min(v.z for v in bb) < 1.0  # paths, kerbs, beds, plaza
     return False
@@ -62,7 +71,7 @@ OUTD.mkdir(parents=True, exist_ok=True)
 
 LEVELS = [(0, 0.25, 5), (1, 0.5, 6)]  # level, m per px, tiles per side (centred on the stadium)
 if TEST: LEVELS = [(0, 0.25, 1), (1, 0.5, 1)]
-KW = dict(x.split("=", 1) for x in sys.argv[2:] if "=" in x)
+KW = dict(x.split("=", 1) for x in ARGV[1:] if "=" in x)
 if "levels" in KW: LEVELS = [L for L in LEVELS if str(L[0]) in KW["levels"].split(",")]  # v2: levels=0 re-renders level 0 only
 tiles, t_all = [], time.time()
 for level, mpp, n in LEVELS:

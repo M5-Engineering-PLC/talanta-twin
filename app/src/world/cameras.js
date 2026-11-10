@@ -22,3 +22,17 @@ export function cameraFromManifest(m, id, aspect = m.resolution[0] / m.resolutio
   cam.userData = { purpose: c.purpose, sun: c.sun, seed: c.seed, target: c.target };
   return cam;
 }
+
+// Source: app/cameras/manifest.json, read by blender/scripts/cameras.py and blender/render_cycles.py.
+// App metres (east, up, south); Blender conversion is (x, -z, y), already applied by the glTF exporter.
+// L06 position [328.05, 80.62, -293.24], target [-1.24, 41.25, -1.2], vfov 32.269 deg (35 mm).
+// L07 position [-124.22, 105.93, 472.69], target [-17.39, 37.96, -4.93], vfov 29.839 deg (38 mm).
+export function cameraPoseFromManifest(manifest, id) {
+  const source = manifest.cameras.find((camera) => camera.id === id);
+  if (!source) throw new Error(`camera ${id} not in manifest`);
+  return {
+    pos: new THREE.Vector3(...source.position), target: new THREE.Vector3(...source.target),
+    fov: source.vfov_deg ?? 2 * Math.atan(manifest.sensor_width_mm / 2 / source.focal_length_mm
+      / (manifest.resolution[0] / manifest.resolution[1])) * 180 / Math.PI,
+  };
+}

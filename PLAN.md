@@ -100,6 +100,8 @@ Known weakness: the subjects for the 138 gap frames are generic (10 different su
 
 Status for all modules: planned. The phase numbers are in section 6.
 
+Scope decision 2026-10-25 (Munene): build the full catalog, loaded progressively. engineering/scope_decision_2026-10-25.md gives the build order (phases A to D), the loading tiers, the labels and the state of each module. It replaces the phases in section 6. OPS-01, PPL-04 and MOB-04 go only into a private client build.
+
 ### 5.1 Environment and weather
 
 | ID | Module | What it does | Phase |
@@ -202,6 +204,8 @@ Status for all modules: planned. The phase numbers are in section 6.
 
 ## 6. Phases
 
+Replaced on 2026-10-25 by the phases A to D in engineering/scope_decision_2026-10-25.md. The table below is the original plan. Since 2026-10-27, the first demo milestone is phase A plus the hero slice in section 7 (see "Demo milestone: the hero slice" in that file).
+
 | Phase | Name | Content | Done when |
 |---|---|---|---|
 | 0 | Data | Plan view, GIS clip, pitch scale, structure-from-motion test, design facts | A scaled site plan and a terrain tile exist in `gis/` |
@@ -211,7 +215,9 @@ Status for all modules: planned. The phase numbers are in section 6.
 | 4 | Event library | All rugby and training modules, EVT-02, PPL-06, PPL-07, PPL-08, MOB-04, MOB-06, OPS-02, OPS-04, CAM-05, ENV-08 | Each scenario loads from the menu |
 | 5 | Tools | EVT-03, SHW-06, SPT-08, OPS-01, OPS-03, MOB-07, CAM-06 | Client-specific. Starts only with a client |
 
-## 7. Hero slice script (phase 1)
+## 7. Hero slice script (demo milestone)
+
+This script is the first demo milestone. It runs on the phase A base of engineering/scope_decision_2026-10-25.md.
 
 1. The camera flies in over Ngong Road at golden hour. Ngong Hills are on the horizon.
 2. The roof catches the last sun. The shield panels on the facade glow.

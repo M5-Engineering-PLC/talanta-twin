@@ -16,8 +16,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import ROOT, OUT, setup_morning, sun_vector_app, write_json
 
-args = [a for a in sys.argv[1:] if a.isdigit()]
-KW = dict(a.split("=", 1) for a in sys.argv[1:] if "=" in a)
+# script arguments only: under the blender binary they follow "--" (Blender's own, e.g. --python-exit-code 1, come first)
+ARGV = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
+args = [a for a in ARGV if a.isdigit()]
+KW = dict(a.split("=", 1) for a in ARGV if "=" in a)
 SAMPLES = int(args[0]) if args else 128
 W = int(args[1]) if len(args) > 1 else 4096
 PRESET = KW.get("preset", "morning_golden")
@@ -79,6 +81,8 @@ cam.rotation_euler = (math.radians(90), 0.0, 0.0)
 s.camera = cam
 s.render.resolution_x, s.render.resolution_y, s.render.resolution_percentage = W, W // 2, 100
 c = s.cycles; c.samples = SAMPLES; c.use_adaptive_sampling = True; c.use_denoising = True; c.denoiser = "OPENIMAGEDENOISE"
+if __import__("os").environ.get("TALANTA_PRE"):  # GPU runs (Kaggle): blender/kaggle/gpu_pre.py sets the Cycles device to GPU
+    _pre = __import__("os").environ["TALANTA_PRE"]; exec(compile(open(_pre).read(), _pre, "exec"), {"bpy": bpy, "s": s, "ROOT": ROOT})
 s.view_settings.view_transform = "Standard"; s.view_settings.exposure = 0.0; s.view_settings.look = "None"
 s.render.image_settings.file_format = "HDR"
 if "out" in KW:  # bundle: the full panorama as half-float OpenEXR (DWAB), far smaller than Radiance HDR at 8K
@@ -101,8 +105,10 @@ pv = bpy.data.images.load(str(prev_dir / f"{stem}_preview.jpg")); pv.scale(2048,
 im = bpy.data.images.load(str(full)); im.scale(2048, 1024)
 im.filepath_raw = str(env / f"{stem}_2048.hdr"); im.file_format = "HDR"; im.save()
 el, az = g["el"], g["az"]
+# out= can be outside the repo (Kaggle writes to /kaggle/working), so record such paths as they are.
+rel = lambda p: str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
 write_json((env if "out" in KW else OUT) / f"panorama_log{'_' + hhmm if 'out' in KW else ''}.json", {
-    "file": str(full.relative_to(ROOT)), "file_2048": str((env / f"{stem}_2048.hdr").relative_to(ROOT)),
+    "file": rel(full), "file_2048": rel(env / f"{stem}_2048.hdr"),
     "preset": PRESET, "resolution": [W, W // 2], "samples": SAMPLES, "seconds": round(sec, 1),
     "near_cut_m": NEAR, "near_cut_objects": {"hidden": cut[0], "cut": cut[1]} if cut else None,
     "camera_app": [0.0, PAD + 150.0, 0.0], "centre_of_image_looks": "north (-z app)", "projection": "equirectangular",

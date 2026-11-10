@@ -213,6 +213,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--ke-green);
   .landing-sub { font-size: 10px; }
   .landing-pill { font-size: 12px; padding: 11px 14px; }
   .landing-mode .landing-venue { display: block; grid-column: 1 / -1; grid-row: 2; font-size: 13px; }
+  .landing-mode #landing-claim { max-width: calc(100% - 190px); bottom: 14px; left: 12px; }
   .landing-venue span { display: inline; margin-left: 8px; font-size: 11px; }
   .landing-mode #landing-controls { top: 12px; left: 12px; right: 12px; max-width: none; gap: 8px; padding: 10px; }
   #landing-controls label { flex: 1; }
@@ -225,3 +226,91 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--ke-green);
 }
 /* Full interface: keep the toggle in the top bar, clear of the layers panel. */
 body:not(.landing-mode) #landing-toggle { top: 7px; bottom: auto; right: 96px; padding: 6px 14px; box-shadow: none; }
+
+/* Tier-1 status and the mandatory vehicle claim stay visible over the poster and live scene. */
+#hero-status, #vehicle-claim { position: absolute; z-index: 4; left: 16px; max-width: calc(100% - 32px); padding: 5px 9px; background: rgba(249,247,241,.92); color: #333c37; border-radius: 4px; font-size: 12px; }
+#hero-status { top: 16px; }
+#hero-status:empty { display: none; }
+#hero-status button { margin-left: 6px; cursor: pointer; }
+#vehicle-claim { bottom: 70px; pointer-events: none; }
+#vehicle-claim[hidden] { display: none; }
+
+/* P4 uses the same stills in both interfaces. Center cover matches the camera fit. */
+#landing-still { object-position: 50% 50%; }
+.cycles-still #landing-still { opacity: 1; }
+.cycles-still-claim #landing-claim { display: block; position: absolute; z-index: 5; bottom: 18px; left: 18px; max-width: calc(100% - 36px); border-radius: 20px; padding: 7px 14px; background: #f5f1e8ed; font-size: 11px; }
+@media (prefers-reduced-motion: reduce) { #landing-still { transition: none; } }
+
+/* On-demand event controls and mandatory claims. */
+#modes .event-mode { white-space: nowrap; }
+#event-hud { position: absolute; z-index: 6; right: 16px; top: 145px; width: min(340px, calc(100% - 32px)); padding: 10px 12px; background: rgba(24,25,30,.93); color: #fff; border-radius: 5px; pointer-events: none; }
+#event-hud[hidden] { display: none; }
+#event-hud > div { font-size: 13px; font-variant-numeric: tabular-nums; }
+#event-hud p { margin: 6px 0 0; font-size: 11px; line-height: 1.4; }
+@media (max-width: 767px) { #event-hud { top: 108px; right: 12px; width: min(300px, calc(100% - 80px)); } }
+#hero-caption { position: absolute; z-index: 20; left: 16px; bottom: 60px; max-width: min(560px, calc(100% - 32px)); padding: 12px 16px; color: #fff; background: rgba(16, 23, 30, .9); border-left: 3px solid #c8ad75; font: 15px/1.4 system-ui, sans-serif; pointer-events: none; }
+#hero-caption[hidden], #hero-caption button[hidden] { display: none; }
+#hero-caption small { display: block; margin-top: 6px; font-size: 11px; line-height: 1.45; color: #e0e3e6; }
+#hero-caption button { margin-top: 8px; padding: 5px 12px; color: #fff; border: 1px solid #b3bcc5; border-radius: 3px; background: transparent; pointer-events: auto; }
+.hero-crossfade { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; z-index: 3; }
+.rain-control { display: flex; align-items: center; gap: 8px; margin: 8px 16px; font-size: 13px; }
+.landing-tour-actions { display: flex; gap: 8px; justify-self: end; }
+@media (max-width: 600px) { .landing-tour-actions .landing-pill { padding: 9px 10px; } #hero-caption { left: 12px; bottom: 64px; max-width: calc(100% - 24px); font-size: 13px; } }
+
+/* Modules menu (phase A). Native dialog: the backdrop blocks the scene, Escape closes it. */
+#modules-panel { width: min(440px, calc(100vw - 24px)); max-height: min(720px, calc(100dvh - 24px)); margin: auto; padding: 0 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); box-shadow: 0 12px 40px rgba(0,0,0,.25); overflow: auto; overscroll-behavior: contain; }
+#modules-panel::backdrop { background: rgba(20, 18, 15, .45); }
+#modules-panel .mm-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: 6px 6px 6px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+#modules-panel h2 { margin: 0; font-size: 16px; }
+#modules-panel h3 { margin: 14px 16px 6px; font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+#modules-panel ul { list-style: none; margin: 0; padding: 0 8px; }
+#modules-panel .mm-close { min-width: 44px; min-height: 44px; font-size: 16px; border-radius: 6px; }
+.mm-item { display: block; width: 100%; min-height: 44px; padding: 8px 10px; text-align: left; border-radius: 6px; overflow-wrap: anywhere; }
+button.mm-item:not(:disabled):hover { background: var(--panel-2); }
+button.mm-item:disabled { cursor: not-allowed; opacity: .6; }
+.mm-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.mm-name { font-weight: 600; }
+.mm-status { flex: none; font-size: 11px; padding: 1px 7px; border-radius: 9px; background: var(--panel-2); color: var(--ink-2); }
+.mm-status.mm-done { background: #dfeee3; color: var(--ke-green); }
+.mm-status.mm-planned { background: transparent; border: 1px dashed var(--ink-3); }
+.mm-claim, .mm-note { display: block; margin-top: 3px; font-size: 11px; line-height: 1.4; color: var(--ink-2); }
+.mm-note { color: var(--ink-3); }
+
+/* Touch targets and narrow screens (demo milestone task 3): every button and select is at least 44 x 44 px, and the
+   page never scrolls sideways. Strips that hold more than fits (top bar, view chips) scroll inside themselves. */
+button, select { min-height: 44px; }
+#mapctl > button, .sq, .seg button, #focusbar button.nav, #hero-caption button { min-width: 44px; }
+body { grid-template-rows: 56px 1fr 252px; }
+#topbar { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; gap: 10px; }
+@media (max-width: 1600px) { .brand-sub, .place, .sep, #topbar .venue { display: none; } }
+#topbar > * { flex: none; }
+.modes { padding: 0; }
+.date input { min-height: 44px; }
+#mapctl select, #mapctl > button, .seg { height: 44px; }
+.sq, #speed { height: 44px; }
+.sq { width: 44px; }
+.tabs button { padding: 10px 9px 12px; }
+.layer input[type=checkbox] { width: 24px; height: 24px; }
+.layer { grid-template-columns: 24px 30px 1fr 64px 34px; }
+#focusbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; max-width: calc(100% - 140px); padding: 2px 4px 6px; }
+#focusbar::-webkit-scrollbar { display: none; }
+#focusbar button { flex: none; white-space: nowrap; }
+#landing-controls select { min-height: 44px; }
+#landing-toggle { min-height: 44px; }
+/* Full interface: the landing toggle sits at the right end of the top bar, which leaves room for it. */
+body:not(.landing-mode) #landing-toggle { top: 6px; right: 12px; }
+body:not(.landing-mode) #topbar { padding-right: 150px; }
+/* The mandatory vehicle claim joins the claim line of the hero caption strip instead of hiding behind it. */
+#stage:has(#hero-caption:not([hidden])) #vehicle-claim { display: none; }
+#stage:has(#vehicle-claim:not([hidden])) #hero-caption small::after { content: " Vehicles · Visualization."; }
+@media (max-width: 900px) {
+  body { grid-template-rows: 56px 1fr 130px; }
+  #bottom { overflow: hidden; }
+}
+@media (max-width: 600px) {
+  #focusbar { left: 70px; right: 8px; transform: none; max-width: none; }
+  #claim { bottom: 66px; max-width: calc(100% - 28px); }
+  #scalebar { display: none; }
+  #track-ticks span:nth-child(even) { display: none; }
+  .landing-pill { min-width: 44px; }
+}

@@ -1,0 +1,94 @@
+"""16-sample previews of the interior (engineering/interior_plan_2026-10-26.md) from the planned chapter 3 and 4 camera
+points, in the hero_artistic day look of L07 (10:30, daylight_artistic), haze volume off.
+
+Run from the repo root (TALANTA_SITE_BLEND=$PWD/blender/out/frozen_FL_interior.blend):
+  blender -b --factory-startup --python-exit-code 1 --python blender/landing_reel/preview_interior.py -- <out_dir> <part>
+The poses come from blender/out/interior_build_log.json (the chapter 3 entry) until part 4 writes the chapter paths.
+Each pose: Blender position, Blender aim point, exposure change in EV. Internal check images only. People, vehicles
+and lighting are illustrative (Visualization).
+"""
+import json, math, sys, time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+ARGV = sys.argv[sys.argv.index("--") + 1:]
+out, PART = ROOT / ARGV[0], ARGV[1]
+ONLY = ARGV[2].split(",") if len(ARGV) > 2 else None  # pose names to render
+out.mkdir(parents=True, exist_ok=True)
+E = json.loads((ROOT / "blender/out/interior_build_log.json").read_text())["entry"]
+PAD, yF = E["pad"], E["floor_y_pad"]
+(px, pz), (nx, nz) = E["wall_point_app_xz"], E["normal_out"]
+tx, tz = -nz, nx  # tangent (app x, z)
+EYE = PAD + yF + 1.6
+Bp = lambda x, z, h: (x, -z, h)  # app (x, z) and Blender height -> Blender
+at_n = lambda n, t=0.0: (px + nx * n + tx * t, pz + nz * n + tz * t)
+POSES = {
+    "concourse": [
+        ("p1_outer_along", Bp(*at_n(5.6 + 1.0, 14.0), EYE), Bp(*at_n(5.6 + 1.5, 0.0), EYE - 0.3), 0.0),
+        ("p2_outer_to_entry", Bp(*at_n(5.6 + 4.8, 0.0), EYE), Bp(*at_n(-10.0), EYE - 0.6), 0.0),
+        ("p3_inner_from_entry", Bp(*at_n(-1.0), EYE), Bp(*at_n(-30.0), EYE - 3.0), 0.0),
+        ("p4_aisle_head", Bp(*at_n(-(E["r_wall"] - E["r_front"]) + 0.8), EYE), (0.0, 0.0, PAD + 2.0), 0.0),
+        ("p5_bowl_to_concourse", Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 11.0, -14.0), PAD + 12.0), Bp(*at_n(0.0), PAD + yF + 2.5), 0.0),
+    ],
+    "stand": "computed after the scene setup (heights by ray cast)",
+    "roof": "computed after the scene setup (heights by ray cast)",
+}[PART]
+
+src = (ROOT / "blender/render_cycles.py").read_text()
+head = src.split("t0 = time.time(); bpy.ops.render.render(write_still=True)")[0]
+sys.argv = [sys.argv[0], str(out.relative_to(ROOT)), "L07", "daylight_artistic", "hero_artistic"]
+g = {"__file__": str(ROOT / "blender/render_cycles.py"), "__name__": "render_cycles_setup"}
+exec(compile(head, "render_cycles.py (setup)", "exec"), g)
+import bpy
+from mathutils import Matrix, Vector
+s = bpy.context.scene
+hz = bpy.data.objects.get("haze_volume")  # haze volume off (the interior sits inside its box); passes from the main layer
+if hz is not None: hz.hide_render = True
+pl = s.view_layers.get("passes_no_haze")
+tree = s.compositing_node_group if hasattr(s, "compositing_node_group") else s.node_tree
+if pl is not None:
+    main_rl = next(n for n in tree.nodes if n.type == "R_LAYERS" and n.layer == s.view_layers[0].name)
+    for n in [n for n in tree.nodes if n.type == "R_LAYERS" and n.layer == pl.name]:
+        for o in n.outputs:
+            for lk in list(o.links): tree.links.new(main_rl.outputs[o.name], lk.to_socket)
+        tree.nodes.remove(n)
+    s.view_layers.remove(pl)
+s.cycles.samples = 16; s.render.resolution_x, s.render.resolution_y, s.render.resolution_percentage = 960, 540, 100
+s.render.use_persistent_data = True; s.render.image_settings.file_format = "PNG"
+cam = s.camera; ev0 = s.view_settings.exposure
+if PART in ("stand", "roof"):  # lap camera points: mid lower tier (t 0.19), 3 m above the stand surface, looking ahead and inwards
+    import numpy as np
+    G = json.loads((ROOT / "blender/out/bowl_rings.json").read_text()); N = G["N"]
+    TH = 2 * math.pi * np.arange(N + 1) / N
+    rof = lambda arr, th: float(np.interp(th % (2 * math.pi), TH, np.append(arr, arr[0])))
+    dg = bpy.context.evaluated_depsgraph_get()
+    def surf(x, y):
+        hit, loc, *_ = s.ray_cast(dg, Vector((x, y, PAD + 30.0)), Vector((0, 0, -1)))
+        return loc.z if hit else PAD
+    def lap(th, h=3.0, look=50.0, dn=10.0, t=0.19):
+        r = rof(G["rIn"], th) + (rof(G["rBack"], th) - rof(G["rIn"], th)) * t
+        x, z = math.cos(th) * r, math.sin(th) * r; zc = surf(x, -z) + h
+        a = th + math.pi / 2 + math.radians(look)  # direction of travel (increasing th) turned inwards
+        d = (math.cos(a), math.sin(a))
+        return Bp(x, z, zc), Bp(x + 20 * d[0], z + 20 * d[1], zc - 20 * math.tan(math.radians(dn)))
+    th_e = math.atan2(pz, px)
+    POSES = [("s1_lap_east", *lap(math.radians(10)), 0.0), ("s2_lap_south", *lap(math.radians(95)), 0.0),
+             ("s3_lap_north_low", *lap(math.radians(275), h=1.9, look=70, dn=6), 0.0),
+             ("s4_aisle_head_down", Bp(*at_n(-(E["r_wall"] - E["r_front"]) + 0.8, 1.5), EYE), Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 12.0, -3.0), PAD + 6.0), 0.0),
+             ("s5_seats_close", Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 0.3, 4.0), EYE - 0.3), Bp(*at_n(-(E["r_wall"] - E["r_front"]) - 5.0, 6.5), PAD + yF - 2.0), 0.0)]
+    if PART == "roof":  # the roof underside from the stands
+        pe, _ = lap(math.radians(10)); pw = lap(math.radians(190))[0]
+        POSES = [("r1_up_across", pe, (pw[0] * 0.6, pw[1] * 0.6, PAD + 42.0), 0.0),
+                 ("r2_up_overhead", pe, (pe[0] * 0.75, pe[1] * 0.75, pe[2] + 30.0), 0.0),
+                 ("r3_ch3_end_high", Bp(*at_n(-(E["r_wall"] - E["r_front"]) + 0.8), EYE), (-px * 0.5, pz * 0.5, PAD + 22.0), 0.0)]
+log = {"part": PART, "scene": str(Path(bpy.data.filepath).name), "samples": 16, "resolution": [960, 540], "frames": []}
+for name, pos, aim, dev in POSES:
+    if ONLY and name not in ONLY: continue
+    loc, tgt = Vector(pos), Vector(aim)
+    cam.matrix_world = Matrix.Translation(loc) @ (tgt - loc).to_track_quat("-Z", "Y").to_matrix().to_4x4()
+    s.view_settings.exposure = ev0 + dev
+    s.render.filepath = str(out / f"{PART}_{name}.png")
+    t0 = time.time(); bpy.ops.render.render(write_still=True); dt = round(time.time() - t0, 1)
+    log["frames"].append({"name": name, "pos": [round(x, 2) for x in pos], "aim": [round(x, 2) for x in aim], "ev": dev, "seconds": dt})
+    print("preview", name, dt, "s", flush=True)
+(out / f"preview_log_{PART}{'_' + '_'.join(ONLY) if ONLY else ''}.json").write_text(json.dumps(log, indent=1) + "\n")

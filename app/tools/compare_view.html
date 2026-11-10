@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Cycles bake comparison</title>
+<style>
+body { font: 15px system-ui; margin: 24px; background: #f4f1e9; color: #232923; }
+iframe { width: 1920px; height: 1080px; border: 0; }
+pre { white-space: pre-wrap; } button, select { font: inherit; padding: 8px; }
+</style>
+<h1>Cycles bake comparison</h1>
+<p>Software comparison. Start the app dev server, then open /tools/compare_view.html in Chromium.
+The frame is 1920 × 1080. The tool measures the canvas without interface overlays.</p>
+<p>The lead must review the rectangles in compare_rectangles.json against each reference.
+The target is a full-frame mean CIEDE2000 of 3 or less. CIEDE2000 measures perceived color difference.</p>
+<label>View <select id="view"><option>L06</option><option>L07</option></select></label>
+<button id="run">Measure before and after</button>
+<pre id="result">References must exist at /parity/ref_bake_L06.png and /parity/ref_bake_L07.png.
+The manifest must contain the measured look block.</pre>
+<iframe id="app" src="/?hero&amp;mode=full&amp;tier=high&amp;parity" title="Live twin, fixed reference dimensions"></iframe>
+<script type="module">
+import { meanColorDifference } from './colorDifference.mjs';
+const result = document.querySelector('#result'), button = document.querySelector('#run');
+const frame = document.querySelector('#app');
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+async function pixels(src) {
+  const image = new Image(); image.src = src; await image.decode();
+  if (image.naturalWidth !== 1920 || image.naturalHeight !== 1080) throw new Error(`Expected 1920 × 1080, received ${image.naturalWidth} × ${image.naturalHeight}`);
+  const canvas = document.createElement('canvas'); canvas.width = 1920; canvas.height = 1080;
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  context.drawImage(image, 0, 0); return context.getImageData(0, 0, 1920, 1080).data;
+}
+button.onclick = async () => {
+  button.disabled = true;
+  const report = { evidence: 'software', view: document.querySelector('#view').value, target: 3, results: {} };
+  let api;
+  try {
+    result.textContent = 'Waiting for the live app…';
+    const deadline = performance.now() + 180000;
+    while (!frame.contentWindow.__twin?.parity && performance.now() < deadline) await delay(200);
+    api = frame.contentWindow.__twin?.parity;
+    if (!api) throw new Error('Live app capture API did not become ready');
+    const rectangles = await fetch('./compare_rectangles.json').then((r) => r.json());
+    report.rectangles = rectangles[report.view]; report.rectangleNote = rectangles._comment;
+    const reference = await pixels(`/parity/ref_bake_${report.view}.png`);
+    // A 1:1 canvas avoids resampling the image used for the actual metric.
+    frame.contentWindow.__twin.parity.pixelRatio(1);
+    for (const [label, fallback] of [['before', true], ['after', false]]) {
+      result.textContent = `Preparing ${label}: ${report.view}…`;
+      const metadata = await api.prepare(report.view, fallback);
+      // Assets and panorama are awaited in prepare. Allow the camera, shader compilation,
+      // tree LOD and texture uploads to settle before the synchronous post-render capture.
+      await delay(2000);
+      const capture = await Promise.race([api.capture(), delay(20000).then(() => { throw new Error('Canvas capture timed out'); })]);
+      if (capture.error) throw new Error(capture.error);
+      if (!capture.pipeline) throw new Error('Grade pipeline failed; no valid comparison');
+      if (!fallback && !capture.measured) throw new Error('Measured curve is inactive');
+      const live = await pixels(capture.image);
+      report.results[label] = { ...metadata, full: meanColorDifference(live, reference, 1920, 1080) };
+      for (const [name, rect] of Object.entries(report.rectangles)) {
+        report.results[label][name] = meanColorDifference(live, reference, 1920, 1080, rect);
+      }
+    }
+    report.targetMet = report.results.after.full.mean <= 3;
+    result.textContent = JSON.stringify(report, null, 2);
+  } catch (error) { result.textContent = `${error}\n${JSON.stringify(report, null, 2)}`; }
+  finally { api?.finish(); button.disabled = false; }
+};
+</script>
+</html>

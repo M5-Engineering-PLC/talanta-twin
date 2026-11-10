@@ -10,6 +10,8 @@ at the front of the north-west middle tier, looking across the pitch. They are v
 
 Rendered from the seat count pass 01 build (61,039 places), 1920 x 1080, 128 samples: M01 neutral 851 s, M02 night 1,084 s.
 
+**Do not use M02 in a presentation until the night-lighting gap is corrected** (see Gaps: the pitch is under-lit at night).
+
 ## What is in it
 
 | PL rows | Built | Count |

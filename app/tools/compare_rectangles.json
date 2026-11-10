@@ -1,0 +1,5 @@
+{
+  "_comment": "Provisional normalized rectangles. The lead must check them on each ref_bake reference before using regional scores. The pitch can be occluded in an exterior view. Replace its rectangle with a visible pitch area, or report that region as unavailable.",
+  "L06": { "facade": [0.35, 0.45, 0.65, 0.58], "pitch": [0.46, 0.38, 0.54, 0.42], "sky": [0.1, 0.05, 0.9, 0.18] },
+  "L07": { "facade": [0.35, 0.48, 0.65, 0.6], "pitch": [0.46, 0.4, 0.54, 0.44], "sky": [0.1, 0.05, 0.9, 0.18] }
+}

@@ -1,0 +1,475 @@
+
+> talanta-twin@0.1.0 test
+> node --test tools/*.test.mjs
+
+✔ software showState preserves captured original show values (59.308ms)
+✔ software floodlight state matches the original inline formula for every lamp (30.9157ms)
+✔ software per-rib RGB agrees with documented TSL step/mix formula (33.7053ms)
+✔ software app instance buffers consume the shared state, including fixed viewer (400.0137ms)
+✔ software binary file round-trip, frame counts and byte offsets (707.3587ms)
+✔ software crowd attributes match the live instance attributes and reaction semantics (217.3341ms)
+SOFTWARE crowd seats=56972 first_y=1.2000000476837158
+✔ software exporter chooses app fallback and generates bowl parent coordinates without document (412.0289ms)
+✔ software CLI rejects invalid inputs and preserves requested sampling (20.4307ms)
+SOFTWARE seat parity count=56972 max_position_error_m=0.000005579400306560436 max_facing_error_deg=0.0000023506746629209374
+✔ software generateSeats matches every bowl instance position and facing (3128.0315ms)
+✔ software crowd seat channels survive a binary file round-trip (2799.8084ms)
+✔ CIEDE2000 matches Sharma reference pairs, including neutral and hue wrapping (11.3459ms)
+✔ sRGB uses D65 white, black and the sRGB transfer function (5.315ms)
+✔ full frame averages every pixel; rectangles exclude pixels outside their bounds (8.6205ms)
+fatal: Invalid path '/C:': No such file or directory
+✔ concertState is deterministic, JSON-safe and leaves the cues unchanged (1417.259ms)
+✔ the new parts exist in the state and keep the stage end (4.3243ms)
+✔ LED content follows the cues and the beat, with no text or image data (47.6495ms)
+✔ the floor crowd stays on the pitch, in front of the stage, and keeps the catwalk aisle clear (135.0399ms)
+✔ the floor crowd is denser near the stage (0.8831ms)
+✔ budget counts per tier and width (5.9339ms)
+✔ draw call and triangle estimate stays inside the budget (8.3404ms)
+✖ every file in public/concert has an entry in CREDITS.md and the size budget holds (10.5364ms)
+✖ no speaker model file or sofi frame is tracked or staged in the repository (470.856ms)
+✔ event state stays deterministic, JSON-safe, and leaves cue data unchanged (148.9104ms)
+✔ cue boundaries switch phases exactly and both timelines loop (27.7414ms)
+✔ concert counts follow tiers and the phone width boundary (10.2787ms)
+✔ concert places the stage south facing north and takes BPM from cues (8.0732ms)
+✔ football keeps 22 players plus one referee and the ball within the pitch except during the goal (1075.1644ms)
+✔ goal scores and reacts at 60 seconds at the north end and resets on the loop (6.8808ms)
+✔ playback fires one goal per crossing, supports seeking, and stops after disposal (13.0151ms)
+✔ software renderers consume state, apply the pitch frame, resize, and release roots (352.8317ms)
+✔ night-show entry excludes other events and cancels a stale asynchronous load (35.2963ms)
+✔ event crowd uses procedural seats and its own world-space root outside the full model (87.237ms)
+✔ an event that stops during a crowd import leaves no late crowd root (19.4478ms)
+✔ the landing Event dropdown lists both new events before scene data loads (11.1434ms)
+✔ real crowd API keeps fan positions, scale, and colors in the drawn seat frame (30.6298ms)
+✖ installs from a release tar, verifies every file and writes the app manifest (956.747ms)
+✖ a second run downloads nothing, and --check passes (1074.9538ms)
+✖ --check fails and names a changed file (1216.9067ms)
+✖ a corrupt file in the release is rejected and not installed (1091.167ms)
+✖ a file missing from the release fails the run (1139.2534ms)
+✔ --from a local folder with flat files and split parts, no gh call (1613.8208ms)
+✔ --from a folder that holds the bundle tree (1291.9764ms)
+✔ a manifest path outside models/, env/ or ground/ is refused (910.983ms)
+✔ ENV-01: tod sets, phone models and manifest_phone.json are installed from a --from tree (1248.9353ms)
+✖ ENV-01: a bundle without panorama logs gets its environment from the env files (579.6318ms)
+✔ the sequence uses its light sets in order, the start frame needs only 1805 (15.9035ms)
+✔ prepare learns the requested start time, also after a seek during loading (21.039ms)
+✔ the hero prepare step waits for one light set and fetches the rest when idle (25.5303ms)
+✔ a phone reads manifest_phone.json only and never falls back to the desktop models (308.2526ms)
+✔ blob follows a supplied surface matrix and switches off (49.2621ms)
+✔ blob is black with a radial alpha mask and opacity at most 0.35 (10.249ms)
+✔ blob shader uses local position rather than a missing UV attribute (16.1677ms)
+✔ day stays unchanged; dusk dims, warms and lights lamps continuously (24.2252ms)
+✔ night is continuous at midnight and returns to day at dawn (1.0229ms)
+✔ legacy dusk approximation selects only the listed 17:30 panorama (16.1947ms)
+✔ dusk/day restores material baselines after panorama conversion; vehicles toggle (39.8853ms)
+✔ L06/L07 include Cycles position, target and vertical field of view (15.5267ms)
+✔ capable desktop selects EXR then HDR fallback (25.6255ms)
+✔ phones, small GPUs and low memory select HDR (4.6425ms)
+✔ EXR entries work without file_exr and do not select another preset (1.5379ms)
+✔ without manifest.environment (v3 bundle) the base-time panorama comes from the file list (4.2689ms)
+hero tree impostors: { sources: 2, atlasBatches: 1 }
+hero tree impostors: { sources: 2, atlasBatches: 1 }
+hero tree impostors: { sources: 2, atlasBatches: 1 }
+✔ distance switch uses hysteresis (13.7882ms)
+✔ far trees share a draw call and switch individually (66.8775ms)
+✔ multi-material near LOD groups keep all primitives and compact colours (34.3806ms)
+✔ UV-less textured near trees get finite coordinates without changing the source geometry (32.3341ms)
+✔ desktop defaults to bake and hero stays supported (13.2904ms)
+✔ procedural wins over hero and phone consent (3.5796ms)
+✔ unsupported devices and failed loads retain fallback (6.3509ms)
+✔ phones require explicit full scene request (3.1775ms)
+✔ tier 1 waits for first view and idle before any download (1.909ms)
+✔ without idle callbacks a later timer starts tier 1 (2.4607ms)
+✔ manifest parsing rejects HTML even with status 200 or a misleading JSON content type (292.4382ms)
+✔ desktop and phone release manifests resolve the linked models and time sets (1769.0998ms)
+✔ compressed maps below one block are dropped and valid maps stay (8.3002ms)
+✔ hero state is deterministic in any seek order and clamps endpoints (38.1038ms)
+✔ all seven beats follow the required boundaries and captions stay short (8.5813ms)
+✔ eased camera segments have no jump larger than 3.5 metres per 1/30 second (158.4688ms)
+✔ reduced motion holds cameras and fades between holds, including the night city (12.7502ms)
+✔ rain and clouds occur only in beat five, with continuous wetness (118.4842ms)
+✔ the scripted match reaches the real goal cue and keeps its claim (10.8441ms)
+✔ crowd, match, facade and floodlights carry exact registry labels (56.396ms)
+✔ pose data references only the selected virtual views and fails on missing targets (6.062ms)
+✔ pointer, wheel, touch, any key and Escape stop playback and restore the host (14.003ms)
+✔ input during loading cancels autoplay before a late prepare completes (4.4481ms)
+✔ seeking freezes the requested frame and the final state stays still (9.2492ms)
+✔ failed preparation stops the player and allows a retry (20.0012ms)
+✔ software host adapter seeks match, restores controls and anchors crowd reaction time (312.1451ms)
+✔ synthetic input preserves seeks at 55 and 85 seconds (7.8093ms)
+✔ concurrent seeks share preparation and hold the latest requested time (4.179ms)
+✔ coarse tiles load first and nearest centres lead each level (23.1846ms)
+✔ northwest maps to image row zero for flipY=false KTX2 (43.7926ms)
+✖ linker mounts both manifests and resolves model fetch paths without changing bundle files (99.4335ms)
+✖ linker refuses any real destination before replacing an earlier symlink (33.404ms)
+✔ curve interpolates all 33 grey samples, midpoints and clamped ends (19.1813ms)
+✔ manifest replaces AgX and selects exposure independently for L06 and L07 (1.3715ms)
+✔ all compositor values replace estimates and the TSL graph accepts measured RGB gain (16.8909ms)
+✔ malformed look blocks fail instead of silently applying an invalid curve (4.1767ms)
+✔ menu groups follow the phase order and keep every non-security module once (31.3849ms)
+✔ every entry shows a claim label (5.2938ms)
+✔ planned entries show "Planned" and cannot be selected, even with an action (4.5966ms)
+✔ SEC- modules never appear (0.859ms)
+✔ actions parse to mode, event or hero and reject anything else (6.844ms)
+✔ registry actions are valid and wired to the expected controls (14.8591ms)
+✔ enabled entries are exactly the non-planned ones with an action (4.3329ms)
+Generated 56972 unique occupied seat places
+Minimum nearby origin spacing 0.497978 m
+✔ generator is deterministic and every generated seat has one fan at full fill (2978.3845ms)
+✔ no generated fan origins are closer than 0.45 m (2430.2007ms)
+✔ fill is exact after rounding, nested, clustered, and clamped (241.9957ms)
+✔ wave travels at the selected speed and wraps around the circumference (797.4263ms)
+✔ phones use only LOD1, cap the drawn fans, and preserve full occupancy on desktop (448.3417ms)
+✔ reactions, palettes, LOD selection, label, and disposal work through the public API (3423.8638ms)
+✗ Build failed in 56ms
+crowd-figures: 1 draw call, 2104 triangles/fan, 807936 triangles at 384 fans
+crowd-lod1: 1 draw call, 82 triangles/fan, 4888512 triangles at 59616 fans
+Software high-tier total: 5696448 triangles in 2 draw calls
+60000 fans: 0.002396 ms/update, Node v24.20.0; CPU only, no GPU rendering
+✖ crowd module bundles with its TSL imports (303.631ms)
+✔ report geometry budgets and CPU update timing for 60000 fans (1120.3981ms)
+56972 fan origins match drawn seats; maximum offset 0.020001 m; unit scale and pitch-facing yaw
+Seated figure height 1.410 m; torso base 0.491 m above tread
+✔ drawn bowl seats override fallback data and align all fan origins in bowl local space (9184.7428ms)
+✔ baked seated body fits a human scale above the tread (4.6326ms)
+Software asset result: 1994726 gzip bytes; LOD0 2104, LOD1 82 triangles
+✔ baked assets fit their dimensions, triangle budgets, and gzip budget (978.7696ms)
+✔ all required clip slots exist and the texture contains finite moving human positions (172.025ms)
+✔ human skin, shirts, trousers, scale, and motion vary per instance (240.4981ms)
+✔ high and medium bound detailed fans; low tier and phone width use LOD1 only (227.069ms)
+✔ standing figures stay inside rectangle and concave polygon in parent-local meters (466.2986ms)
+✔ hand-keyed wave returns to sitting and clap brings the hands together (28.8058ms)
+Software desktop ultra LOD0: 2 vertex buffers, 8 attributes, 384 fans
+Software desktop ultra LOD1: 3 vertex buffers, 12 attributes, 1216 fans
+Software desktop high LOD0: 2 vertex buffers, 8 attributes, 384 fans
+Software desktop high LOD1: 3 vertex buffers, 12 attributes, 1216 fans
+Software desktop medium LOD0: 2 vertex buffers, 8 attributes, 128 fans
+Software desktop medium LOD1: 3 vertex buffers, 12 attributes, 1472 fans
+Software desktop low LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+✔ desktop crowd fits eight vertex buffers and sixteen attributes at every tier (2741.8352ms)
+Software phone ultra LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+Software phone high LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+Software phone medium LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+Software phone low LOD1: 3 vertex buffers, 12 attributes, 1600 fans
+✔ phone crowd fits eight vertex buffers and sixteen attributes at every tier (851.8394ms)
+✔ phone animation file matches its JSON (12.9559ms)
+✔ phone file decodes and exposes only LOD1 (11.447ms)
+✔ phone loader path is chosen for phones and the low tier (4.3586ms)
+Software shader generation: seated high GLSL 7350 vertex source bytes
+Software shader generation: seated high WGSL 8300 vertex source bytes
+Software shader generation: seated low GLSL 7352 vertex source bytes
+Software shader generation: seated low WGSL 8302 vertex source bytes
+Software shader generation: standing high GLSL 8727 vertex source bytes
+Software shader generation: standing high WGSL 9778 vertex source bytes
+Software shader generation: standing low GLSL 8730 vertex source bytes
+Software shader generation: standing low WGSL 9781 vertex source bytes
+✔ seated and standing animation nodes generate GLSL and WGSL vertex texture reads (1696.5967ms)
+✔ every valid URL tier stays pinned in both behavior and the FPS readout (57.1695ms)
+✔ rain uses one instanced line draw and scales counts with the active tier (66.8627ms)
+✔ rain positions repeat on a backward seek and stay near the camera (10.2193ms)
+✔ wetness changes existing uniforms without a material replacement or version change (15.2725ms)
+✔ wetness works with specular-only baked node materials and dusk without cumulative tint (18.2369ms)
+✔ floodlight and shield uniforms advance then restore their baselines (11.5291ms)
+✔ overcast dims panoramas and restores background and fog without accumulation (11.0868ms)
+✔ overcast dome returns to its dry vertex colors (28.708ms)
+✔ generated palette matches the ledger values (85.7777ms)
+✔ regenerating the palette writes the same file (808.8291ms)
+✔ seeded tone and speckle shares follow the ledger rules and repeat exactly (690.8049ms)
+✔ seat placement matrices stay identical across builds (3640.3755ms)
+SOFTWARE width=390 {"SHW-03":{"drawCalls":1,"triangles":1600},"SHW-02":{"drawCalls":1,"triangles":9984},"SHW-01":{"drawCalls":1,"triangles":288}}
+SOFTWARE width=1280 {"SHW-03":{"drawCalls":1,"triangles":3840},"SHW-02":{"drawCalls":1,"triangles":9984},"SHW-01":{"drawCalls":1,"triangles":288}}
+✔ timeline orders cues and preserves overlaps with latest cue last (24.9585ms)
+✔ seek is deterministic across play, pause and loop (1.1119ms)
+✔ flag bands follow normalized rib angles (1.3768ms)
+✔ point counts, landings and phone limits (44.1519ms)
+✔ fallback V bays and merged facade geometry (68.3416ms)
+✔ software scene lifecycle and geometry budget report (718.0814ms)
+✔ drone formations stay above the forecourt in world space and face both landing cameras (668.4266ms)
+✔ show start holds original floodlights dark across applyTime writes and stop restores them (20.1176ms)
+✔ center cover fits 16:9, 21:9, 4:3 and 9:16 without distortion (16.3083ms)
+✔ both measured portrait crops project source features into the same image pixels (17.6044ms)
+✔ invalid viewport dimensions fail explicitly (23.1192ms)
+✔ nearest time on the 24 h circle (18.707ms)
+✔ hysteresis: no change near a boundary, change once the margin is passed (1.0454ms)
+✔ parseTod accepts a good file and rejects bad ones (23.0533ms)
+✔ applyLightmaps sets channel, colour space, intensity and returns the old textures (114.3817ms)
+✔ a group without a new texture keeps its material unchanged (1.0497ms)
+✔ ground gain sets the tile colour and the heroLighting baseline (0.6483ms)
+✔ setTime swaps maps, intensity, ground gain and panorama in one step; the base textures survive (16.7982ms)
+✔ the base time reuses the GLB textures and keeps the base panorama (9.3898ms)
+✔ a time without panorama in tod.json uses the base-time panorama manifest (7.454ms)
+✔ a failed load keeps the current set and warns once (21.9781ms)
+✔ phone keeps at most two sets and disposes the replaced one (20.9007ms)
+✔ without manifest.tod the module is inert (0.6886ms)
+✔ PNG size and decode, luminance of a grey map (62.4183ms)
+✔ ground gain is the ratio of the mean ground light (maps x light_scale) (12.3022ms)
+✔ checkAgainstBase refuses a group or size mismatch (3.5838ms)
+✔ presets, codec rules and encoded sizes follow the bundle mode (4.4266ms)
+✔ validateTod and panoramaNames (6.8055ms)
+✔ tod dry run prints the plan, ground_tile_gain, and writes nothing (934.4508ms)
+✔ tod mode refuses a set with another map size or group list (exit 2) and a wrong preset (2443.3235ms)
+✔ reindex lists the tod sets in the manifests and checks sha256 (764.1033ms)
+✔ image size check: KTX2 header size, sides must be multiples of 4 (3.3689ms)
+✔ ultra is explicit and automatic detection never selects it (15.3756ms)
+✔ converted baked materials carry the mask flag and retain their lighting (26.4903ms)
+✔ ultra URL uses an allowlist, supports none, all, and explicit exclusions (676.9226ms)
+✔ all effects off returns to the unchanged high chain before allocating resources (27.1445ms)
+✔ the actual MRT mask emits one for baked materials and suppresses their entire GI term (10.0603ms)
+✔ real ultra graph selects one AO source and disables scene MSAA for TRAA (230.5901ms)
+✔ unsupported WebGL-only selection returns the unchanged high path without resources (5.3206ms)
+✔ IES profile parses and installs at most eight shadowless lights from the show data (172.1453ms)
+✔ explicit ultra and high URL tiers remain pinned (10.9009ms)
+✔ render failure restores renderer state and renders the scene instead of throwing (48.5856ms)
+✔ ultra suppresses other spotlights during its frame and restores them afterward (24.6126ms)
+✔ LUT preserves neutral endpoints and has monotonic equal channels (19.4011ms)
+probox: 652 triangles
+premio: 652 triangles
+vitz: 652 triangles
+prado: 652 triangles
+hilux: 676 triangles
+Nganya model load failed; box proxies stay active. TypeError: Failed to parse URL from ./vehicles/nganya/scene.gltf
+    at new Request (node:internal/deps/undici/undici:12074:19)
+    at FileLoader.load (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/three/build/three.core.js:45108:15)
+    ... 6 lines matching cause stack trace ...
+    at Test.postRun (node:internal/test_runner/test:1537:19)
+    at Test.run (node:internal/test_runner/test:1462:12) {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:840:25)
+      at new Request (node:internal/deps/undici/undici:12072:25)
+      at FileLoader.load (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/three/build/three.core.js:45108:15)
+      at GLTFLoader.load (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/three/examples/jsm/loaders/GLTFLoader.js:320:10)
+      at buildTraffic (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/src/hero/traffic.js:252:24)
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/vehicles.test.mjs:39:19)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19) {
+    code: 'ERR_INVALID_URL',
+    input: './vehicles/nganya/scene.gltf'
+  }
+}
+✔ probox dimensions and parts (164.4801ms)
+✔ premio dimensions and parts (43.2269ms)
+✔ vitz dimensions and parts (52.1701ms)
+✔ prado dimensions and parts (30.4766ms)
+✔ hilux dimensions and parts (25.0165ms)
+✔ traffic switches between detailed cars and box cars by camera distance (479.3298ms)
+✔ P4 shows only after arrival, snaps time, fades in for 0.6s and releases after 0.3s (40.9678ms)
+✔ first wheel/key input cancels a pending decode without reviving the still (4.4845ms)
+✔ reduced motion shows and dismisses without a fade (7.1081ms)
+✔ tour/parity/event guard prevents the still and the time snap (6.5632ms)
+ℹ tests 192
+ℹ suites 0
+ℹ pass 181
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19771.3291
+
+✖ failing tests:
+
+test at tools\concert.test.mjs:89:1
+✖ every file in public/concert has an entry in CREDITS.md and the size budget holds (10.5364ms)
+  Error: ENOENT: no such file or directory, open 'C:\C:\Users\nenem\.codex\worktrees\talanta-m1-candidate\app\public\concert\CREDITS.md'
+      at readFileSync (node:fs:484:20)
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/concert.test.mjs:90:19)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\C:\\Users\\nenem\\.codex\\worktrees\\talanta-m1-candidate\\app\\public\\concert\\CREDITS.md'
+  }
+
+test at tools\concert.test.mjs:107:1
+✖ no speaker model file or sofi frame is tracked or staged in the repository (470.856ms)
+  Error: Command failed: git ls-files --cached --others --exclude-standard -- /C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/public/concert/
+  fatal: Invalid path '/C:': No such file or directory
+  
+      at genericNodeError (node:internal/errors:986:15)
+      at wrappedFn (node:internal/errors:540:14)
+      at checkExecSyncError (node:child_process:942:11)
+      at execFileSync (node:child_process:978:15)
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/concert.test.mjs:108:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12) {
+    status: 128,
+    signal: null,
+    output: [ null, '', "fatal: Invalid path '/C:': No such file or directory\n" ],
+    pid: 19324,
+    stdout: '',
+    stderr: "fatal: Invalid path '/C:': No such file or directory\n"
+  }
+
+test at tools\fetch_assets.test.mjs:81:1
+✖ installs from a release tar, verifies every file and writes the app manifest (956.747ms)
+  AssertionError [ERR_ASSERTION]: fetch-assets: test_bundle: 0 of 7 files already installed and verified
+  fetch-assets: cannot read release test_bundle on M5-Engineering-PLC/talanta-twin (spawnSync C:\Users\nenem\AppData\Local\Temp\fetch-assets-jFC1yM\gh ENOENT). Is it published, and is gh logged in?
+  
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/fetch_assets.test.mjs:84:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools\fetch_assets.test.mjs:97:1
+✖ a second run downloads nothing, and --check passes (1074.9538ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/fetch_assets.test.mjs:99:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools\fetch_assets.test.mjs:107:1
+✖ --check fails and names a changed file (1216.9067ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/fetch_assets.test.mjs:109:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools\fetch_assets.test.mjs:116:1
+✖ a corrupt file in the release is rejected and not installed (1091.167ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /models\/talanta_hero\.glb: sha256/. Input:
+  
+  'fetch-assets: test_bundle: 0 of 7 files already installed and verified\n' +
+    'fetch-assets: cannot read release test_bundle on M5-Engineering-PLC/talanta-twin (spawnSync C:\\Users\\nenem\\AppData\\Local\\Temp\\fetch-assets-Qnisre\\gh ENOENT). Is it published, and is gh logged in?\n'
+  
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/fetch_assets.test.mjs:122:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'fetch-assets: test_bundle: 0 of 7 files already installed and verified\nfetch-assets: cannot read release test_bundle on M5-Engineering-PLC/talanta-twin (spawnSync C:\\Users\\nenem\\AppData\\Local\\Temp\\fetch-assets-Qnisre\\gh ENOENT). Is it published, and is gh logged in?\n',
+    expected: /models\/talanta_hero\.glb: sha256/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tools\fetch_assets.test.mjs:127:1
+✖ a file missing from the release fails the run (1139.2534ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /ground\/tiles\.json: not found/. Input:
+  
+  'fetch-assets: test_bundle: 0 of 7 files already installed and verified\n' +
+    'fetch-assets: cannot read release test_bundle on M5-Engineering-PLC/talanta-twin (spawnSync C:\\Users\\nenem\\AppData\\Local\\Temp\\fetch-assets-loSX4h\\gh ENOENT). Is it published, and is gh logged in?\n'
+  
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/fetch_assets.test.mjs:133:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'fetch-assets: test_bundle: 0 of 7 files already installed and verified\nfetch-assets: cannot read release test_bundle on M5-Engineering-PLC/talanta-twin (spawnSync C:\\Users\\nenem\\AppData\\Local\\Temp\\fetch-assets-loSX4h\\gh ENOENT). Is it published, and is gh logged in?\n',
+    expected: /ground\/tiles\.json: not found/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tools\fetch_assets.test.mjs:199:1
+✖ ENV-01: a bundle without panorama logs gets its environment from the env files (579.6318ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/fetch_assets.test.mjs:203:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools\linkBundle.test.mjs:12:1
+✖ linker mounts both manifests and resolves model fetch paths without changing bundle files (99.4335ms)
+  Error: EPERM: operation not permitted, symlink 'C:\missing\old\models' -> 'C:\Users\nenem\AppData\Local\Temp\talanta-links-PnPqdC\models'
+      at async Object.symlink (node:internal/fs/promises:1707:10)
+      at async TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/linkBundle.test.mjs:16:3)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    errno: -4048,
+    code: 'EPERM',
+    syscall: 'symlink',
+    path: 'C:\\missing\\old\\models',
+    dest: 'C:\\Users\\nenem\\AppData\\Local\\Temp\\talanta-links-PnPqdC\\models'
+  }
+
+test at tools\linkBundle.test.mjs:31:1
+✖ linker refuses any real destination before replacing an earlier symlink (33.404ms)
+  Error: EPERM: operation not permitted, symlink 'C:\old\models' -> 'C:\Users\nenem\AppData\Local\Temp\talanta-refuse-5L6G9Q\models'
+      at async Object.symlink (node:internal/fs/promises:1707:10)
+      at async TestContext.<anonymous> (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/tools/linkBundle.test.mjs:33:3)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -4048,
+    code: 'EPERM',
+    syscall: 'symlink',
+    path: 'C:\\old\\models',
+    dest: 'C:\\Users\\nenem\\AppData\\Local\\Temp\\talanta-refuse-5L6G9Q\\models'
+  }
+
+test at tools\people.test.mjs:118:1
+✖ crowd module bundles with its TSL imports (303.631ms)
+  Could not resolve entry module "../../../../../../C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/src/people/index.js".
+      at getRollupError (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/rollup/dist/es/shared/parseAst.js:319:41)
+      at error (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/rollup/dist/es/shared/parseAst.js:315:42)
+      at ModuleLoader.loadEntryModule (file:///C:/Users/nenem/.codex/worktrees/talanta-m1-candidate/app/node_modules/rollup/dist/es/shared/node-entry.js:22771:20)
+      at async Promise.all (index 0) {
+    code: 'UNRESOLVED_ENTRY'
+  }

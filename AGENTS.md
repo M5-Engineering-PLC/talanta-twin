@@ -23,3 +23,7 @@ This repository holds the reference data and build work for a three.js digital t
 7. Crowd and evacuation visuals are visualizations, not validated safety simulations. Label them that way.
 8. Do not add security-sensitive detail (exits, camera positions, control rooms) to a public demo.
 9. Many agents share this repository. Work on a branch. Do not rewrite history on main.
+
+## Commit ownership
+
+The person who runs the session owns every commit, PR, and comment. Commit with their own git identity. Do not add an AI co-author trailer, a "Generated with" line, or an author override. The full rule is in `.claude/rules/commit-ownership.md`.
