@@ -8,6 +8,8 @@ Start here on a new device or with a new agent: HANDOFF.md.
 
 Current demo completion steps: [Completion plan, 2026-11-09](engineering/completion_plan_2026-11-09.md).
 
+Direction change on 2026-11-10 (hyper-realistic build, fold into main): [Work order, 2026-11-10](engineering/workorder_hyperreal_main_2026-11-10.md).
+
 
 
 Build a detailed three.js digital twin of Talanta Stadium (Raila Odinga Talanta Stadium, Nairobi). Use it as a showcase of M5 3D work and pitch it to the Ministry of Sports, Sports Kenya and the AFCON 2027 organizers.
