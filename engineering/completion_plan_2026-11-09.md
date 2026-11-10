@@ -148,6 +148,9 @@ Crowd and show claims remain visible. Internal reference images and security-sen
 
 ## Handoff
 
+On 2026-11-10 Munene changed the direction. Read `engineering/workorder_hyperreal_main_2026-11-10.md` with this plan. It adds the hyper-realistic phases and changes the merge timing of step 7.
+
+
 Start with step 1. Preserve local and origin implementations until their differences are resolved.
 Keep Kaggle deferred until Munene resumes it.
 Update the completion record after each step, with evidence paths and the tested commit.
