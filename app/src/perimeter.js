@@ -43,6 +43,8 @@ try {
   renderer.render(scene, camera);
   controls.addEventListener('change', () => renderer.render(scene, camera));
   const claim = document.querySelector('#event-claim');
+  const matchScore = document.createElement('p'); matchScore.hidden = true; matchScore.setAttribute('aria-live', 'polite');
+  claim.after(matchScore);
   const buttons = [...document.querySelectorAll('[data-mode]')];
   const peopleControls = document.querySelector('#people-controls');
   if (peopleReview) document.querySelector('[data-mode=people]').hidden = false;
@@ -65,10 +67,40 @@ try {
       fetch('./data/manifest.json').then(r => { if (!r.ok) throw new Error(`Venue data: ${r.status}`); return r.json(); }),
     ]);
     const install = mode === 'football' ? module.installMatch : module.installConcert;
-    return install({ scene, bearing: data.features.pitch_bearing_deg, pad: data.features.site_pad_y,
-      tier: innerWidth < 700 ? 'low' : 'medium', width: innerWidth,
-      ...(mode === 'football' && matchReview ? { prototypePlayers: true } : {}),
-      ...(mode === 'concert' && concertReview ? { prototypePerformer: true } : {}) });
+    let crowd, reactionHost;
+    if (mode === 'football') {
+      const [{ installSeatedCrowd }, { matchCrowdSeats, matchReactionHost }] = await Promise.all([import('./people/index.js'), import('./events/match-crowd.js')]);
+      crowd = installSeatedCrowd({ scene, camera, renderer, heroGroup: loaded.group,
+        quality: { tier: 'low', width: innerWidth, seats: matchCrowdSeats(loaded.group) } });
+      try { await crowd.ready; crowd.setPalette('#f2f4ed', '#19824f'); reactionHost = matchReactionHost(crowd, module.match_cues[0].params.goalTime); }
+      catch (error) { crowd.dispose(); throw error; }
+    }
+    try {
+      const event = install({ scene, camera, bearing: data.features.pitch_bearing_deg, pad: data.features.site_pad_y,
+        tier: innerWidth < 700 ? 'low' : 'medium', width: innerWidth,
+        ...(crowd ? { getCrowd: () => reactionHost, onState: frame => {
+          if (selected !== 'football') return;
+          const teams = matchReview ? ['Harambee Stars', 'Spain'] : ['Home', 'Away'];
+          const text = `Illustrative · ${teams[0]} ${frame.score[0]} – ${frame.score[1]} ${teams[1]} · ${frame.phase}`;
+          if (matchScore.textContent !== text) matchScore.textContent = text;
+          if (pitchSide) {
+            const pitch = scene.getObjectByName('SPT-01');
+            if (pitch) {
+              const [x, , z] = frame.ball.position;
+              camera.position.copy(pitch.localToWorld(new THREE.Vector3(x + 14, 8, z + 12)));
+              controls.target.copy(pitch.localToWorld(new THREE.Vector3(x, 1, z)));
+              controls.update();
+            }
+          }
+        } } : {}),
+        ...(mode === 'football' && matchReview ? { prototypePlayers: true } : {}),
+        ...(mode === 'concert' && concertReview ? { prototypePerformer: true } : {}) });
+      if (!crowd) return event;
+      const { attachMatchCrowd } = await import('./events/match-crowd.js');
+      const match = attachMatchCrowd(event, crowd);
+      if (matchReview) match.seek(30); // Start with the choreographed attack in possession.
+      return match;
+    } catch (error) { crowd?.dispose(); throw error; }
   } });
   const claims = { venue: '', football: 'Illustrative football and crowd visualization; not validated safety, capacity or crowd-flow evidence.',
     concert: 'Illustrative event concept and crowd visualization; installed equipment and operational feasibility are not confirmed.',
@@ -78,6 +110,8 @@ try {
     const mode = button.dataset.mode, version = ++selection; selected = mode;
     for (const b of buttons) b.setAttribute('aria-pressed', String(b === button));
     claim.textContent = claims[mode];
+    matchScore.hidden = mode !== 'football';
+    if (mode === 'football') matchScore.textContent = 'Loading illustrative match…';
     if (mode === 'football' && matchReview) {
       const notice = document.createElement('a');
       notice.href = './__talanta_match_review/LICENSE.md';
@@ -92,7 +126,8 @@ try {
     }
     peopleControls.hidden = mode !== 'people';
     if (mode !== 'people') delete window.__peopleReview;
-    controls.minDistance = mode === 'people' ? 2 : 35;
+    if (mode !== 'football') delete window.__matchReview;
+    controls.minDistance = mode === 'people' || (mode === 'football' && pitchSide) ? 2 : 35;
     if (mode === 'people') { camera.position.set(35, 10, 2.4); controls.target.set(41.5, 9.1, .7); controls.update(); }
     else if (mode === 'football' || mode === 'concert') { camera.position.set(0, 80, 65); controls.target.set(0, 6, 0); controls.update(); }
     else if (mode === 'drone') { camera.position.set(200, 155, -380); controls.target.set(0, 90, -140); controls.update(); }
@@ -100,6 +135,7 @@ try {
     scene.background.set(mode === 'drone' ? '#182331' : '#d4dce1');
     try { await modes.select(mode); if (version === selection) {
       if (mode === 'people') { window.__peopleReview = modes.active; }
+      if (mode === 'football' && matchReview) window.__matchReview = modes.active;
       if (mode === 'concert' && concertReview) {
         modes.active?.seek(18);
         const stage = scene.getObjectByName('EVT-01');
@@ -108,15 +144,6 @@ try {
           const wide = params.has('concert-wide');
           camera.position.copy(stage.localToWorld(wide ? new THREE.Vector3(-31, 15, 8) : new THREE.Vector3(-4, 4, 28)));
           controls.target.copy(stage.localToWorld(new THREE.Vector3(0, 2.6, 37)));
-          controls.update();
-        }
-      }
-      if (mode === 'football' && pitchSide) {
-        const pitch = scene.getObjectByName('SPT-01');
-        if (pitch) {
-          controls.minDistance = 2;
-          camera.position.copy(pitch.localToWorld(new THREE.Vector3(14, 2.2, 7)));
-          controls.target.copy(pitch.localToWorld(new THREE.Vector3(9, 1.15, 2)));
           controls.update();
         }
       }
