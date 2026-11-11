@@ -90,9 +90,9 @@ export function crowdTier(quality, width = 1024) {
 }
 
 // Keep detailed fans near the viewer. Each nonempty batch uses one draw call.
-export function partitionCrowd(seats, picked, tier, camera, distance = 60) {
+export function partitionCrowd(seats, picked, tier, camera, distance = 60, nearLimit) {
   if (tier === 'low') return [[], picked];
-  const limit = tier === 'high' ? 384 : 128;
+  const limit = nearLimit ?? (tier === 'high' ? 384 : 128);
   const nearby = picked.map(i => ({ i, d: Math.hypot(seats[i].x - camera.x, seats[i].y - camera.y, seats[i].z - camera.z) }))
     .filter(s => s.d < distance).sort((a, b) => a.d - b.d).slice(0, limit).map(s => s.i);
   const near = new Set(nearby);

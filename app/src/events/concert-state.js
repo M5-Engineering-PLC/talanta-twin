@@ -17,7 +17,7 @@ export const FLOOR = { xMin: -31, xMax: 31, zFront: 38.5, zBack: -32, zSplitA: 2
 export const PART_COST = {
   stageModel: { draws: 4, triangles: 20760 }, trussModel: { draws: 2, triangles: 24480 }, bstageModel: { draws: 1, triangles: 6452 },
   tile: { triangles: 876 }, fixture: { triangles: 1803 }, beam: { triangles: 12 }, bar: { triangles: 12 }, speaker: { triangles: 12 },
-  figureLod1: 82, backdrop: 256, wing: 192,
+  figureLod0: 2104, figureLod1: 82, backdrop: 256, wing: 192,
 };
 
 const BUDGETS = {
@@ -28,7 +28,7 @@ const BUDGETS = {
 // "crowd" is the standing floor crowd count. It keeps that name for the host and the older tests.
 export function concertBudget(tier = 'high', width = 1024) {
   const base = BUDGETS[tier] ?? BUDGETS.low, phone = width < 768;
-  return { crowd: phone ? Math.floor(base.floor / 2) : base.floor, heads: phone ? 8 : base.heads, lights: 0,
+  return { nearPerZone: phone ? 0 : tier === 'high' ? 48 : tier === 'medium' ? 16 : 0, crowd: phone ? Math.floor(base.floor / 2) : base.floor, heads: phone ? 8 : base.heads, lights: 0,
     tiles: phone ? Math.min(base.tiles, 12) : base.tiles, bars: phone ? Math.min(base.bars, 8) : base.bars,
     cabinets: phone ? Math.min(base.cabinets, 8) : base.cabinets };
 }
@@ -36,11 +36,11 @@ export function concertBudget(tier = 'high', width = 1024) {
 export function concertCost(budget = concertBudget()) {
   const c = PART_COST;
   const draws = c.stageModel.draws + c.trussModel.draws + c.bstageModel.draws + 2 /* tiles: face, frame */ + 2 /* fixtures, beams */
-    + 1 /* light bars */ + 1 /* speakers */ + 3 /* backdrop, two wings */ + 4 /* floor crowd zones */ + 1 /* performer */ + 2 /* catwalk, thrust */;
-  // Standing fans use the 82 triangle figure only: the people module has no camera hook for standing crowds.
+    + 1 /* light bars */ + 1 /* speakers */ + 3 /* backdrop, two wings */ + (budget.nearPerZone ? 8 : 4) /* floor crowd batches */ + 1 /* performer */ + 2 /* catwalk, thrust */;
+  const nearFans = Math.min(budget.crowd, 4 * (budget.nearPerZone ?? 0));
   const triangles = c.stageModel.triangles + c.trussModel.triangles + c.bstageModel.triangles + budget.tiles * c.tile.triangles
     + budget.heads * (c.fixture.triangles + c.beam.triangles) + budget.bars * c.bar.triangles + 2 * budget.cabinets * c.speaker.triangles
-    + c.backdrop + 2 * c.wing + (budget.crowd + 1) * c.figureLod1 + 24;
+    + c.backdrop + 2 * c.wing + (budget.crowd - nearFans) * c.figureLod1 + (nearFans + 1) * c.figureLod0 + 24;
   return { draws, triangles };
 }
 

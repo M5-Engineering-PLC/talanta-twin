@@ -646,7 +646,7 @@ async function startEvent(mode, version) {
     stopLiveClock(); stopPlay(); state.minutes = mode === 'concert' ? 1200 : 1050;
     const timeControl = $('#landing-time'); if (timeControl) timeControl.value = String(state.minutes);
     const install = mode === 'concert' ? module.installConcert : module.installMatch;
-    liveEvent = install({ scene, bearing: F.pitch_bearing_deg, pad: PAD, tier,
+    liveEvent = install({ scene, camera, bearing: F.pitch_bearing_deg, pad: PAD, tier,
       getCrowd: () => crowd,
       onState(frame) {
         const clock = `${Math.floor(frame.time)} / ${frame.duration} s`;

@@ -59,7 +59,7 @@ function normalise(groups, size) {
   for (const g of groups.flat()) g.applyMatrix4(m);
 }
 
-export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', width = globalThis.innerWidth ?? 1024, getCrowd, onState, prototypePerformer = false, loadModels = Boolean(globalThis.document) }) {
+export function installConcert({ scene, camera, bearing = 0, pad = 0, tier = 'high', width = globalThis.innerWidth ?? 1024, getCrowd, onState, prototypePerformer = false, loadModels = Boolean(globalThis.document) }) {
   const root = eventRoot(scene, bearing, pad, 'EVT-01');
   let budget = concertBudget(tier, width), currentTier = tier, dead = false, clock = 0, standing = [], performer = null, reviewPerformer = null;
   const initial = concertState(concert_cues, 0, budget);
@@ -123,8 +123,8 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
     const before = knownLabels();
     for (const zone of concertState(concert_cues, 0, budget).floor.zones) {
       if (!zone.count) continue;
-      standing.push(installStandingCrowd({ parent: root, area: { polygon: zone.polygon, y: .12, facing_deg: 0 }, count: zone.count,
-        quality: { tier: currentTier, width, farDistance: 0 } }));
+      standing.push(installStandingCrowd({ parent: root, camera, area: { polygon: zone.polygon, y: .12, facing_deg: 0 }, count: zone.count,
+        quality: { tier: currentTier, width, nearLimit: budget.nearPerZone } }));
     }
     performer?.dispose();
     const p = initial.performer;

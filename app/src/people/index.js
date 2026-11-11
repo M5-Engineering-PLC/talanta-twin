@@ -101,7 +101,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     if (dead || !crowdAssets()) return;
     clearMeshes();
     const picked = selectSeats(seats, fill, tier() === 'low' ? 767 : width(), order);
-    const batches = partitionCrowd(seats, picked, tier(), cameraPosition(), config.farDistance ?? 60);
+    const batches = partitionCrowd(seats, picked, tier(), cameraPosition(), config.farDistance ?? 60, config.nearLimit);
     lastCamera.copy(localCamera);
     const colors = [new THREE.Color(home), new THREE.Color(away), new THREE.Color('#ded9cc'), new THREE.Color('#292934')];
     for (const [lod, indices] of batches.entries()) {
@@ -238,9 +238,9 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
 }
 
 // Ground positions use the same figure, texture, controls, and claim label.
-export function installStandingCrowd({ parent, area, count, quality = 'high', colours = {} }) {
+export function installStandingCrowd({ parent, camera, area, count, quality = 'high', colours = {} }) {
   const places = standingPlaces(area, count);
-  const crowd = installSeatedCrowd({ scene: parent, quality: { ...(typeof quality === 'object' ? quality : { tier: quality }),
+  const crowd = installSeatedCrowd({ scene: parent, camera, quality: { ...(typeof quality === 'object' ? quality : { tier: quality }),
     seats: places, standing: true } });
   crowd.group.name = 'standing-crowd';
   const home = Array.isArray(colours) ? colours[0] : colours.home;
