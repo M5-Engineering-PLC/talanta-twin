@@ -9,7 +9,7 @@ from mathutils import Matrix, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from prototype_skin import skin_variant
-from prototype_kits import kit_variant
+from prototype_kits import PALETTES, kit_variant
 
 
 AVATARS = ("Female_Adult_01", "Male_Adult_01")
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stage", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("--kits", nargs=2, choices=("kenya-white", "kenya-red", "spain-red"))
+    parser.add_argument("--kits", nargs=2, choices=PALETTES)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     scene, _ = create_scene(args.stage, args.kits or (None, None))
     args.output.mkdir(parents=True, exist_ok=True)

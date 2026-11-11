@@ -21,7 +21,7 @@ function releaseAssets(assets) {
 
 export async function loadMatchReview(root) {
   const loader = new GLTFLoader();
-  const files = ['kenya-white.glb', 'spain-red.glb'];
+  const files = ['kenya-white.glb', 'spain-red.glb', 'referee-black.glb'];
   const results = await Promise.allSettled(files.map(file => loader.loadAsync(base + file)));
   const assets = results.filter(result => result.status === 'fulfilled').map(result => result.value);
   const group = new THREE.Group();
@@ -53,12 +53,12 @@ export async function loadMatchReview(root) {
       });
       return { scene, idle, sprint };
     });
-    for (let i = 0; i < 22; i++) {
-      const { scene, idle, sprint } = teams[Number(i >= 11)];
+    for (let i = 0; i < 23; i++) {
+      const { scene, idle, sprint } = teams[i === 22 ? 2 : Number(i >= 11)];
       const model = clone(scene);
       model.position.x = -scene.children[0].position.x;
       const player = new THREE.Group();
-      player.name = i < 11 ? 'Harambee Stars' : 'Spain';
+      player.name = i === 22 ? 'Referee' : i < 11 ? 'Harambee Stars' : 'Spain';
       player.add(model);
       group.add(player);
       const mixer = new THREE.AnimationMixer(model);
@@ -72,7 +72,7 @@ export async function loadMatchReview(root) {
 
   return {
     draw(state) {
-      for (const actor of state.players) {
+      for (const actor of [...state.players, state.referee]) {
         const entry = players[actor.id];
         const { player, mixer, idle, sprint } = entry;
         player.position.set(...actor.position);

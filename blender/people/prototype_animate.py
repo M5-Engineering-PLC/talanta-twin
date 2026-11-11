@@ -7,6 +7,7 @@ import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from prototype_scene import create_scene
+from prototype_kits import PALETTES
 from retarget import retarget_actions
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -15,7 +16,7 @@ parser.add_argument("animation", type=Path)
 parser.add_argument("output", type=Path)
 parser.add_argument("--stills", type=Path, help="Render one sample frame from each clip")
 parser.add_argument("--sprint", action="store_true", help="Include the football locomotion clip")
-parser.add_argument("--kits", nargs=2, choices=("kenya-white", "kenya-red", "spain-red"),
+parser.add_argument("--kits", nargs=2, choices=PALETTES,
                     default=("kenya-white", "spain-red"))
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
 

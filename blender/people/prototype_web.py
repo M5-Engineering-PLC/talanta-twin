@@ -7,6 +7,7 @@ import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from prototype_scene import AVATARS, create_scene
+from prototype_kits import PALETTES
 
 
 def reduce_mesh(mesh, triangle_budget):
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     parser.add_argument("stage", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--animated-blend", type=Path)
-    parser.add_argument("--kits", nargs=2, choices=("kenya-white", "kenya-red", "spain-red"))
+    parser.add_argument("--kits", nargs=2, choices=PALETTES)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     if args.animated_blend:
         bpy.ops.wm.open_mainfile(filepath=str(args.animated_blend))

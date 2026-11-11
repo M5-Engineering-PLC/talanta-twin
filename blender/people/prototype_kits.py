@@ -4,6 +4,13 @@ import numpy as np
 
 from prototype_skin import polygon
 
+PALETTES = {
+    "kenya-white": ((.89, .90, .87), (.07, .33, .16)),
+    "kenya-red": ((.68, .08, .12), (.06, .29, .13)),
+    "spain-red": ((.72, .055, .11), (.95, .70, .12)),
+    "referee-black": ((.085, .095, .105), (.48, .51, .53)),
+}
+
 
 def kit_variant(image, material, kit):
     width, height = image.size
@@ -23,12 +30,7 @@ def kit_variant(image, material, kit):
         shirt = ((x >= 167) & (x <= 345) & (y > 13) & (y < 444))
         shirt |= (side < 157) & (y >= 237) & (y < 307)
         trim = (side < 157) & (y > 292) & (y < 307)
-    palettes = {
-        "kenya-white": ((.89, .90, .87), (.07, .33, .16)),
-        "kenya-red": ((.68, .08, .12), (.06, .29, .13)),
-        "spain-red": ((.72, .055, .11), (.95, .70, .12)),
-    }
-    main, accent = palettes[kit]
+    main, accent = PALETTES[kit]
     rgb = pixels[:, :, :3]
     value = rgb.mean(axis=2)
     shade = np.clip(.72 + value * .42, .72, 1.12)

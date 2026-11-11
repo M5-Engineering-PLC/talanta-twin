@@ -8,15 +8,13 @@ export function installMatch({ scene, bearing = 0, pad = 0, getCrowd, onState, p
   const root = eventRoot(scene, bearing, pad, 'SPT-01');
   const fallback = prototypePlayers ? new THREE.Group() : root;
   if (prototypePlayers) root.add(fallback);
-  const actors = figures(fallback, prototypePlayers ? 22 : 23);
-  const referee = prototypePlayers ? figures(root, 1) : null;
+  const actors = figures(fallback, 23);
   let review, disposed = false;
   const ball = new THREE.Mesh(new THREE.IcosahedronGeometry(.22, 1), new THREE.MeshBasicMaterial({ color: '#ffffff' })); root.add(ball);
   const player = playback({ cues: match_cues, sample: t => matchState(match_cues, t), getCrowd, onState,
     draw(state) {
       if (review) review.draw(state);
-      else actors.draw(referee ? state.players : [...state.players, state.referee]);
-      referee?.draw([state.referee]);
+      else actors.draw([...state.players, state.referee]);
       ball.position.set(...state.ball.position);
       ball.rotation.set(state.ball.phase, 0, state.ball.phase * .5);
     },

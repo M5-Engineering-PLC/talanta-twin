@@ -30,11 +30,14 @@ def main():
     parser.add_argument("spain", type=Path)
     parser.add_argument("license", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--referee", type=Path)
     args = parser.parse_args()
     sources = {"kenya-white": args.kenya, "spain-red": args.spain}
+    if args.referee:
+        sources["referee-black"] = args.referee
     entries = {role: check_asset(path) for role, path in sources.items()}
-    if entries["kenya-white"]["sha256"] == entries["spain-red"]["sha256"]:
-        raise ValueError("The two kit variants must use different assets")
+    if len({entry["sha256"] for entry in entries.values()}) != len(entries):
+        raise ValueError("Each match kit must use a different asset")
     notice = args.license.read_bytes()
     if b"Copyright (c) 2020 Microsoft" not in notice or b"MIT License" not in notice:
         raise ValueError("Missing Rocketbox MIT notice")
@@ -45,7 +48,7 @@ def main():
     (args.output / "LICENSE.md").write_bytes(notice)
     (args.output / "manifest.json").write_text(
         json.dumps({"players": entries}, indent=2) + "\n", encoding="utf-8")
-    print("Staged two match kits with standing and sprint clips")
+    print(f"Staged {len(entries)} match kits with standing and sprint clips")
 
 
 if __name__ == "__main__":
