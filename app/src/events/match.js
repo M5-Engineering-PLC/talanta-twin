@@ -3,6 +3,7 @@ import { match_cues } from './cues.js';
 import { matchState } from './match-state.js';
 import { eventRoot, release, figures } from './draw.js';
 import { playback } from './playback.js';
+import { footballGeometry } from './football.js';
 export { matchState, match_cues };
 export function installMatch({ scene, bearing = 0, pad = 0, getCrowd, onState, prototypePlayers = false }) {
   const root = eventRoot(scene, bearing, pad, 'SPT-01');
@@ -10,7 +11,9 @@ export function installMatch({ scene, bearing = 0, pad = 0, getCrowd, onState, p
   if (prototypePlayers) root.add(fallback);
   const actors = figures(fallback, 23);
   let review, disposed = false;
-  const ball = new THREE.Mesh(new THREE.IcosahedronGeometry(.22, 1), new THREE.MeshBasicMaterial({ color: '#ffffff' })); root.add(ball);
+  const ball = new THREE.Mesh(footballGeometry(), new THREE.MeshBasicMaterial({ vertexColors: true }));
+  ball.name = 'match-ball';
+  root.add(ball);
   const player = playback({ cues: match_cues, sample: t => matchState(match_cues, t), getCrowd, onState,
     draw(state) {
       if (review) review.draw(state);
