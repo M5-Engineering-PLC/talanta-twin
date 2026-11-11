@@ -59,9 +59,9 @@ function normalise(groups, size) {
   for (const g of groups.flat()) g.applyMatrix4(m);
 }
 
-export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', width = globalThis.innerWidth ?? 1024, getCrowd, onState, loadModels = Boolean(globalThis.document) }) {
+export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', width = globalThis.innerWidth ?? 1024, getCrowd, onState, prototypePerformer = false, loadModels = Boolean(globalThis.document) }) {
   const root = eventRoot(scene, bearing, pad, 'EVT-01');
-  let budget = concertBudget(tier, width), currentTier = tier, dead = false, clock = 0, standing = [], performer = null;
+  let budget = concertBudget(tier, width), currentTier = tier, dead = false, clock = 0, standing = [], performer = null, reviewPerformer = null;
   const initial = concertState(concert_cues, 0, budget);
   const led = ledUniforms();
   const dark = new THREE.MeshBasicMaterial({ color: '#1c1d24' }), steel = new THREE.MeshBasicMaterial({ color: '#7e8797' });
@@ -131,6 +131,7 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
     performer = installStandingCrowd({ parent: root, area: { x: p.position[0] - .3, z: p.position[2] - .3, width: .6, depth: .6, y: p.position[1], facing_deg: p.facing_deg },
       count: 1, quality: { tier: currentTier, width, farDistance: 100 } });
     performer.group.name = 'concert-performer';
+    performer.group.visible = !reviewPerformer;
     // The host already shows one Visualization label. Remove the extra ones.
     for (const label of knownLabels()) if (!before.has(label)) label.remove();
   }
@@ -150,6 +151,7 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
 
   const player = playback({ cues: concert_cues, sample: t => concertState(concert_cues, t, budget), getCrowd: () => everyone, onState,
     draw(state) {
+      reviewPerformer?.draw(state.beat);
       updateLed(led, state);
       state.lights.forEach((l, i) => {
         dummy.position.set(...l.position); dummy.scale.setScalar(1); direction.set(...l.target).sub(dummy.position);
@@ -163,7 +165,7 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
       heads.instanceMatrix.needsUpdate = beams.instanceMatrix.needsUpdate = true;
       heads.instanceColor.needsUpdate = beams.instanceColor.needsUpdate = true;
     },
-    dispose() { dead = true; for (const crowd of [...standing, performer]) crowd?.dispose(); standing = []; performer = null; release(root); },
+    dispose() { dead = true; reviewPerformer?.dispose(); for (const crowd of [...standing, performer]) crowd?.dispose(); standing = []; performer = null; release(root); },
   });
 
   // Optimised models load after the first frame. A failure keeps the procedural stand-ins.
@@ -190,6 +192,19 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
     tileGeometry = { face, frame }; buildStatic();
     const fixture = mergeConcertGeometry(collect(light)); normalise([[fixture]], [.9, 1.1, .9]);
     headGeometry = fixture; buildMoving(); player.redraw();
+  }
+  if (prototypePerformer) {
+    import('./concert-review.js').then(({ loadConcertPerformer }) => {
+      if (!dead) return loadConcertPerformer(root, initial.performer);
+    }).then(instance => {
+      if (!instance) return;
+      if (dead) { instance.dispose(); return; }
+      reviewPerformer = instance;
+      performer.group.visible = false;
+      player.redraw();
+    }).catch(error => {
+      if (!dead) console.warn('Concert review performer unavailable:', error);
+    });
   }
   if (loadModels) loadAll().catch(error => console.warn('Concert models unavailable, using stand-ins:', error));
 

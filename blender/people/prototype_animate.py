@@ -16,11 +16,12 @@ parser.add_argument("animation", type=Path)
 parser.add_argument("output", type=Path)
 parser.add_argument("--stills", type=Path, help="Render one sample frame from each clip")
 parser.add_argument("--sprint", action="store_true", help="Include the football locomotion clip")
-parser.add_argument("--kits", nargs=2, choices=PALETTES,
+parser.add_argument("--dance", action="store_true", help="Include the concert performer clip")
+parser.add_argument("--kits", nargs=2, choices=(*PALETTES, "casual"),
                     default=("kenya-white", "spain-red"))
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
 
-scene, avatars = create_scene(args.stage, args.kits)
+scene, avatars = create_scene(args.stage, tuple(None if kit == "casual" else kit for kit in args.kits))
 before = set(bpy.data.objects)
 bpy.ops.import_scene.gltf(filepath=str(args.animation))
 source_objects = set(bpy.data.objects) - before
@@ -29,6 +30,8 @@ source, = (obj for obj in source_objects if obj.type == "ARMATURE")
 clips = ("Idle_Loop", "Sitting_Idle_Loop")
 if args.sprint:
     clips += ("Sprint_Loop",)
+if args.dance:
+    clips += ("Dance_Loop",)
 rig_actions = []
 for rig, _ in avatars:
     actions = retarget_actions(source, rig, clips)

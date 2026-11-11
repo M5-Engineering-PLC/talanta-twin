@@ -10,6 +10,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 function localCharacterReviews() {
   const routes = new Map([
     ['/__talanta_people_review/', { dir: 'app/.local-people-review', files: ['Female_Adult_01.glb', 'Male_Adult_01.glb'] }],
+    ['/__talanta_concert_review/', { dir: 'app/.local-people-review/concert', files: ['performer.glb', 'LICENSE.md'] }],
     ['/__talanta_match_review/', { dir: 'app/.local-people-review/match', files: ['kenya-white.glb', 'spain-red.glb', 'referee-black.glb', 'LICENSE.md'] }],
   ]);
   return { name: 'local-character-reviews', configureServer(server) {
@@ -42,6 +43,7 @@ export default defineConfig(({ command }) => ({
         main: path.join(repoRoot, 'app/index.html'),
         perimeter: path.join(repoRoot, 'app/perimeter.html'),
         fullSite: path.join(repoRoot, 'app/full-site.html'),
+        siteGallery: path.join(repoRoot, 'app/site-gallery.html'),
       },
     },
   },

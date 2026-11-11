@@ -22,6 +22,8 @@ for name in ("Female_Adult_01", "Male_Adult_01"):
         required = {"Idle_Loop", "Sitting_Idle_Loop"}
         if "--sprint" in sys.argv:
             required.add("Sprint_Loop")
+        if "--dance" in sys.argv:
+            required.add("Dance_Loop")
         assert required <= clips.keys()
         for clip_name in sorted(required):
             clip = clips[clip_name]

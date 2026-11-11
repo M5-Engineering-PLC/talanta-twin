@@ -9,6 +9,7 @@ const full = params.has('full');
 const peopleReview = import.meta.env.DEV && params.has('people-review');
 const matchReview = import.meta.env.DEV && params.has('match-review');
 const pitchSide = matchReview && params.has('pitch-side');
+const concertReview = import.meta.env.DEV && params.has('concert-review');
 if (full) document.querySelector('strong').textContent = 'Talanta Twin · Full site comparison';
 
 try {
@@ -66,7 +67,8 @@ try {
     const install = mode === 'football' ? module.installMatch : module.installConcert;
     return install({ scene, bearing: data.features.pitch_bearing_deg, pad: data.features.site_pad_y,
       tier: innerWidth < 700 ? 'low' : 'medium', width: innerWidth,
-      ...(mode === 'football' && matchReview ? { prototypePlayers: true } : {}) });
+      ...(mode === 'football' && matchReview ? { prototypePlayers: true } : {}),
+      ...(mode === 'concert' && concertReview ? { prototypePerformer: true } : {}) });
   } });
   const claims = { venue: '', football: 'Illustrative football and crowd visualization; not validated safety, capacity or crowd-flow evidence.',
     concert: 'Illustrative event concept and crowd visualization; installed equipment and operational feasibility are not confirmed.',
@@ -82,6 +84,12 @@ try {
       notice.textContent = 'Rocketbox license';
       claim.append(' Harambee Stars vs. Spain kit study. ', notice);
     }
+    if (mode === 'concert' && concertReview) {
+      const notice = document.createElement('a');
+      notice.href = './__talanta_concert_review/LICENSE.md';
+      notice.textContent = 'Rocketbox license';
+      claim.append(' ', notice);
+    }
     peopleControls.hidden = mode !== 'people';
     if (mode !== 'people') delete window.__peopleReview;
     controls.minDistance = mode === 'people' ? 2 : 35;
@@ -92,6 +100,17 @@ try {
     scene.background.set(mode === 'drone' ? '#182331' : '#d4dce1');
     try { await modes.select(mode); if (version === selection) {
       if (mode === 'people') { window.__peopleReview = modes.active; }
+      if (mode === 'concert' && concertReview) {
+        modes.active?.seek(18);
+        const stage = scene.getObjectByName('EVT-01');
+        if (stage) {
+          controls.minDistance = 2;
+          const wide = params.has('concert-wide');
+          camera.position.copy(stage.localToWorld(wide ? new THREE.Vector3(-31, 15, 8) : new THREE.Vector3(-4, 4, 28)));
+          controls.target.copy(stage.localToWorld(new THREE.Vector3(0, 2.6, 37)));
+          controls.update();
+        }
+      }
       if (mode === 'football' && pitchSide) {
         const pitch = scene.getObjectByName('SPT-01');
         if (pitch) {
