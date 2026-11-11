@@ -18,3 +18,8 @@ test('unknown modes do not install and errors leave no active instance', async (
   await assert.rejects(controller.select('drone'), /offline/);
   controller.update(.2);
 });
+
+test('the local people review can be selected and removed', async () => {
+  const calls = []; const c = createModeController({ load: async mode => ({ update: () => {}, dispose: () => calls.push(mode) }) });
+  await c.select('people'); await c.select('venue'); assert.deepEqual(calls, ['people']);
+});

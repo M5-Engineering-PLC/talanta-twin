@@ -4,7 +4,10 @@ import { loadHero } from './hero/loadHero.js';
 import { createModeController } from './perimeterModes.js';
 
 const status = document.querySelector('#status');
-const full = new URLSearchParams(location.search).has('full');
+const params = new URLSearchParams(location.search);
+const full = params.has('full');
+const peopleReview = params.has('people-review');
+const matchReview = params.has('match-review');
 if (full) document.querySelector('strong').textContent = 'Talanta Twin · Full site comparison';
 
 try {
@@ -39,8 +42,14 @@ try {
   controls.addEventListener('change', () => renderer.render(scene, camera));
   const claim = document.querySelector('#event-claim');
   const buttons = [...document.querySelectorAll('[data-mode]')];
+  const peopleControls = document.querySelector('#people-controls');
+  if (peopleReview) document.querySelector('[data-mode=people]').hidden = false;
   let selected = 'venue', selection = 0;
   const modes = createModeController({ async load(mode) {
+    if (mode === 'people') {
+      const { installPeopleReview } = await import('./peopleReview.js');
+      return installPeopleReview({ scene, hero: loaded.group });
+    }
     if (mode === 'drone') {
       const { installShows } = await import('./shows/index.js');
       const show = installShows({ scene, camera, renderer, heroGroup: loaded.group });
@@ -55,21 +64,33 @@ try {
     ]);
     const install = mode === 'football' ? module.installMatch : module.installConcert;
     return install({ scene, bearing: data.features.pitch_bearing_deg, pad: data.features.site_pad_y,
-      tier: innerWidth < 700 ? 'low' : 'medium', width: innerWidth });
+      tier: innerWidth < 700 ? 'low' : 'medium', width: innerWidth,
+      ...(mode === 'football' && matchReview ? { prototypePlayers: true } : {}) });
   } });
   const claims = { venue: '', football: 'Illustrative football and crowd visualization; not validated safety, capacity or crowd-flow evidence.',
     concert: 'Illustrative event concept and crowd visualization; installed equipment and operational feasibility are not confirmed.',
-    drone: 'Illustrative show concept; installed equipment and operational feasibility are not confirmed.' };
+    drone: 'Illustrative show concept; installed equipment and operational feasibility are not confirmed.',
+    people: 'Local prototype review: two modeled figures; seating and fit are not validated.' };
   for (const button of buttons) button.addEventListener('click', async () => {
     const mode = button.dataset.mode, version = ++selection; selected = mode;
     for (const b of buttons) b.setAttribute('aria-pressed', String(b === button));
     claim.textContent = claims[mode];
-    if (mode === 'football' || mode === 'concert') { camera.position.set(0, 80, 65); controls.target.set(0, 6, 0); controls.update(); }
+    peopleControls.hidden = mode !== 'people';
+    if (mode !== 'people') delete window.__peopleReview;
+    controls.minDistance = mode === 'people' ? 2 : 35;
+    if (mode === 'people') { camera.position.set(35, 10, 2.4); controls.target.set(41.5, 9.1, .7); controls.update(); }
+    else if (mode === 'football' || mode === 'concert') { camera.position.set(0, 80, 65); controls.target.set(0, 6, 0); controls.update(); }
     else if (mode === 'drone') { camera.position.set(200, 155, -380); controls.target.set(0, 90, -140); controls.update(); }
     else { camera.position.set(410, 280, 440); controls.target.set(0, 15, 0); controls.update(); }
     scene.background.set(mode === 'drone' ? '#182331' : '#d4dce1');
-    try { await modes.select(mode); if (version === selection) renderer.render(scene, camera); }
-    catch (error) { if (version === selection) { claim.textContent = 'This mode could not load. Select it to retry.'; console.warn('Mode unavailable:', error); } }
+    try { await modes.select(mode); if (version === selection) {
+      if (mode === 'people') { window.__peopleReview = modes.active; }
+      renderer.render(scene, camera);
+    } }
+    catch (error) { if (version === selection) { claim.textContent = mode === 'people' ? 'Local character files are unavailable. Export the prototype files and retry.' : 'This mode could not load. Select it to retry.'; console.warn('Mode unavailable:', error); } }
+  });
+  for (const button of peopleControls.querySelectorAll('[data-pose]')) button.addEventListener('click', () => {
+    if (selected === 'people' && modes.active?.setPose) { modes.active.setPose(button.dataset.pose); renderer.render(scene, camera); }
   });
   let previous = performance.now();
   function animate(now) {

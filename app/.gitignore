@@ -11,3 +11,6 @@ public/ground
 public/models
 .fetch-cache/
 public/perimeter/
+
+# Local prototype review assets must not enter a production build.
+.local-people-review/
