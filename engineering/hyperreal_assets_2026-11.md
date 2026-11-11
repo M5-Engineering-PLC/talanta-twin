@@ -48,3 +48,13 @@ The files below were downloaded to local staging on 2026-11-10. Their byte count
 | `Assets/Avatars/Adults/Male_Adult_01/Textures/m002_head_color.tga` | 12,582,956 | `f5b64e4894930d438f7c419c3c9d0bba1f95fa4de9af078b762ea55bfca1ab85` |
 | `Assets/Avatars/Adults/Male_Adult_01/Textures/m002_head_normal.tga` | 12,582,956 | `5ef5ae404c9276f17641e392d0d4bdbe5fb23e94f28238b23a381e6a357c42ea` |
 | `Assets/Avatars/Adults/Male_Adult_01/Textures/m002_opacity_color.tga` | 16,777,260 | `53818d3f45519451edd2bc60d6e59cd4057ecd381827463c5503da0439d0a5cf` |
+
+## Cast and football kits — 2026-11-11
+
+Munene approved keeping the two shortlisted Rocketbox body models and asked for Black characters. Author a range of natural dark skin tones on the shared Blender source. Apply the skin material to exposed skin so clothing, eyes, teeth and other surfaces retain their intended colors. Use the resulting characters for spectators, performers, players and referees across both outputs.
+
+Use Harambee Stars versus Spain kits for the football visualization. Give a subset of the spectators Kenya jerseys. Use distinct player, goalkeeper and referee colors so the teams and officials read clearly. Confirm the reference kit designs and record any crest, sponsor or supplier marks separately before shipping them. Review the skin and kits in the Cycles and browser close shots.
+
+Use the white Kenya variant with green and black trim against Spain's red home jersey so both teams are distinct. Use Kenya red and green shirts in the stands. References are the [FKF store](https://footballkenya.org/store), [Kenya kit launch coverage](https://www.pulsesports.co.ke/story/harambee-stars-unveil-stylish-new-jersey-ahead-of-2025-africa-cup-of-nations-qualifiers-2024082813163955779) and [Spain home kit](https://www.adidas.com/us/spain-26-home-jersey/JN4390.html).
+
+The local Cycles rest-pose render verified the two skin variants on the original rigs. The web geometry check measured 5,900 triangles per rig and 860,860 bytes combined. Animation and kit geometry are still under development.
