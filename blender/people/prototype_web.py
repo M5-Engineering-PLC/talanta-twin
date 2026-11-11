@@ -57,10 +57,11 @@ if __name__ == "__main__":
     parser.add_argument("stage", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--animated-blend", type=Path)
+    parser.add_argument("--kits", nargs=2, choices=("kenya-white", "kenya-red", "spain-red"))
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     if args.animated_blend:
         bpy.ops.wm.open_mainfile(filepath=str(args.animated_blend))
         avatars = [(bpy.data.objects[name], bpy.data.objects[f"{name}_Mesh"]) for name in AVATARS]
     else:
-        _, avatars = create_scene(args.stage)
+        _, avatars = create_scene(args.stage, args.kits or (None, None))
     export_avatars(avatars, args.output, animated=bool(args.animated_blend))

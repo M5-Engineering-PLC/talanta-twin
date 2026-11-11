@@ -9,12 +9,13 @@ from mathutils import Matrix, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from prototype_skin import skin_variant
+from prototype_kits import kit_variant
 
 
 AVATARS = ("Female_Adult_01", "Male_Adult_01")
 
 
-def texture(material, path, socket, *, normal=False, alpha=False):
+def texture(material, path, socket, *, normal=False, alpha=False, kit=None):
     tree = material.node_tree
     shader = next(node for node in tree.nodes if node.type == "BSDF_PRINCIPLED")
     image = bpy.data.images.load(str(path), check_existing=True)
@@ -23,6 +24,8 @@ def texture(material, path, socket, *, normal=False, alpha=False):
     node.label = path.name
     if socket == "Base Color" and not alpha:
         image = skin_variant(image, material.name)
+    if kit and material.name.endswith("_body") and socket == "Base Color":
+        image = kit_variant(image, material.name, kit)
     node.image = image
     if normal:
         decoder = tree.nodes.new("ShaderNodeNormalMap")
@@ -34,7 +37,7 @@ def texture(material, path, socket, *, normal=False, alpha=False):
         tree.links.new(node.outputs["Alpha"], shader.inputs["Alpha"])
 
 
-def import_avatar(stage, name):
+def import_avatar(stage, name, kit=None):
     source = stage / "Assets" / "Avatars" / "Adults" / name
     before = set(bpy.data.objects)
     bpy.ops.import_scene.fbx(filepath=str(source / "Export" / f"{name}.fbx"), use_anim=False)
@@ -53,7 +56,7 @@ def import_avatar(stage, name):
         shader.inputs["Roughness"].default_value = 0.58
         maps = source / "Textures"
         opacity = material.name.endswith("_opacity")
-        texture(material, maps / f"{material.name}_color.tga", "Base Color", alpha=opacity)
+        texture(material, maps / f"{material.name}_color.tga", "Base Color", alpha=opacity, kit=kit)
         if not opacity:
             texture(material, maps / f"{material.name}_normal.tga", "Normal", normal=True)
     return rig, mesh
@@ -76,12 +79,12 @@ def aim(obj, point):
     obj.rotation_euler = (Vector(point) - obj.location).to_track_quat("-Z", "Y").to_euler()
 
 
-def create_scene(stage):
+def create_scene(stage, kits=(None, None)):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
     avatars = []
-    for name, x in zip(AVATARS, (-0.82, 0.82)):
-        rig, mesh = import_avatar(stage, name)
+    for name, x, kit in zip(AVATARS, (-0.82, 0.82), kits):
+        rig, mesh = import_avatar(stage, name, kit)
         face_camera(rig, mesh, x)
         avatars.append((rig, mesh))
 
@@ -126,8 +129,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stage", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--kits", nargs=2, choices=("kenya-white", "kenya-red", "spain-red"))
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
-    scene, _ = create_scene(args.stage)
+    scene, _ = create_scene(args.stage, args.kits or (None, None))
     args.output.mkdir(parents=True, exist_ok=True)
     scene.render.filepath = str(args.output / "rocketbox-10m-rest.png")
     bpy.ops.wm.save_as_mainfile(filepath=str(args.output / "rocketbox-10m-rest.blend"))
