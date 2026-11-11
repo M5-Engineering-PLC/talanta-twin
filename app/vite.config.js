@@ -7,20 +7,24 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // Local H1 study assets are never copied from public/ into the production build.
-function localPeopleReview() {
-  const files = new Set(['Female_Adult_01.glb', 'Male_Adult_01.glb']);
-  const prefix = '/__talanta_people_review/';
-  return { name: 'local-people-review', configureServer(server) {
+function localCharacterReviews() {
+  const routes = new Map([
+    ['/__talanta_people_review/', { dir: 'app/.local-people-review', files: ['Female_Adult_01.glb', 'Male_Adult_01.glb'] }],
+    ['/__talanta_match_review/', { dir: 'app/.local-people-review/match', files: ['kenya-white.glb', 'spain-red.glb', 'referee-black.glb', 'LICENSE.md'] }],
+  ]);
+  return { name: 'local-character-reviews', configureServer(server) {
     server.middlewares.use(async (req, res, next) => {
       const url = new URL(req.url, 'http://localhost');
-      if (!url.pathname.startsWith(prefix)) return next();
+      const route = [...routes].find(([prefix]) => url.pathname.startsWith(prefix));
+      if (!route) return next();
+      const [prefix, { dir, files }] = route;
       const name = url.pathname.slice(prefix.length);
-      if (!files.has(name)) { res.writeHead(404); res.end(); return; }
-      const file = path.join(repoRoot, 'app/.local-people-review', name);
+      if (!files.includes(name)) { res.writeHead(404); res.end(); return; }
+      const file = path.join(repoRoot, dir, name);
       try {
         const info = await stat(file);
         if (!info.isFile()) throw new Error('not a file');
-        res.writeHead(200, { 'Content-Type': 'model/gltf-binary', 'Content-Length': info.size, 'Cache-Control': 'no-store' });
+        res.writeHead(200, { 'Content-Type': name.endsWith('.glb') ? 'model/gltf-binary' : 'text/plain; charset=utf-8', 'Content-Length': info.size, 'Cache-Control': 'no-store' });
         createReadStream(file).on('error', () => res.destroy()).pipe(res);
       } catch { res.writeHead(404); res.end('Local prototype asset unavailable'); }
     });
@@ -28,7 +32,7 @@ function localPeopleReview() {
 }
 
 export default defineConfig(({ command }) => ({
-  plugins: command === 'serve' ? [localPeopleReview()] : [],
+  plugins: command === 'serve' ? [localCharacterReviews()] : [],
   base: './',
   build: {
     target: 'es2022',

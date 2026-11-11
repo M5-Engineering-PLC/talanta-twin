@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
 import { release } from './draw.js';
 
-const base = './perimeter/match-review/';
+const base = './__talanta_match_review/';
 
 function releaseAssets(assets) {
   const textures = new Set();

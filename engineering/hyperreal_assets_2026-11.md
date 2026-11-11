@@ -66,3 +66,9 @@ The free [Quaternius Universal Animation Library](https://quaternius.itch.io/uni
 The prototype scripts in blender/people build a standalone Blender scene, render the clip stills, and export a skinned GLB per character. Use prototype_viewer.html in the export directory for the two-character web review. It measures neither crowd scale nor phone performance. The current kit study uses the existing garment shapes. Production matchwear, seated placement, the broader cast, and crowd instancing still need implementation and venue review.
 
 The corrected two-clip bake passed 80 upper-arm and forearm direction checks across both rigs and both clips. Cycles produced both 10 m stills. Both exported GLBs retained the two joint animation clips and skinned UV geometry. The two files total 1,169,388 bytes. The seating review still needs actual bowl seat placement and contact checks.
+
+## Match review in the stadium
+
+The private development preview loads the Kenya, Spain and referee variants when Football is selected with the match-review query option. The pitch-side query option places the review camera near the centre circle. Stage the three GLBs and MIT notice in app/.local-people-review/match with blender/people/stage_match.py. Use npm run dev from app and open /?match-review=1&pitch-side=1. The dev server serves only the named local files and production builds exclude them.
+
+The pitch-side Chrome capture shows the three kit colors and sprint poses on the turf. All three assets loaded after Football was selected. The two team kits still use the original garment geometry. The ball and player paths are scripted independently, and this shot does not verify foot planting, ball contact or device performance.

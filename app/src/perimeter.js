@@ -6,8 +6,9 @@ import { createModeController } from './perimeterModes.js';
 const status = document.querySelector('#status');
 const params = new URLSearchParams(location.search);
 const full = params.has('full');
-const peopleReview = params.has('people-review');
-const matchReview = params.has('match-review');
+const peopleReview = import.meta.env.DEV && params.has('people-review');
+const matchReview = import.meta.env.DEV && params.has('match-review');
+const pitchSide = matchReview && params.has('pitch-side');
 if (full) document.querySelector('strong').textContent = 'Talanta Twin · Full site comparison';
 
 try {
@@ -75,6 +76,12 @@ try {
     const mode = button.dataset.mode, version = ++selection; selected = mode;
     for (const b of buttons) b.setAttribute('aria-pressed', String(b === button));
     claim.textContent = claims[mode];
+    if (mode === 'football' && matchReview) {
+      const notice = document.createElement('a');
+      notice.href = './__talanta_match_review/LICENSE.md';
+      notice.textContent = 'Rocketbox license';
+      claim.append(' Harambee Stars vs. Spain kit study. ', notice);
+    }
     peopleControls.hidden = mode !== 'people';
     if (mode !== 'people') delete window.__peopleReview;
     controls.minDistance = mode === 'people' ? 2 : 35;
@@ -85,6 +92,15 @@ try {
     scene.background.set(mode === 'drone' ? '#182331' : '#d4dce1');
     try { await modes.select(mode); if (version === selection) {
       if (mode === 'people') { window.__peopleReview = modes.active; }
+      if (mode === 'football' && pitchSide) {
+        const pitch = scene.getObjectByName('SPT-01');
+        if (pitch) {
+          controls.minDistance = 2;
+          camera.position.copy(pitch.localToWorld(new THREE.Vector3(14, 2.2, 7)));
+          controls.target.copy(pitch.localToWorld(new THREE.Vector3(9, 1.15, 2)));
+          controls.update();
+        }
+      }
       renderer.render(scene, camera);
     } }
     catch (error) { if (version === selection) { claim.textContent = mode === 'people' ? 'Local character files are unavailable. Export the prototype files and retry.' : 'This mode could not load. Select it to retry.'; console.warn('Mode unavailable:', error); } }
