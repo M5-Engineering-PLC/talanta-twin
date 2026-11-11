@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Talanta character review</title>
+<style>
+  body { margin: 0; background: #31343b; color: white; font: 1rem system-ui; }
+  #controls { position: absolute; z-index: 1; padding: 1rem; background: #20232a; }
+  button { font: inherit; margin-right: .5rem; }
+  canvas { display: block; }
+</style>
+<div id="controls">
+  <button data-clip="Idle_Loop" disabled>Standing</button>
+  <button data-clip="Sitting_Idle_Loop" disabled>Seated</button>
+  <a href="./LICENSE.md" style="color:inherit">Rocketbox license</a>
+  <div id="status" role="status">Loading characters</div>
+</div>
+<script type="module">
+import * as THREE from 'three/webgpu';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const status = document.querySelector('#status');
+try {
+  const renderer = new THREE.WebGPURenderer({ antialias: true });
+  await renderer.init();
+  renderer.toneMapping = THREE.AgXToneMapping;
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  document.body.append(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#454850');
+  scene.add(new THREE.HemisphereLight('#f8f4ec', '#938477', 2.1));
+  const key = new THREE.DirectionalLight('#fff5e7', 2.3);
+  key.position.set(-3, 5, 5);
+  scene.add(key);
+  const camera = new THREE.PerspectiveCamera(14.25, 1, .1, 50);
+  camera.position.set(0, 1.25, 10);
+  camera.lookAt(0, .91, 0);
+
+  const loader = new GLTFLoader();
+  const rigs = await Promise.all(['Female_Adult_01', 'Male_Adult_01'].map(async name => {
+    const gltf = await loader.loadAsync('./' + name + '.glb');
+    scene.add(gltf.scene);
+    return { clips: gltf.animations, mixer: new THREE.AnimationMixer(gltf.scene) };
+  }));
+  const buttons = [...document.querySelectorAll('[data-clip]')];
+  function select(name) {
+    for (const { clips, mixer } of rigs) {
+      mixer.stopAllAction();
+      mixer.clipAction(THREE.AnimationClip.findByName(clips, name)).play();
+    }
+    for (const button of buttons) button.setAttribute('aria-pressed', String(button.dataset.clip === name));
+  }
+  for (const button of buttons) {
+    const name = button.dataset.clip;
+    button.disabled = !rigs.every(rig => THREE.AnimationClip.findByName(rig.clips, name));
+    button.addEventListener('click', () => select(name));
+  }
+  if (!buttons[0].disabled) select(buttons[0].dataset.clip);
+  function resize() {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  }
+  resize();
+  addEventListener('resize', resize);
+  let previous = performance.now();
+  renderer.setAnimationLoop(now => {
+    const dt = Math.min(.1, Math.max(0, (now - previous) / 1000));
+    previous = now;
+    for (const { mixer } of rigs) mixer.update(dt);
+    renderer.render(scene, camera);
+  });
+  status.textContent = renderer.backend.isWebGPUBackend ? 'Ready · WebGPU' : 'Ready · WebGL';
+} catch (error) {
+  status.textContent = 'Could not load the character review';
+  console.error(error);
+}
+</script>
+</html>
