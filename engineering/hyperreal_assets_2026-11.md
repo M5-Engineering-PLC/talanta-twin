@@ -72,3 +72,11 @@ The corrected two-clip bake passed 80 upper-arm and forearm direction checks acr
 The private development preview loads the Kenya, Spain and referee variants when Football is selected with the match-review query option. The pitch-side query option places the review camera near the centre circle. Stage the three GLBs and MIT notice in app/.local-people-review/match with blender/people/stage_match.py. Use npm run dev from app and open /?match-review=1&pitch-side=1. The dev server serves only the named local files and production builds exclude them.
 
 The pitch-side Chrome capture shows the three kit colors and sprint poses on the turf. All three assets loaded after Football was selected. The two team kits still use the original garment geometry. The ball and player paths are scripted independently, and this shot does not verify foot planting, ball contact or device performance.
+
+## Concert and site review
+
+Run the motion exporter with the staged Rocketbox input and pinned Quaternius GLB above, then pass `--dance --kits casual casual`. Run the web exporter on the resulting Blender file and check the exported clips with `prototype_web_test.py --dance`. Copy the exported Female_Adult_01.glb to app/.local-people-review/concert/performer.glb and place the Rocketbox MIT notice alongside it as LICENSE.md.
+
+Open /?concert-review=1 and select Concert for the close view. Add `&concert-wide=1` for the wide view. The dancer loop fits a whole number of beats on the concert clock. The stage lighting and floor reactions use the same timeline. The audience still uses the existing procedural figures.
+
+The Full site views page uses WebP copies of the C08 daylight aerial, C15 plaza study and C06 night study in blender/renders/stage03_site_a. The perimeter viewer links to the gallery without requesting the images.
