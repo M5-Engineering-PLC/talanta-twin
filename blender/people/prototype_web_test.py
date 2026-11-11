@@ -18,5 +18,14 @@ for name in ("Female_Adult_01", "Male_Adult_01"):
     assert 5500 <= triangles <= 6000, (name, triangles)
     assert asset.stat().st_size < 2_000_000, (name, asset.stat().st_size)
     if "--animated" in sys.argv:
-        assert {"Idle_Loop", "Sitting_Idle_Loop"} <= {clip["name"] for clip in gltf["animations"]}
+        clips = {clip["name"]: clip for clip in gltf["animations"]}
+        assert {"Idle_Loop", "Sitting_Idle_Loop"} <= clips.keys()
+        for clip_name in ("Idle_Loop", "Sitting_Idle_Loop"):
+            clip = clips[clip_name]
+            joints = set(gltf["skins"][0]["joints"])
+            rotations = [channel for channel in clip["channels"]
+                         if channel["target"]["path"] == "rotation" and channel["target"]["node"] in joints]
+            assert len(rotations) >= 12, (clip_name, "missing joint animation")
+            timelines = [gltf["accessors"][sampler["input"]] for sampler in clip["samplers"]]
+            assert max(time["max"][0] - time["min"][0] for time in timelines) > .5, (clip_name, "empty clip")
     print(f"{name}: {triangles} triangles, {asset.stat().st_size:,} bytes")

@@ -58,3 +58,11 @@ Use Harambee Stars versus Spain kits for the football visualization. Give a subs
 Use the white Kenya variant with green and black trim against Spain's red home jersey so both teams are distinct. Use Kenya red and green shirts in the stands. References are the [FKF store](https://footballkenya.org/store), [Kenya kit launch coverage](https://www.pulsesports.co.ke/story/harambee-stars-unveil-stylish-new-jersey-ahead-of-2025-africa-cup-of-nations-qualifiers-2024082813163955779) and [Spain home kit](https://www.adidas.com/us/spain-26-home-jersey/JN4390.html).
 
 The local Cycles rest-pose render verified the two skin variants on the original rigs. The web geometry check measured 5,900 triangles per rig and 860,860 bytes combined. Animation and kit geometry are still under development.
+
+## Motion prototype inputs and evidence
+
+The free [Quaternius Universal Animation Library](https://quaternius.itch.io/universal-animation-library) supplies the CC0 standing and sitting clips. The current Standard archive contains Unreal-Godot/UAL1_Standard.glb with SHA-256 69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997. It has the two required clip names and is a different source revision from the earlier crowd bake. Retarget both clips to the two Rocketbox rigs, keeping the Rocketbox MIT notice alongside the rendered and web derivatives.
+
+The prototype scripts in blender/people build a standalone Blender scene, render the clip stills, and export a skinned GLB per character. Use prototype_viewer.html in the export directory for the two-character web review. It measures neither crowd scale nor phone performance. The current kit study uses the existing garment shapes. Production matchwear, seated placement, the broader cast, and crowd instancing still need implementation and venue review.
+
+The corrected two-clip bake passed 80 upper-arm and forearm direction checks across both rigs and both clips. Cycles produced both 10 m stills. Both exported GLBs retained the two joint animation clips and skinned UV geometry. The two files total 1,169,388 bytes. The seating review still needs actual bowl seat placement and contact checks.
