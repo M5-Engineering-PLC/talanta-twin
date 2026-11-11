@@ -31,8 +31,18 @@ export async function loadConcertPerformer(root, performer) {
   actor.position.set(...performer.position);
   actor.rotation.y = THREE.MathUtils.degToRad(performer.facing_deg);
   actor.add(scene);
+  const key = new THREE.SpotLight(0xffead6, 32, 10, .36, .6);
+  key.position.set(-1.5, 3, 2.8);
+  key.target.position.set(0, 1, 0);
+  actor.add(key, key.target);
   root.add(actor);
   mixer.clipAction(clip).play();
   const beatsPerLoop = Math.max(1, Math.round(clip.duration * 2));
-  return { draw(beat) { mixer.setTime(beat * clip.duration / beatsPerLoop); }, dispose };
+  return {
+    draw({ beat, pulse }) {
+      mixer.setTime(beat * clip.duration / beatsPerLoop);
+      key.intensity = 32 + pulse * 18;
+    },
+    dispose,
+  };
 }

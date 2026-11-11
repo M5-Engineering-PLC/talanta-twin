@@ -151,7 +151,7 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
 
   const player = playback({ cues: concert_cues, sample: t => concertState(concert_cues, t, budget), getCrowd: () => everyone, onState,
     draw(state) {
-      reviewPerformer?.draw(state.beat);
+      reviewPerformer?.draw(state);
       updateLed(led, state);
       state.lights.forEach((l, i) => {
         dummy.position.set(...l.position); dummy.scale.setScalar(1); direction.set(...l.target).sub(dummy.position);
