@@ -19,8 +19,11 @@ for name in ("Female_Adult_01", "Male_Adult_01"):
     assert asset.stat().st_size < 2_000_000, (name, asset.stat().st_size)
     if "--animated" in sys.argv:
         clips = {clip["name"]: clip for clip in gltf["animations"]}
-        assert {"Idle_Loop", "Sitting_Idle_Loop"} <= clips.keys()
-        for clip_name in ("Idle_Loop", "Sitting_Idle_Loop"):
+        required = {"Idle_Loop", "Sitting_Idle_Loop"}
+        if "--sprint" in sys.argv:
+            required.add("Sprint_Loop")
+        assert required <= clips.keys()
+        for clip_name in sorted(required):
             clip = clips[clip_name]
             joints = set(gltf["skins"][0]["joints"])
             rotations = [channel for channel in clip["channels"]
