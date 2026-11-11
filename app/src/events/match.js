@@ -4,10 +4,36 @@ import { matchState } from './match-state.js';
 import { eventRoot, release, figures } from './draw.js';
 import { playback } from './playback.js';
 export { matchState, match_cues };
-export function installMatch({ scene, bearing = 0, pad = 0, getCrowd, onState }) {
-  const root = eventRoot(scene, bearing, pad, 'SPT-01'), actors = figures(root, 23);
+export function installMatch({ scene, bearing = 0, pad = 0, getCrowd, onState, prototypePlayers = false }) {
+  const root = eventRoot(scene, bearing, pad, 'SPT-01');
+  const fallback = prototypePlayers ? new THREE.Group() : root;
+  if (prototypePlayers) root.add(fallback);
+  const actors = figures(fallback, prototypePlayers ? 22 : 23);
+  const referee = prototypePlayers ? figures(root, 1) : null;
+  let review, disposed = false;
   const ball = new THREE.Mesh(new THREE.IcosahedronGeometry(.22, 1), new THREE.MeshBasicMaterial({ color: '#ffffff' })); root.add(ball);
-  return playback({ cues: match_cues, sample: t => matchState(match_cues, t), getCrowd, onState,
-    draw(state) { actors.draw([...state.players, state.referee]); ball.position.set(...state.ball.position); ball.rotation.set(state.ball.phase, 0, state.ball.phase * .5); },
-    dispose: () => release(root) });
+  const player = playback({ cues: match_cues, sample: t => matchState(match_cues, t), getCrowd, onState,
+    draw(state) {
+      if (review) review.draw(state);
+      else actors.draw(referee ? state.players : [...state.players, state.referee]);
+      referee?.draw([state.referee]);
+      ball.position.set(...state.ball.position);
+      ball.rotation.set(state.ball.phase, 0, state.ball.phase * .5);
+    },
+    dispose() { disposed = true; review?.dispose(); release(root); },
+  });
+  if (prototypePlayers) {
+    import('./match-review.js').then(({ loadMatchReview }) => {
+      if (!disposed) return loadMatchReview(root);
+    }).then(instance => {
+      if (!instance) return;
+      if (disposed) { instance.dispose(); return; }
+      review = instance;
+      fallback.visible = false;
+      player.redraw();
+    }).catch(error => {
+      if (!disposed) console.warn('Match review models unavailable:', error);
+    });
+  }
+  return player;
 }
