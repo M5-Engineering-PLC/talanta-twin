@@ -57,6 +57,7 @@ then the context steps (`blender/context/site_layout_ge.py`, `tree_rules.py`, `b
 | Landing pass 02 steps F and H (2026-10-23) | rendered; H gaps: grey facade at dusk, haze grain | blender/renders/landing_pass_02/README.md, sections F and H |
 | Seat count pass 01 (2026-10-23) | done; 61,039 places (+1.7 %); upper overhang and vomitories estimated | blender/renders/seat_count_01/README.md |
 | Group 3 matchday (PL-01 to PL-19, PL-39/42; 2026-10-23) | done on M01/M02 (Visualization); night pitch under-lit | blender/renders/matchday_01/README.md |
+| Concert Master Pass 01 (Mixamo baseline; 2026-11-15) | done: 38m stage, catwalk, 300 mocap dancers (0 collisions), MC frontman, 41.9 MB GLB | blender/CONCERT_PIPELINE.md, engineering/workorder_concert_hyperreal_production_2026-11-16.md |
 
 Open task lists: Web hero task: the release step is open. Group 3 forecourt and traffic rows (PL-20 to PL-38) not started.
 

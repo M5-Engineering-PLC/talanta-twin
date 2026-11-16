@@ -1,6 +1,8 @@
 # Talanta Stadium Concert: Master 3D Digital Twin & Generative AI Video Pipeline
 
 > [!IMPORTANT]
+> **Active Production Work Order**: Detailed phase specifications from the Mixamo baseline to the final photorealistic human & stage solution are documented in [engineering/workorder_concert_hyperreal_production_2026-11-16.md](../engineering/workorder_concert_hyperreal_production_2026-11-16.md).
+> 
 > **Visualization Notice (AGENTS.md Rule 7 & 8)**: Crowd placement and concert animations are illustrative visualizations for the Talanta Twin digital twin experience and cinematic pre-viz. No security-sensitive venue access points, CCTV layouts, or control facilities are depicted.
 
 ---

@@ -10,6 +10,8 @@ Current demo completion steps: [Completion plan, 2026-11-09](engineering/complet
 
 Direction change on 2026-11-10 (hyper-realistic build, fold into main): [Work order, 2026-11-10](engineering/workorder_hyperreal_main_2026-11-10.md).
 
+Concert hyper-realistic people & full production work order (from Mixamo milestone to final photoreal solution): [Work order, 2026-11-16](engineering/workorder_concert_hyperreal_production_2026-11-16.md).
+
 
 
 Build a detailed three.js digital twin of Talanta Stadium (Raila Odinga Talanta Stadium, Nairobi). Use it as a showcase of M5 3D work and pitch it to the Ministry of Sports, Sports Kenya and the AFCON 2027 organizers.
