@@ -1,9 +1,15 @@
 import * as THREE from 'three/webgpu';
+import { normalView, positionViewDirection, smoothstep, uv } from 'three/tsl';
 import { concert_cues } from './cues.js';
-import { concertBudget, concertState, concertCost, CATWALK, BSTAGE, STAGE } from './concert-state.js';
+import { concertBudget, concertState, concertCost, CATWALK, BSTAGE, STAGE, FOH, PART_COST, LASER_COUNT } from './concert-state.js';
 import { ledUniforms, updateLed, ledSurfaceMaterial, ledTileMaterial, ledBarMaterial } from './concert-led.js';
 import { eventRoot, release } from './draw.js';
 import { playback } from './playback.js';
+import { addConcertBackline } from './concert-backline.js';
+import { addConcertBarricades } from './concert-barricades.js';
+import { addConcertDecking } from './concert-decking.js';
+import { addConcertCableRoute, addConcertFoh } from './concert-foh.js';
+import { standingPlaces } from '../people/model.js';
 import { installStandingCrowd } from '../people/index.js';
 export { concertState, concertBudget, concertCost, concert_cues };
 
@@ -59,10 +65,15 @@ function normalise(groups, size) {
   for (const g of groups.flat()) g.applyMatrix4(m);
 }
 
-export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', width = globalThis.innerWidth ?? 1024, getCrowd, onState, loadModels = Boolean(globalThis.document) }) {
+export function installConcert({ scene, camera, bearing = 0, pad = 0, tier = 'high', width = globalThis.innerWidth ?? 1024, getCrowd, onState, loadModels = Boolean(globalThis.document) }) {
   const root = eventRoot(scene, bearing, pad, 'EVT-01');
-  let budget = concertBudget(tier, width), currentTier = tier, dead = false, clock = 0, standing = [], performer = null;
+  let budget = concertBudget(tier, width), currentTier = tier, dead = false, clock = 0, standing = [], performer = null, lead = null, foreground = null;
   const initial = concertState(concert_cues, 0, budget);
+  addConcertDecking(root);
+  addConcertBarricades(root);
+  const backline = addConcertBackline(root);
+  addConcertFoh(root);
+  addConcertCableRoute(root);
   const led = ledUniforms();
   const dark = new THREE.MeshBasicMaterial({ color: '#1c1d24' }), steel = new THREE.MeshBasicMaterial({ color: '#7e8797' });
   const place = (mesh, [x, y, z]) => { mesh.position.set(x, y, z); root.add(mesh); return mesh; };
@@ -87,6 +98,12 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
 
   // Instanced parts: flown tiles, light bars, speaker line arrays, moving heads, beams. Rebuilt when the budget changes.
   const dummy = new THREE.Object3D(), tint = new THREE.Color(), direction = new THREE.Vector3(), forward = new THREE.Vector3(0, 0, 1);
+  const beamMaterial = new THREE.MeshBasicNodeMaterial({
+    transparent: true, depthWrite: false, side: THREE.FrontSide, blending: THREE.AdditiveBlending,
+  });
+  const alongBeam = uv().y;
+  beamMaterial.opacityNode = smoothstep(0, .45, normalView.dot(positionViewDirection).abs())
+    .mul(smoothstep(0, .4, alongBeam)).mul(.16);
   let tileFace, tileFrame, bars, speakers, heads, beams;
   const frameMaterial = new THREE.MeshBasicMaterial({ color: '#16171c' }), headMaterial = new THREE.MeshBasicMaterial();
   let tileGeometry = { face: new THREE.PlaneGeometry(2, 2), frame: new THREE.BoxGeometry(2.05, 2.05, .2).translate(0, 0, -.12) };
@@ -95,6 +112,17 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
     const mesh = new THREE.InstancedMesh(geometry, material, count); mesh.name = name; mesh.frustumCulled = false; root.add(mesh); return mesh;
   }
   function drop(mesh) { if (!mesh) return; root.remove(mesh); mesh.dispose(); }
+  const lasers = instance(new THREE.CylinderGeometry(.045, .045, 1, 8, 1, true),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: .48, depthWrite: false, blending: THREE.AdditiveBlending }),
+    LASER_COUNT, 'concert-laser-rays');
+  const laserEnd = new THREE.Vector3(), laserUp = new THREE.Vector3(0, 1, 0);
+  const edgeLights = instance(new THREE.BoxGeometry(1, 1, 1), ledBarMaterial(led), 2, 'concert-catwalk-edge-lights');
+  for (const [index, side] of [-1, 1].entries()) {
+    dummy.position.set(side * (CATWALK.halfWidth - .055), CATWALK.top + .015, initial.catwalk.position[2]);
+    dummy.scale.set(.07, .03, initial.catwalk.size[2]);
+    dummy.updateMatrix();
+    edgeLights.setMatrixAt(index, dummy.matrix);
+  }
   function buildStatic() {
     for (const mesh of [tileFace, tileFrame, bars, speakers]) drop(mesh);
     const state = concertState(concert_cues, 0, budget);
@@ -112,25 +140,40 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
   function buildMoving() {
     drop(heads); drop(beams);
     heads = instance(headGeometry, headMaterial, budget.heads, 'concert-moving-heads');
-    beams = instance(new THREE.ConeGeometry(1, 1, 6, 1, true).translate(0, -.5, 0),
-      new THREE.MeshBasicMaterial({ transparent: true, opacity: .12, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }), budget.heads, 'concert-beams');
+    beams = instance(new THREE.ConeGeometry(1, 1, 12, 1, true).translate(0, -.5, 0), beamMaterial, budget.heads, 'concert-beams');
   }
 
   // Floor crowd (standing, visualization) and the performer, from the people module.
+  const vipZone = initial.floor.zones.find(zone => zone.id === 'front-right');
+  const vipArea = { polygon: vipZone.polygon, y: .12, facing_deg: 0 };
+  const detailedPlaces = standingPlaces(vipArea, 90)
+    .map((place, index) => ({ ...place, index }))
+    .filter(place => place.x > 5.5 && Math.hypot(place.x - 8, place.z - 24) < 7)
+    .sort((a, b) => Math.hypot(a.x - 8, a.z - 24) - Math.hypot(b.x - 8, b.z - 24))
+    .slice(0, PART_COST.foreground.count);
+  const detailedIndices = new Set(detailedPlaces.map(place => place.index));
   const knownLabels = () => new Set(globalThis.document?.querySelectorAll?.('[data-people-visualization]') ?? []);
   function buildFloor() {
     for (const crowd of standing) crowd.dispose(); standing = [];
     const before = knownLabels();
+    const showDetails = foreground && budget.nearbyPerZone > 0;
+    if (foreground) foreground.actor.visible = Boolean(showDetails);
     for (const zone of concertState(concert_cues, 0, budget).floor.zones) {
       if (!zone.count) continue;
-      standing.push(installStandingCrowd({ parent: root, area: { polygon: zone.polygon, y: .12, facing_deg: 0 }, count: zone.count,
-        quality: { tier: currentTier, width, farDistance: 0 } }));
+      const area = { polygon: zone.polygon, y: .12, facing_deg: 0 };
+      const places = showDetails && zone.id === vipZone.id
+        ? standingPlaces(area, zone.count).filter((_, index) => !detailedIndices.has(index))
+        : undefined;
+      standing.push(installStandingCrowd({ parent: root, camera, area, count: zone.count, places,
+        quality: { tier: currentTier, width, farDistance: camera ? 28 : 0, maxNearby: budget.nearbyPerZone } }));
     }
-    performer?.dispose();
-    const p = initial.performer;
-    performer = installStandingCrowd({ parent: root, area: { x: p.position[0] - .3, z: p.position[2] - .3, width: .6, depth: .6, y: p.position[1], facing_deg: p.facing_deg },
-      count: 1, quality: { tier: currentTier, width, farDistance: 100 } });
-    performer.group.name = 'concert-performer';
+    performer?.dispose(); performer = null;
+    if (!lead) {
+      const p = initial.performer;
+      performer = installStandingCrowd({ parent: root, area: { x: p.position[0] - .3, z: p.position[2] - .3, width: .6, depth: .6, y: p.position[1], facing_deg: p.facing_deg },
+        count: 1, quality: { tier: currentTier, width, farDistance: Infinity } });
+      performer.group.name = 'concert-performer';
+    }
     // The host already shows one Visualization label. Remove the extra ones.
     for (const label of knownLabels()) if (!before.has(label)) label.remove();
   }
@@ -144,13 +187,29 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
   } };
   function tick(dt) {
     if (dead) return;
-    const night = getCrowd?.()?.group?.userData?.animation?.night?.value ?? 1;
+    const hostCrowd = getCrowd?.();
+    const night = hostCrowd?.group?.userData?.animation?.night?.value ?? 1;
+    hostCrowd?.update?.(dt, clock);
     for (const crowd of [...standing, performer]) { crowd?.setNight(night > 0); crowd?.update(dt, clock); }
+  }
+
+  function restoreCrowdCue(state) {
+    tick(0);
+    everyone.react('phones', { on: state.phones });
+    const cue = state.crowdReactions.find(reaction => reaction.name !== 'phones');
+    if (cue) everyone.react(cue.name, { ...cue.params, startTime: clock - (state.time - cue.start) });
+    else everyone.react('cheer', { duration: 0 });
   }
 
   const player = playback({ cues: concert_cues, sample: t => concertState(concert_cues, t, budget), getCrowd: () => everyone, onState,
     draw(state) {
       updateLed(led, state);
+      lead?.draw(state);
+      if (foreground?.actor.visible) foreground.draw(state);
+      backline.draw(state);
+      const glow = 2 + state.led.pulse * 3;
+      getCrowd?.()?.setConcertGlow?.(state.led.color, glow);
+      for (const zone of standing) zone.setConcertGlow(state.led.color, glow);
       state.lights.forEach((l, i) => {
         dummy.position.set(...l.position); dummy.scale.setScalar(1); direction.set(...l.target).sub(dummy.position);
         const length = direction.length(); direction.normalize();
@@ -160,10 +219,34 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
         dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), direction); dummy.scale.set(length * .07, length, length * .07);
         dummy.updateMatrix(); beams.setMatrixAt(i, dummy.matrix);
       });
+      lasers.visible = state.lasers.length > 0;
+      if (lasers.visible) {
+        state.lasers.forEach((laser, index) => {
+          dummy.position.set(...laser.position);
+          laserEnd.set(...laser.target);
+          direction.subVectors(laserEnd, dummy.position);
+          const length = direction.length();
+          dummy.position.lerp(laserEnd, .5);
+          dummy.quaternion.setFromUnitVectors(laserUp, direction.normalize());
+          dummy.scale.set(1, length, 1);
+          dummy.updateMatrix();
+          lasers.setMatrixAt(index, dummy.matrix);
+          lasers.setColorAt(index, tint.setRGB(...laser.color).multiplyScalar(laser.intensity));
+        });
+        lasers.instanceMatrix.needsUpdate = lasers.instanceColor.needsUpdate = true;
+      }
       heads.instanceMatrix.needsUpdate = beams.instanceMatrix.needsUpdate = true;
       heads.instanceColor.needsUpdate = beams.instanceColor.needsUpdate = true;
     },
-    dispose() { dead = true; for (const crowd of [...standing, performer]) crowd?.dispose(); standing = []; performer = null; release(root); },
+    dispose() {
+      dead = true;
+      getCrowd?.()?.setConcertGlow?.();
+      for (const crowd of [...standing, performer]) crowd?.dispose();
+      standing = []; performer = null;
+      lead?.dispose(); lead = null;
+      foreground?.dispose(); foreground = null;
+      release(root);
+    },
   });
 
   // Optimised models load after the first frame. A failure keeps the procedural stand-ins.
@@ -191,14 +274,61 @@ export function installConcert({ scene, bearing = 0, pad = 0, tier = 'high', wid
     const fixture = mergeConcertGeometry(collect(light)); normalise([[fixture]], [.9, 1.1, .9]);
     headGeometry = fixture; buildMoving(); player.redraw();
   }
-  if (loadModels) loadAll().catch(error => console.warn('Concert models unavailable, using stand-ins:', error));
+  if (loadModels) {
+    loadAll().catch(error => console.warn('Concert models unavailable, using stand-ins:', error));
+    import('./concert-performer.js')
+      .then(({ loadConcertPerformer }) => loadConcertPerformer(initial.performer))
+      .then(model => {
+        if (dead) { model.dispose(); return; }
+        lead = model;
+        root.add(lead.actor);
+        performer?.dispose(); performer = null;
+        player.redraw();
+      })
+      .catch(error => console.warn('Concert lead performer unavailable, using stand-in:', error));
+    if (budget.nearbyPerZone && detailedPlaces.length) {
+      import('./concert-performer.js')
+        .then(({ loadConcertForeground }) => loadConcertForeground(detailedPlaces.map(({ x, y, z }, index) => ({
+          position: [x, y, z], facing_deg: index * 7 - 10, phase: index * 1.17, scale: .92 + index * .045,
+        }))))
+        .then(model => {
+          if (dead) { model.dispose(); return; }
+          foreground = model;
+          root.add(model.actor);
+          buildFloor();
+          restoreCrowdCue(player.redraw());
+        })
+        .catch(error => console.warn('Concert foreground crowd unavailable, using stand-ins:', error));
+    }
+  }
 
+  const [performerX, performerY, performerZ] = initial.performer.position;
+  const stageFocus = [0, 7, STAGE.frontZ];
+  // Bookmarks share the event frame so they follow the pitch bearing and elevation.
+  const views = [
+    { name: 'Frontman POV', position: [performerX, performerY + 1.65, performerZ - .8], target: [0, 3, -22], fov: 64 },
+    { name: 'Golden Circle VIP', position: [11, 2.4, 20.5], target: [1.8, 2.4, performerZ], fov: 54 },
+    { name: 'FOH Soundboard', position: [0, 4, FOH.z], target: stageFocus, fov: 56 },
+    { name: 'Skybox Tier 2', position: [55, 20, -24], target: [0, 6, 18], fov: 58 },
+  ];
+  const worldPoint = coordinates => root.localToWorld(new THREE.Vector3(...coordinates));
   return { ...player, cost: () => concertCost(budget),
-    update(dt) { if (dead) return; clock += dt; const state = player.update(dt); tick(dt); return state; },
-    seek(t) { clock = t; return player.seek(t); },
+    viewNames: views.map(view => view.name),
+    viewPose(index) {
+      const view = views[index];
+      return view && { pos: worldPoint(view.position), target: worldPoint(view.target), fov: view.fov };
+    },
+    update(dt) { if (dead) return; clock += dt; tick(dt); return player.update(dt); },
+    seek(t) {
+      const state = player.seek(t);
+      clock = Math.max(0, t);
+      if (!dead) restoreCrowdCue(state);
+      return state;
+    },
     setTier(next, nextWidth = globalThis.innerWidth ?? width) {
+      if (dead) return;
       const nextBudget = concertBudget(next, nextWidth);
-      if (nextBudget.crowd === budget.crowd && nextBudget.heads === budget.heads && nextBudget.tiles === budget.tiles) return;
-      budget = nextBudget; currentTier = next; width = nextWidth; buildStatic(); buildMoving(); buildFloor(); player.redraw();
+      if (nextBudget.crowd === budget.crowd && nextBudget.heads === budget.heads && nextBudget.tiles === budget.tiles && nextBudget.nearbyPerZone === budget.nearbyPerZone) return;
+      budget = nextBudget; currentTier = next; width = nextWidth; buildStatic(); buildMoving(); buildFloor(); restoreCrowdCue(player.redraw());
     } };
 }

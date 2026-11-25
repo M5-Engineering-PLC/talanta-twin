@@ -33,3 +33,21 @@ This work is based on "STAGE LIGHTS" (https://sketchfab.com/3d-models/stage-ligh
 - The reference frames of a real stadium show are internal layout reference only. They are not in the repository and not used as a texture.
 - The LED content is procedural. It has no artist name, logo, text or likeness.
 - The optimise command is app/tools/concert_optimise.mjs.
+
+## Animated lead performer
+
+- `performer/model.glb` derives from Female_Adult_01 in the [pinned Microsoft Rocketbox avatar library](https://github.com/microsoft/Microsoft-Rocketbox/tree/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Adults/Female_Adult_01). Copyright (c) 2020 Microsoft. The MIT notice is in `performer/LICENSE.md`.
+- The Talanta export adapts the complexion, reduces the skinned mesh to 5,900 triangles, and retargets `Dance_Loop` from Quaternius’s [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) (CC0 1.0). The source GLB SHA-256 is `69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997`.
+
+Build the performer from the pinned Rocketbox input and verified animation GLB. Use `Female_Adult_01.glb` as `performer/model.glb`.
+
+```sh
+blender -b --python-exit-code 1 --python blender/people/prototype_animate.py -- ROCKETBOX_STAGE UAL1_Standard.glb performer.blend --dance --kits casual casual
+blender -b --python-exit-code 1 --python blender/people/prototype_web.py -- ROCKETBOX_STAGE WEB_EXPORT --animated-blend performer.blend
+python3 blender/people/prototype_web_test.py WEB_EXPORT --animated --dance
+```
+
+## Animated Golden Circle figures
+
+- `crowd/male.glb` derives from Male_Adult_01 in the [pinned Microsoft Rocketbox avatar library](https://github.com/microsoft/Microsoft-Rocketbox/tree/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Adults/Male_Adult_01). The MIT notice is in `performer/LICENSE.md`. The 5,900-triangle web export uses the same CC0 `Dance_Loop` source and export commands above, publishing `Male_Adult_01.glb` as `crowd/male.glb` (SHA-256 `62f3faa42706743b529b32bc1ddca5ffe630b33157423383dc87d6a66a62f3e6`).
+- The Golden Circle alternates Male_Adult_01 and Female_Adult_01. The female figure reuses the performer GLB. Each figure has its own skeleton, height, and dance offset. Low tier and narrow screens use the existing instanced crowd.

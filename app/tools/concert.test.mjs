@@ -4,8 +4,13 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import * as THREE from 'three/webgpu';
+import { addConcertBackline } from '../src/events/concert-backline.js';
+import { addConcertBarricades } from '../src/events/concert-barricades.js';
+import { addConcertDecking, PITCH_DECKING } from '../src/events/concert-decking.js';
+import { addConcertCableRoute, addConcertFoh } from '../src/events/concert-foh.js';
 import { concert_cues } from '../src/events/cues.js';
-import { concertState, concertBudget, concertCost, floorZones, AISLE, CATWALK, BSTAGE, PITCH_HALF } from '../src/events/concert-state.js';
+import { concertState, concertBudget, concertCost, floorZones, AISLE, CATWALK, BSTAGE, PITCH_HALF, FOH, FOH_CABLE, BARRICADES, PART_COST } from '../src/events/concert-state.js';
 import { standingPlaces } from '../src/people/model.js';
 
 const dir = fileURLToPath(new URL('../public/concert/', import.meta.url));
@@ -30,6 +35,9 @@ test('the new parts exist in the state and keep the stage end', () => {
   assert.equal(s.flown.length, 48); assert.equal(s.bars.length, 24); assert.equal(s.speakers.length, 24);
   assert.ok(s.catwalk && s.bstage && s.truss && s.performer && s.floor);
   assert.equal(s.performer.kind, 'generic');
+  assert.equal(s.performer.position[1], CATWALK.top);
+  assert.ok(s.performer.position[2] > CATWALK.toZ && s.performer.position[2] < CATWALK.fromZ);
+  assert.equal(BSTAGE.height, CATWALK.top);
   assert.ok(s.lights.every(l => l.target[2] < l.position[2] && l.intensity > 0));
   assert.deepEqual(s.screens.map(x => x.id), ['backdrop', 'wing-left', 'wing-right']);
   // Labels: the score line reads the phase and the clock.
@@ -54,6 +62,18 @@ test('the floor crowd stays on the pitch, in front of the stage, and keeps the c
         places++;
         assert.ok(Math.abs(p.x) <= PITCH_HALF.x && Math.abs(p.z) <= PITCH_HALF.z, `${zone.id} off the pitch`);
         assert.ok(p.z < 40.5, 'in front of the stage deck');
+        for (let i = 1; i < FOH_CABLE.length; i++) {
+          const [x1, z1] = FOH_CABLE[i - 1], [x2, z2] = FOH_CABLE[i];
+          const dx = Math.max(Math.min(x1, x2) - p.x, p.x - Math.max(x1, x2), 0);
+          const dz = Math.max(Math.min(z1, z2) - p.z, p.z - Math.max(z1, z2), 0);
+          assert.ok(Math.hypot(dx, dz) > .7, 'cable protector kept clear');
+        }
+        for (const [[x1, z1], [x2, z2]] of BARRICADES) {
+          const dx = Math.max(Math.min(x1, x2) - p.x, p.x - Math.max(x1, x2), 0);
+          const dz = Math.max(Math.min(z1, z2) - p.z, p.z - Math.max(z1, z2), 0);
+          assert.ok(Math.hypot(dx, dz) >= .7, 'barricade kept clear');
+        }
+        assert.ok(!(Math.abs(p.x) < FOH.width / 2 + FOH.clearance && p.z < FOH.z + FOH.depth / 2 + FOH.clearance), 'FOH and rear access kept clear');
         assert.ok(!(Math.abs(p.x) < AISLE.halfWidth && p.z > AISLE.toZ), `${zone.id} in the catwalk aisle`);
         assert.ok(!(Math.abs(p.x) < AISLE.bstageHalfWidth && p.z > AISLE.toZ && p.z < AISLE.bstageFromZ + 2), `${zone.id} around the B-stage`);
         assert.ok(!(Math.abs(p.x) < CATWALK.halfWidth + 1 && p.z > BSTAGE.centreZ - BSTAGE.depth / 2 && p.z < CATWALK.fromZ + 5), 'on the catwalk');
@@ -78,6 +98,60 @@ test('budget counts per tier and width', () => {
     }
   }
   assert.equal(concertBudget('unknown', 1280).crowd, 700);
+  assert.deepEqual(concertBudget('ultra', 1280), concertBudget('high', 1280));
+});
+
+test('the front-of-house booth meets its pitch footprint and geometry budget', () => {
+  const parent = new THREE.Group();
+  const booth = addConcertFoh(parent);
+  const bounds = new THREE.Box3().setFromObject(booth);
+  assert.deepEqual(bounds.getSize(new THREE.Vector3()).toArray().map(n => Number(n.toFixed(3))), [6, 3.2, 4]);
+  assert.equal(bounds.getCenter(new THREE.Vector3()).z, FOH.z);
+  const route = addConcertCableRoute(parent);
+  const meshes = [...booth.children, ...route.children];
+  assert.equal(meshes.length, PART_COST.foh.draws);
+  assert.equal(meshes.reduce((sum, mesh) => sum + mesh.count * mesh.geometry.index.count / 3, 0), PART_COST.foh.triangles);
+  const routeBounds = new THREE.Box3().setFromObject(route);
+  assert.ok(routeBounds.max.x < PITCH_HALF.x);
+  assert.ok(routeBounds.min.z > -PITCH_HALF.z);
+  const decking = addConcertDecking(parent);
+  const deckBounds = new THREE.Box3().setFromObject(decking);
+  assert.deepEqual(deckBounds.getSize(new THREE.Vector3()).toArray().map(n => Math.round(n)), [80, 0, 90]);
+  assert.ok(Math.abs(deckBounds.max.y - PITCH_DECKING.top) < .001);
+  assert.ok(Math.abs(routeBounds.min.y - PITCH_DECKING.top) < .001);
+  assert.ok(routeBounds.min.x >= deckBounds.min.x && routeBounds.max.x <= deckBounds.max.x);
+  assert.ok(routeBounds.min.z >= deckBounds.min.z && routeBounds.max.z <= deckBounds.max.z);
+  const barricades = addConcertBarricades(parent);
+  const barricadeBounds = new THREE.Box3().setFromObject(barricades);
+  assert.ok(Math.abs(barricadeBounds.min.y - PITCH_DECKING.top) < .001);
+  assert.ok(Math.abs(barricadeBounds.max.y - PITCH_DECKING.top - 1.2) < .001);
+  assert.equal(barricades.children.length, PART_COST.barricades.draws);
+  assert.equal(barricades.children.reduce((sum, mesh) => sum + mesh.count * mesh.geometry.index.count / 3, 0), PART_COST.barricades.triangles);
+});
+
+test('stage backline geometry stays inside its draw and triangle budget', () => {
+  const { group: props, draw } = addConcertBackline(new THREE.Group());
+  assert.equal(props.children.length, PART_COST.backline.draws);
+  const triangles = props.children.reduce((sum, mesh) => sum + mesh.count * mesh.geometry.index.count / 3, 0);
+  assert.equal(triangles, PART_COST.backline.triangles);
+  assert.ok(triangles < 35000);
+  const { instanceMatrix, instanceColor } = props.getObjectByName('console-indicators');
+  draw(concertState(concert_cues, 25));
+  const matrixAtDrop = instanceMatrix.array.slice();
+  const colorAtDrop = instanceColor.array.slice();
+  draw(concertState(concert_cues, 44.5));
+  assert.notDeepEqual(instanceMatrix.array, matrixAtDrop, 'waveform scrolls with the cue');
+  assert.notDeepEqual(instanceColor.array, colorAtDrop, 'mixer meters respond to the cue');
+});
+
+test('laser visuals are synchronized with the drop and chorus', () => {
+  for (const second of [0, 12, 54]) assert.equal(concertState(concert_cues, second).lasers.length, 0);
+  for (const second of [24, 36]) {
+    const lasers = concertState(concert_cues, second).lasers;
+    assert.equal(lasers.length, 8);
+    assert.ok(lasers.every(ray => ray.target[1] > ray.position[1] && ray.intensity > 0));
+    assert.notDeepEqual(lasers, concertState(concert_cues, second + .4).lasers);
+  }
 });
 
 test('draw call and triangle estimate stays inside the budget', () => {

@@ -149,7 +149,7 @@ export function createTimeOfDay({ group, renderer, scene, base = './', manifest,
         ? { ...manifest, environment: { ...manifest.environment, file: p.hdr ? `app/public/env/${p.hdr}` : undefined, file_2048: p.hdr ? `app/public/env/${p.hdr}` : undefined, file_exr: p.exr ? `app/public/env/${p.exr}` : undefined },
             files: [...(manifest.files ?? []), ...ids.map((f) => ({ file: `app/public/env/${f}` }))] }
         : manifest;  // no panorama for this time: the base-time panorama
-      envs.set(key, io.environment({ renderer, scene: new THREE.Scene(), manifest: m, base }));
+      envs.set(key, io.environment({ renderer, scene: new THREE.Scene(), manifest: m, base, preferSmall: phone }));
     }
     return { key, env: await envs.get(key) };
   }

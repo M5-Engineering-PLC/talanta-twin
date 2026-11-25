@@ -147,8 +147,8 @@ test('phone keeps at most two sets and disposes the replaced one', async () => {
     json: async (u) => ({ '1030': { ...good(), time: '1030', preset: 'daylight_artistic', groups: { stadium_shell: { file: 'a', bytes: 1, sha256: 'b'.repeat(64), intensity: 14 } } },
                           '2000': { ...good(), time: '2000', preset: 'night', groups: { stadium_shell: { file: 'c', bytes: 1, sha256: 'b'.repeat(64), intensity: 1 } } } }[u.match(/(\d{4})\/tod/)[1]]),
     textures: async (urls) => urls.map((u) => { const t = tex(u); h.made.push(t); return t; }),
-    environment: async () => null } });
-  await phone.setTime('1030');
+    environment: async ({ preferSmall }) => { assert.equal(preferSmall, true); return null; } } });
+  assert.equal(await phone.setTime('1030'), true);
   const first = h.m1.lightMap;
   assert.equal(await phone.preload('2000'), false, 'no room to preload on a phone');
   await phone.setTime('2000');

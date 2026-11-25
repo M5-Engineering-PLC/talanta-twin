@@ -18,6 +18,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
   parent.add(root);
   const u = { time: uniform(0), start: uniform(0), cheer: uniform(0), goal: uniform(0), end: uniform(1),
     wave: uniform(0), speed: uniform(12), perimeter: uniform(600), scarves: uniform(0), phones: uniform(0), night: uniform(0), duration: uniform(8) };
+  u.concertGlow = uniform(new THREE.Color(3, 3, 3));
   let seats = [], order = [], fill = 1, meshes = [], dead = false, failure = null;
   let home = '#b92332', away = '#18733d';
   let waveAngle = (angle) => angle;
@@ -89,7 +90,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     mat.positionNode = originYaw.xyz.add(vec3(p.x.mul(cos(yaw)).add(p.z.mul(sin(yaw))), p.y, p.z.mul(cos(yaw)).sub(p.x.mul(sin(yaw)))));
     const skin = skinScale.xyz, trousers = attribute('fanTrousers', 'vec3');
     const shirt = shirtScale.xyz;
-    mat.colorNode = select(isPhone, vec3(3), select(kind.equal(1), skin, select(kind.equal(2), trousers, shirt)));
+    mat.colorNode = select(isPhone, u.concertGlow, select(kind.equal(1), skin, select(kind.equal(2), trousers, shirt)));
     mat.userData.bakedAnimation = true;
     return mat;
   }
@@ -101,7 +102,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
     if (dead || !crowdAssets()) return;
     clearMeshes();
     const picked = selectSeats(seats, fill, tier() === 'low' ? 767 : width(), order);
-    const batches = partitionCrowd(seats, picked, tier(), cameraPosition(), config.farDistance ?? 60);
+    const batches = partitionCrowd(seats, picked, tier(), cameraPosition(), config.farDistance ?? 60, config.maxNearby);
     lastCamera.copy(localCamera);
     const colors = [new THREE.Color(home), new THREE.Color(away), new THREE.Color('#ded9cc'), new THREE.Color('#292934')];
     for (const [lod, indices] of batches.entries()) {
@@ -221,7 +222,7 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
       if (!['cheer', 'goal', 'wave', 'scarves', 'phones'].includes(name)) throw new Error(`Unknown crowd reaction: ${name}`);
       if (name === 'phones') { u.phones.value = params.on === false ? 0 : 1; return; }
       for (const key of ['cheer', 'goal', 'wave', 'scarves']) u[key].value = Number(key === name);
-      u.start.value = u.time.value; u.duration.value = params.duration ?? (name === 'wave' ? 60 : 8);
+      u.start.value = params.startTime ?? u.time.value; u.duration.value = params.duration ?? (name === 'wave' ? 60 : 8);
       u.end.value = (params.end === 'away' || params.end === -1 || params === -1 || params === 'away') ? -1 : 1;
       u.speed.value = Number.isFinite(params.speed) ? params.speed : 12;
     },
@@ -232,15 +233,17 @@ export function installSeatedCrowd({ scene, camera, renderer, bowlGroup, heroGro
       if (tier() !== 'low' && cameraPosition().distanceTo(lastCamera) > 15) rebuild();
       syncLabel();
     },
+    setConcertGlow(rgb = [3, 3, 3], intensity = 1) {
+      if (!dead) u.concertGlow.value.setRGB(...rgb).multiplyScalar(intensity);
+    },
     setNight(on) { u.night.value = Number(Boolean(on)); },
     dispose() { if (dead) return; dead = true; clearMeshes(); root.removeFromParent(); label?.remove(); },
   };
 }
 
 // Ground positions use the same figure, texture, controls, and claim label.
-export function installStandingCrowd({ parent, area, count, quality = 'high', colours = {} }) {
-  const places = standingPlaces(area, count);
-  const crowd = installSeatedCrowd({ scene: parent, quality: { ...(typeof quality === 'object' ? quality : { tier: quality }),
+export function installStandingCrowd({ parent, camera, area, count, places = standingPlaces(area, count), quality = 'high', colours = {} }) {
+  const crowd = installSeatedCrowd({ scene: parent, camera, quality: { ...(typeof quality === 'object' ? quality : { tier: quality }),
     seats: places, standing: true } });
   crowd.group.name = 'standing-crowd';
   const home = Array.isArray(colours) ? colours[0] : colours.home;

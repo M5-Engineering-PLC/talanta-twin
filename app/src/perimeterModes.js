@@ -9,6 +9,7 @@ export function createModeController({ load }) {
       const instance = await load(mode);
       if (version !== epoch) { instance.dispose(); return; }
       active = instance;
+      return active;
     },
     update(dt) { active?.update(dt); },
     dispose() { ++epoch; active?.dispose(); active = null; },

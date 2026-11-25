@@ -9,15 +9,30 @@ import { cueAt, reactionsAt, seeded } from './state.js';
 export const PITCH_HALF = { x: 34, z: 52.5 };
 export const STAGE = { width: 60, deckHeight: 1.8, depth: 11, centreZ: 46, backZ: 51.5, frontZ: 40.5 };
 export const CATWALK = { halfWidth: 2, fromZ: 35.7, toZ: 16, top: 2.3 };
-export const BSTAGE = { halfWidth: 5, centreZ: 12, depth: 8, height: 8.3 };
+export const BSTAGE = { halfWidth: 5, centreZ: 12, depth: 8, height: CATWALK.top };
 // Metres kept clear of the floor crowd on each side of the catwalk, and around the B-stage.
 export const AISLE = { halfWidth: 4.5, bstageHalfWidth: 7.5, fromZ: 38.5, toZ: 4, bstageFromZ: 18 };
+export const FOH = { z: -25, width: 6, depth: 4, height: 3.2, clearance: 1 };
+export const FOH_CABLE = [[27, 41], [32.2, 41], [32.2, -33.5], [0, -33.5], [0, FOH.z - FOH.depth / 2]];
 export const FLOOR = { xMin: -31, xMax: 31, zFront: 38.5, zBack: -32, zSplitA: 20, zSplitB: -4, share: [.42, .33, .25] };
+// Across the pitch, each run leaves the side access lanes open.
+export const BARRICADE_SECTION_LENGTH = 1.5;
+export const BARRICADES = [
+  [[-29.5, 39.5], [-3.4, 39.5]], [[3.4, 39.5], [29.5, 39.5]],
+  [[-3.4, 39.5], [-3.4, 20]], [[3.4, 39.5], [3.4, 20]],
+  [[-3.4, 20], [-6.4, 20]], [[3.4, 20], [6.4, 20]],
+  [[-6.4, 20], [-6.4, 5.2]], [[6.4, 20], [6.4, 5.2]],
+  [[-6.4, 5.2], [6.4, 5.2]],
+  [[-29.5, 20], [-7.5, 20]], [[7.5, 20], [29.5, 20]],
+];
 // Triangles of each part, from the optimised models and the procedural geometry.
+export const LASER_COUNT = 8;
 export const PART_COST = {
   stageModel: { draws: 4, triangles: 20760 }, trussModel: { draws: 2, triangles: 24480 }, bstageModel: { draws: 1, triangles: 6452 },
   tile: { triangles: 876 }, fixture: { triangles: 1803 }, beam: { triangles: 12 }, bar: { triangles: 12 }, speaker: { triangles: 12 },
-  figureLod1: 82, backdrop: 256, wing: 192,
+  laser: { draws: 1, triangles: LASER_COUNT * 16 },
+  backline: { draws: 5, triangles: 2972 },
+  barricades: { draws: 2, triangles: BARRICADES.reduce((sum, [[x1, z1], [x2, z2]]) => sum + Math.ceil(Math.hypot(x2 - x1, z2 - z1) / BARRICADE_SECTION_LENGTH) * 120, 0) }, decking: { draws: 1, triangles: 2 }, foh: { draws: 7, triangles: 3756 }, performer: 5900, foreground: { count: 4, draws: 3, wristbandDraws: 2, triangles: 5920 }, figureLod0: 2104, figureLod1: 82, backdrop: 256, wing: 192,
 };
 
 const BUDGETS = {
@@ -27,20 +42,23 @@ const BUDGETS = {
 };
 // "crowd" is the standing floor crowd count. It keeps that name for the host and the older tests.
 export function concertBudget(tier = 'high', width = 1024) {
-  const base = BUDGETS[tier] ?? BUDGETS.low, phone = width < 768;
-  return { crowd: phone ? Math.floor(base.floor / 2) : base.floor, heads: phone ? 8 : base.heads, lights: 0,
+  const level = tier === 'ultra' ? 'high' : tier;
+  const base = BUDGETS[level] ?? BUDGETS.low, phone = width < 768;
+  return { nearbyPerZone: phone ? 0 : level === 'high' ? 48 : level === 'medium' ? 16 : 0,
+    crowd: phone ? Math.floor(base.floor / 2) : base.floor, heads: phone ? 8 : base.heads, lights: 0,
     tiles: phone ? Math.min(base.tiles, 12) : base.tiles, bars: phone ? Math.min(base.bars, 8) : base.bars,
     cabinets: phone ? Math.min(base.cabinets, 8) : base.cabinets };
 }
 // Draw calls and triangles the concert adds on top of the bowl. An estimate, not a GPU measurement.
 export function concertCost(budget = concertBudget()) {
   const c = PART_COST;
-  const draws = c.stageModel.draws + c.trussModel.draws + c.bstageModel.draws + 2 /* tiles: face, frame */ + 2 /* fixtures, beams */
-    + 1 /* light bars */ + 1 /* speakers */ + 3 /* backdrop, two wings */ + 4 /* floor crowd zones */ + 1 /* performer */ + 2 /* catwalk, thrust */;
-  // Standing fans use the 82 triangle figure only: the people module has no camera hook for standing crowds.
-  const triangles = c.stageModel.triangles + c.trussModel.triangles + c.bstageModel.triangles + budget.tiles * c.tile.triangles
+  const detailed = budget.nearbyPerZone ? c.foreground.count : 0;
+  const draws = c.laser.draws + detailed * c.foreground.draws + (detailed ? c.foreground.wristbandDraws : 0) + c.backline.draws + c.barricades.draws + c.decking.draws + c.foh.draws + c.stageModel.draws + c.trussModel.draws + c.bstageModel.draws + 2 /* tiles: face, frame */ + 2 /* fixtures, beams */
+    + 2 /* flown bars, catwalk edge lights */ + 1 /* speakers */ + 3 /* backdrop, two wings */ + 4 /* far floor zones */ + (budget.nearbyPerZone ? 4 : 0) /* near floor zones */ + 3 /* performer material groups */ + 2 /* catwalk, thrust */;
+  const nearby = budget.nearbyPerZone * 4;
+  const triangles = c.laser.triangles + detailed * c.foreground.triangles + c.backline.triangles + c.barricades.triangles + c.decking.triangles + c.foh.triangles + c.stageModel.triangles + c.trussModel.triangles + c.bstageModel.triangles + budget.tiles * c.tile.triangles
     + budget.heads * (c.fixture.triangles + c.beam.triangles) + budget.bars * c.bar.triangles + 2 * budget.cabinets * c.speaker.triangles
-    + c.backdrop + 2 * c.wing + (budget.crowd + 1) * c.figureLod1 + 24;
+    + c.backdrop + 2 * c.wing + budget.crowd * c.figureLod1 + c.performer + nearby * (c.figureLod0 - c.figureLod1) + 4 * c.bar.triangles;
   return { draws, triangles };
 }
 
@@ -49,13 +67,17 @@ export function floorZones(count = 0) {
   const { xMin, xMax, zFront, zBack, zSplitA, zSplitB } = FLOOR, a = AISLE;
   const nA = Math.round(count * FLOOR.share[0]), nB = Math.round(count * FLOOR.share[1]), nC = count - nA - nB, nL = Math.floor(nA / 2);
   const area = poly => Math.abs(poly.reduce((s, p, i) => { const q = poly[(i + 1) % poly.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
+  const fohHalf = FOH.width / 2 + FOH.clearance;
+  const fohFront = FOH.z + FOH.depth / 2 + FOH.clearance;
+  const vipEdge = zSplitA + .75, generalEdge = zSplitA - .75;
   const zones = [
-    { id: 'front-left', count: nL, polygon: [[xMin, zSplitA], [-a.halfWidth, zSplitA], [-a.halfWidth, zFront], [xMin, zFront]] },
-    { id: 'front-right', count: nA - nL, polygon: [[a.halfWidth, zSplitA], [xMax, zSplitA], [xMax, zFront], [a.halfWidth, zFront]] },
+    { id: 'front-left', count: nL, polygon: [[xMin, vipEdge], [-a.halfWidth, vipEdge], [-a.halfWidth, zFront], [xMin, zFront]] },
+    { id: 'front-right', count: nA - nL, polygon: [[a.halfWidth, vipEdge], [xMax, vipEdge], [xMax, zFront], [a.halfWidth, zFront]] },
     // The middle zone wraps the B-stage and keeps the aisle clear down to its end.
-    { id: 'middle', count: nB, polygon: [[xMin, zSplitB], [xMax, zSplitB], [xMax, zSplitA], [a.bstageHalfWidth, zSplitA], [a.bstageHalfWidth, a.toZ],
-      [-a.bstageHalfWidth, a.toZ], [-a.bstageHalfWidth, zSplitA], [xMin, zSplitA]] },
-    { id: 'back', count: nC, polygon: [[xMin, zBack], [xMax, zBack], [xMax, zSplitB], [xMin, zSplitB]] },
+    { id: 'middle', count: nB, polygon: [[xMin, zSplitB], [xMax, zSplitB], [xMax, generalEdge], [a.bstageHalfWidth, generalEdge], [a.bstageHalfWidth, a.toZ],
+      [-a.bstageHalfWidth, a.toZ], [-a.bstageHalfWidth, generalEdge], [xMin, generalEdge]] },
+    { id: 'back', count: nC, polygon: [[xMin, zBack], [-fohHalf, zBack], [-fohHalf, fohFront], [fohHalf, fohFront],
+      [fohHalf, zBack], [xMax, zBack], [xMax, zSplitB], [xMin, zSplitB]] },
   ];
   return zones.map(z => ({ ...z, area: area(z.polygon), density: z.count / area(z.polygon) }));
 }
@@ -88,6 +110,17 @@ export function concertState(cues = concert_cues, t = 0, budget = concertBudget(
     color: cue.params.color.slice(), intensity: energy * pulse,
     phase: (beat + i / budget.heads) % 1,
   }));
+  const laserOn = ['drop', 'chorus'].includes(cue.params.mode);
+  const lasers = laserOn ? Array.from({ length: LASER_COUNT }, (_, index) => {
+    const side = index < LASER_COUNT / 2 ? -1 : 1;
+    const ray = index % (LASER_COUNT / 2);
+    return {
+      position: [side * 22, 14.8, 42.6],
+      target: [side * (4 + ray * 6) + Math.sin(beat * .4 + side) * 5, 18 + ray * 3.5, -37],
+      color: side < 0 ? [.13, .71, 1] : [.6, .24, 1],
+      intensity: energy * (.35 + .65 * pulse),
+    };
+  }) : [];
   const tint = (k, scale = 1) => cue.params.color.map((v, c) => v * (c === 0 ? k : c === 1 ? .9 : 1) * scale);
   const intensity = .1 + energy * pulse * 2;
   const stage = { position: [0, .12, STAGE.centreZ], size: [STAGE.width, STAGE.deckHeight, STAGE.depth], heading: Math.PI, backZ: STAGE.backZ };
@@ -109,6 +142,6 @@ export function concertState(cues = concert_cues, t = 0, budget = concertBudget(
     flown: flownTiles(budget.tiles), bars: lightBars(budget.bars), speakers: lineArrays(budget.cabinets),
     floor: { count: budget.crowd, zones: floorZones(budget.crowd), aisle: { ...AISLE }, y: .12 },
     // One generic performer on the thrust. No likeness, name, logo or text.
-    performer: { position: [0, CATWALK.top, 37], facing_deg: 180, kind: 'generic' },
-    lights, crowdReactions: reactionsAt(cues, time), phones: true };
+    performer: { position: [0, CATWALK.top, CATWALK.fromZ - 3.5], facing_deg: 180, kind: 'generic' },
+    lights, lasers, crowdReactions: reactionsAt(cues, time), phones: true };
 }

@@ -244,6 +244,7 @@ body:not(.landing-mode) #landing-toggle { top: 7px; bottom: auto; right: 96px; p
 /* On-demand event controls and mandatory claims. */
 #modes .event-mode { white-space: nowrap; }
 #event-hud { position: absolute; z-index: 6; right: 16px; top: 145px; width: min(340px, calc(100% - 32px)); padding: 10px 12px; background: rgba(24,25,30,.93); color: #fff; border-radius: 5px; pointer-events: none; }
+#event-hud select { pointer-events: auto; color: var(--ink); background: #faf7f0; min-height: 44px; max-width: 100%; margin-top: 8px; }
 #event-hud[hidden] { display: none; }
 #event-hud > div { font-size: 13px; font-variant-numeric: tabular-nums; }
 #event-hud p { margin: 6px 0 0; font-size: 11px; line-height: 1.4; }

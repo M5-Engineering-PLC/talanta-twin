@@ -68,7 +68,7 @@ try { await renderer.init(); } catch (error) {
 let tier = detectTier(renderer), quality = TIERS[tier];
 renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatio));
 renderer.shadowMap.enabled = quality.shadows;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 $('#view').appendChild(renderer.domElement);
 console.info('renderer backend:', renderer.backend?.isWebGPUBackend ? 'WebGPU' : 'WebGL2');
@@ -220,7 +220,7 @@ function applyTime() {
     const measured = hero && !parityFallback && measuredLook(hero.manifest);
     bloomPass.strength.value = measured ? manifestGrade(hero.manifest).bloom.strength : getGradePreset(hero?.tod?.preset(heroTodTime)).bloom.strength + night * 0.55;
   }
-  for (const s of flood) s.intensity = night * 9000;
+  for (const s of flood) s.intensity = night * (eventMode === 'concert' ? 900 : 9000);
   renderer.toneMappingExposure = 1.0 + night * 0.25;
   return sp;
 }
@@ -428,7 +428,7 @@ function placeLabel(e, p, show) {
   e.style.top = `${((1 - v.y) / 2) * stage.clientHeight}px`;
 }
 function updateLabels() {
-  const on = layerOn('labels');
+  const on = layerOn('labels') && eventMode !== 'concert';
   for (const it of labelItems) {
     const d = camera.position.distanceTo(it.p);
     const show = on && (it.l.kind === 'peak' || it.l.kind === 'far' || (it.l.kind === 'area' && d < 7000) || (it.l.kind === 'road' && d < 2200));
@@ -627,13 +627,27 @@ let shows = null, liveEvent = null, eventMode = null, modeVersion = 0;
 const eventHUD = document.createElement('aside');
 eventHUD.id = 'event-hud'; eventHUD.hidden = true;
 const eventScore = document.createElement('div'), eventClaim = document.createElement('p');
-eventHUD.append(eventScore, eventClaim); stage.append(eventHUD);
+const eventViews = document.createElement('select');
+eventViews.setAttribute('aria-label', 'Concert camera');
+eventViews.hidden = true;
+eventViews.addEventListener('change', () => {
+  if (!eventViews.value) return;
+  const pose = liveEvent?.viewPose(Number(eventViews.value));
+  if (pose) {
+    const direction = pose.target.clone().sub(pose.pos);
+    if (direction.length() < controls.minDistance) pose.target.copy(pose.pos).add(direction.setLength(controls.minDistance));
+    flyTo(pose, 1100);
+  }
+  eventViews.value = '';
+});
+eventHUD.append(eventScore, eventClaim, eventViews); stage.append(eventHUD);
 
 function stopEvent() {
   if (eventMode) { crowd?.dispose(); crowd = null; }
   liveEvent?.dispose(); liveEvent = null; eventMode = null; eventHUD.hidden = true;
 }
 async function startEvent(mode, version) {
+  eventViews.hidden = true;
   eventMode = mode; eventHUD.hidden = false; eventScore.textContent = 'Loading event…'; eventClaim.textContent = '';
   try {
     const [module, registry] = await Promise.all([
@@ -646,7 +660,7 @@ async function startEvent(mode, version) {
     stopLiveClock(); stopPlay(); state.minutes = mode === 'concert' ? 1200 : 1050;
     const timeControl = $('#landing-time'); if (timeControl) timeControl.value = String(state.minutes);
     const install = mode === 'concert' ? module.installConcert : module.installMatch;
-    liveEvent = install({ scene, bearing: F.pitch_bearing_deg, pad: PAD, tier,
+    liveEvent = install({ scene, camera, bearing: F.pitch_bearing_deg, pad: PAD, tier,
       getCrowd: () => crowd,
       onState(frame) {
         const clock = `${Math.floor(frame.time)} / ${frame.duration} s`;
@@ -654,6 +668,11 @@ async function startEvent(mode, version) {
           : `Fictional home ${frame.score[0]} : ${frame.score[1]} Fictional away · ${frame.phase} · ${clock}`;
       },
     });
+    if (mode === 'concert') {
+      eventViews.replaceChildren(new Option('Concert camera', ''), ...liveEvent.viewNames.map((name, index) => new Option(name, index)));
+      eventViews.hidden = false;
+      flyTo(liveEvent.viewPose(liveEvent.viewNames.indexOf('FOH Soundboard')), 1100);
+    }
     // Public crowd controls only. Reactions come from event cues.
     crowd?.setPalette('#b92332', '#18733d');
     if (import.meta.env.DEV) window.__event = liveEvent;
@@ -698,6 +717,7 @@ function stopShow() {
 }
 document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
   if (b.disabled) return;
+  heroSequence?.stop();
   const version = ++modeVersion;
   stopEvent(); stopShow();
   if (crowd) crowd.setFill(quality.crowdFraction);
@@ -1063,7 +1083,6 @@ initModulesMenu({ modules: MODULES, async run(action) {
   if (action.kind === 'tour') { viewStills?.dismiss(); tourBtn.click(); return; }
   if (action.kind === 'mode' || action.kind === 'event') {
     const mode = action.kind === 'event' ? (action.value === 'match' ? 'football' : 'concert') : action.value;
-    heroSequence?.stop();
     document.querySelector(`#modes button[data-mode="${mode}"]`)?.click();
     return;
   }
@@ -1089,7 +1108,8 @@ function performanceProfile() {
 }
 const frameCaptures = [];
 renderer.setAnimationLoop((now) => {
-  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  const elapsed = Math.max(0, (now - lastT) / 1000); lastT = now;
+  const dt = Math.min(0.1, elapsed);
   heroSequence?.tick(now);
   if (state.liveClock) {
     const eatNow = new Date(Date.now() + 3 * 3600000), key = eatNow.toISOString().slice(0, 16);
@@ -1116,15 +1136,24 @@ renderer.setAnimationLoop((now) => {
   if (crowd) {
     crowd.group.visible = Boolean((state.matchday || eventMode) && (hero || bowl.group.visible && bowl.seats.visible));
     if (crowd.group.visible && !heroSequence?.active) {
-      const t = now / 1000; crowd.setNight(night); crowd.react('phones', { on: night }); crowd.update(dt, t);
+      crowd.setNight(night);
+      const t = now / 1000;
+      if (eventMode !== 'concert') {
+        crowd.react('phones', { on: night });
+        crowd.update(dt, t);
+      }
       if (state.matchday && t > nextWave) { crowd.react('wave', { speed: 12 }); nextWave = t + 75; nextCheer = t + 30; }
       else if (state.matchday && t > nextCheer) { crowd.react('cheer'); nextCheer = t + 25; }
     }
   }
-  if (!parityMode) { liveEvent?.setTier?.(tier); liveEvent?.update(dt); }
+  if (!parityMode) {
+    liveEvent?.setTier?.(tier);
+    // Concert cues follow elapsed time even when rendering drops frames.
+    liveEvent?.update(eventMode === 'concert' ? elapsed : dt);
+  }
   fpsMonitor.update(now);
   if (!heroSequence?.active) controls.update();
-  const timeKey = `${state.day}:${state.minutes}:${Boolean(hero)}`;
+  const timeKey = `${state.day}:${state.minutes}:${Boolean(hero)}:${eventMode === 'concert'}`;
   if (timeKey !== lastTimeKey) { cachedSun = applyTime(); lastTimeKey = timeKey; }
   const buildKey = `${state.mode}:${state.build}:${Boolean(blockout)}:${JSON.stringify(layerState)}`;
   if (buildKey !== lastBuildKey) { applyBuild(); lastBuildKey = buildKey; }
