@@ -1,0 +1,68 @@
+name: Email on push to main
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  email:
+    name: Send push notification email
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email via Gmail SMTP
+        env:
+          SMTP_USER: ${{ secrets.MAIL_USERNAME }}
+          SMTP_PASS: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          REF: ${{ github.ref }}
+          COMPARE: ${{ github.event.compare }}
+          FORCED: ${{ github.event.forced }}
+          COMMITS: ${{ toJSON(github.event.commits) }}
+        run: |
+          python3 - <<'PY'
+          import json, os, smtplib
+          from email.message import EmailMessage
+
+          try:
+              commits = json.loads(os.environ.get("COMMITS") or "[]")
+          except ValueError:
+              commits = []
+
+          repo = os.environ["REPO"]
+          subject = f"[GitHub] {repo}: new push on main"
+          lines = [
+              f"Repository: {repo}",
+              f"Branch: {os.environ.get('REF', 'refs/heads/main')}",
+              f"Pushed by: {os.environ.get('ACTOR', 'unknown')}",
+              f"Compare: {os.environ.get('COMPARE', 'n/a')}",
+          ]
+          if os.environ.get("FORCED") == "true":
+              lines.append("This was a force push.")
+          lines.append("")
+          if commits:
+              lines.append("Commits:")
+              for commit in commits:
+                  message_lines = (commit.get("message") or "").splitlines()
+                  message = message_lines[0] if message_lines else "(no commit message)"
+                  author = (commit.get("author") or {}).get("name", "unknown")
+                  lines.append(f"- {message} ({author})")
+          else:
+              lines.append("(commit details unavailable)")
+
+          msg = EmailMessage()
+          msg["Subject"] = subject
+          msg["From"] = os.environ["SMTP_USER"]
+          msg["To"] = os.environ["MAIL_TO"]
+          msg.set_content("\n".join(lines))
+
+          with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as smtp:
+              smtp.starttls()
+              smtp.login(os.environ["SMTP_USER"], os.environ["SMTP_PASS"])
+              smtp.send_message(msg)
+          PY
